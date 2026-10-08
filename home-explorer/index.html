@@ -2,9 +2,9 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-09.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-09.8"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,7 +17,7 @@
   }
   *{box-sizing:border-box}
   html,body{overscroll-behavior:none;margin:0;height:100%;overflow:hidden;background:#9fb4c4;font-family:var(--font);color:var(--ink);-webkit-user-select:none;user-select:none;touch-action:none}
-  #app canvas{display:block}
+  #app canvas{display:block;position:fixed;left:0;top:0;width:100%!important;height:100%!important}   /* 一律撐滿畫面：手機橫向打開時回報的寬高可能還是直向的 */
   button{font:inherit;color:inherit;cursor:pointer}
   .panel{background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:12px}
 
@@ -135,6 +135,23 @@
     #place b{font-size:15px;display:block}
     .btns button{padding:7px 10px;font-size:13px}
     #menu{top:56px;max-height:calc(100vh - 200px)}
+  }
+  /* 手機：瀏海、圓角、橫向。畫面延伸到整個螢幕（viewport-fit=cover，旁邊不會再露出灰色邊），按鈕避開安全區域；
+     橫向時上面那排按鈕再往下一點（iPhone Safari 點太靠上緣，第一下常被拿去叫出網址列）；body 固定住，頁面不會被捲動造成按鈕點不到 */
+  :root{--sat:env(safe-area-inset-top,0px);--sar:env(safe-area-inset-right,0px);--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px)}
+  body{position:fixed;inset:0}
+  #topbar{top:calc(12px + var(--sat));left:calc(12px + var(--sal));right:calc(12px + var(--sar))}
+  #menu{right:calc(12px + var(--sar))}
+  #minimap{right:calc(12px + var(--sar));bottom:calc(12px + var(--sab))}
+  body.touch #joy{left:calc(24px + var(--sal));bottom:calc(24px + var(--sab))}
+  body.touch #jumpBtn{right:calc(24px + var(--sar));bottom:calc(150px + var(--sab))}
+  body.touch #act{bottom:calc(28px + var(--sab))}
+  body.touch.gaming #act{bottom:calc(110px + var(--sab))}
+  body.touch #gSkills{right:calc(108px + var(--sar));bottom:calc(16px + var(--sab))}
+  @media (orientation:landscape) and (max-height:520px){
+    body.touch #topbar{top:calc(20px + var(--sat))}
+    body.touch #menu{top:calc(64px + var(--sat));max-height:calc(100dvh - 72px - var(--sat))}
+    body.touch #gHud{top:calc(64px + var(--sat))}
   }
 </style>
 </head>
@@ -1485,10 +1502,13 @@ function nearCurtain(){if(!started||mode!=='walk')return null;const px=player.po
   for(const c of CURTAINS){if(Math.abs(player.y-c.fy)>1)continue;for(const q of c.pts){const dx=q.x-px,dz=q.y-pz,d=Math.max(0.01,Math.hypot(dx,dz));if(d<bd&&(dx*fx+dz*fz)/d>0.3){best=c;bd=d;}}}
   return best?{cu:best,d:bd}:null;}
 // 面向、靠近（1.9 m 內、人在櫃子前面）的衣櫃門或抽屜
-function nearCab(){if(!started||mode!=='walk')return null;const px=player.pos.x,pz=player.pos.y,fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw);let best=null,bd=2.2;
-  for(const u of CABS){if(u.free){const d=Math.hypot(u.c.x-px,u.c.z-pz);if(player.y>=u.yr[0]&&player.y<=u.yr[1]&&d<Math.min(bd,1.6)){best=u;bd=d;}continue;}
-    if(Math.abs(player.y-u.fy)>1)continue;const dx=u.c.x-px,dz=u.c.z-pz,d=Math.hypot(dx,dz);
-    if(d>bd||dx*u.n.x+dz*u.n.z>0.05||(dx*fx+dz*fz)/d<0.25)continue;best=u;bd=d;}
+function nearCab(){if(!started||mode!=='walk')return null;const px=player.pos.x,pz=player.pos.y,fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw);let best=null,bd=2.2,bs=1e9;
+  for(const u of CABS){if(u.free){const d=Math.hypot(u.c.x-px,u.c.z-pz);if(player.y>=u.yr[0]&&player.y<=u.yr[1]&&d<Math.min(bd,1.6)){best=u;bd=d;bs=0;}continue;}
+    if(Math.abs(player.y-u.fy)>1)continue;
+    // 用門板／抽屜面板表面判斷（u.c 在門前 35 cm、抽屜前 45 cm）：手機用搖桿會直接走到貼著櫃子，站的位置在 u.c 後面，原本按鈕會不見
+    const off=u.kind==='drawer'?0.43:u.kind==='door'?0.33:0,sx=u.c.x-u.n.x*off,sz=u.c.z-u.n.z*off,dx=sx-px,dz=sz-pz,d=Math.max(0.05,Math.hypot(dx,dz));
+    const face=(dx*fx+dz*fz)/d;if(d>2.2||dx*u.n.x+dz*u.n.z>0.02||face<0.25)continue;
+    const sc=d*(1.45-face);if(sc<bs){best=u;bd=d;bs=sc;}}   /* 越正對著越優先：斜前方比較近的抽屜不要搶走正前方的衣櫃 */
   return best?{u:best,d:bd}:null;}
 // 衣櫃／抽屜／屋頂蓋子和窗簾：取比較近的那個
 function currentAct(){const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
@@ -2338,13 +2358,26 @@ function syncHint(){hint.style.opacity=(started&&mode==='walk'&&!isTouch&&perfor
 const joyEl=document.getElementById('joy'),knob=document.getElementById('knob');const joy={x:0,y:0,id:null};let lookId=null,lx=0,ly=0;
 joyEl.addEventListener('touchstart',e=>{const t=e.changedTouches[0];joy.id=t.identifier;moveJoy(t);e.preventDefault();},{passive:false});
 function moveJoy(t){const r=joyEl.getBoundingClientRect();let dx=t.clientX-(r.left+r.width/2),dy=t.clientY-(r.top+r.height/2);const m=Math.hypot(dx,dy),max=r.width/2-10;if(m>max){dx*=max/m;dy*=max/m;}joy.x=dx/max;joy.y=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`;}
-canvas.addEventListener('touchstart',e=>{if(mode!=='walk')return;for(const t of e.changedTouches){if(lookId===null){lookId=t.identifier;lx=t.clientX;ly=t.clientY;}}},{passive:true});
+// 兩指縮放（使用者要求；網頁本身的縮放關掉了，不然按鈕會一起放大）：第三人稱＝鏡頭拉近／拉遠，
+// 第一人稱＝兩指張開放大（視野變窄）、往內捏切成第三人稱（跟滑鼠滾輪一樣）。縮放時不轉視角；空拍模式由 OrbitControls 處理
+let pinch=null;const tpos=new Map();
+const pinchDist=()=>{const a=tpos.get(pinch.a),b=tpos.get(pinch.b);return a&&b?Math.hypot(a.x-b.x,a.y-b.y):0;};
+function applyPinch(){const r=pinchDist()/pinch.d0;if(!r)return;const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  if(view==='first'){if(r<0.8){toggleView();pinch.d0=pinchDist()||1;pinch.camd=comfort.camDist;}else{const el=document.getElementById('fov');el.value=clamp(pinch.fov/r,45,80);el.oninput();}}
+  else{const el=document.getElementById('camd');el.value=clamp(pinch.camd/r,1.5,12);el.oninput();}}
+canvas.addEventListener('touchstart',e=>{if(mode!=='walk')return;for(const t of e.changedTouches){tpos.set(t.identifier,{x:t.clientX,y:t.clientY});
+  if(lookId===null){lookId=t.identifier;lx=t.clientX;ly=t.clientY;}
+  else if(!pinch&&t.identifier!==lookId&&tpos.has(lookId)){pinch={a:lookId,b:t.identifier,d0:1,camd:comfort.camDist,fov:camera.fov};pinch.d0=pinchDist()||1;}}},{passive:true});
 addEventListener('touchmove',e=>{for(const t of e.changedTouches){
+  if(tpos.has(t.identifier))tpos.set(t.identifier,{x:t.clientX,y:t.clientY});
   if(t.identifier===joy.id)moveJoy(t);
-  else if(t.identifier===lookId&&mode==='walk'){player.yaw-=(t.clientX-lx)*0.0045*comfort.sens;player.pitch-=(t.clientY-ly)*0.0045*comfort.sens;player.pitch=Math.max(-1.45,Math.min(1.45,player.pitch));lx=t.clientX;ly=t.clientY;}
-}},{passive:true});
-addEventListener('touchend',e=>{for(const t of e.changedTouches){if(t.identifier===joy.id){joy.id=null;joy.x=joy.y=0;knob.style.transform='';}if(t.identifier===lookId)lookId=null;}});
-addEventListener('touchcancel',()=>{joy.id=null;joy.x=joy.y=0;knob.style.transform='';lookId=null;});
+  else if(t.identifier===lookId&&mode==='walk'&&!pinch){player.yaw-=(t.clientX-lx)*0.0045*comfort.sens;player.pitch-=(t.clientY-ly)*0.0045*comfort.sens;player.pitch=Math.max(-1.45,Math.min(1.45,player.pitch));lx=t.clientX;ly=t.clientY;}
+}
+  if(pinch&&mode==='walk')applyPinch();},{passive:true});
+addEventListener('touchend',e=>{for(const t of e.changedTouches){tpos.delete(t.identifier);if(t.identifier===joy.id){joy.id=null;joy.x=joy.y=0;knob.style.transform='';}
+  if(pinch&&(t.identifier===pinch.a||t.identifier===pinch.b)){pinch=null;lookId=null;}   /* 放開後剩下那根手指不轉視角，抬起來再按才轉 */
+  if(t.identifier===lookId)lookId=null;}});
+addEventListener('touchcancel',()=>{joy.id=null;joy.x=joy.y=0;knob.style.transform='';lookId=null;pinch=null;tpos.clear();});
 
 /* ---------------- UI ---------------- */
 const bA=document.getElementById('bAerial'),bM=document.getElementById('bMap'),bMenu=document.getElementById('bMenu'),menu=document.getElementById('menu'),mmWrap=document.getElementById('minimap');
@@ -2430,7 +2463,17 @@ mm.addEventListener('click',e=>{
   const r=mm.getBoundingClientRect();const x=(e.clientX-r.left-mmT.ox)/mmT.sc+MB.x0,z=(e.clientY-r.top-mmT.oy)/mmT.sc+MB.z0;
   teleport(x,z);if(mmWrap.classList.contains('big'))toggleMap();
 });
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);drawMinimapBg();});
+// 畫布大小照它實際在畫面上的大小（CSS 撐滿），不直接信 innerWidth：手機橫向打開、剛轉向時，innerWidth 有時還是舊的（直向），
+// 右邊會露出一片底色、要轉直再轉橫才正常。resize／轉向時重算，主迴圈每 0.3 秒也核對一次
+let fitW=0,fitH=0,fitT=0;
+function fitView(force){if(scrollX||scrollY)scrollTo(0,0);const c=renderer.domElement,w=c.clientWidth||innerWidth,h=c.clientHeight||innerHeight,pr=renderer.getPixelRatio();if(!w||!h)return;
+  if(!force&&w===fitW&&h===fitH&&Math.abs(c.width-Math.floor(w*pr))<=1&&Math.abs(c.height-Math.floor(h*pr))<=1)return;
+  fitW=w;fitH=h;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);drawMinimapBg();}
+addEventListener('resize',()=>fitView());
+addEventListener('orientationchange',()=>{for(const t of [50,250,600,1200])setTimeout(fitView,t);});
+if(window.visualViewport)visualViewport.addEventListener('resize',()=>fitView());
+addEventListener('pageshow',()=>fitView(true));
+setTimeout(()=>fitView(true),0);
 drawMinimapBg();
 
 /* ---------------- 位置資訊 ---------------- */
@@ -2980,7 +3023,7 @@ const GAME=(()=>{
 
 /* ---------------- 省電模式 ---------------- */
 {const cb=document.getElementById('eco');cb.checked=POWER.save;
- cb.onchange=()=>{POWER.save=cb.checked;try{localStorage.setItem('home-eco',POWER.save?'1':'0');}catch(_){}renderer.setPixelRatio(pixelRatio());renderer.setSize(innerWidth,innerHeight);toast(POWER.save?'省電模式：解析度降低、每秒 30 張':'一般畫質');};}
+ cb.onchange=()=>{POWER.save=cb.checked;try{localStorage.setItem('home-eco',POWER.save?'1':'0');}catch(_){}renderer.setPixelRatio(pixelRatio());fitView(true);toast(POWER.save?'省電模式：解析度降低、每秒 30 張':'一般畫質');};}
 
 /* ---------------- 全螢幕、上一頁 ---------------- */
 // 全螢幕：手機橫向時把網址列藏起來（iPhone Safari 不支援，請用「加入主畫面」從主畫面打開）
@@ -3073,6 +3116,7 @@ function loop(){
   frameAcc+=clock.getDelta();
   if(POWER.save&&frameAcc<1/31){requestAnimationFrame(loop);return;}   // 省電模式：每秒最多 30 張
   const dt=Math.min(0.05,frameAcc);frameAcc=0;
+  fitT-=dt;if(fitT<=0){fitT=0.3;fitView();}
   if(started)step(dt);
   if(labels.visible){const pf=floorOf(player.y);for(const s of labels.children){const d=camera.position.distanceTo(s.position);let o;
     if(s.userData.room)o=mode==='walk'&&s.userData.floor===pf&&indoors()?THREE.MathUtils.smoothstep(d,1.0,2.0)*(1-THREE.MathUtils.smoothstep(d,5,7.5)):0;
@@ -3089,7 +3133,7 @@ syncViewUI();
 loop();
 const startBtn=document.getElementById('start');startBtn.disabled=false;startBtn.textContent='進入';
 startBtn.onclick=()=>{document.getElementById('overlay').style.display='none';started=true;guardBack();hintUntil=performance.now()+9000;syncHint();setTimeout(syncHint,9100);};
-window.__dbg={scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders};
+window.__dbg={scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn};
 </script>
 </body>
 </html>
