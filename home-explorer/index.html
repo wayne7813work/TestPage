@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>我家漫遊</title>
+<meta name="app-version" content="2026-10-09.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2500,6 +2501,14 @@ addEventListener('popstate',()=>{if(!started)return;const now=performance.now();
   if(!menu.hidden){menu.hidden=true;bMenu.classList.remove('on');}
   else if(mmWrap.classList.contains('big'))toggleMap();
   toast('再按一次「上一頁」就會離開');});
+
+/* ---------------- 自動更新：避免手機一直用快取的舊版 ----------------
+   打開時、從背景切回來時（遊戲中不會）用 no-store 抓一次最新的 index.html，app-version 不一樣就換成新版（網址加 ?v=版本號）。 */
+{const APP_VERSION=document.querySelector('meta[name=app-version]').content;
+ async function checkUpdate(){if(!/^https?:$/.test(location.protocol)||GAME.on)return;
+   try{const r=await fetch(location.pathname+'?_='+Date.now(),{cache:'no-store'});const m=(await r.text()).match(/name="app-version" content="([^"]+)"/);
+     const u=new URL(location.href);if(m&&m[1]!==APP_VERSION&&u.searchParams.get('v')!==m[1]){u.searchParams.set('v',m[1]);location.replace(u.toString());}}catch(_){}}
+ checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate();});}
 
 /* ---------------- 主迴圈 ---------------- */
 const clock=new THREE.Clock();
