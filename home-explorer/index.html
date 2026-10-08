@@ -40,6 +40,9 @@
   #minimap.big{width:min(92vw,900px);height:min(66vh,640px);right:50%;bottom:50%;transform:translate(50%,50%)}
   #mm{width:100%;height:100%;display:block;border-radius:8px;cursor:crosshair}
   #minimap .tag{position:absolute;left:12px;top:10px;font-size:12px;color:var(--ink-2);pointer-events:none}
+  #minimap.off{display:none}
+  #mmClose{position:absolute;right:10px;top:9px;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--panel);font-size:17px;line-height:1;padding:0}
+  body.touch #mmClose{width:34px;height:34px;font-size:20px}
 
   #menu{position:fixed;top:60px;right:12px;width:330px;max-width:calc(100vw - 24px);max-height:calc(100vh - 290px);overflow:auto;padding:16px;z-index:12}
   #menu h3{margin:4px 0 10px;font-size:14px;color:var(--ink-2);font-weight:600;letter-spacing:.05em}
@@ -61,6 +64,10 @@
   body.touch #joy{display:block}
   #jumpBtn{position:fixed;right:24px;bottom:150px;width:76px;height:76px;border-radius:50%;border:2px solid rgba(255,255,255,.45);background:rgba(18,24,30,.45);color:#fff;font-size:20px;font-weight:700;z-index:11;display:none;touch-action:none}
   body.touch #jumpBtn{display:block}
+  #act{position:fixed;left:50%;bottom:66px;transform:translateX(-50%);padding:9px 18px;font-size:14px;z-index:11;border-radius:10px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(8px)}
+  #act kbd{font-family:inherit;background:var(--accent);color:#3a2300;border-radius:5px;padding:1px 7px;margin-right:8px;font-weight:700}
+  body.touch #act{bottom:28px;font-size:15px;padding:11px 20px}
+  body.touch #act kbd{display:none}
   body.touch #hint,body.touch #cross{display:none}
 
   @media (max-width:640px){
@@ -90,13 +97,17 @@
       <kbd>W（面向爬梯）</kbd><span>4F 露台的爬梯：往上爬到屋頂；在屋頂往爬梯走就會往下爬</span>
       <kbd>C</kbd><span>切換第三人稱／第一人稱</span>
       <kbd>V</kbd><span>切換空拍視角</span>
-      <kbd>M</kbd><span>放大地圖（點地圖可瞬移）</span>
+      <kbd>M</kbd><span>打開／放大地圖（點地圖可瞬移；右上角 × 關閉）</span>
+      <kbd>滑鼠滾輪</kbd><span>第三人稱：鏡頭拉遠／拉近</span>
+      <kbd>F</kbd><span>在有窗簾的房間：拉開／拉上窗簾</span>
     </div>
     <div class="keys touch-only">
       <kbd>左下搖桿</kbd><span>移動；推到底會跑</span>
       <kbd>右下「跳」</kbd><span>跳</span>
       <kbd>右側滑動</kbd><span>轉動視角</span>
-      <kbd>地圖</kbd><span>點地圖可瞬移</span>
+      <kbd>地圖</kbd><span>右上「地圖」按鈕打開，× 關閉；點地圖可瞬移</span>
+      <kbd>窗簾按鈕</kbd><span>在有窗簾的房間會出現，點了拉開／拉上</span>
+      <kbd>選單</kbd><span>可調第三人稱鏡頭距離</span>
     </div>
     <button id="start" disabled>建置場景中…</button>
   </div>
@@ -119,22 +130,26 @@
   <label><span>時間</span><span id="tval">15:00</span></label>
   <input id="time" type="range" min="6" max="19" step="0.25" value="15">
   <label style="margin-top:12px"><span>名稱標籤</span><input id="lbl" type="checkbox" checked></label>
+  <label style="margin-top:8px"><span>所有窗簾</span><span><button id="curOpen" style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px">全部拉開</button> <button id="curClose" style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px">全部拉上</button></span></label>
   <h3 style="margin-top:14px">舒適設定</h3>
   <label><span>視角轉動靈敏度</span><span id="sensVal">100%</span></label>
   <input id="sens" type="range" min="0.3" max="1.5" step="0.05" value="1">
   <label style="margin-top:10px"><span>視野寬度</span><span id="fovVal">60°</span></label>
   <input id="fov" type="range" min="45" max="80" step="1" value="60">
+  <label style="margin-top:10px"><span>第三人稱鏡頭距離</span><span id="camdVal">4.2 m</span></label>
+  <input id="camd" type="range" min="1.5" max="12" step="0.1" value="4.2">
   <label style="margin-top:10px"><span>走路速度</span><span id="spdVal">100%</span></label>
   <input id="spd" type="range" min="0.5" max="1.5" step="0.05" value="1">
   <p class="note">樓高取自建照（1F 3.8 m、2–4F 3.2 m）。每戶面寬約 4.8 m、深約 12.4 m，室內尺寸依實際量測；鄰近建築依街景、空拍推估，有誤差可再調整。</p>
 </div>
 
-<div id="minimap" class="panel"><canvas id="mm"></canvas><div class="tag">↑ 北</div></div>
+<div id="minimap" class="panel"><canvas id="mm"></canvas><div class="tag">↑ 北</div><button id="mmClose" aria-label="關閉地圖">×</button></div>
 <div id="hint" class="panel">按住滑鼠左鍵拖曳轉視角；←→ 或 Q E 轉向</div>
 <div id="toast" class="panel"></div>
 <div id="fade"></div>
 <div id="joy"><div id="knob"></div></div>
 <button id="jumpBtn">跳</button>
+<button id="act" hidden></button>
 
 <script type="importmap">
 {"imports":{
@@ -316,6 +331,15 @@ function marbleCanvas(){
     g.strokeStyle='rgba(150,150,155,0.35)';g.lineWidth=1.2;for(let v=0;v<3;v++){g.beginPath();let x=k*256+R()*256,y=r*128;g.moveTo(x,y);for(let s=0;s<8;s++){x+=rr(-30,30);y+=16;g.lineTo(x,y);}g.stroke();}}
   return c;
 }
+// 2F、3F 浴室壁磚：米白亮面 60×30 橫貼、淡淡的斜紋、深色細縫（照片）；用自己的亂數，不影響其他程序貼圖
+function creamTileCanvas(){
+  const r=mulberry(9090),N=512,[c,g]=cvs(N,N);g.fillStyle='#6d6a64';g.fillRect(0,0,N,N);
+  for(let row=0;row<4;row++)for(let k=0;k<2;k++){const x0=k*256+1,y0=row*128+1;g.fillStyle='#ece5d3';g.fillRect(x0,y0,254,126);
+    g.save();g.beginPath();g.rect(x0,y0,254,126);g.clip();g.strokeStyle='rgba(205,196,175,0.16)';g.lineWidth=4;
+    for(let v=0;v<5;v++){const yy=y0+r()*126;g.beginPath();g.moveTo(x0-20,yy+30);g.bezierCurveTo(x0+80,yy-20,x0+170,yy+25,x0+280,yy-30);g.stroke();}
+    const gr=g.createLinearGradient(x0,y0,x0+254,y0+126);gr.addColorStop(0,'rgba(255,255,255,0.18)');gr.addColorStop(0.5,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(x0,y0,254,126);g.restore();}
+  return c;
+}
 // 廚櫃門片：香檳灰、每 50 cm 一道分縫
 function cabCanvas(){const N=512,[c,g]=cvs(N,N);g.fillStyle='#b9b2a6';g.fillRect(0,0,N,N);grain(g,N,N,6);g.fillStyle='rgba(60,56,50,0.55)';for(const x of [0,N/2])g.fillRect(x,0,3,N);return c;}
 // 淺色木紋（衣櫃、電視櫃）
@@ -426,6 +450,8 @@ const MAT={
   ceil: std({color:'#f3f0e8',roughness:0.95}),
   floorTile: mmat(floorTileCanvas('#d8cebc','#bfb5a4',2,6),1.2,{roughness:0.4}),
   marble: mmat(marbleCanvas(),1.2,{roughness:0.25}),
+  creamTile: mmat(creamTileCanvas(),1.2,{roughness:0.12}),
+  mirror: std({color:'#d7e0e3',metalness:1,roughness:0.04}),
   darkTile: mmat(floorTileCanvas('#45494c','#2c2e30',4,8),1.2,{roughness:0.5}),
   stair: std({color:'#cfcbc3',roughness:0.6}),
   nosing: std({color:'#8a5a3c',roughness:0.6}),
@@ -818,7 +844,7 @@ const backHoles=[
 const westHoles=[   // 沿西側通道的窗（z 範圍）
   [{a:-9.0,b:-8.1,y0:2.75,y1:3.4},   // 客廳西牆沒有窗（照片）；樓梯平台窗
    {a:-11.6,b:-10.4,y0:0.95,y1:2.6,mat:'dark'}],   // 廚房西牆：深灰框窗（後門在後牆）
-  ...[1,2].map(k=>[{a:-9.0,b:-8.1,y0:FL[k]+2.2,y1:FL[k]+2.85},{a:-6.8,b:-5.8,y0:FL[k]+1.5,y1:FL[k]+2.1},   // 2F、3F 前房床頭那面沒有窗；浴室小窗
+  ...[1,2].map(k=>[{a:-9.0,b:-8.1,y0:FL[k]+2.2,y1:FL[k]+2.85},{a:-6.5,b:-5.6,y0:FL[k]+1.7,y1:FL[k]+2.3,mat:'dark'},   // 2F、3F 前房床頭那面沒有窗；浴室小窗（淋浴間上方，深灰框）
     k===1?{a:-11.8,b:-10.6,y0:FL[k]+0.95,y1:FL[k]+2.45,mat:'dark'}:{a:-11.2,b:-10.3,y0:FL[k]+1.0,y1:FL[k]+2.45,mat:'dark'}]),   // 後房西牆的深灰框窗（照片）
   [{a:-6.6,b:-5.4,y0:FL[3]+1.0,y1:FL[3]+2.2}],
 ];
@@ -921,11 +947,47 @@ for(const k of [1,2]){const yb=FL[k],yt=CEIL(k);
  // 1F 廚房：白色大理石紋磚貼到天花板（照片）；前面是樓梯間後牆，走道那段直接通
  tiles('x',IX0,IX1,ZB,1,0,KC,backHoles[0],MAT.marble);tiles('z',ZB,kz,IX1,-1,0,KC,[],MAT.marble);
  tiles('x',IX0,ST.xe,kz,-1,0,KC,[],MAT.marble);tiles('z',ZB,kz,IX0,1,0,KC,westHoles[0],MAT.marble);}
-// 2F、3F 浴室（前房後面西側，推估，之後有照片再調）
-for(const k of [1,2]){const y=FL[k],c=CEIL(k),z0=ST.zA+0.12,z1=FR_Z-T/2;
- tiles('x',IX0,UB_X,z0,1,y,c-0.3,[],MAT.marble);tiles('x',IX0,UB_X,z1,-1,y,c-0.3,[],MAT.marble);
- tiles('z',z0,z1,IX0,1,y,c-0.3,[westHoles[k][1]],MAT.marble);tiles('z',z0,z1,UB_X,-1,y,c-0.3,[{...UB_DOOR,y0:y,y1:y+2.1}],MAT.marble);
- M.add(groundRect(IX0,UB_X,z0,z1,y+0.01),MAT.darkTile);}
+// 2F、3F 浴室（照片，兩層一樣）：門在東牆；西端是淋浴間（窗在上方、北側一道短牆、霧面壓花玻璃拉門）
+// 沿南牆（和前房共用）由西往東：淋浴龍頭 → 單體馬桶＋上方雙桿毛巾架 → 插座 → 半柱臉盆＋鏡子、玻璃置物板（靠房門）
+for(const k of [1,2]){const y=FL[k],c=CEIL(k),z0=ST.zA+0.12,z1=FR_Z-T/2,SX=IX0+1.05,SZ=-6.55;   // SX＝淋浴間玻璃線、SZ＝短牆南面
+ tiles('x',IX0,UB_X,z0,1,y,c,[],MAT.creamTile);tiles('x',IX0,UB_X,z1,-1,y,c,[],MAT.creamTile);
+ tiles('z',z0,z1,IX0,1,y,c,[westHoles[k][1]],MAT.creamTile);tiles('z',z0,z1,UB_X,-1,y,c,[{...UB_DOOR,y0:y,y1:y+2.1}],MAT.creamTile);
+ M.add(groundRect(IX0,UB_X,z0,z1,y+0.01),MAT.darkTile);
+ // 淋浴間北側短牆（貼磚、外角白色收邊）
+ M.add(mbox(IX0,SX,y,c,SZ-0.1,SZ),MAT.creamTile);M.add(mbox(SX-0.015,SX+0.005,y,c,SZ-0.105,SZ+0.005),MAT.frame);addBox(IX0,SX,SZ-0.1,SZ,c,y);
+ // 霧面壓花玻璃拉門（白鋁框）：南半片固定、另一片推到它後面，北半邊是入口
+ {const gz0=z1-0.55,gz1=z1;
+  for(const [x,za,zb] of [[SX,gz0,gz1],[SX+0.04,gz0-0.03,gz1-0.03]]){M.add(mbox(x-0.008,x+0.008,y+0.05,y+1.9,za,zb),MAT.frostedGlass);
+    for(const zz of [za,zb-0.025])M.add(mbox(x-0.015,x+0.015,y+0.03,y+1.92,zz,zz+0.025),MAT.frame);}
+  M.add(mbox(SX-0.02,SX+0.06,y+1.9,y+1.95,SZ,z1),MAT.frame);M.add(mbox(SX-0.02,SX+0.06,y,y+0.03,SZ,z1),MAT.frame);
+  addBox(SX-0.02,SX+0.06,gz0-0.03,gz1,y+1.95,y);}
+ // 淋浴龍頭（南牆）＋蛇管＋蓮蓬頭座、地板落水頭
+ M.add(mbox(IX0+0.32,IX0+0.5,y+0.95,y+1.02,z1-0.09,z1),MAT.steel);M.add(mbox(IX0+0.3,IX0+0.34,y+0.92,y+1.05,z1-0.05,z1),MAT.steel);
+ M.add(strut(new V3(IX0+0.36,y+0.95,z1-0.07),new V3(IX0+0.22,y+1.9,z1-0.06),0.015),MAT.steel);
+ M.add(mbox(IX0+0.18,IX0+0.26,y+1.88,y+1.96,z1-0.08,z1),MAT.steel);
+ M.add(groundRect(IX0+0.18,IX0+0.33,z1-0.42,z1-0.27,y+0.014),MAT.steel);
+ // 單體馬桶（背靠南牆、朝北）
+ {const tx=SX+0.45,tz=z1;
+  M.add(mbox(tx-0.19,tx+0.19,y+0.42,y+0.8,tz-0.21,tz-0.01),MAT.whiteApp);
+  M.add(mbox(tx-0.17,tx+0.17,y,y+0.4,tz-0.6,tz-0.12),MAT.whiteApp);
+  {const b=new THREE.CylinderGeometry(0.18,0.16,0.4,20);b.translate(tx,y+0.2,tz-0.55);M.add(b,MAT.whiteApp);}
+  {const l=new THREE.CylinderGeometry(0.19,0.19,0.03,24);l.scale(1,1,1.15);l.translate(tx,y+0.415,tz-0.45);M.add(l,MAT.whiteApp);}
+  {const b=new THREE.CylinderGeometry(0.03,0.03,0.012,16);b.translate(tx,y+0.806,tz-0.11);M.add(b,MAT.steel);}
+  addBox(tx-0.19,tx+0.19,tz-0.72,tz,y+0.8,y);
+  // 上方雙桿不鏽鋼毛巾架
+  for(const [hy,dz] of [[1.8,0.09],[1.62,0.13]]){const g=new THREE.CylinderGeometry(0.012,0.012,0.85,10);g.rotateZ(Math.PI/2);g.translate(tx+0.05,y+hy,tz-dz);M.add(g,MAT.steel);}
+  for(const x of [tx-0.33,tx+0.43])M.add(mbox(x,x+0.03,y+1.6,y+1.82,tz-0.13,tz),MAT.steel);}
+ // 半柱臉盆＋龍頭、上方鏡子（白色護角）、玻璃置物板、插座
+ {const bx=UB_X-0.55,bz=z1;
+  M.add(mbox(bx-0.25,bx+0.25,y+0.7,y+0.84,bz-0.45,bz),MAT.whiteApp);M.add(groundRect(bx-0.18,bx+0.18,bz-0.38,bz-0.12,y+0.842),MAT.frame);
+  M.add(mbox(bx-0.11,bx+0.11,y+0.4,y+0.7,bz-0.2,bz),MAT.whiteApp);
+  M.add(mbox(bx-0.02,bx+0.02,y+0.84,y+1.0,bz-0.08,bz-0.04),MAT.steel);M.add(mbox(bx-0.02,bx+0.02,y+0.97,y+1.0,bz-0.18,bz-0.04),MAT.steel);
+  addBox(bx-0.25,bx+0.25,bz-0.45,bz,y+0.84,y);
+  M.add(mbox(bx-0.25,bx+0.25,y+1.3,y+2.0,bz-0.025,bz),MAT.mirror);M.add(mbox(bx+0.25,bx+0.27,y+1.3,y+2.0,bz-0.03,bz),MAT.steel);
+  M.add(mbox(bx-0.3,bx+0.3,y+1.2,y+1.21,bz-0.13,bz),MAT.frostedGlass);
+  M.add(mbox(bx-0.47,bx-0.37,y+1.18,y+1.3,bz-0.012,bz),MAT.whiteApp);
+  M.add(groundRect(bx-0.65,bx-0.5,bz-0.75,bz-0.6,y+0.014),MAT.steel);}
+}
 
 // ---- 會自動開的門（人靠近就打開） ----
 const DOORS=[];
@@ -981,6 +1043,37 @@ const ROOMS=[
 const roomCeil=r=>r.ceil??CEIL(r.f);
 for(const r of ROOMS){if(r.stair||r.out||r.nolabel||r.nolamp)continue;const cx=r.lx??(r.x0+r.x1)/2,cz=(r.z0+r.z1)/2;const l=new THREE.CylinderGeometry(0.22,0.22,0.04,20);l.translate(cx,CEIL(r.f)-0.02,cz);M.add(l,MAT.ceilLamp);}
 
+// ---- 窗簾（在有窗簾的房間按 F 或點畫面按鈕開關；選單可以全部一起開關） ----
+// 一組＝一個房間的所有窗簾布；每片布從 anchor（收起來那端）往 dir 展開，寬度在 wOpen（拉開）～wClosed（拉上）之間
+const CURTAINS=[];
+function addCurtain({room,f,label,axis,c0,c1,y0,y1,mat,panels,closed=false}){
+  const cu={room:ROOMS.find(r=>r.f===f&&r.name===room),label,panels:[],t:closed?1:0,target:closed?1:0};
+  for(const p of panels){const m=new THREE.Mesh(box(1,1,1),mat);m.castShadow=true;m.receiveShadow=true;scene.add(m);
+    cu.panels.push({...p,m,axis,c:(c0+c1)/2,th:c1-c0,yc:(y0+y1)/2,h:y1-y0});}
+  CURTAINS.push(cu);layoutCurtain(cu);
+}
+function layoutCurtain(cu){for(const p of cu.panels){const w=p.wOpen+(p.wClosed-p.wOpen)*cu.t,mid=p.anchor+p.dir*w/2;
+  if(p.axis==='x'){p.m.position.set(mid,p.yc,p.c);p.m.scale.set(w,p.h,p.th);}else{p.m.position.set(p.c,p.yc,mid);p.m.scale.set(p.th,p.h,w);}}}
+// 兩片布從窗戶兩側往中間拉（a..b＝布收起來時的外緣）
+const pairPanels=(a,b,w)=>[{anchor:a,dir:1,wOpen:w,wClosed:(b-a)/2},{anchor:b,dir:-1,wOpen:w,wClosed:(b-a)/2}];
+// 1F 客廳：淺灰色窗簾（照片是拉上的）
+addCurtain({room:'客廳',f:0,label:'客廳窗簾',axis:'x',c0:Z_1F-0.32,c1:Z_1F-0.26,y0:0.55,y1:2.75,mat:MAT.curtainLight,panels:pairPanels(HX0+0.35,HX0+2.55,0.35),closed:true});
+// 2F、3F 前房：兩扇前窗各兩片深藍窗簾（照片是拉開收在兩側）
+for(const k of [1,2])addCurtain({room:k===2?'前房（小孩房）':'前房',f:k,label:'前房窗簾',axis:'x',c0:-0.36,c1:-0.3,y0:FL[k]+0.55,y1:CEIL(k)-0.48,mat:MAT.curtain,
+  panels:[...pairPanels(HX0+0.35,HX0+2.85,0.5),...pairPanels(HX0+2.8,HX0+4.2,0.5)]});
+// 2F、3F 後房：西牆窗一片深藍窗簾，收在南側
+addCurtain({room:'後房（衣帽間）',f:1,label:'後房窗簾',axis:'z',c0:IX0,c1:IX0+0.06,y0:FL[1]+0.9,y1:CEIL(1)-0.25,mat:MAT.curtain,panels:[{anchor:-10.25,dir:-1,wOpen:0.35,wClosed:1.6}]});
+addCurtain({room:'後房',f:2,label:'後房窗簾',axis:'z',c0:IX0,c1:IX0+0.06,y0:FL[2]+0.55,y1:CEIL(2)-0.25,mat:MAT.curtain,panels:[{anchor:-9.9,dir:-1,wOpen:0.38,wClosed:1.35}]});
+const actBtn=document.getElementById('act');let actCur=null,actHtml='';
+function nearCurtain(){if(!started||mode!=='walk')return null;const r=roomAt(player.pos.x,player.pos.y,player.y);return r?CURTAINS.find(c=>c.room===r)||null:null;}
+function syncActBtn(){actCur=nearCurtain();const html=actCur?`<kbd>F</kbd>${actCur.target>0.5?'拉開':'拉上'}${actCur.label}`:'';
+  if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
+function toggleNearCurtain(){const cu=nearCurtain();if(!cu)return;cu.target=cu.target>0.5?0:1;syncActBtn();}
+actBtn.addEventListener('click',e=>{e.stopPropagation();toggleNearCurtain();});
+actBtn.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleNearCurtain();},{passive:false});
+document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)c.target=0;syncActBtn();};
+document.getElementById('curClose').onclick=()=>{for(const c of CURTAINS)c.target=1;syncActBtn();};
+
 // ---- 1F 廚房（依照片：香檳色廚櫃、白色人造石檯面、L 型） ----
 // 長流理台沿後牆（北），西端緊鄰後門；轉角沿東牆，接著冰箱，冰箱前面就是走道；窗在西牆
 // 廚房 z -12.2..-9.56（深約 2.64 m），整個寬度；冰箱到樓梯後牆還留約 1 m 讓走道進來
@@ -1016,6 +1109,17 @@ for(const r of ROOMS){if(r.stair||r.out||r.nolabel||r.nolamp)continue;const cx=r
  M.add(groundRect(3.0,5.0,cz+0.05,cz+0.6,0.05),MAT.blackMat);
 }
 
+// ---- 電視（16:9，放在東牆的櫃子上、螢幕朝西）：inch＝吋數、zc＝中心、y＝櫃面高、brand＝下框的品牌字 ----
+function tvSet(inch,zc,y,brand){
+  const d=inch*0.0254,w=d*16/Math.hypot(16,9),h=d*9/Math.hypot(16,9),b=0.012,x1=IX1-0.17,x0=x1-0.06,y0=y+0.07;
+  M.add(mbox(x0,x1,y0,y0+h+b+0.03,zc-w/2-b,zc+w/2+b),MAT.black);                    // 機身（下框寬一點）
+  M.add(sidePlane(zc-w/2,zc+w/2,y0+0.03,y0+0.03+h,x0-0.001,-1),MAT.glassDark);        // 螢幕
+  for(const s of [-1,1]){const fz=zc+s*(w/2-0.12);                                     // 兩端的腳架
+    M.add(mbox(x0-0.12,x1+0.08,y,y+0.012,fz-0.025,fz+0.025),MAT.black);M.add(mbox(x0+0.01,x1-0.01,y,y0+0.02,fz-0.015,fz+0.015),MAT.black);}
+  if(brand){const [c,g]=cvs(128,32);g.fillStyle='#1d1f21';g.fillRect(0,0,128,32);g.fillStyle='#d8dadc';g.font=`bold 22px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText(brand,64,17);
+    M.add(sidePlane(zc-0.05,zc+0.05,y0+0.004,y0+0.029,x0-0.002,-1),std({map:tex(c),roughness:0.5}));}
+}
+
 // ---- 1F 客廳（依照片） ----
 {const c=CEIL(0),zf=Z_1F-0.2;
  M.add(groundRect(IX0,IX1,ST.zA+0.12,zf,0.045),MAT.bigTile);            // 80×80 亮面米色地磚
@@ -1039,7 +1143,7 @@ for(const r of ROOMS){if(r.stair||r.out||r.nolabel||r.nolamp)continue;const cx=r
  addBox(2.0,3.0,-3.4,-2.75,0.5);
  for(const [x,z,m] of [[3.35,-3.0,MAT.stoolGreen],[2.75,-3.65,MAT.stoolBlue],[2.95,-6.6,MAT.stoolBlue],[4.15,-5.2,MAT.stoolGreen]]){M.add(mbox(x-0.17,x+0.17,0.05,0.3,z-0.12,z+0.12),m);}
  // 窗戶：淺灰色窗簾拉上
- M.add(mbox(HX0+0.35,HX0+2.55,0.55,2.75,zf-0.12,zf-0.06),MAT.curtainLight);M.add(mbox(HX0+0.3,HX0+2.6,2.75,2.78,zf-0.12,zf-0.06),MAT.black);
+ M.add(mbox(HX0+0.3,HX0+2.6,2.75,2.78,zf-0.12,zf-0.06),MAT.black);   // 窗簾桿（布在「窗簾」那段，可以開關）
  // 門和窗中間：黑色鐵架
  {const a=HX0+2.85,b=HX0+3.25;
   M.add(mbox(a,b,0.05,0.4,zf-0.42,zf),MAT.black);
@@ -1054,7 +1158,7 @@ for(const r of ROOMS){if(r.stair||r.out||r.nolabel||r.nolamp)continue;const cx=r
  addBox(IX1-0.4,IX1,-3.9,-2.65,1.25);
  M.add(mbox(IX1-0.45,IX1,0.05,0.58,-6.8,-4.1),MAT.darkWood);M.add(mbox(IX1-0.47,IX1,0.58,0.61,-6.82,-4.08),MAT.beigeTop);
  addBox(IX1-0.47,IX1,-6.82,-4.08,0.61);
- M.add(mbox(IX1-0.3,IX1-0.1,0.61,0.66,-5.6,-5.3),MAT.black);M.add(mbox(IX1-0.23,IX1-0.19,0.66,1.4,-6.2,-4.7),MAT.black);
+ tvSet(50,-5.45,0.61,'BenQ');   // BenQ 50 吋
 }
 
 // ---- 系統櫃（依廠商施工圖；尺寸整理在 開發進度.md「系統櫃」） ----
@@ -1094,7 +1198,6 @@ for(const k of [1,2]){const y=FL[k],c=CEIL(k);
  for(const x of [FR_DOOR.a-0.05,FR_DOOR.b])M.add(mbox(x,x+0.05,y,y+2.15,FR_Z-0.08,FR_Z+0.08),MAT.doorBrown);
  M.add(mbox(FR_DOOR.a-0.05,FR_DOOR.b+0.05,y+2.1,y+2.15,FR_Z-0.08,FR_Z+0.08),MAT.doorBrown);
  for(const [a,b] of [[HX0+0.6,HX0+2.6],[HX0+3.05,HX0+3.95]]){
-   for(const [p,q] of [[a-0.25,a+0.25],[b-0.25,b+0.25]])M.add(mbox(p,q,y+0.55,c-0.48,-0.36,-0.3),MAT.curtain);
    M.add(mbox(a-0.3,b+0.3,c-0.5,c-0.47,-0.36,-0.3),MAT.black);}
 }
 
@@ -1119,29 +1222,41 @@ for(const k of [1,2]){const y=FL[k],c=CEIL(k);
  M.add(mbox(FR_DOOR.b-0.05,FR_DOOR.b,y,y+2.1,FRZ,FRZ+0.82),MAT.doorBrown);
  // 東牆：電視矮櫃（234 寬、三個抽屜，和 2F 同款）＋電視、冷氣
  placeCab(lowCab({W:2.34,n:3}),{x0:IX1-0.45,x1:IX1,z0:-3.6,z1:-1.26},'w',y,0.48);
- M.add(mbox(IX1-0.33,IX1-0.15,y+0.48,y+0.54,-2.53,-2.33),MAT.black);M.add(mbox(IX1-0.29,IX1-0.25,y+0.54,y+1.31,-3.08,-1.78),MAT.black);
+ tvSet(50,-2.43,y+0.48);   // 50 吋
  M.add(mbox(IX1-0.23,IX1,c-0.8,c-0.5,-1.5,-0.65),MAT.whiteApp);
  // 綠色巧拼地墊
  M.add(groundRect(3.7,5.55,-4.5,-0.5,y+0.012),MAT.eva);M.add(groundRect(1.65,3.7,-2.5,-0.5,y+0.012),MAT.eva);
 }
 
-// ---- 2F 前房（依照片：木紋巧拼、白色抽屜矮櫃、兩張單人床併成雙人） ----
-{const y=FL[1],c=CEIL(1);
- // 西牆：兩張單人床併在一起（灰色床座、白色床墊）＋橘色巧拼床頭板（柱子南邊）
- for(const [z0,z1] of [[-4.1,-3.22],[-3.18,-2.3]]){M.add(mbox(1.68,3.62,y+0.08,y+0.4,z0,z1),MAT.pillowGray);M.add(mbox(1.7,3.6,y+0.4,y+0.62,z0+0.02,z1-0.02),MAT.boxSpring);}
- for(const x of [1.75,3.5])for(const z of [-4.0,-2.4])M.add(mbox(x,x+0.05,y,y+0.08,z,z+0.05),MAT.darkWood);
- M.add(mbox(1.6,1.63,y+0.45,y+1.3,-4.2,-2.1),MAT.orange);addBox(1.6,3.62,-4.1,-2.3,y+0.62,y);
- // 床邊地上兩包枕頭
- M.add(mbox(3.68,4.2,y,y+0.18,-3.0,-2.4),MAT.boxSpring);M.add(mbox(3.7,4.25,y+0.18,y+0.32,-2.95,-2.45),MAT.boxSpring);
- // 東牆：電視矮櫃（234 寬、三個雪印岑木抽屜、香楓檯面）＋螢幕、冷氣、電箱（離房門留一段讓人進出）
+// ---- 2F 前房（主臥）：兩張床床頭靠西牆（雙人加大 182×188＋標準雙人 152×188）、床的左邊靠窗簾是 120 cm OA 辦公桌、東牆電視矮櫃 ----
+{const y=FL[1],c=CEIL(1),COL=IX0+0.18;   // 西北角柱子的東面
+ // 床（床頭朝西）：灰色床座＋白色床墊＋兩個枕頭
+ const bed=(x0,z0,z1)=>{const x1=x0+1.88;M.add(mbox(x0+0.02,x1,y+0.08,y+0.4,z0+0.02,z1-0.02),MAT.pillowGray);M.add(mbox(x0+0.04,x1-0.02,y+0.4,y+0.62,z0+0.04,z1-0.04),MAT.boxSpring);
+   for(const x of [x0+0.1,x1-0.15])for(const z of [z0+0.08,z1-0.13])M.add(mbox(x,x+0.05,y,y+0.08,z,z+0.05),MAT.darkWood);
+   const pw=(z1-z0-0.3)/2;for(const k of [0,1]){const pz=z0+0.1+k*(pw+0.1);M.add(mbox(x0+0.1,x0+0.55,y+0.62,y+0.74,pz,pz+pw),k?MAT.sheet:MAT.pillowGray);}
+   addBox(x0,x1,z0,z1,y+0.62,y);};
+ const zK0=FRZ,zK1=zK0+1.82,zS1=zK1+1.52;   // 北邊雙人加大（床頭頂著柱子）→ 南邊標準雙人（床頭貼西牆）
+ bed(COL,zK0,zK1);bed(IX0,zK1,zS1);
+ M.add(mbox(IX0,IX0+0.03,y+0.45,y+1.3,zK1+0.06,zS1-0.06),MAT.orange);   // 橘色巧拼床頭板
+ // 床的左邊、靠窗簾：120×60 OA 辦公桌（沿西牆）＋辦公椅
+ {const dz0=zS1+0.04,dz1=dz0+1.2,dx1=IX0+0.6,cz=(dz0+dz1)/2;
+  M.add(mbox(IX0,dx1,y+0.72,y+0.75,dz0,dz1),MAT.deskTop);
+  for(const z of [dz0,dz1-0.04])M.add(mbox(IX0+0.04,dx1-0.04,y,y+0.72,z,z+0.04),MAT.pvc);
+  M.add(mbox(IX0+0.02,IX0+0.04,y+0.3,y+0.7,dz0+0.04,dz1-0.04),MAT.pvc);
+  M.add(mbox(IX0+0.15,IX0+0.19,y+0.75,y+1.15,cz-0.25,cz+0.25),MAT.black);M.add(mbox(IX0+0.2,IX0+0.24,y+0.75,y+0.8,cz-0.08,cz+0.08),MAT.black);   // 螢幕
+  addBox(IX0,dx1,dz0,dz1,y+0.75,y);
+  const cx=dx1+0.32;
+  M.add(mbox(cx-0.24,cx+0.24,y+0.44,y+0.52,cz-0.24,cz+0.24),MAT.seat);M.add(mbox(cx+0.2,cx+0.26,y+0.52,y+1.1,cz-0.22,cz+0.22),MAT.seat);
+  M.add(mbox(cx-0.02,cx+0.02,y+0.08,y+0.44,cz-0.02,cz+0.02),MAT.black);M.add(mbox(cx-0.28,cx+0.28,y+0.03,y+0.08,cz-0.03,cz+0.03),MAT.black);M.add(mbox(cx-0.03,cx+0.03,y+0.03,y+0.08,cz-0.28,cz+0.28),MAT.black);}
+ // 東牆：電視矮櫃（234 寬、三個雪印岑木抽屜、香楓檯面）面對床＋電視、冷氣、電箱（離房門留一段讓人進出）
  placeCab(lowCab({W:2.34,n:3}),{x0:IX1-0.45,x1:IX1,z0:-3.9,z1:-1.56},'w',y,0.48);
- M.add(mbox(IX1-0.3,IX1-0.15,y+0.48,y+0.51,-3.6,-3.4),MAT.black);M.add(mbox(IX1-0.25,IX1-0.21,y+0.51,y+0.88,-3.8,-3.2),MAT.black);
+ tvSet(40,-2.73,y+0.48);   // 40 吋
  M.add(mbox(IX1-0.25,IX1,c-0.75,c-0.45,-3.6,-2.7),MAT.whiteApp);
  M.add(mbox(IX1-0.03,IX1,y+1.4,y+2.0,-1.2,-0.8),MAT.beigeTop);
  // 房門（開向房內，靠西側）
  M.add(mbox(FR_DOOR.a,FR_DOOR.a+0.05,y,y+2.1,FRZ,FRZ+0.82),MAT.doorBrown);
- // 木紋巧拼
- M.add(groundRect(3.68,5.55,-5.0,-0.6,y+0.012),MAT.woodEva);
+ // 木紋巧拼（床尾到電視櫃之間）
+ M.add(groundRect(3.75,5.55,-5.0,-0.6,y+0.012),MAT.woodEva);
 }
 
 // ---- 2F 後房（衣帽間）：前牆門邊衣櫃 288、後牆衣櫃 344（廠商圖）；西牆窗下西北角滾筒洗衣機 ----
@@ -1164,7 +1279,7 @@ for(const k of [1,2]){const y=FL[k],c=CEIL(k);
  M.add(mbox(IX0+0.3,IX0+0.37,y+0.85,y+1.35,lz0+0.15,lz0+0.22),MAT.alu);M.add(mbox(IX0+0.25,IX0+0.43,y+1.3,y+1.42,lz0+0.1,lz0+0.28),std({color:'#9cc6c0',roughness:0.5}));
  addBox(IX0,lx1,lz0,lz1,y+0.85,y);
  // 深藍窗簾（收在窗左側＝南側）、木紋巧拼
- M.add(mbox(IX0,IX0+0.06,y+0.9,c-0.25,-10.6,-10.25),MAT.curtain);M.add(mbox(IX0,IX0+0.06,c-0.27,c-0.24,-11.9,-10.22),MAT.black);
+ M.add(mbox(IX0,IX0+0.06,c-0.27,c-0.24,-11.9,-10.22),MAT.black);
  M.add(groundRect(2.3,5.4,-11.55,-10.2,y+0.012),MAT.woodEva);
 }
 
@@ -1179,7 +1294,7 @@ for(const k of [1,2]){const y=FL[k],c=CEIL(k);
  // 綠色巧拼、西牆窗邊地上的電視、深藍窗簾
  M.add(groundRect(2.0,5.2,-11.5,-9.9,y+0.012),MAT.eva);
  M.add(mbox(IX0+0.08,IX0+0.3,y,y+0.03,-10.2,-9.75),MAT.black);M.add(mbox(IX0+0.13,IX0+0.17,y+0.03,y+0.55,-10.25,-9.7),MAT.black);
- M.add(mbox(IX0,IX0+0.06,y+0.55,c-0.25,-10.28,-9.9),MAT.curtain);M.add(mbox(IX0,IX0+0.06,c-0.27,c-0.24,-11.3,-9.85),MAT.black);
+ M.add(mbox(IX0,IX0+0.06,c-0.27,c-0.24,-11.3,-9.85),MAT.black);
  // 北牆邊一排紙箱
  for(const [x0,x1,h] of [[2.0,2.6,0.45],[2.7,3.3,0.55],[3.4,4.0,0.45],[4.1,4.7,0.4],[2.7,3.3,0.95]]){const b=h>0.9?[y+0.55,y+0.95]:[y,y+h];M.add(mbox(x0,x1,b[0],b[1],ZB+0.02,ZB+0.6),MAT.cardboard);}
  addBox(2.0,4.7,ZB,ZB+0.6,y+0.95,y);
@@ -1358,7 +1473,7 @@ setTime(15);refreshEnv();
 const player={pos:new V2(),y:0,vy:0,yaw:0,pitch:-0.05,vel:new V2(),runTime:0,ground:true,climb:false};
 function doJump(){if(!started||mode!=='walk'||!player.ground||player.climb)return;player.vy=4.6;player.ground=false;}
 const onLadder=()=>player.pos.x>LADDER.x0&&player.pos.x<LADDER.x1&&player.pos.y>LADDER.z0&&player.pos.y<LADDER.z1&&player.y>FL[3]-0.05&&player.y<FL[4]+0.95;
-const comfort={sens:1,speed:1};
+const comfort={sens:1,speed:1,camDist:4.2};
 const START=new V2(ux(0)+3.2,8.4);player.pos.copy(START);
 
 /* ---------------- 人物（第三人稱） ---------------- */
@@ -1407,8 +1522,8 @@ const camTmp=new V2();
 function thirdPersonCamera(){
   const tx=player.pos.x,ty=player.y+1.55,tz=player.pos.y;
   const cp=Math.cos(player.pitch),fx=-Math.sin(player.yaw)*cp,fy=Math.sin(player.pitch),fz=-Math.cos(player.yaw)*cp;
-  let dist=4.2;
-  for(let t=0.6;t<=4.2;t+=0.2){camTmp.set(tx-fx*t,tz-fz*t);const cy=ty-fy*t+0.35;let hit=false;
+  let dist=comfort.camDist;
+  for(let t=0.6;t<=comfort.camDist;t+=0.2){camTmp.set(tx-fx*t,tz-fz*t);const cy=ty-fy*t+0.35;let hit=false;
     for(const c of colliders){if(c.circle||c.off||c.h<cy||c.y0>cy)continue;if(camTmp.x>c.x0-0.25&&camTmp.x<c.x1+0.25&&camTmp.y>c.z0-0.25&&camTmp.y<c.z1+0.25){hit=true;break;}}
     if(hit){dist=Math.max(0.6,t-0.3);break;}}
   // 在騎樓下時鏡頭不要穿過 2F 樓板
@@ -1447,7 +1562,7 @@ const SPOTS=[
 /* ---------------- 輸入 ---------------- */
 const canvas=renderer.domElement;
 addEventListener('keydown',e=>{keys[e.code]=true;if(!started)return;
-  if(e.code==='KeyV')toggleAerial();if(e.code==='KeyC')toggleView();if(e.code==='KeyM')toggleMap();
+  if(e.code==='KeyV')toggleAerial();if(e.code==='KeyC')toggleView();if(e.code==='KeyM')toggleMap();if(e.code==='KeyF'&&!e.repeat)toggleNearCurtain();
   if(e.code==='Space'){e.preventDefault();if(!e.repeat)doJump();}});
 document.getElementById('jumpBtn').addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();doJump();},{passive:false});
 document.getElementById('jumpBtn').addEventListener('click',doJump);
@@ -1491,7 +1606,13 @@ function toggleAerial(){
   }
   syncViewUI();syncHint();
 }
-function toggleMap(){mmWrap.classList.toggle('big');bM.classList.toggle('on',mmWrap.classList.contains('big'));setTimeout(drawMinimapBg,280);}
+// 小地圖可以按 × 關掉（手機預設關閉，選擇會記住）；「地圖」按鈕／M 鍵：關著就打開，開著就切換放大
+let mmOn=!isTouch;try{const v=localStorage.getItem('home-mm');if(v!==null)mmOn=v==='1';}catch(_){}
+function setMinimap(on){mmOn=on;mmWrap.classList.toggle('off',!on);if(!on)mmWrap.classList.remove('big');bM.classList.toggle('on',mmWrap.classList.contains('big'));
+  try{localStorage.setItem('home-mm',on?'1':'0');}catch(_){}if(on)setTimeout(drawMinimapBg,30);}
+function toggleMap(){if(!mmOn){setMinimap(true);return;}mmWrap.classList.toggle('big');bM.classList.toggle('on',mmWrap.classList.contains('big'));setTimeout(drawMinimapBg,280);}
+document.getElementById('mmClose').addEventListener('click',e=>{e.stopPropagation();setMinimap(false);});
+setMinimap(mmOn);
 bA.onclick=toggleAerial;bM.onclick=toggleMap;
 bMenu.onclick=()=>{menu.hidden=!menu.hidden;bMenu.classList.toggle('on',!menu.hidden);};
 document.getElementById('time').oninput=e=>setTime(+e.target.value);
@@ -1504,6 +1625,11 @@ function bindComfort(id,valId,fmt,apply){const el=document.getElementById(id),la
 bindComfort('sens','sensVal',v=>Math.round(v*100)+'%',v=>comfort.sens=v);
 bindComfort('spd','spdVal',v=>Math.round(v*100)+'%',v=>comfort.speed=v);
 bindComfort('fov','fovVal',v=>v+'°',v=>{camera.fov=v;camera.updateProjectionMatrix();});
+bindComfort('camd','camdVal',v=>v.toFixed(1)+' m',v=>comfort.camDist=v);
+// 滑鼠滾輪：第三人稱拉遠／拉近（第一人稱往外滾就切成第三人稱）
+canvas.addEventListener('wheel',e=>{if(!started||mode!=='walk')return;e.preventDefault();
+  if(view==='first'){if(e.deltaY>0)toggleView();return;}
+  const el=document.getElementById('camd');el.value=Math.max(1.5,Math.min(12,comfort.camDist*Math.exp(e.deltaY*0.0012)));el.oninput();},{passive:false});
 const toastEl=document.getElementById('toast');let toastTimer=0;
 function toast(msg){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('show'),4000);}
 
@@ -1512,6 +1638,7 @@ const mm=document.getElementById('mm'),mmc=mm.getContext('2d');
 const MB={x0:-48,z0:-50,x1:96,z1:40};let mmT={sc:1,ox:0,oy:0},mmBg=null;
 const w2m=(x,z)=>[(x-MB.x0)*mmT.sc+mmT.ox,(z-MB.z0)*mmT.sc+mmT.oy];
 function drawMinimapBg(){
+  if(!mmOn)return;
   const dpr=Math.min(devicePixelRatio,2),w=mm.clientWidth,h=mm.clientHeight;mm.width=w*dpr;mm.height=h*dpr;
   const sc=Math.min(w/(MB.x1-MB.x0),h/(MB.z1-MB.z0));mmT={sc,ox:(w-(MB.x1-MB.x0)*sc)/2,oy:(h-(MB.z1-MB.z0)*sc)/2};
   const [c,g]=cvs(w*dpr,h*dpr);g.scale(dpr,dpr);
@@ -1533,7 +1660,7 @@ function drawMinimapBg(){
   mmBg=c;
 }
 function drawMinimap(){
-  if(!mmBg)return;const dpr=mm.width/mm.clientWidth;mmc.setTransform(1,0,0,1,0,0);mmc.drawImage(mmBg,0,0);mmc.setTransform(dpr,0,0,dpr,0,0);
+  if(!mmBg||!mmOn)return;const dpr=mm.width/mm.clientWidth;mmc.setTransform(1,0,0,1,0,0);mmc.drawImage(mmBg,0,0);mmc.setTransform(dpr,0,0,dpr,0,0);
   let px,pz,yaw;if(mode==='walk'){px=player.pos.x;pz=player.pos.y;yaw=player.yaw;}else{px=orbit.target.x;pz=orbit.target.z;yaw=Math.atan2(camera.position.x-orbit.target.x,camera.position.z-orbit.target.z);}
   const [x,y]=w2m(px,pz);const fx=-Math.sin(yaw),fz=-Math.cos(yaw);
   mmc.save();mmc.translate(x,y);mmc.rotate(Math.atan2(fz,fx));
@@ -1564,6 +1691,7 @@ function updatePlace(){
   else if(inR(x,z,{x0:-0.5,x1:ROW_X1,z0:-15.8,z1:Z_BACK}))t=['屋後','鄰居後院'];
   else if(inR(x,z,GRASS))t=['對面空地',''];
   else for(const r of ROADS)if(inR(x,z,r)){t=[r.name,'道路'];break;}
+  syncActBtn();
   const html=`<b>${t[0]}</b><span>${t[1]}</span>`;
   if(html!==lastPlace){placeEl.innerHTML=html;lastPlace=html;}
 }
@@ -1605,6 +1733,8 @@ function step(dt){
     if(view==='third'){avatar.root.visible=true;updateAvatar(dt,stage);thirdPersonCamera();}
     else{avatar.root.visible=false;camera.position.set(player.pos.x,player.y+1.6,player.pos.y);camera.rotation.set(player.pitch,player.yaw,0,'YXZ');}
   }else{orbit.update();}
+  // 窗簾：約 0.8 秒拉開／拉上，停下來時重算陰影
+  for(const cu of CURTAINS)if(cu.t!==cu.target){const v=dt*1.25;cu.t=Math.abs(cu.target-cu.t)<=v?cu.target:cu.t+Math.sign(cu.target-cu.t)*v;layoutCurtain(cu);if(cu.t===cu.target)renderer.shadowMap.needsUpdate=true;}
   // 門：人靠近就打開
   for(const d of DOORS){const near=mode==='walk'&&Math.abs(player.y-d.y)<1&&Math.hypot(player.pos.x-d.center.x,player.pos.y-d.center.y)<2.2;
     d.ang+=((near?d.max:0)-d.ang)*Math.min(1,dt*4);d.pivot.rotation.y=d.rot0+d.sgn*d.ang;d.col.off=d.ang>0.8;}
