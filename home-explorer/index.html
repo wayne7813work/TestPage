@@ -102,14 +102,14 @@
       <kbd>V</kbd><span>切換空拍視角</span>
       <kbd>M</kbd><span>打開／放大地圖（點地圖可瞬移；右上角 × 關閉）</span>
       <kbd>滑鼠滾輪</kbd><span>第三人稱：鏡頭拉遠／拉近</span>
-      <kbd>F</kbd><span>面向衣櫃、電視櫃抽屜：打開／關上；在有窗簾的房間：拉開／拉上窗簾</span>
+      <kbd>F</kbd><span>靠近並面向衣櫃、電視櫃抽屜、窗簾、屋頂蓋子：打開／關上</span>
     </div>
     <div class="keys touch-only">
       <kbd>左下搖桿</kbd><span>移動；推到底會跑</span>
       <kbd>右下「跳」</kbd><span>跳（空中再按一次＝二段跳）</span>
       <kbd>右側滑動</kbd><span>轉動視角</span>
       <kbd>地圖</kbd><span>右上「地圖」按鈕打開，× 關閉；點地圖可瞬移</span>
-      <kbd>畫面下方按鈕</kbd><span>面向衣櫃、抽屜或在有窗簾的房間會出現，點了打開／關上</span>
+      <kbd>畫面下方按鈕</kbd><span>靠近衣櫃、抽屜、窗簾時會出現，點了打開／關上</span>
       <kbd>選單</kbd><span>可調第三人稱鏡頭距離</span>
     </div>
     <div class="startbar"><button id="start" disabled>建置場景中…</button></div>
@@ -1149,7 +1149,8 @@ for(const r of ROOMS){if(r.stair||r.out||r.nolabel||r.nolamp)continue;const cx=r
 // 一組＝一個房間的所有窗簾布；每片布從 anchor（收起來那端）往 dir 展開，寬度在 wOpen（拉開）～wClosed（拉上）之間
 const CURTAINS=[];
 function addCurtain({room,f,label,axis,c0,c1,y0,y1,mat,panels,closed=false}){
-  const cu={room:ROOMS.find(r=>r.f===f&&r.name===room),label,panels:[],t:closed?1:0,target:closed?1:0};
+  const cu={room:ROOMS.find(r=>r.f===f&&r.name===room),label,panels:[],t:closed?1:0,target:closed?1:0,fy:FL[f],
+    pts:panels.map(p=>{const m=p.anchor+p.dir*p.wClosed/2;return axis==='x'?new V2(m,(c0+c1)/2):new V2((c0+c1)/2,m);})};   // 每片布拉上時的中心（判斷有沒有靠近）
   for(const p of panels){const m=new THREE.Mesh(box(1,1,1),mat);m.castShadow=true;m.receiveShadow=true;scene.add(m);
     cu.panels.push({...p,m,axis,c:(c0+c1)/2,th:c1-c0,yc:(y0+y1)/2,h:y1-y0});}
   CURTAINS.push(cu);layoutCurtain(cu);
@@ -1167,18 +1168,22 @@ for(const k of [1,2])addCurtain({room:k===2?'前房（小孩房）':'前房',f:k
 addCurtain({room:'後房（衣帽間）',f:1,label:'後房窗簾',axis:'z',c0:IX0,c1:IX0+0.06,y0:FL[1]+0.9,y1:CEIL(1)-0.25,mat:MAT.curtain,panels:[{anchor:-10.25,dir:-1,wOpen:0.35,wClosed:1.6}]});
 addCurtain({room:'後房',f:2,label:'後房窗簾',axis:'z',c0:IX0,c1:IX0+0.06,y0:FL[2]+0.55,y1:CEIL(2)-0.25,mat:MAT.curtain,panels:[{anchor:-9.9,dir:-1,wOpen:0.38,wClosed:1.35}]});
 const actBtn=document.getElementById('act');let actCur=null,actHtml='';
-function nearCurtain(){if(!started||mode!=='walk')return null;const r=roomAt(player.pos.x,player.pos.y,player.y);return r?CURTAINS.find(c=>c.room===r)||null:null;}
+// 靠近窗簾（2.2 m 內）並大致面向它才能開關（不再是整個房間都算，衣櫃才按得到）
+function nearCurtain(){if(!started||mode!=='walk')return null;const px=player.pos.x,pz=player.pos.y,fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw);let best=null,bd=2.2;
+  for(const c of CURTAINS){if(Math.abs(player.y-c.fy)>1)continue;for(const q of c.pts){const dx=q.x-px,dz=q.y-pz,d=Math.max(0.01,Math.hypot(dx,dz));if(d<bd&&(dx*fx+dz*fz)/d>0.3){best=c;bd=d;}}}
+  return best?{cu:best,d:bd}:null;}
 // 面向、靠近（1.9 m 內、人在櫃子前面）的衣櫃門或抽屜
-function nearCab(){if(!started||mode!=='walk')return null;const px=player.pos.x,pz=player.pos.y,fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw);let best=null,bd=1.9;
+function nearCab(){if(!started||mode!=='walk')return null;const px=player.pos.x,pz=player.pos.y,fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw);let best=null,bd=2.2;
   for(const u of CABS){if(u.free){const d=Math.hypot(u.c.x-px,u.c.z-pz);if(player.y>=u.yr[0]&&player.y<=u.yr[1]&&d<Math.min(bd,1.6)){best=u;bd=d;}continue;}
     if(Math.abs(player.y-u.fy)>1)continue;const dx=u.c.x-px,dz=u.c.z-pz,d=Math.hypot(dx,dz);
-    if(d>bd||dx*u.n.x+dz*u.n.z>0.05||(dx*fx+dz*fz)/d<0.35)continue;best=u;bd=d;}
-  return best;}
-function currentAct(){const cb=nearCab();if(cb)return {cab:cb};const cu=nearCurtain();return cu?{cur:cu}:null;}
+    if(d>bd||dx*u.n.x+dz*u.n.z>0.05||(dx*fx+dz*fz)/d<0.25)continue;best=u;bd=d;}
+  return best?{u:best,d:bd}:null;}
+// 衣櫃／抽屜／屋頂蓋子和窗簾：取比較近的那個
+function currentAct(){const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
 function syncActBtn(){const a=currentAct();actCur=a;
   const html=!a?'':a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
   if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
-function toggleAct(){const a=currentAct();if(!a)return;const o=a.cab||a.cur;o.target=o.target>0.5?0:1;syncActBtn();}
+function toggleAct(){const a=currentAct();if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;}syncActBtn();}
 actBtn.addEventListener('click',e=>{e.stopPropagation();toggleAct();});
 actBtn.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleAct();},{passive:false});
 document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)c.target=0;syncActBtn();};
