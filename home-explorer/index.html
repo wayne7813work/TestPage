@@ -99,6 +99,7 @@
       <kbd>空白鍵</kbd><span>跳（空中再按一次＝二段跳，4F 可以跳到隔壁露台）</span>
       <kbd>W（面向爬梯）</kbd><span>4F 露台的爬梯：往上爬到屋頂；在屋頂往爬梯走就會往下爬</span>
       <kbd>C</kbd><span>切換第三人稱／第一人稱</span>
+      <kbd>K</kbd><span>切換小孩視角（身高約 130 cm）／大人</span>
       <kbd>V</kbd><span>切換空拍視角</span>
       <kbd>M</kbd><span>打開／放大地圖（點地圖可瞬移；右上角 × 關閉）</span>
       <kbd>滑鼠滾輪</kbd><span>第三人稱：鏡頭拉遠／拉近</span>
@@ -110,7 +111,7 @@
       <kbd>右側滑動</kbd><span>轉動視角</span>
       <kbd>地圖</kbd><span>右上「地圖」按鈕打開，× 關閉；點地圖可瞬移</span>
       <kbd>畫面下方按鈕</kbd><span>靠近衣櫃、抽屜、窗簾時會出現，點了打開／關上</span>
-      <kbd>選單</kbd><span>可調第三人稱鏡頭距離</span>
+      <kbd>選單</kbd><span>小孩視角（130 cm）、第三人稱鏡頭距離</span>
     </div>
     <div class="startbar"><button id="start" disabled>建置場景中…</button></div>
   </div>
@@ -139,6 +140,7 @@
   <input id="sens" type="range" min="0.3" max="1.5" step="0.05" value="1">
   <label style="margin-top:10px"><span>視野寬度</span><span id="fovVal">60°</span></label>
   <input id="fov" type="range" min="45" max="80" step="1" value="60">
+  <label style="margin-top:10px"><span>小孩視角（身高約 130 cm）</span><input id="kid" type="checkbox"></label>
   <label style="margin-top:10px"><span>第三人稱鏡頭距離</span><span id="camdVal">4.2 m</span></label>
   <input id="camd" type="range" min="1.5" max="12" step="0.1" value="4.2">
   <label style="margin-top:10px"><span>走路速度</span><span id="spdVal">100%</span></label>
@@ -572,6 +574,11 @@ const WIN={
 // 門牌
 {const [c,g]=cvs(256,160);g.fillStyle='#1f4f9a';g.fillRect(0,0,256,160);g.strokeStyle='#fff';g.lineWidth=6;g.strokeRect(10,10,236,140);g.fillStyle='#fff';g.font=`bold 96px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText('1',128,86);MAT.plaque=std({map:tex(c),roughness:0.5});}
 
+/* ---------------- 身高：大人／小孩（130 cm），K 鍵或選單切換 ---------------- */
+let kid=false;try{kid=localStorage.getItem('home-kid')==='1';}catch(_){}
+const BODY={adult:{head:1.7,eye:1.6,cam:1.55,scale:1},kid:{head:1.3,eye:1.2,cam:1.15,scale:0.74}};
+const bodyH=()=>kid?BODY.kid:BODY.adult;
+
 /* ---------------- 碰撞（全部是軸對齊的方塊或圓柱） ---------------- */
 const colliders=[];
 // h = 頂部高度、y0 = 底部高度（室內各樓層的牆只擋該樓層）
@@ -580,7 +587,7 @@ function addCircle(x,z,r,h=99){colliders.push({circle:true,x,z,r,h,y0:0,x0:x-r,x
 function resolve(p,r,y=0){
   for(let it=0;it<3;it++)for(const c of colliders){
     if(p.x<c.x0-r||p.x>c.x1+r||p.y<c.z0-r||p.y>c.z1+r)continue;
-    if(c.h<=y+0.45||c.y0>=y+1.7||c.off)continue;   // 比腳底低（可以跨上去）或在頭頂上方的不擋
+    if(c.h<=y+0.45||c.y0>=y+bodyH().head||c.off)continue;   // 比腳底低（可以跨上去）或在頭頂上方的不擋
     if(c.circle){const dx=p.x-c.x,dz=p.y-c.z,d=Math.hypot(dx,dz),m=c.r+r;if(d<m){if(d<1e-6){p.x+=m;continue;}p.x=c.x+dx/d*m;p.y=c.z+dz/d*m;}continue;}
     const qx=Math.max(c.x0,Math.min(c.x1,p.x)),qz=Math.max(c.z0,Math.min(c.z1,p.y));
     const dx=p.x-qx,dz=p.y-qz,d=Math.hypot(dx,dz);
@@ -1679,7 +1686,7 @@ function updateAvatar(dt,stage){
 // 第三人稱鏡頭：碰到牆會自動拉近
 const camTmp=new V2();
 function thirdPersonCamera(){
-  const tx=player.pos.x,ty=player.y+1.55,tz=player.pos.y;
+  const tx=player.pos.x,ty=player.y+bodyH().cam,tz=player.pos.y;
   const cp=Math.cos(player.pitch),fx=-Math.sin(player.yaw)*cp,fy=Math.sin(player.pitch),fz=-Math.cos(player.yaw)*cp;
   let dist=comfort.camDist;
   for(let t=0.6;t<=comfort.camDist;t+=0.2){camTmp.set(tx-fx*t,tz-fz*t);const cy=ty-fy*t+0.35;let hit=false;
@@ -1696,6 +1703,7 @@ function thirdPersonCamera(){
   camera.lookAt(tx,ty+0.15,tz);
 }
 function toggleView(){view=view==='third'?'first':'third';try{localStorage.setItem('home-view2',view);}catch(_){}syncViewUI();}
+function setKid(on,say){kid=on;try{localStorage.setItem('home-kid',on?'1':'0');}catch(_){}avatar.root.scale.setScalar(bodyH().scale);const cb=document.getElementById('kid');if(cb)cb.checked=on;if(say)toast(on?'小孩視角（身高約 130 cm）':'大人視角');}
 function syncViewUI(){const b=document.getElementById('bView');b.textContent=view==='third'?'第三人稱':'第一人稱';b.classList.toggle('on',view==='third');avatar.root.visible=view==='third'&&mode==='walk';}
 // 目前在我家的哪一層、哪個房間（室內自動切第一人稱，第三人稱鏡頭在小房間會卡牆）
 function floorOf(y){let f=0;for(let k=1;k<5;k++)if(y>=FL[k]-(k===4?0.3:0.6))f=k;return f;}   // 4＝屋頂
@@ -1721,7 +1729,7 @@ const SPOTS=[
 /* ---------------- 輸入 ---------------- */
 const canvas=renderer.domElement;
 addEventListener('keydown',e=>{keys[e.code]=true;if(!started){if(e.code==='Enter'&&!startBtn.disabled)startBtn.click();return;}
-  if(e.code==='KeyV')toggleAerial();if(e.code==='KeyC')toggleView();if(e.code==='KeyM')toggleMap();if(e.code==='KeyF'&&!e.repeat)toggleAct();
+  if(e.code==='KeyV')toggleAerial();if(e.code==='KeyC')toggleView();if(e.code==='KeyM')toggleMap();if(e.code==='KeyF'&&!e.repeat)toggleAct();if(e.code==='KeyK'&&!e.repeat)setKid(!kid,true);
   if(e.code==='Space'){e.preventDefault();if(!e.repeat)doJump();}});
 document.getElementById('jumpBtn').addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();doJump();},{passive:false});
 document.getElementById('jumpBtn').addEventListener('click',doJump);
@@ -1785,6 +1793,7 @@ bindComfort('sens','sensVal',v=>Math.round(v*100)+'%',v=>comfort.sens=v);
 bindComfort('spd','spdVal',v=>Math.round(v*100)+'%',v=>comfort.speed=v);
 bindComfort('fov','fovVal',v=>v+'°',v=>{camera.fov=v;camera.updateProjectionMatrix();});
 bindComfort('camd','camdVal',v=>v.toFixed(1)+' m',v=>comfort.camDist=v);
+document.getElementById('kid').onchange=e=>setKid(e.target.checked,true);setKid(kid,false);
 // 滑鼠滾輪：第三人稱拉遠／拉近（第一人稱往外滾就切成第三人稱）
 canvas.addEventListener('wheel',e=>{if(!started||mode!=='walk')return;e.preventDefault();
   if(view==='first'){if(e.deltaY>0)toggleView();return;}
@@ -1879,7 +1888,7 @@ function step(dt){
     if(player.climb){
       // 面向牆（往北）按前進＝往上爬；面向露台按前進＝往下爬；爬梯上不會掉下去
       const faceUp=Math.cos(player.yaw)>0;const v=f*(faceUp?1:-1)*1.6;
-      player.y=Math.min(lidShut()?FL[4]-2.05:FL[4]+0.85,Math.max(FL[3],player.y+v*dt));player.vy=0;player.ground=true;   // 蓋子關著：頭頂到板子就停
+      player.y=Math.min(lidShut()?FL[4]-0.35-bodyH().head:FL[4]+0.85,Math.max(FL[3],player.y+v*dt));player.vy=0;player.ground=true;   // 蓋子關著：頭頂到板子就停
       if(player.y>FL[3]+0.3)player.pos.y=Math.min(player.pos.y,LADDER.z1-0.12);
       if(player.y<FL[4]+0.4)player.pos.y=Math.max(player.pos.y,LADDER_Z+0.28);   // 還沒爬到頂之前，貼著爬梯（不會穿過梯子、牆）
       if(player.y<FL[3]+0.02)player.climb=false;
@@ -1888,10 +1897,10 @@ function step(dt){
       if(player.vy>0||player.y>fl+0.02){player.vy-=14*dt;player.y+=player.vy*dt;if(player.y<=fl){player.y=fl;player.vy=0;player.ground=true;player.jumps=0;}else player.ground=false;}
       else{player.y=fl;player.vy=0;player.ground=true;player.jumps=0;}
       // 室內跳起來不要穿過天花板
-      const r=player.ground?null:roomAt(player.pos.x,player.pos.y,player.y);if(r&&!r.out&&!r.stair&&player.y<roomCeil(r)&&player.y+1.8>roomCeil(r)){player.y=Math.max(FL[r.f],roomCeil(r)-1.8);player.vy=Math.min(player.vy,0);}
+      const r=player.ground?null:roomAt(player.pos.x,player.pos.y,player.y);if(r&&!r.out&&!r.stair&&player.y<roomCeil(r)&&player.y+bodyH().head+0.1>roomCeil(r)){player.y=Math.max(FL[r.f],roomCeil(r)-bodyH().head-0.1);player.vy=Math.min(player.vy,0);}
     }
     if(view==='third'){avatar.root.visible=true;updateAvatar(dt,stage);thirdPersonCamera();}
-    else{avatar.root.visible=false;camera.position.set(player.pos.x,player.y+1.6,player.pos.y);camera.rotation.set(player.pitch,player.yaw,0,'YXZ');}
+    else{avatar.root.visible=false;camera.position.set(player.pos.x,player.y+bodyH().eye,player.pos.y);camera.rotation.set(player.pitch,player.yaw,0,'YXZ');}
   }else{orbit.update();}
   // 衣櫃門約 0.5 秒打開到 100°、抽屜拉出 35 cm
   for(const u of CABS)if(u.t!==u.target){const v=dt*2.2;u.t=Math.abs(u.target-u.t)<=v?u.target:u.t+Math.sign(u.target-u.t)*v;const e=u.t*u.t*(3-2*u.t);
