@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-09.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-09.3"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -92,14 +92,16 @@
   /* 技能按鈕：電腦在畫面下方一排，手機在右下 */
   #gSkills{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:10px;z-index:11}
   #gSkills[hidden]{display:none}
-  #gSkills button{width:min(74px,calc((100vw - 64px)/5));height:min(74px,calc((100vw - 64px)/5));border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(18,24,30,.6);color:#fff;font-size:16px;font-weight:800;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;transition:transform .08s}
+  #gSkills button{width:min(74px,calc((100vw - 74px)/6));height:min(74px,calc((100vw - 74px)/6));border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(18,24,30,.6);color:#fff;font-size:16px;font-weight:800;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;transition:transform .08s}
   #gSkills button small{font-size:11px;font-weight:600;opacity:.7;margin-top:3px}
   #gSkills button.hit{transform:scale(.88);background:rgba(255,180,84,.75);color:#3a2300}
   #gSkills button[data-s=blast]{background:rgba(40,120,200,.65)}
   #gSkills button[data-s=upper]{background:rgba(190,80,40,.6)}
   #gSkills button[data-s=beam]{background:rgba(120,60,200,.65);font-size:14px}
   #gSkills button[data-s=fly]{background:rgba(40,140,90,.6)}
+  #gSkills button[data-s=charge]{background:rgba(220,170,30,.7);font-size:13px}
   body.touch #gSkills{left:auto;right:108px;bottom:16px;transform:none;display:grid;grid-template-columns:repeat(3,58px);gap:8px}
+  body.touch #gSkills button[data-s=charge]{font-size:12px}
   body.touch #gSkills button{width:58px;height:58px;font-size:14px}
   body.touch #gSkills button small{display:none}
   body.gaming #hint{display:none}
@@ -186,6 +188,12 @@
   <input id="time" type="range" min="6" max="19" step="0.25" value="15">
   <label style="margin-top:12px"><span>名稱標籤</span><input id="lbl" type="checkbox" checked></label>
   <label style="margin-top:8px"><span>所有窗簾</span><span><button id="curOpen" style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px">全部拉開</button> <button id="curClose" style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px">全部拉上</button></span></label>
+  <h3 style="margin-top:14px">聲音</h3>
+  <label><span>音量</span><span id="volVal">70%</span></label>
+  <input id="vol" type="range" min="0" max="1" step="0.05" value="0.7">
+  <label style="margin-top:8px"><span>靜音</span><input id="mute" type="checkbox"></label>
+  <label style="margin-top:8px"><span>環境音（鳥叫、遠處車聲、晚上蟲鳴）</span><input id="amb" type="checkbox" checked></label>
+  <p class="note" style="margin-top:4px">第一次點畫面之後才會有聲音；iPhone 側邊的靜音開關打開時網頁沒有聲音。</p>
   <h3 style="margin-top:14px">小遊戲</h3>
   <button id="gStart">殭屍來襲！開始</button>
   <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。畫面下方有技能按鈕，按了馬上放、不用等：氣功炮（J）、超級氣功波（L）、旋風腿（U）、升龍拳（I）、飛踢（O）；滑鼠左鍵＝氣功炮、右鍵＝超級氣功波。出招會自動對準最近的殭屍。</p>
@@ -213,9 +221,9 @@
 <div id="gHud" class="panel" hidden>
   <div class="row"><span>生命</span><div class="bar"><i id="gHp"></i></div></div>
   <div class="row2"><span id="gWave">準備…</span><span id="gKills">擊倒 0</span><span id="gCombo"></span><button id="gQuit">結束遊戲</button></div>
-  <div class="keyhint">J 氣功炮｜L 超級氣功波｜U 旋風腿｜I 升龍拳｜O 飛踢｜滑鼠左鍵＝氣功炮、右鍵＝超級氣功波</div>
+  <div class="keyhint">J 氣功炮｜L 超級氣功波｜U 旋風腿｜I 升龍拳｜O 飛踢｜按住 H 蓄力氣功彈｜滑鼠左鍵＝氣功炮、右鍵＝超級氣功波</div>
 </div>
-<div id="gSkills" hidden><button data-s="blast">氣功炮<small>J</small></button><button data-s="beam">超級<br>氣功波<small>L</small></button><button data-s="spin">旋風腿<small>U</small></button><button data-s="upper">升龍拳<small>I</small></button><button data-s="fly">飛踢<small>O</small></button></div>
+<div id="gSkills" hidden><button data-s="blast">氣功炮<small>J</small></button><button data-s="beam">超級<br>氣功波<small>L</small></button><button data-s="spin">旋風腿<small>U</small></button><button data-s="upper">升龍拳<small>I</small></button><button data-s="fly">飛踢<small>O</small></button><button data-s="charge">蓄力<br>氣功彈<small>H 按住</small></button></div>
 <div id="gBig"></div>
 <div id="gOver" class="panel" hidden><h2>被殭屍抓到了！</h2><div id="gOverMsg"></div><div><button id="gRetry">再玩一次</button><button id="gExit">離開</button></div></div>
 <div id="gFlash"></div>
@@ -1372,11 +1380,11 @@ function currentAct(){const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.
 function syncActBtn(){const a=currentAct();actCur=a;
   const html=!a?'':a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
   if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
-function toggleAct(){const a=currentAct();if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;}syncActBtn();}
+function toggleAct(){const a=currentAct();if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
 actBtn.addEventListener('click',e=>{e.stopPropagation();toggleAct();});
 actBtn.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleAct();},{passive:false});
-document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)c.target=0;syncActBtn();};
-document.getElementById('curClose').onclick=()=>{for(const c of CURTAINS)c.target=1;syncActBtn();};
+document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)c.target=0;syncActBtn();AUDIO.sfx('swish');};
+document.getElementById('curClose').onclick=()=>{for(const c of CURTAINS)c.target=1;syncActBtn();AUDIO.sfx('swish');};
 
 // ---- 1F 廚房（依照片：香檳色廚櫃、白色人造石檯面、L 型） ----
 // 長流理台沿後牆（北），西端緊鄰後門；轉角沿東牆，接著冰箱，冰箱前面就是走道；窗在西牆
@@ -2213,12 +2221,106 @@ function updatePlace(){
   if(html!==lastPlace){placeEl.innerHTML=html;lastPlace=html;}
 }
 
+/* ---------------- 聲音：音效、遊戲音樂、環境音（全部用 WebAudio 即時合成，不用音樂檔） ----------------
+   第一次點畫面／按鍵才會開始（瀏覽器規定）；切到背景會暫停。選單「聲音」：音量、靜音、環境音（會記住）。 */
+const AUDIO=(()=>{
+  const A={ctx:null,master:null,sfx:null,music:null,amb:null,noise:null,vol:0.7,mute:false,ambOn:true};
+  try{const v=localStorage.getItem('home-vol');if(v!==null)A.vol=+v;A.mute=localStorage.getItem('home-mute')==='1';A.ambOn=localStorage.getItem('home-amb')!=='0';}catch(_){}
+  function init(){if(A.ctx){if(A.ctx.state==='suspended'&&!document.hidden)A.ctx.resume();return;}
+    const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=A.ctx=new C();
+    A.master=c.createGain();A.master.connect(c.destination);
+    const comp=c.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;comp.connect(A.master);
+    A.sfx=c.createGain();A.sfx.gain.value=0.9;A.sfx.connect(comp);
+    A.music=c.createGain();A.music.gain.value=0;A.music.connect(comp);
+    A.amb=c.createGain();A.amb.gain.value=0;A.amb.connect(comp);
+    const n=c.createBuffer(1,c.sampleRate*2,c.sampleRate),d=n.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;A.noise=n;
+    applyVol();startAmbient();}
+  function applyVol(){if(A.master)A.master.gain.setTargetAtTime(A.mute?0:A.vol,A.ctx.currentTime,0.05);}
+  for(const ev of ['pointerdown','keydown','touchstart'])addEventListener(ev,init,{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(!A.ctx)return;if(document.hidden)A.ctx.suspend();else A.ctx.resume();});
+  // ---- 基本聲音：音調（可以滑音、可以過濾）、雜訊（帶通／低通掃頻） ----
+  const ok=()=>A.ctx&&A.ctx.state==='running';
+  function env(g,t,a,peak,dec){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+a+dec);}
+  function tone(type,f0,f1,t,dur,peak,dest,filt){const c=A.ctx,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+    let node=o;if(filt){const f=c.createBiquadFilter();f.type=filt[0];f.frequency.value=filt[1];if(filt[2])f.Q.value=filt[2];o.connect(f);node=f;}node.connect(g);g.connect(dest);env(g,t,0.005,peak,dur);o.start(t);o.stop(t+dur+0.05);}
+  function noise(t,dur,peak,dest,type,f0,f1,q){const c=A.ctx,s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();s.buffer=A.noise;s.loop=true;f.type=type;f.frequency.setValueAtTime(f0,t);if(f1)f.frequency.exponentialRampToValueAtTime(f1,t+dur);if(q)f.Q.value=q;
+    s.connect(f);f.connect(g);g.connect(dest);env(g,t,0.004,peak,dur);s.start(t,Math.random()*1.5);s.stop(t+dur+0.05);}
+  const rp=a=>a*(0.92+Math.random()*0.16),rnd=(a,b)=>a+Math.random()*(b-a);
+  // ---- 音效 ----
+  function sfx(type){if(!ok())return;const t=A.ctx.currentTime,o=A.sfx;
+    switch(type){
+      case 'hit':noise(t,0.08,0.5,o,'highpass',2500);tone('sine',rp(160),50,t,0.14,0.8,o);break;
+      case 'heavy':noise(t,0.15,0.6,o,'lowpass',3000,300);tone('sine',rp(120),35,t,0.3,1,o);tone('square',rp(80),40,t,0.12,0.25,o,['lowpass',600]);break;
+      case 'whoosh':noise(t,0.28,0.45,o,'bandpass',rp(400),2400,1.5);break;
+      case 'blast':noise(t,0.35,0.5,o,'bandpass',300,3000,2);tone('sawtooth',rp(180),700,t,0.3,0.25,o,['lowpass',1800]);tone('sine',rp(90),220,t,0.25,0.4,o);break;
+      case 'beam':noise(t,0.9,0.55,o,'bandpass',200,2500,1.2);tone('sawtooth',rp(70),140,t,0.9,0.35,o,['lowpass',900]);tone('sawtooth',rp(105),210,t,0.9,0.25,o,['lowpass',1200]);tone('sine',50,28,t,0.8,0.9,o);break;
+      case 'boom':noise(t,0.7,0.8,o,'lowpass',1800,80);tone('sine',rp(70),25,t,0.6,1,o);break;
+      case 'hurt':tone('triangle',rp(260),110,t,0.18,0.5,o);noise(t,0.06,0.3,o,'lowpass',900);break;
+      case 'groan':tone('sawtooth',rp(95),rp(70),t,0.9,0.12,o,['lowpass',500,6]);break;
+      case 'zdie':tone('sawtooth',rp(140),45,t,0.7,0.18,o,['lowpass',700,4]);noise(t+0.35,0.12,0.4,o,'lowpass',500);break;
+      case 'combo':[660,880,1320].forEach((f,i)=>tone('square',f,0,t+i*0.06,0.12,0.12,o,['lowpass',3000]));break;
+      case 'wave':[220,330,440].forEach((f,i)=>tone('square',f,0,t+i*0.15,0.25,0.15,o,['lowpass',2000]));break;
+      case 'over':[392,330,262,196].forEach((f,i)=>tone('triangle',f,0,t+i*0.25,0.4,0.25,o));break;
+      case 'door':noise(t,0.35,0.15,o,'bandpass',600,300,4);tone('sine',rp(180),140,t,0.3,0.05,o);break;
+      case 'click':noise(t,0.04,0.35,o,'highpass',1800);tone('sine',rp(900),400,t,0.04,0.1,o);break;
+      case 'swish':noise(t,0.6,0.18,o,'bandpass',rp(1500),900,0.8);break;
+      case 'rattle':for(let i=0;i<6;i++)noise(t+i*0.05,0.03,0.2,o,'bandpass',2200,0,3);break;
+      case 'thud':noise(t,0.15,0.35,o,'lowpass',500,120);tone('sine',rp(90),40,t,0.15,0.5,o);break;
+      case 'bigboom':noise(t,1.3,1,o,'lowpass',2500,60);tone('sine',60,22,t,1.1,1,o);tone('sawtooth',90,30,t,0.7,0.3,o,['lowpass',400]);break;}}
+  // 蓄力的聲音：越來越高，放開就停
+  function chargeSound(){if(!ok())return null;const c=A.ctx,t=c.currentTime,o=c.createOscillator(),o2=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain();
+    o.type='sawtooth';o2.type='sine';o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(440,t+1.2);o2.frequency.setValueAtTime(220,t);o2.frequency.exponentialRampToValueAtTime(880,t+1.2);
+    f.type='lowpass';f.frequency.setValueAtTime(400,t);f.frequency.exponentialRampToValueAtTime(3000,t+1.2);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.18,t+0.3);
+    const n=c.createBufferSource();n.buffer=A.noise;n.loop=true;const nf=c.createBiquadFilter();nf.type='bandpass';nf.frequency.value=1800;nf.Q.value=2;const ng=c.createGain();ng.gain.value=0.12;n.connect(nf);nf.connect(ng);ng.connect(g);
+    o.connect(f);o2.connect(f);f.connect(g);g.connect(A.sfx);o.start(t);o2.start(t);n.start(t);
+    return {stop(){const t2=c.currentTime;g.gain.cancelScheduledValues(t2);g.gain.setValueAtTime(Math.max(0.0001,g.gain.value),t2);g.gain.exponentialRampToValueAtTime(0.0001,t2+0.08);for(const x of [o,o2,n])x.stop(t2+0.1);}};}
+  // ---- 遊戲背景音樂：A 小調 Am–F–Dm–E，鼓＋貝斯＋琶音＋長音；波數越高越快 ----
+  const M={on:false,timer:null,step:0,next:0,bpm:120};
+  const midi=n=>440*Math.pow(2,(n-69)/12);
+  const PROG=[[57,60,64],[53,57,60],[50,53,57],[52,56,59]];
+  const BASS=[0,0,12,0,0,12,0,10,0,0,12,0,7,0,10,12];
+  function musicStart(){init();if(!A.ctx||M.on)return;M.on=true;M.step=0;M.next=A.ctx.currentTime+0.1;M.bpm=120;
+    A.music.gain.cancelScheduledValues(A.ctx.currentTime);A.music.gain.setTargetAtTime(0.55,A.ctx.currentTime,0.3);M.timer=setInterval(sched,25);}
+  function musicStop(){if(!M.on)return;M.on=false;clearInterval(M.timer);if(A.ctx)A.music.gain.setTargetAtTime(0,A.ctx.currentTime,0.25);}
+  function setTempo(w){M.bpm=Math.min(160,118+w*6);}
+  function sched(){if(!ok())return;const c=A.ctx,spb=60/M.bpm/4;if(M.next<c.currentTime)M.next=c.currentTime+0.02;
+    while(M.next<c.currentTime+0.12){playStep(M.step,M.next,spb);M.step=(M.step+1)%64;M.next+=spb;}}
+  function playStep(s,t,spb){const o=A.music,ch=PROG[Math.floor(s/16)%4],st=s%16;
+    if(st%4===0)tone('sine',150,40,t,0.18,0.9,o);                                                      // 大鼓
+    if(st===4||st===12){noise(t,0.12,0.35,o,'highpass',1800);tone('triangle',200,120,t,0.08,0.2,o);}   // 小鼓
+    if(st%2===0)noise(t,0.03,0.12,o,'highpass',7000);                                                  // 鈸
+    tone('sawtooth',midi(ch[0]-24+BASS[st]),0,t,spb*0.9,0.22,o,['lowpass',700,3]);                    // 貝斯
+    if(st%2===1)tone('square',midi(ch[(st>>1)%3]+12),0,t,spb*0.8,0.06,o,['lowpass',2400]);            // 琶音
+    if(st===0)for(const n of ch)tone('sawtooth',midi(n),0,t,spb*15,0.035,o,['lowpass',1200]);}        // 長音
+  // ---- 環境音：遠處車流（一直有）、鳥叫（白天）／蟲鳴（晚上）、偶爾機車經過；室內比較小聲、比較悶 ----
+  const AMB={birdT:2,carT:15,f:null};
+  function startAmbient(){const c=A.ctx,s=c.createBufferSource();s.buffer=A.noise;s.loop=true;const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=280;const g=c.createGain();g.gain.value=0.12;
+    const lfo=c.createOscillator(),lg=c.createGain();lfo.frequency.value=0.07;lg.gain.value=0.06;lfo.connect(lg);lg.connect(g.gain);lfo.start();
+    s.connect(f);f.connect(g);g.connect(A.amb);s.start();AMB.f=f;setInterval(ambTick,500);}
+  function ambTick(){if(!ok())return;const t=A.ctx.currentTime,on=started&&A.ambOn,inside=started&&mode==='walk'&&indoors(),gaming=GAME.on;
+    A.amb.gain.setTargetAtTime(!on?0:gaming?0.35:inside?0.45:1,t,0.6);AMB.f.frequency.setTargetAtTime(inside?160:300,t,0.5);
+    const h=+document.getElementById('time').value,night=h>=18.3||h<6;
+    AMB.birdT-=0.5;if(AMB.birdT<=0&&on){AMB.birdT=night?rnd(0.6,1.4):rnd(1.5,5);if(night)cricket(t);else bird(t);}
+    AMB.carT-=0.5;if(AMB.carT<=0&&on&&!gaming){AMB.carT=rnd(18,40);scooter(t);}}
+  function bird(t){const n=2+Math.floor(Math.random()*4),base=rnd(2600,4200);for(let i=0;i<n;i++)tone('sine',base*rnd(0.9,1.1),base*rnd(1.15,1.4),t+i*rnd(0.09,0.16),rnd(0.05,0.1),0.05,A.amb);}
+  function cricket(t){const f=rnd(4200,4800);for(let i=0;i<3;i++)tone('sine',f,0,t+i*0.06,0.035,0.03,A.amb);}
+  function scooter(t){const c=A.ctx,o=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain(),d=rnd(3,5);o.type='sawtooth';o.frequency.setValueAtTime(rnd(55,70),t);o.frequency.linearRampToValueAtTime(rnd(80,95),t+d*0.5);o.frequency.linearRampToValueAtTime(rnd(50,60),t+d);
+    f.type='lowpass';f.frequency.value=380;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.06,t+d*0.5);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(f);f.connect(g);g.connect(A.amb);o.start(t);o.stop(t+d+0.1);}
+  // ---- 選單：音量、靜音、環境音 ----
+  {const vol=document.getElementById('vol'),volVal=document.getElementById('volVal'),mute=document.getElementById('mute'),amb=document.getElementById('amb');
+   vol.value=A.vol;volVal.textContent=Math.round(A.vol*100)+'%';mute.checked=A.mute;amb.checked=A.ambOn;
+   vol.oninput=()=>{A.vol=+vol.value;volVal.textContent=Math.round(A.vol*100)+'%';try{localStorage.setItem('home-vol',A.vol);}catch(_){}applyVol();};
+   mute.onchange=()=>{A.mute=mute.checked;try{localStorage.setItem('home-mute',A.mute?'1':'0');}catch(_){}applyVol();};
+   amb.onchange=()=>{A.ambOn=amb.checked;try{localStorage.setItem('home-amb',A.ambOn?'1':'0');}catch(_){}};}
+  return {sfx,chargeSound,musicStart,musicStop,setTempo,A};
+})();
+
 /* ---------------- 小遊戲：殭屍來襲（選單「小遊戲」開始） ----------------
    殭屍一波波從門前巷子冒出來，從大門攻進家裡追玩家（會走樓梯、會開門，不會爬梯子）。
    技能都是按了馬上放、沒有魔力／冷卻：J／1 拳、L／2 踢、U／3 旋風腿、I／5 升龍拳、O／4 氣功炮；畫面下方有技能按鈕。
    連段（連續按，間隔 0.8 秒內）：拳拳拳＝三連重拳、拳拳踢＝連環踢、踢拳＝升龍拳、踢踢＝飛踢、拳踢氣＝超級氣功波。 */
 const GAME=(()=>{
-  const G={on:false,over:false,hp:100,wave:0,kills:0,zs:[],toSpawn:0,spawnT:0,waveT:0,shots:[],fx:[],act:null,queue:null,hist:[],side:0,calm:0,prevView:null,combo:0,comboT:0,best:0,stop:0,shake:0,blastCd:0};
+  const G={charge:-1,full:false,on:false,over:false,hp:100,wave:0,kills:0,zs:[],toSpawn:0,spawnT:0,waveT:0,shots:[],fx:[],act:null,queue:null,hist:[],side:0,calm:0,prevView:null,combo:0,comboT:0,best:0,stop:0,shake:0,blastCd:0};
   const $=id=>document.getElementById(id);
   const hud=$('gHud'),hpEl=$('gHp'),waveEl=$('gWave'),killEl=$('gKills'),comboEl=$('gCombo'),skills=$('gSkills'),overEl=$('gOver'),flash=$('gFlash'),bigEl=$('gBig');
   // 每招：dur＝動作時間、hits＝打中的時間點（0～1）、r 距離、cone 前方角度（-1＝一圈）、dmg、kb 擊退、up 往上飛、name 連段名稱
@@ -2227,17 +2329,14 @@ const GAME=(()=>{
     heavy:{dur:0.32,hits:[0.5],r:2.0,cone:0.25,dmg:75,kb:13,up:3,shake:0.25,stop:0.07,name:'三連重拳！'},
     kick:{dur:0.3,hits:[0.5],r:1.95,cone:0.3,dmg:45,kb:8},
     flurry:{dur:0.62,hits:[0.2,0.45,0.75],r:2.1,cone:0.25,dmg:32,kb:4,lastKb:11,lastUp:5,shake:0.15,name:'連環踢！',safe:true},
-    spin:{dur:0.45,hits:[0.25,0.5,0.75],r:2.9,cone:-1,dmg:30,kb:9,up:2,shake:0.15,name:'旋風腿！',safe:true},
-    upper:{dur:0.45,hits:[0.35],r:1.9,cone:0.15,dmg:60,kb:3,up:9,shake:0.2,stop:0.06,name:'升龍拳！',safe:true},
-    fly:{dur:0.5,hits:[],r:1.6,cone:0.1,dmg:60,kb:12,up:3,shake:0.18,name:'飛踢！',safe:true},
+    spin:{dur:0.45,hits:[0.25,0.5,0.75],r:2.9,cone:-1,dmg:30,kb:11,up:5,shake:0.15,name:'旋風腿！',safe:true},
+    upper:{dur:0.45,hits:[0.35],r:1.9,cone:0.15,dmg:60,kb:4,up:12,shake:0.2,stop:0.06,name:'升龍拳！',safe:true},
+    fly:{dur:0.5,hits:[],r:1.6,cone:0.1,dmg:60,kb:16,up:6,shake:0.18,name:'飛踢！',safe:true},
     blast:{dur:0.22,hits:[]},
     beam:{dur:0.5,hits:[0.25],shake:0.45,stop:0.08,name:'超級氣功波！',safe:true},
   };
   const COMBOS=[];   // 使用者只要酷炫技能：拿掉拳、踢和連段，每個按鈕直接放招
-  // ---- 簡單音效（WebAudio 合成） ----
-  let ac=null;const snd=(type)=>{try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);
-    const P={hit:[170,60,0.22,0.1,'square'],heavy:[110,35,0.32,0.22,'square'],whoosh:[700,200,0.06,0.12,'triangle'],blast:[520,90,0.22,0.4,'sawtooth'],boom:[90,30,0.35,0.45,'sawtooth'],hurt:[300,120,0.16,0.2,'triangle'],groan:[110,80,0.05,0.6,'sawtooth'],combo:[440,880,0.12,0.25,'square']}[type];
-    o.type=P[4];o.frequency.setValueAtTime(P[0],t);o.frequency.exponentialRampToValueAtTime(P[1],t+P[3]);g.gain.setValueAtTime(P[2],t);g.gain.exponentialRampToValueAtTime(0.001,t+P[3]);o.start(t);o.stop(t+P[3]+0.02);}catch(_){}};
+  const snd=t=>AUDIO.sfx(t);   // 音效在「聲音」那段
   // ---- 導航點（殭屍找路用）：1F 巷子→前院→大門→客廳→走道→廚房→後門→後陽台→側邊通道；樓梯每層兩跑；2F～4F 各房間 ----
   const NODES=[];const nd=(x,z,y)=>NODES.push({x,z,y,nb:[]})-1;const ln=(a,b)=>{NODES[a].nb.push(b);NODES[b].nb.push(a);};
   {const lane=nd(5.3,6.5,0),yard=nd(5.26,1.6,0),arc=nd(5.26,-1.4,0),din=nd(5.26,-2.9,0),liv=nd(4.0,-4.8,0),livo=nd(5.5,-6.9,0),cor=nd(5.55,-7.95,0),core=nd(5.55,-9.9,0),kit=nd(4.4,-10.7,0),
@@ -2294,6 +2393,8 @@ const GAME=(()=>{
   const glowTex=radTex([[0,'rgba(255,255,255,1)'],[0.25,'rgba(140,220,255,0.9)'],[1,'rgba(60,140,255,0)']]);
   const sparkTex=radTex([[0,'rgba(255,255,230,1)'],[0.4,'rgba(255,200,90,0.8)'],[1,'rgba(255,120,40,0)']]);
   const sprite=(tex,s)=>{const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));sp.scale.setScalar(s);scene.add(sp);return sp;};
+  const dustTex=radTex([[0,'rgba(190,180,160,0.75)'],[1,'rgba(190,180,160,0)']]);
+  function dust(p){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:dustTex,transparent:true,depthWrite:false}));sp.position.copy(p);scene.add(sp);G.fx.push({sp,s0:0.5,s1:2.2,life:0.6,t:0});}
   function fx(pos,tex,s0,s1,life,vel){const sp=sprite(tex,s0);sp.position.copy(pos);G.fx.push({sp,s0,s1,life,t:0,vel:vel||null});}
   // 傷害數字
   function dmgText(pos,n,big){const [c,g]=cvs(128,64);g.font=`900 ${big?46:38}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.lineWidth=7;g.strokeStyle='rgba(0,0,0,0.75)';g.strokeText(String(n),64,34);g.fillStyle=big?'#ffd23f':'#ffffff';g.fillText(String(n),64,34);
@@ -2304,10 +2405,10 @@ const GAME=(()=>{
   const fwd=()=>new V2(-Math.sin(player.yaw),-Math.cos(player.yaw));
   const handPos=()=>{const f=fwd();return new V3(player.pos.x+f.x*0.55,player.y+bodyH().head*0.68,player.pos.y+f.y*0.55);};
   function hurtZombie(z,dmg,dir,kb,up){if(z.dead||z.rise>0.3)return false;dmg=Math.round(dmg*rr(0.9,1.1));z.hp-=dmg;z.flash=0.16;z.kb.set(dir.x*kb,dir.y*kb);z.stun=0.35;
-    if(up){z.vy=Math.max(z.vy,up);z.air=0.01;}
+    if(up){z.vy=Math.max(z.vy,up);z.air=0.01;z.spin=Math.random()<0.5?-1:1;}
     const p=new V3(z.pos.x,z.y+1.25,z.pos.y);fx(p,sparkTex,0.4,1.1+dmg/80,0.2);dmgText(new V3(z.pos.x,z.y+1.9,z.pos.y),dmg,dmg>=55);
     G.combo++;G.comboT=2;G.best=Math.max(G.best,G.combo);
-    if(z.hp<=0){z.dead=true;z.deadT=0;G.kills++;killEl.textContent=`擊倒 ${G.kills}`;if(!up&&kb>7){z.vy=Math.max(z.vy,3);z.air=0.01;}}
+    if(z.hp<=0){z.dead=true;z.deadT=0;G.kills++;killEl.textContent=`擊倒 ${G.kills}`;z.vy=Math.max(z.vy,(up||3)*1.3);z.kb.multiplyScalar(1.4);z.air=0.01;z.spin=z.spin||(Math.random()<0.5?-1:1);snd('zdie');}   // 打死的會多飛一段
     return true;}
   // 依招式打一次範圍內的殭屍
   function strike(m,opt={}){const f=fwd();let hit=false;
@@ -2334,14 +2435,21 @@ const GAME=(()=>{
     if(move==='upper'){player.vy=Math.max(player.vy,3.2);player.ground=false;}
     if(move==='fly'){player.vy=Math.max(player.vy,2.2);player.ground=false;}}
   // 氣功炮：馬上射出一顆
-  function fireBall(){const f=fwd(),p=handPos(),pitch=Math.max(-0.4,Math.min(0.4,player.pitch+0.05));
-    const dir=new V3(f.x*Math.cos(pitch),Math.sin(pitch),f.y*Math.cos(pitch)).normalize(),r=0.32;
+  // c＝蓄力程度 0～1（一般氣功炮是 0）：越大顆、越慢、範圍越大、打得越高
+  function fireBall(c=0){const f=fwd(),p=handPos(),pitch=Math.max(-0.4,Math.min(0.4,player.pitch+0.05));
+    const dir=new V3(f.x*Math.cos(pitch),Math.sin(pitch),f.y*Math.cos(pitch)).normalize(),r=0.32+0.6*c;
     const core=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),new THREE.MeshBasicMaterial({color:'#e8fbff'}));core.scale.setScalar(r*0.6);core.position.copy(p);scene.add(core);
     const glow=sprite(glowTex,r*5.5);glow.position.copy(p);
-    G.shots.push({p,dir,v:20,r,dmg:65,aoe:2.0,life:1.8,core,glow,trail:0});snd('blast');}
-  function explode(s){const p=s.p;fx(p,glowTex,s.r*3,s.aoe*3.2,0.45);fx(p,sparkTex,s.r*2,s.aoe*2.2,0.3);snd('boom');G.shake=Math.max(G.shake,0.2);
-    for(const z of G.zs){if(z.dead)continue;const dx=z.pos.x-p.x,dz=z.pos.y-p.z,dy=z.y+1-p.y,d=Math.hypot(dx,dz,dy);if(d>s.aoe+0.4)continue;const k=1-Math.min(1,d/(s.aoe+0.4))*0.5,dd=Math.hypot(dx,dz)||1;hurtZombie(z,s.dmg*k,new V2(dx/dd,dz/dd),10*k,4*k);}
+    G.shots.push({p,dir,v:20-6*c,r,dmg:65+215*c,aoe:2.0+4.5*c,kb:10+14*c,up:5+10*c,big:c>=0.95,life:1.8+c,core,glow,trail:0});snd(c>0.4?'beam':'blast');}
+  function explode(s){const p=s.p;fx(p,glowTex,s.r*3,s.aoe*3.2,0.45);fx(p,sparkTex,s.r*2,s.aoe*2.2,0.3);snd(s.big?'bigboom':'boom');G.shake=Math.max(G.shake,s.big?0.6:0.2+s.aoe*0.04);if(s.big){G.stop=0.1;fx(p,glowTex,1,s.aoe*5,0.8);fx(p,sparkTex,1,s.aoe*3.5,0.6);}
+    for(const z of G.zs){if(z.dead)continue;const dx=z.pos.x-p.x,dz=z.pos.y-p.z,dy=z.y+1-p.y,d=Math.hypot(dx,dz,dy);if(d>s.aoe+0.4)continue;const k=1-Math.min(1,d/(s.aoe+0.4))*0.5,dd=Math.hypot(dx,dz)||1;hurtZombie(z,s.dmg*k,new V2(dx/dd,dz/dd),s.kb*k,s.up*k);}
     scene.remove(s.core,s.glow);s.core.geometry.dispose();s.dead=true;}
+  // 蓄力氣功彈：按住集氣（集氣中無敵），放開射出；集滿約 1.2 秒＝全力氣功彈
+  let chargeSnd=null;const chBall=sprite(glowTex,0.3);chBall.visible=false;
+  function chargeStart(){if(!G.on||G.over||player.climb||G.charge>=0)return;G.charge=0;G.full=false;avatar.yaw=player.yaw;chargeSnd=AUDIO.chargeSound();}
+  function chargeStop(){G.charge=-1;chBall.visible=false;if(chargeSnd){chargeSnd.stop();chargeSnd=null;}}
+  function chargeRelease(){if(G.charge<0)return;const c=Math.min(1,G.charge/1.2);chargeStop();
+    aim(14);avatar.yaw=player.yaw;G.act={kind:'blast',t:0,dur:0.3,next:0,once:new Set()};fireBall(c);if(c>=0.95)bigText('全力氣功彈！');else if(c>0.4)bigText('蓄力氣功彈！');}
   // 超級氣功波：一直線打穿
   function superBeam(){const f=fwd(),p=handPos(),L=22;
     const g=new THREE.CylinderGeometry(0.5,0.35,L,20,1,true);g.rotateX(Math.PI/2);g.translate(0,0,-L/2);
@@ -2349,30 +2457,34 @@ const GAME=(()=>{
     beam.position.copy(p);beam.rotation.y=player.yaw;scene.add(beam);
     const inner=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.16,L,14,1,true).rotateX(Math.PI/2).translate(0,0,-L/2),new THREE.MeshBasicMaterial({color:'#ffffff',transparent:true,opacity:1,blending:THREE.AdditiveBlending,depthWrite:false}));
     beam.add(inner);
-    G.fx.push({mesh:beam,t:0,life:0.55});fx(p,glowTex,1.2,3.5,0.5);snd('boom');snd('blast');
+    G.fx.push({mesh:beam,t:0,life:0.55});fx(p,glowTex,1.2,3.5,0.5);snd('beam');
     for(const z of G.zs){if(z.dead||Math.abs(z.y-player.y)>1.6)continue;const dx=z.pos.x-player.pos.x,dz=z.pos.y-player.pos.y,along=dx*f.x+dz*f.y,side=Math.abs(dx*f.y-dz*f.x);
-      if(along>0&&along<L&&side<1.0)hurtZombie(z,150,f,14,6);}}
+      if(along>0&&along<L&&side<1.0)hurtZombie(z,150,f,18,10);}}
   // ---- 開始／結束 ----
-  function clearAll(){grid=null;for(const z of G.zs)scene.remove(z.m.root);G.zs=[];for(const s of G.shots)scene.remove(s.core,s.glow);G.shots=[];
+  function clearAll(){grid=null;chargeStop();for(const z of G.zs)scene.remove(z.m.root);G.zs=[];for(const s of G.shots)scene.remove(s.core,s.glow);G.shots=[];
     for(const e of G.fx){if(e.sp)scene.remove(e.sp);if(e.mesh)scene.remove(e.mesh);}G.fx=[];G.act=null;G.queue=null;G.hist=[];}
   function start(){clearAll();Object.assign(G,{on:true,over:false,hp:100,wave:0,kills:0,toSpawn:0,spawnT:0,waveT:1.5,calm:0,combo:0,comboT:0,best:0,stop:0,shake:0});
     if(mode!=='walk')toggleAerial();if(G.prevView===null)G.prevView=view;view='third';syncViewUI();   // 遊戲中用第三人稱（不存成偏好）
     teleport(5.26,0.6,Math.PI,0);   // 面向巷子（殭屍從那邊來）
     document.body.classList.add('gaming');hud.hidden=false;skills.hidden=false;overEl.hidden=true;killEl.textContent='擊倒 0';comboEl.textContent='';waveEl.textContent='準備…';menu.hidden=true;bMenu.classList.remove('on');
-    toast('殭屍來襲！守住家裡！按下方按鈕放技能（會自動對準最近的殭屍）');}
-  function end(){clearAll();document.body.classList.remove('gaming');G.on=false;G.over=false;hud.hidden=true;skills.hidden=true;overEl.hidden=true;flash.style.boxShadow='';if(G.prevView){view=G.prevView;syncViewUI();}G.prevView=null;}
-  function gameOver(){G.over=true;overEl.hidden=false;$('gOverMsg').textContent=`撐到第 ${G.wave} 波，擊倒 ${G.kills} 隻殭屍，最高 ${G.best} 連擊`;snd('hurt');}
+    AUDIO.musicStart();toast('殭屍來襲！守住家裡！按下方按鈕放技能（會自動對準最近的殭屍），按住「蓄力」集氣放開發射');}
+  function end(){clearAll();AUDIO.musicStop();document.body.classList.remove('gaming');G.on=false;G.over=false;hud.hidden=true;skills.hidden=true;overEl.hidden=true;flash.style.boxShadow='';if(G.prevView){view=G.prevView;syncViewUI();}G.prevView=null;}
+  function gameOver(){G.over=true;overEl.hidden=false;$('gOverMsg').textContent=`撐到第 ${G.wave} 波，擊倒 ${G.kills} 隻殭屍，最高 ${G.best} 連擊`;AUDIO.musicStop();chargeStop();snd('over');}
   $('gStart').onclick=start;$('gQuit').onclick=end;$('gRetry').onclick=start;$('gExit').onclick=end;
   // 技能按鈕（電腦點、手機按都可以，按下去馬上出招）
   for(const b of skills.querySelectorAll('button')){const s=b.dataset.s;
+    b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});
+    if(s==='charge'){const dn=e=>{e.preventDefault();e.stopPropagation();chargeStart();b.classList.add('hit');},up=e=>{e.preventDefault();e.stopPropagation();chargeRelease();b.classList.remove('hit');};   // 按住集氣、放開發射
+      b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('touchend',up,{passive:false});b.addEventListener('touchcancel',up,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('mouseup',up);b.addEventListener('mouseleave',e=>{if(G.charge>=0)up(e);});continue;}
     const go=e=>{e.preventDefault();e.stopPropagation();press(s);b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),120);};
-    b.addEventListener('touchstart',go,{passive:false});b.addEventListener('mousedown',go);b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});}
+    b.addEventListener('touchstart',go,{passive:false});b.addEventListener('mousedown',go);}
   // 滑鼠：左鍵點一下＝拳（拖曳是轉視角）、右鍵＝氣功炮
   let md=null;
   canvas.addEventListener('mousedown',e=>{if(!G.on)return;if(e.button===2)press('beam');else if(e.button===0)md={x:e.clientX,y:e.clientY,t:performance.now()};});
   addEventListener('mouseup',e=>{if(!G.on)return;if(e.button===0&&md){if(Math.hypot(e.clientX-md.x,e.clientY-md.y)<6&&performance.now()-md.t<350)press('blast');md=null;}});
   // 鍵盤
   function key(e,down){const m={KeyJ:'blast',Digit1:'blast',KeyL:'beam',Digit2:'beam',KeyU:'spin',Digit3:'spin',KeyI:'upper',Digit4:'upper',KeyO:'fly',Digit5:'fly'}[e.code];
+    if(e.code==='KeyH'||e.code==='Digit6'){if(down&&!e.repeat)chargeStart();else if(!down)chargeRelease();return true;}
     if(!m)return false;if(down&&!e.repeat)press(m);return true;}
   // ---- 每格更新 ----
   function update(dt){if(!G.on)return;
@@ -2387,11 +2499,16 @@ const GAME=(()=>{
     if(G.over)return;
     // 打到時短暫停頓（殭屍變慢），打擊感
     let zdt=dt;if(G.stop>0){G.stop-=dt;zdt=dt*0.12;}
+    // 集氣：手中光球越來越大、周圍的氣往手上聚
+    if(G.charge>=0){G.charge+=dt;const c=Math.min(1,G.charge/1.2),p=handPos(),pulse=1+Math.sin(performance.now()/50)*0.1;avatar.yaw=player.yaw;
+      chBall.visible=true;chBall.position.copy(p);chBall.scale.setScalar((0.4+2.2*c)*pulse);
+      G.chT=(G.chT||0)-dt;if(G.chT<=0){G.chT=0.04;const a=Math.random()*Math.PI*2,r=1.2+Math.random()*0.8,q=new V3(p.x+Math.cos(a)*r,p.y+rr(-0.6,0.8),p.z+Math.sin(a)*r);fx(q,glowTex,0.3,0.05,0.35,p.clone().sub(q).multiplyScalar(2.8));}
+      if(c>=1&&!G.full){G.full=true;snd('combo');fx(p,glowTex,0.5,3,0.4);}}
     // 連擊數
     G.comboT-=dt;if(G.comboT<=0)G.combo=0;comboEl.textContent=G.combo>=2?`${G.combo} 連擊！`:'';
     // 波數
     const alive=G.zs.filter(z=>!z.dead).length;
-    if(G.toSpawn<=0&&alive===0){G.waveT-=dt;if(G.waveT<=0){G.wave++;G.toSpawn=6+3*(G.wave-1);G.spawnT=0;waveEl.textContent=`第 ${G.wave} 波`;toast(`第 ${G.wave} 波殭屍來了！（${G.toSpawn} 隻）`);G.waveT=3;}}
+    if(G.toSpawn<=0&&alive===0){G.waveT-=dt;if(G.waveT<=0){G.wave++;G.toSpawn=6+3*(G.wave-1);G.spawnT=0;snd('wave');AUDIO.setTempo(G.wave);waveEl.textContent=`第 ${G.wave} 波`;toast(`第 ${G.wave} 波殭屍來了！（${G.toSpawn} 隻）`);G.waveT=3;}}
     if(G.toSpawn>0){G.spawnT-=dt;if(G.spawnT<=0&&alive<(POWER.save?12:18)){spawnZombie();G.toSpawn--;G.spawnT=0.8;}}
     G.calm+=dt;if(G.calm>2)G.hp=Math.min(100,G.hp+8*dt);
     // 動作：時間到就打；飛踢在前衝那段一路打；做到七成可以接排隊的下一招
@@ -2413,12 +2530,12 @@ const GAME=(()=>{
       s.trail-=dt;if(s.trail<=0){s.trail=0.025;fx(s.p.clone(),glowTex,s.r*2.6,s.r*0.6,0.3);}}
     G.shots=G.shots.filter(s=>!s.dead);
     // 殭屍
-    const pf=player.y,safe=G.act&&MOVES[G.act.kind].safe;
+    const pf=player.y,safe=(G.act&&MOVES[G.act.kind].safe)||G.charge>=0;
     for(const z of G.zs){const m=z.m;
       // 高度：被打飛、樓梯、掉落
       const fl=heightAt(z.pos.x,z.pos.y,Math.max(z.y,0));
-      if(!z.dead||z.deadT<1.4){if(z.vy>0||z.y>fl+0.02){z.vy-=16*zdt;z.y+=z.vy*zdt;if(z.y<=fl){z.y=fl;z.vy=0;z.air=0;}else z.air+=zdt;}else{z.y=fl;z.air=0;}}
-      if(z.dead){z.deadT+=zdt;const p=Math.min(1,z.deadT/0.5);m.body.rotation.x=z.air>0?-z.air*9:-p*Math.PI/2;
+      if(!z.dead||z.deadT<1.4){if(z.vy>0||z.y>fl+0.02){z.vy-=16*zdt;z.y+=z.vy*zdt;if(z.y<=fl){if(z.air>0.35){snd('thud');dust(new V3(z.pos.x,fl+0.15,z.pos.y));G.shake=Math.max(G.shake,0.06);}z.y=fl;z.vy=0;z.air=0;}else z.air+=zdt;}else{z.y=fl;z.air=0;}}
+      if(z.dead){z.deadT+=zdt;const p=Math.min(1,z.deadT/0.5);m.body.rotation.x=z.air>0?-z.air*9:-p*Math.PI/2;m.body.rotation.z=z.air>0?z.air*6*(z.spin||1):0;
         z.kb.multiplyScalar(Math.exp(-zdt*4));const ns=Math.max(1,Math.ceil(z.kb.length()*zdt/0.2));for(let i=0;i<ns;i++){z.pos.x+=z.kb.x*zdt/ns;z.pos.y+=z.kb.y*zdt/ns;resolve(z.pos,0.28,z.y);}
         m.root.position.set(z.pos.x,z.deadT>1.4?z.y-(z.deadT-1.4)*1.2:z.y,z.pos.y);if(z.deadT>2.4){scene.remove(m.root);z.gone=true;}continue;}
       if(z.rise>0){z.rise=Math.max(0,z.rise-zdt*0.9);z.y=-1.7*z.rise;m.root.position.set(z.pos.x,z.y,z.pos.y);m.armL.rotation.x=m.armR.rotation.x=-2.6;continue;}
@@ -2452,7 +2569,7 @@ const GAME=(()=>{
       const v=z.vel.length();z.phase+=zdt*(2+v*2.2);const sw=Math.sin(z.phase)*Math.min(1,v/1.2)*0.6;
       m.legL.rotation.x=sw;m.legR.rotation.x=-sw;z.swing=Math.max(0,(z.swing||0)-zdt);const reach=z.swing>0?-1.0-Math.sin(z.swing/0.35*Math.PI)*0.6:-1.45;
       m.armL.rotation.x=reach+Math.sin(z.phase*0.5)*0.12;m.armR.rotation.x=reach-Math.sin(z.phase*0.5)*0.12;
-      m.body.rotation.z=Math.sin(z.phase*0.5)*0.08;m.body.rotation.x=inAir?-z.air*7:(z.stun>0?-0.35:0.12);
+      m.body.rotation.z=inAir?z.air*5*(z.spin||1):Math.sin(z.phase*0.5)*0.08;m.body.rotation.x=inAir?-z.air*7:(z.stun>0?-0.35:0.12);
       const face=pd<3&&Math.abs(pf-z.y)<1?Math.atan2(player.pos.x-z.pos.x,player.pos.y-z.pos.y):(v>0.1?Math.atan2(z.vel.x,z.vel.y):z.yaw);
       let dy=face-z.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));z.yaw+=dy*Math.min(1,zdt*8);m.root.rotation.y=z.yaw;
       z.flash=Math.max(0,z.flash-dt);m.skin.emissive.setRGB(z.flash>0?1:0,z.flash>0?0.85:0,z.flash>0?0.6:0);
@@ -2461,7 +2578,9 @@ const GAME=(()=>{
     hpEl.style.width=G.hp+'%';
   }
   // 第三人稱的人物動作（接在走路動畫後面覆蓋）
-  function animAvatar(a,dt){a.body.rotation.y=0;a.body.rotation.z=0;a.armL.rotation.z=0;a.armR.rotation.z=0;if(!G.on||!G.act)return;
+  function animAvatar(a,dt){a.body.rotation.y=0;a.body.rotation.z=0;a.armL.rotation.z=0;a.armR.rotation.z=0;if(!G.on)return;
+    if(G.charge>=0){a.root.rotation.y=avatar.yaw+Math.PI;a.armL.rotation.x=a.armR.rotation.x=-1.35;a.armL.rotation.z=-0.3;a.armR.rotation.z=0.3;a.body.rotation.x=0.15;return;}
+    if(!G.act)return;
     const act=G.act,p=Math.min(1,act.t/act.dur),s=Math.sin(p*Math.PI);a.root.rotation.y=avatar.yaw+Math.PI;
     switch(act.kind){
       case 'punch':case 'heavy':{const arm=G.side?a.armR:a.armL,k=act.kind==='heavy'?1.3:1;arm.rotation.x=-1.6*s-0.15;a.body.rotation.y=(G.side?-1:1)*0.45*k*s;a.body.rotation.x=0.15*k*s;break;}
@@ -2556,7 +2675,8 @@ function step(dt){
   // 窗簾：約 0.8 秒拉開／拉上，停下來時重算陰影
   for(const cu of CURTAINS)if(cu.t!==cu.target){const v=dt*1.25;cu.t=Math.abs(cu.target-cu.t)<=v?cu.target:cu.t+Math.sign(cu.target-cu.t)*v;layoutCurtain(cu);if(cu.t===cu.target)renderer.shadowMap.needsUpdate=true;}
   // 門：人靠近就打開
-  for(const d of DOORS){const near=(mode==='walk'&&Math.abs(player.y-d.y)<1&&Math.hypot(player.pos.x-d.center.x,player.pos.y-d.center.y)<2.2)||GAME.zNear(d.center,d.y);   // 殭屍靠近也會開
+  for(const d of DOORS){if(d.wasNear===undefined)d.wasNear=false;const near=(mode==='walk'&&Math.abs(player.y-d.y)<1&&Math.hypot(player.pos.x-d.center.x,player.pos.y-d.center.y)<2.2)||GAME.zNear(d.center,d.y);   // 殭屍靠近也會開
+    if(near&&!d.wasNear&&started)AUDIO.sfx('door');d.wasNear=near;   // 開門聲
     d.ang+=((near?d.max:0)-d.ang)*Math.min(1,dt*4);d.pivot.rotation.y=d.rot0+d.sgn*d.ang;d.col.off=d.ang>0.8;}
   GAME.update(dt);
 }
