@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-09.3"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-09.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -80,7 +80,11 @@
 
   /* 小遊戲：殭屍來襲 */
   #fsBtn{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px;font-size:14px;margin-bottom:14px}
-  #gStart{width:100%;background:#c0392b;color:#fff;border:0;border-radius:10px;padding:10px;font-size:15px;font-weight:700;margin-bottom:6px}
+  #gStart,#gFree{width:100%;background:#c0392b;color:#fff;border:0;border-radius:10px;padding:10px;font-size:15px;font-weight:700;margin-bottom:6px}
+  #gFree{background:#2d6a8f}
+  #gHud .row[hidden]{display:none}
+  #gHud #gTgtName{width:auto;max-width:9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+  #gHud .bar.tgt i{background:#f0a030}
   #gHud{position:fixed;left:50%;top:60px;transform:translateX(-50%);width:min(440px,calc(100vw - 24px));padding:10px 14px;z-index:12;font-size:13px}
   #gHud .row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
   #gHud .row span{width:30px;color:var(--ink-2)}
@@ -91,7 +95,7 @@
   #gHud .keyhint{margin-top:6px;color:var(--ink-2);font-size:12px;line-height:1.5}
   /* 技能按鈕：電腦在畫面下方一排，手機在右下 */
   #gSkills{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:10px;z-index:11}
-  #gSkills[hidden]{display:none}
+  #gSkills[hidden]{display:none!important}   /* 手機版的 display:grid 會蓋過 hidden：沒在玩遊戲時不能出現 */
   #gSkills button{width:min(74px,calc((100vw - 74px)/6));height:min(74px,calc((100vw - 74px)/6));border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(18,24,30,.6);color:#fff;font-size:16px;font-weight:800;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;transition:transform .08s}
   #gSkills button small{font-size:11px;font-weight:600;opacity:.7;margin-top:3px}
   #gSkills button.hit{transform:scale(.88);background:rgba(255,180,84,.75);color:#3a2300}
@@ -196,7 +200,8 @@
   <p class="note" style="margin-top:4px">第一次點畫面之後才會有聲音；iPhone 側邊的靜音開關打開時網頁沒有聲音。</p>
   <h3 style="margin-top:14px">小遊戲</h3>
   <button id="gStart">殭屍來襲！開始</button>
-  <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。畫面下方有技能按鈕，按了馬上放、不用等：氣功炮（J）、超級氣功波（L）、旋風腿（U）、升龍拳（I）、飛踢（O）；滑鼠左鍵＝氣功炮、右鍵＝超級氣功波。出招會自動對準最近的殭屍。</p>
+  <button id="gFree">自由破壞模式（沒有殭屍）</button>
+  <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。開始後畫面下方才會出現技能按鈕，按了馬上往前方放：氣功炮（J）、超級氣功波（L）、旋風腿（U）、升龍拳（I）、飛踢（O）、按住蓄力氣功彈（H）；滑鼠左鍵＝氣功炮、右鍵＝超級氣功波。視角往上抬就往上打（打飛到空中的殭屍可以接著打）。車子、鄰居的房子、周邊建築、全家都打得壞（我家不會壞），遊戲結束會復原。</p>
   <h3 style="margin-top:14px">舒適設定</h3>
   <label><span>視角轉動靈敏度</span><span id="sensVal">100%</span></label>
   <input id="sens" type="range" min="0.3" max="1.5" step="0.05" value="1">
@@ -220,7 +225,8 @@
 <button id="act" hidden></button>
 <div id="gHud" class="panel" hidden>
   <div class="row"><span>生命</span><div class="bar"><i id="gHp"></i></div></div>
-  <div class="row2"><span id="gWave">準備…</span><span id="gKills">擊倒 0</span><span id="gCombo"></span><button id="gQuit">結束遊戲</button></div>
+  <div class="row" id="gTgtRow" hidden><span id="gTgtName"></span><div class="bar tgt"><i id="gTgt"></i></div></div>
+  <div class="row2"><span id="gWave">準備…</span><span id="gKills">擊倒 0</span><span id="gWreck">破壞 0</span><span id="gCombo"></span><button id="gQuit">結束遊戲</button></div>
   <div class="keyhint">J 氣功炮｜L 超級氣功波｜U 旋風腿｜I 升龍拳｜O 飛踢｜按住 H 蓄力氣功彈｜滑鼠左鍵＝氣功炮、右鍵＝超級氣功波</div>
 </div>
 <div id="gSkills" hidden><button data-s="blast">氣功炮<small>J</small></button><button data-s="beam">超級<br>氣功波<small>L</small></button><button data-s="spin">旋風腿<small>U</small></button><button data-s="upper">升龍拳<small>I</small></button><button data-s="fly">飛踢<small>O</small></button><button data-s="charge">蓄力<br>氣功彈<small>H 按住</small></button></div>
@@ -289,11 +295,14 @@ const SURR = [
   {x0:70.6, x1:96, z0:-55, z1:4, h:9, c:'#d4cbbb'},
 ];
 const GRASS = {x0:-11, x1:26, z0:11.4, z1:34};
+// 全家便利商店：巷子對面的空地上，門口正對我家大門（門 x 4.1～5.9）
+const STORE = {x0:-1, x1:11, z0:12.6, z1:20.6, h:4.2, dx0:4.1, dx1:5.9};
 const BOUND = {x0:-48, x1:96, z0:-60, z1:44};
 
 /* ---------------- 合併器：靜態物件依材質合併，降低 draw call ---------------- */
 class Merger{
-  constructor(){this.map=new Map();}
+  // route＝true：落在「打得壞的範圍」裡的物件會記住自己在合併網格裡的位置（見下面 REGIONS）
+  constructor(route=false){this.map=new Map();this.route=route;this.forced=null;}
   add(geo,mat,matrix){
     let g=geo.index?geo.toNonIndexed():geo.clone();
     for(const k of Object.keys(g.attributes))if(!['position','normal','uv'].includes(k))g.deleteAttribute(k);
@@ -301,13 +310,51 @@ class Merger{
     if(!g.attributes.uv)g.setAttribute('uv',new THREE.BufferAttribute(new Float32Array(g.attributes.position.count*2),2));
     g.clearGroups();g.morphAttributes={};
     if(matrix)g.applyMatrix4(matrix);
-    let arr=this.map.get(mat);if(!arr){arr=[];this.map.set(mat,arr);}arr.push(g);
+    let arr=this.map.get(mat);if(!arr){arr=[];this.map.set(mat,arr);}
+    if(!this.route){arr.push({g});return;}
+    for(const [q,reg] of routeGeo(g,this.forced))arr.push({g:q,reg});
   }
   addObject(o){o.updateMatrixWorld(true);o.traverse(c=>{if(c.isMesh)this.add(c.geometry,c.material,c.matrixWorld);});}
   build(parent){
-    for(const [mat,arr] of this.map){const m=new THREE.Mesh(mergeGeometries(arr,false),mat);m.castShadow=!mat.userData.noCast;m.receiveShadow=true;parent.add(m);arr.forEach(g=>g.dispose());}
+    for(const [mat,arr] of this.map){const m=new THREE.Mesh(mergeGeometries(arr.map(a=>a.g),false),mat);m.castShadow=!mat.userData.noCast;m.receiveShadow=true;parent.add(m);
+      let off=0;for(const a of arr){const n=a.g.attributes.position.count;if(a.reg)a.reg.parts.push({mesh:m,start:off,count:n});off+=n;}
+      arr.forEach(a=>a.g.dispose());}
     this.map.clear();
   }
+}
+
+/* ---------------- 打得壞的東西（小遊戲）：鄰居的房子、隔壁大樓、周邊建築、全家、車子；我家不會壞 ----------------
+   建場景時，落在這些範圍裡的靜態物件會記住自己在合併網格裡的位置（跨好幾戶的長條物件先在戶界切開）；
+   打壞時把那一段複製成獨立的網格去倒塌／炸飛，原本那段縮成一點藏起來；遊戲結束再寫回去（平常不多耗效能）。 */
+const REGIONS=[];
+function region(o){const r={parts:[],cols:[],surfs:[],dead:false,...o};r.hp=r.max;REGIONS.push(r);return r;}
+const ROW_Z0=Z_BACK-1.6,ROW_Z1=Z_YARD+0.06;                       // 這排透天（含後院矮牆、前院雨遮）的南北範圍
+const ROW_CUTS=[];for(let i=1;i<N_UNITS;i++)ROW_CUTS.push(ux(i)+0.11);   // 戶界：牆中心往東 11 cm（中間那道牆算西邊那戶；我家東牆不會被拆）
+for(let i=1;i<N_UNITS;i++)region({name:`鄰居（往東第 ${i} 戶）`,kind:'house',max:900,x0:ROW_CUTS[i-1],x1:i<N_UNITS-1?ROW_CUTS[i]:ROW_X1+0.7,z0:ROW_Z0,z1:ROW_Z1,h:FL[4]+1.2,mat:'#d9d2c3'});
+region({name:'隔壁大樓',kind:'house',max:1600,x0:NBB.x0-0.05,x1:NBB.x1+0.13,z0:NBB.z0-0.05,z1:NBB.z1+0.05,h:NBB.h+0.8,mat:'#9a9d9e'});
+for(const b of SURR)region({name:b.kind==='factory'?'工廠':'周邊建築',kind:'house',max:Math.round(Math.min(4000,Math.max(900,(b.x1-b.x0)*(b.z1-b.z0)*b.h*0.12))),x0:b.x0-0.05,x1:b.x1+0.05,z0:b.z0-0.05,z1:b.z1+0.05,h:b.h,mat:b.c});
+const STORE_REG=region({name:'全家便利商店',kind:'house',max:800,x0:STORE.x0-0.3,x1:STORE.x1+0.3,z0:STORE.z0-0.35,z1:STORE.z1+0.1,h:STORE.h+0.6,mat:'#e8e8e4'});
+function geoBox(g){const p=g.attributes.position.array;let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(let i=0;i<p.length;i+=3){const x=p[i],z=p[i+2];if(x<x0)x0=x;if(x>x1)x1=x;if(z<z0)z0=z;if(z>z1)z1=z;}return {x0,x1,z0,z1};}
+// 中心在範圍裡、而且整個（容許 20 cm）都在範圍裡，才算這個範圍的
+function regionOf(b){const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2,t=0.2;
+  for(const r of REGIONS){if(r.kind==='car')continue;if(cx>r.x0&&cx<r.x1&&cz>r.z0&&cz<r.z1&&b.x0>r.x0-t&&b.x1<r.x1+t&&b.z0>r.z0-t&&b.z1<r.z1+t)return r;}return null;}
+// 三角形在 x=c 切成兩半（位置、法線、UV 跟著內插）
+function clipX(g,c){const P=g.attributes.position.array,N=g.attributes.normal.array,U=g.attributes.uv.array,nt=P.length/9,out=[{p:[],n:[],u:[]},{p:[],n:[],u:[]}];
+  const vt=i=>({p:[P[i*3],P[i*3+1],P[i*3+2]],n:[N[i*3],N[i*3+1],N[i*3+2]],u:[U[i*2],U[i*2+1]]});
+  const lp=(a,b,t)=>({p:a.p.map((v,k)=>v+(b.p[k]-v)*t),n:a.n.map((v,k)=>v+(b.n[k]-v)*t),u:a.u.map((v,k)=>v+(b.u[k]-v)*t)});
+  for(let t=0;t<nt;t++){const V=[vt(t*3),vt(t*3+1),vt(t*3+2)];
+    for(let sd=0;sd<2;sd++){const ins=v=>sd===0?v.p[0]<=c:v.p[0]>c,poly=[];
+      for(let k=0;k<3;k++){const a=V[k],b=V[(k+1)%3],ia=ins(a),ib=ins(b);if(ia)poly.push(a);if(ia!==ib)poly.push(lp(a,b,(c-a.p[0])/(b.p[0]-a.p[0])));}
+      const o=out[sd];for(let k=1;k+1<poly.length;k++)for(const v of [poly[0],poly[k],poly[k+1]]){o.p.push(...v.p);o.n.push(...v.n);o.u.push(...v.u);}}}
+  return out.map(o=>{if(!o.p.length)return null;const q=new THREE.BufferGeometry();q.setAttribute('position',new THREE.Float32BufferAttribute(o.p,3));q.setAttribute('normal',new THREE.Float32BufferAttribute(o.n,3));q.setAttribute('uv',new THREE.Float32BufferAttribute(o.u,2));return q;});}
+function routeGeo(g,forced){
+  if(forced)return [[g,forced]];
+  const b=geoBox(g);
+  if(b.z0>=ROW_Z0-0.01&&b.z1<=ROW_Z1+0.01&&b.x1>ROW_CUTS[0]+0.001){   // 跨好幾戶的長條物件：在戶界切開
+    let pieces=[g];
+    for(const c of ROW_CUTS){if(c<=b.x0+0.001||c>=b.x1-0.001)continue;const next=[];for(const q of pieces){const [l,r]=clipX(q,c);if(l)next.push(l);if(r)next.push(r);}if(pieces[0]===g&&next.length)g.dispose();pieces=next;}
+    return pieces.map(q=>[q,regionOf(q===g?b:geoBox(q))]);}
+  return [[g,regionOf(b)]];
 }
 
 /* ---------------- 幾何工具 ---------------- */
@@ -737,6 +784,72 @@ function car(color){
   for(const z of [-0.62,0.62]){g.add(mesh(box(0.06,0.12,0.32),MAT.headLight,2.27,0.68,z));g.add(mesh(box(0.06,0.14,0.3),MAT.tailLight,-2.3,0.78,z));}
   return g;
 }
+// 公車（市區公車，約 11 m）：車頭朝 +x、右側（+z）有前後兩個車門
+const ledMat=std({color:'#ffb02e',emissive:'#ff8a00',emissiveIntensity:1.3});
+function bus(body,stripe){
+  const g=new THREE.Group(),pm=paintMat(body),sm=paintMat(stripe);
+  g.add(mesh(box(11,0.95,2.5),pm,0,0.88,0));                  // 下半車身
+  g.add(mesh(box(10.9,1.05,2.46),MAT.glassDark,0,1.88,0));     // 車窗帶
+  g.add(mesh(box(11,0.78,2.5),pm,0,2.79,0));                  // 上半車身
+  g.add(mesh(box(11.02,0.24,2.52),sm,0,1.2,0));                // 色帶
+  g.add(mesh(box(11.02,0.12,2.52),sm,0,2.5,0));
+  g.add(mesh(box(2.6,0.32,1.5),MAT.whiteApp,1.2,3.33,0));      // 車頂冷氣
+  g.add(mesh(box(0.06,1.65,2.3),MAT.glassDark,5.51,2.0,0));    // 前擋
+  g.add(mesh(box(0.05,0.3,1.7),ledMat,5.53,2.95,0));           // 路線 LED 牌
+  g.add(mesh(box(0.05,0.22,0.6),ledMat,3.2,2.95,1.26));        // 側邊路線牌
+  for(const x of [4.35,-0.4])g.add(mesh(box(1.0,2.35,0.05),MAT.glassDark,x,1.6,1.25));   // 車門
+  for(const x of [3.6,-3.3])for(const z of [-1.0,1.0])g.add(mesh(cyl(0.5,0.5,0.32,16),MAT.rubber,x,0.5,z,Math.PI/2));
+  for(const z of [-0.95,0.95]){g.add(mesh(box(0.06,0.18,0.35),MAT.headLight,5.52,0.75,z));g.add(mesh(box(0.06,0.3,0.25),MAT.tailLight,-5.52,0.9,z));}
+  g.add(mesh(box(0.08,0.3,2.45),MAT.black,5.5,0.45,0));g.add(mesh(box(0.08,0.3,2.45),MAT.black,-5.5,0.45,0));   // 保險桿
+  for(const z of [-1.4,1.4])g.add(mesh(box(0.1,0.35,0.08),MAT.black,5.3,2.45,z));   // 後照鏡
+  return g;
+}
+const extShape=(pts,depth,bevel)=>{const sh=new THREE.Shape(pts.map(p=>new V2(p[0],p[1])));const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:bevel>0,bevelThickness:bevel,bevelSize:bevel,bevelSegments:2,curveSegments:4});g.translate(0,0,-depth/2);return g;};
+const sportShapes={
+  lower:extShape([[-2.2,0.26],[2.2,0.26],[2.3,0.5],[1.1,0.8],[-1.7,0.9],[-2.25,0.78]],1.9,0.05),
+  cabin:extShape([[0.95,0.79],[0.05,1.12],[-0.85,1.14],[-1.75,0.88]],1.42,0.03)};
+// 跑車：低、寬、楔形，尾翼、大輪框
+function sportsCar(color){
+  const g=new THREE.Group(),pm=paintMat(color);
+  g.add(mesh(sportShapes.lower,pm));g.add(mesh(sportShapes.cabin,MAT.glassDark));
+  g.add(mesh(box(0.35,0.05,1.8),pm,-2.05,1.08,0));for(const z of [-0.6,0.6])g.add(mesh(box(0.08,0.2,0.06),MAT.black,-2.0,0.98,z));   // 尾翼
+  for(const z of [-0.98,0.98])g.add(mesh(box(0.7,0.18,0.04),MAT.black,-0.4,0.55,z));   // 側邊進氣口
+  for(const x of [-1.4,1.42])for(const z of [-0.84,0.84]){g.add(mesh(cyl(0.34,0.34,0.27,16),MAT.rubber,x,0.34,z,Math.PI/2));g.add(mesh(cyl(0.24,0.24,0.28,10),MAT.steel,x,0.34,z,Math.PI/2));}
+  for(const z of [-0.65,0.65]){g.add(mesh(box(0.05,0.06,0.4),MAT.headLight,2.27,0.52,z));g.add(mesh(box(0.05,0.07,0.45),MAT.tailLight,-2.27,0.72,z));}
+  return g;
+}
+const luxShapes={
+  lower:extShape([[-2.6,0.3],[2.55,0.3],[2.65,0.8],[1.7,1.0],[-2.45,1.04],[-2.65,0.86]],1.84,0.06),
+  cabin:extShape([[1.45,0.98],[0.55,1.5],[-1.25,1.53],[-2.15,1.02]],1.68,0.03),
+  roof:extShape([[0.52,1.48],[0.46,1.56],[-1.2,1.58],[-1.26,1.51]],1.74,0)};
+// 豪華轎車：長、方正，大片鍍鉻水箱罩、車身鍍鉻飾條
+function luxSedan(color){
+  const g=new THREE.Group(),pm=paintMat(color);
+  g.add(mesh(luxShapes.lower,pm));g.add(mesh(luxShapes.cabin,MAT.glassDark));g.add(mesh(luxShapes.roof,pm));
+  g.add(mesh(box(0.06,0.44,0.72),MAT.steel,2.67,0.66,0));g.add(mesh(box(0.08,0.12,0.06),MAT.steel,2.5,1.06,0));   // 水箱罩、車頭立標
+  for(const z of [-0.94,0.94])g.add(mesh(box(4.6,0.04,0.02),MAT.steel,0,0.62,z));
+  for(const x of [-1.62,1.65])for(const z of [-0.8,0.8]){g.add(mesh(cyl(0.37,0.37,0.25,16),MAT.rubber,x,0.37,z,Math.PI/2));g.add(mesh(cyl(0.26,0.26,0.26,12),MAT.steel,x,0.37,z,Math.PI/2));}
+  for(const z of [-0.62,0.62]){g.add(mesh(box(0.06,0.1,0.32),MAT.headLight,2.66,0.86,z));g.add(mesh(box(0.06,0.14,0.32),MAT.tailLight,-2.66,0.86,z));}
+  return g;
+}
+// 重型機車（仿賽）：車頭朝 +x
+function motorbike(color){
+  const g=new THREE.Group(),pm=paintMat(color);
+  const tire=G('mbTire',()=>new THREE.TorusGeometry(0.28,0.075,8,20));
+  for(const x of [0.72,-0.7]){g.add(mesh(tire,MAT.rubber,x,0.36,0));g.add(mesh(cyl(0.2,0.2,0.05,12),MAT.steel,x,0.36,0,Math.PI/2));}
+  g.add(mesh(box(0.5,0.34,0.3),MAT.black,0.05,0.58,0));                 // 引擎
+  g.add(mesh(box(0.56,0.28,0.34),pm,0.12,0.95,0));                      // 油箱
+  g.add(mesh(box(0.5,0.42,0.42),pm,0.62,0.86,0,0,0,-0.55));             // 整流罩
+  g.add(mesh(box(0.05,0.2,0.3),MAT.glassDark,0.82,1.17,0,0,0,-0.6));    // 風鏡
+  g.add(mesh(box(0.06,0.08,0.18),MAT.headLight,0.86,0.86,0));
+  g.add(mesh(box(0.55,0.08,0.28),MAT.seat,-0.35,0.95,0));
+  g.add(mesh(box(0.45,0.16,0.22),pm,-0.68,1.0,0,0,0,0.25));             // 車尾
+  g.add(mesh(box(0.06,0.06,0.2),MAT.tailLight,-0.9,1.04,0));
+  {const e=mesh(cyl(0.06,0.07,0.55,10),MAT.steel,-0.45,0.55,0.18,0,0,Math.PI/2+0.25);g.add(e);}   // 排氣管
+  g.add(mesh(box(0.06,0.06,0.62),MAT.black,0.55,1.08,0));               // 把手
+  for(const [a,b] of [[[0.72,0.36],[0.6,1.0]],[[-0.7,0.36],[-0.1,0.7]]])g.add(new THREE.Mesh(strut(new V3(a[0],a[1],0),new V3(b[0],b[1],0),0.06),MAT.steel));   // 前叉、後搖臂
+  return g;
+}
 // 台灣常見的水泥電線桿＋路燈
 function pole(lampDir){
   const g=new THREE.Group();
@@ -749,7 +862,7 @@ function pole(lampDir){
 }
 
 /* ---------------- 場景建構 ---------------- */
-const M=new Merger();
+const M=new Merger(true);
 const labels=new THREE.Group();scene.add(labels);
 
 // 地面
@@ -769,6 +882,8 @@ const X0=ux(0),XN=ux(1);   // 我家另外蓋成可以走進去的外殼（見�
 M.add(mbox(XN,ROW_X1,0,FL[1],Z_BACK,Z_1F),MAT.paint);                 // 1F
 M.add(mbox(XN,ROW_X1,FL[1]-0.25,FL[3],Z_BACK,0),MAT.paint);            // 2F、3F（蓋在騎樓上方）
 M.add(mbox(XN,ROW_X1,FL[3],FL[4],Z_4B,Z_4F),MAT.paint);                // 4F（只有中段是室內）
+// 戶界的封口牆：平常藏在量體裡面看不到，隔壁被拆掉（小遊戲）時才露出來當側牆，不然看得進空心的量體
+for(const c of ROW_CUTS)for(const x of [c-0.012,c+0.012])for(const [y0,y1,z0,z1] of [[0,FL[1],Z_BACK,Z_1F],[FL[1]-0.25,FL[3],Z_BACK,0],[FL[3],FL[4],Z_4B,Z_4F]])M.add(mbox(x-0.004,x+0.004,y0,y1,z0+0.01,z1-0.01),MAT.paint);
 // 4F 屋頂（影片）：綠色防水地坪；白色女兒牆約 1 m＋花崗石壓頂；前面的女兒牆在外推屋頂板的外緣，牆線上只有一道矮梁，
 // 兩者之間是灰色凹槽，我家西端的爬梯口在凹槽裡（不鏽鋼滑蓋）；每戶之間用矮梁隔開
 const TANK={R:0.5,L:1.7,cz:Z_4B+1.6,yc:FL[4]+0.35+0.5,tops:[]};   // 屋頂臥式水塔：半徑、桶長、中心
@@ -1902,30 +2017,148 @@ for(const b of SURR){
   M.add(groundRect(b.x0,b.x1,b.z0,b.z1,b.h+0.01),b.kind==='factory'?MAT.ribRoof:MAT.roofC);
   addBox(b.x0,b.x1,b.z0,b.z1,b.h);surfaces.push({x0:b.x0,x1:b.x1,z0:b.z0,z1:b.z1,y:b.h});   // 屋頂可以站（跳得過去就站得上去）
 }
-// 我家正對面的空地邊緣：低矮的鐵絲網
-for(let x=GRASS.x0;x<GRASS.x1;x+=2.5){M.add(mbox(x,x+0.06,0,1.2,GRASS.z0,GRASS.z0+0.06),MAT.black);}
-M.add(mbox(GRASS.x0,GRASS.x1,1.1,1.15,GRASS.z0,GRASS.z0+0.04),MAT.black);
-addBox(GRASS.x0,GRASS.x1,GRASS.z0-0.05,GRASS.z0+0.1,1.2);
+// 我家正對面的空地邊緣：低矮的鐵絲網（全家門口前面不圍）
+for(const [a,b] of [[GRASS.x0,STORE.x0-2],[STORE.x1+2,GRASS.x1]]){
+  for(let x=a;x<b;x+=2.5){M.add(mbox(x,x+0.06,0,1.2,GRASS.z0,GRASS.z0+0.06),MAT.black);}
+  M.add(mbox(a,b,1.1,1.15,GRASS.z0,GRASS.z0+0.04),MAT.black);
+  addBox(a,b,GRASS.z0-0.05,GRASS.z0+0.1,1.2);}
+
+/* ---- 全家便利商店（使用者要求：我家門前）：巷子對面，門口正對我家大門；可以走進去 ----
+   白色招牌＋綠、藍橫條，整面落地玻璃、自動門；裡面：櫃台（收銀機、咖啡機、保溫櫃）、後面菸架、三排貨架、後牆飲料冰櫃、
+   東牆零食架、ATM、靠窗座位區。 */
+const STORE_GLOW=[];
+const STORE_DOOR={panels:[],t:0,col:null,near:false};
+{const S=STORE,T=0.2,CH=3.2,x0=S.x0,x1=S.x1,z0=S.z0,z1=S.z1,H=S.h;
+ // 貼圖
+ const signC=(()=>{const W=2048,Hh=256,[c,g]=cvs(W,Hh);g.fillStyle='#ffffff';g.fillRect(0,0,W,Hh);
+   g.fillStyle='#00a651';g.fillRect(0,Hh-74,W,30);g.fillStyle='#0b5fb0';g.fillRect(0,Hh-40,W,40);
+   g.textBaseline='middle';g.textAlign='center';g.font=`italic 900 128px Arial, ${FONT}`;g.fillStyle='#0b5fb0';g.fillText('FamilyMart',W*0.42,Hh*0.36);
+   g.font=`900 116px ${FONT}`;g.fillStyle='#00a651';g.fillText('全家',W*0.79,Hh*0.37);return c;})();
+ const stripeC=(()=>{const [c,g]=cvs(64,256);g.fillStyle='#ffffff';g.fillRect(0,0,64,256);g.fillStyle='#00a651';g.fillRect(0,182,64,30);g.fillStyle='#0b5fb0';g.fillRect(0,216,64,40);return c;})();
+ const goodsC=(()=>{const W=1024,Hh=400,[c,g]=cvs(W,Hh);g.fillStyle='#f2f2f0';g.fillRect(0,0,W,Hh);const pal=['#e6403a','#f5b400','#2f8fd8','#36a852','#ffffff','#f27b20','#8a4fd0','#e94f8a','#1b3d78','#c7d63c','#7a4a2a'];
+   for(let row=0;row<4;row++){const y0=row*100;g.fillStyle='#d9d9d6';g.fillRect(0,y0+92,W,8);let x=4;
+     while(x<W-10){const w=rr(18,54),h=rr(38,84);g.fillStyle=pick(pal);g.fillRect(x,y0+92-h,w,h);g.fillStyle='rgba(255,255,255,0.55)';g.fillRect(x+3,y0+92-h*0.62,w-6,h*0.18);g.fillStyle='rgba(0,0,0,0.12)';g.fillRect(x+w-3,y0+92-h,3,h);x+=w+rr(1,4);}}
+   return c;})();
+ const fridgeC=(()=>{const W=2048,Hh=512,[c,g]=cvs(W,Hh);g.fillStyle='#f6f7f4';g.fillRect(0,0,W,Hh);const pal=['#d8262d','#1e6fd0','#f2a900','#2ea84d','#ffffff','#5c2d91','#f06c1f','#7fc8e8','#202020'];
+   for(let row=0;row<5;row++){const y1=(row+1)*100;g.fillStyle='#c9ccc9';g.fillRect(0,y1-6,W,6);for(let x=6;x<W-20;x+=rr(18,24)){const w=rr(12,17),h=rr(48,76);g.fillStyle=pick(pal);g.fillRect(x,y1-6-h,w,h);g.fillRect(x+w*0.3,y1-6-h-8,w*0.4,8);g.fillStyle='rgba(255,255,255,0.35)';g.fillRect(x+2,y1-6-h*0.6,3,h*0.4);}}
+   g.fillStyle='#3c3f43';for(let x=0;x<=W;x+=W/9)g.fillRect(x-5,0,10,Hh);g.fillRect(0,0,W,8);g.fillRect(0,Hh-8,W,8);
+   g.fillStyle='rgba(255,255,255,0.13)';for(let x=0;x<W;x+=W/9){g.beginPath();g.moveTo(x+30,0);g.lineTo(x+90,0);g.lineTo(x+40,Hh);g.lineTo(x-20,Hh);g.fill();}return c;})();
+ const cigC=(()=>{const [c,g]=cvs(512,512);g.fillStyle='#2b2b2b';g.fillRect(0,0,512,512);const pal=['#ffffff','#d8262d','#1e6fd0','#e8e2d0','#202020','#2ea84d','#f2a900'];
+   for(let y=8;y<500;y+=42)for(let x=6;x<500;x+=22){g.fillStyle=pick(pal);g.fillRect(x,y,18,34);g.fillStyle='rgba(0,0,0,0.25)';g.fillRect(x,y+24,18,10);}return c;})();
+ const floorC=(()=>{const [c,g]=cvs(256,256);g.fillStyle='#e9e4da';g.fillRect(0,0,256,256);g.strokeStyle='#cfc9bd';g.lineWidth=3;g.strokeRect(0,0,256,256);grain(g,256,256,6);return c;})();
+ const sm={wall:std({color:'#ecebe6',roughness:0.85}),out:std({color:'#dcdcd6',roughness:0.9}),glass:std({color:'#a9cbd8',transparent:true,opacity:0.22,roughness:0.05,metalness:0.2,depthWrite:false}),
+   floor:mmat(floorC,0.6,{roughness:0.4}),ceil:std({color:'#f4f4f2',roughness:0.9}),led:std({color:'#ffffff',emissive:'#ffffff',emissiveIntensity:1.1}),
+   shelf:std({color:'#e4e4e2',roughness:0.6}),counter:std({color:'#d5cfc2',roughness:0.7}),top:std({color:'#8b6a48',roughness:0.6}),
+   sign:std({map:tex(signC),emissive:'#ffffff',emissiveMap:tex(signC),emissiveIntensity:0.25,roughness:0.5}),
+   stripe:std({map:tex(stripeC,1,1),emissive:'#ffffff',emissiveMap:tex(stripeC,1,1),emissiveIntensity:0.25,roughness:0.5}),
+   goods:std({map:tex(goodsC),roughness:0.7}),fridge:std({map:tex(fridgeC),emissive:'#ffffff',emissiveMap:tex(fridgeC),emissiveIntensity:0.45,roughness:0.2}),
+   cig:std({map:tex(cigC),roughness:0.7}),atm:std({color:'#4d5a66',roughness:0.5,metalness:0.3}),screen:std({color:'#1a3550',emissive:'#4aa3ff',emissiveIntensity:0.6})};
+ sm.glass.userData.noCast=true;STORE_GLOW.push(sm.sign,sm.stripe);
+ // 門口前的地坪（巷子邊到店門口）
+ M.add(groundRect(x0-2,x1+2,LANE_Z1,z0,0.025),MAT.yard);
+ // 外牆、屋頂、女兒牆
+ M.add(mbox(x0,x0+T,0,H,z0,z1),sm.out);M.add(mbox(x1-T,x1,0,H,z0,z1),sm.out);M.add(mbox(x0,x1,0,H,z1-T,z1),sm.out);
+ M.add(mbox(x0,x1,CH+0.05,H,z0,z0+T),sm.out);                                  // 招牌後面的牆（落地玻璃上方）
+ M.add(mbox(x0,x1,H-0.2,H,z0,z1),sm.out);M.add(groundRect(x0,x1,z0,z1,H+0.01),MAT.roofC);
+ for(const [a,b,c,d] of [[x0,x1,z0,z0+0.15],[x0,x1,z1-0.15,z1],[x0,x0+0.15,z0,z1],[x1-0.15,x1,z0,z1]]){M.add(mbox(a,b,H,H+0.45,c,d),sm.out);addBox(a,b,c,d,H+0.45,H);}
+ surfaces.push({x0,x1,z0,z1,y:H});                                             // 屋頂可以站
+ addBox(x0,x0+T,z0,z1,H);addBox(x1-T,x1,z0,z1,H);addBox(x0,x1,z1-T,z1,H);
+ // 招牌：正面整排（晚上會亮）＋兩側橫條
+ M.add(mbox(x0-0.1,x1+0.1,2.95,H+0.05,z0-0.14,z0),MAT.whiteApp);
+ M.add(facePlane(x0-0.1,x1+0.1,2.95,H+0.05,z0-0.145,-1),sm.sign);
+ for(const [x,d] of [[x0-0.005,-1],[x1+0.005,1]])M.add(sidePlane(z0,z1,2.95,H+0.05,x,d),sm.stripe);
+ // 正面：落地玻璃、深色鋁框、下方踢腳板；中間是自動門
+ const fz=z0+0.06;
+ for(const [a,b] of [[x0+T,S.dx0],[S.dx1,x1-T]]){M.add(mbox(a,b,0,0.32,z0,z0+0.12),MAT.darkAlu);M.add(facePlane(a,b,0.32,2.9,fz,-1),sm.glass);M.add(facePlane(a,b,0.32,2.9,fz,1),sm.glass);
+   const n=Math.max(1,Math.round((b-a)/1.5));for(let k=0;k<=n;k++){const x=a+(b-a)*k/n;M.add(mbox(x-0.035,x+0.035,0,2.95,z0,z0+0.12),MAT.darkAlu);}
+   addBox(a,b,z0-0.05,z0+0.12,H);}
+ M.add(mbox(x0+T,x1-T,2.9,2.98,z0,z0+0.12),MAT.darkAlu);
+ M.add(facePlane(S.dx0,S.dx1,2.5,2.9,fz,-1),sm.glass);M.add(mbox(S.dx0,S.dx1,2.46,2.52,z0,z0+0.14),MAT.darkAlu);addBox(S.dx0,S.dx1,z0-0.05,z0+0.12,H,2.5);
+ for(const x of [S.dx0,S.dx1])M.add(mbox(x-0.05,x+0.05,0,2.98,z0,z0+0.14),MAT.darkAlu);
+ // 自動門：兩片玻璃往兩側滑開（人或殭屍靠近就開，進門有「叮咚」）
+ {const w=(S.dx1-S.dx0)/2;for(const sd of [-1,1]){const pg=new THREE.Group();const gl=new THREE.Mesh(box(w,2.42,0.03),sm.glass);gl.position.y=1.23;pg.add(gl);
+    for(const [bw,bh,px,py] of [[w,0.06,0,0.03],[w,0.06,0,2.43],[0.05,2.46,-w/2+0.025,1.23],[0.05,2.46,w/2-0.025,1.23]]){const f=new THREE.Mesh(box(bw,bh,0.05),MAT.darkAlu);f.position.set(px,py,0);f.castShadow=true;pg.add(f);}
+    const cx=(S.dx0+S.dx1)/2+sd*w/2;pg.position.set(cx,0,z0+0.15);pg.userData={x:cx,sd};scene.add(pg);STORE_DOOR.panels.push(pg);}
+  STORE_DOOR.col=addBox(S.dx0,S.dx1,z0+0.08,z0+0.2,2.5);}
+ // 室內：地板、天花、LED 燈
+ M.add(groundRect(x0+T,x1-T,z0+0.12,z1-T,0.03),sm.floor);
+ M.add(mbox(x0+T,x1-T,CH,CH+0.05,z0+0.12,z1-T),sm.ceil);
+ for(let x=x0+1.2;x<x1-1;x+=2.4)for(let z=z0+1.4;z<z1-1;z+=2.2)M.add(mbox(x,x+1.2,CH-0.025,CH,z,z+0.3),sm.led);
+ for(const [a,b,c,d] of [[x0+T,x0+T+0.01,z0+0.12,z1-T],[x1-T-0.01,x1-T,z0+0.12,z1-T],[x0+T,x1-T,z1-T-0.01,z1-T]])M.add(mbox(a,b,0,CH,c,d),sm.wall);
+ // 櫃台（客人那側朝東）：收銀機、咖啡機、保溫櫃；後面店員區靠西牆是菸架
+ M.add(mbox(1.4,2.1,0,1.0,13.6,17.2),sm.counter);M.add(mbox(1.36,2.16,1.0,1.05,13.56,17.24),sm.top);addBox(1.4,2.1,13.6,17.2,1.05);
+ M.add(mbox(1.5,1.95,1.05,1.12,14.4,14.85),MAT.black);M.add(mbox(1.62,1.68,1.12,1.42,14.55,14.7),MAT.black);M.add(mbox(1.6,1.66,1.38,1.62,14.42,14.83,),sm.screen);   // 收銀機
+ M.add(mbox(1.5,2.0,1.05,1.75,13.65,14.1),MAT.black);M.add(mbox(1.98,2.01,1.45,1.6,13.75,14.0),sm.screen);M.add(mbox(1.98,2.02,1.1,1.16,13.82,13.92),MAT.red);   // 咖啡機
+ M.add(mbox(1.5,2.05,1.05,1.4,15.5,16.3),MAT.stainless);M.add(mbox(2.05,2.06,1.1,1.36,15.55,16.25),sm.glass);   // 保溫櫃
+ M.add(mbox(x0+T,x0+T+0.4,0,2.3,13.4,17.6),MAT.black);M.add(sidePlane(13.45,17.55,0.15,2.25,x0+T+0.405,1),sm.cig);addBox(x0+T,x0+T+0.4,13.4,17.6,2.3);
+ // 貨架三排（南北向），兩面都是商品
+ for(const [a,b] of [[3.9,4.6],[6.3,7.0],[8.7,9.4]]){const za=14.6,zb=18.2;
+   M.add(mbox(a,b,0,1.55,za,zb),sm.shelf);M.add(mbox(a-0.02,b+0.02,1.55,1.6,za-0.02,zb+0.02),sm.shelf);
+   M.add(sidePlane(za+0.05,zb-0.05,0.1,1.5,a-0.005,-1),sm.goods);M.add(sidePlane(za+0.05,zb-0.05,0.1,1.5,b+0.005,1),sm.goods);
+   M.add(facePlane(a+0.03,b-0.03,0.1,1.5,za-0.005,-1),sm.goods);M.add(facePlane(a+0.03,b-0.03,0.1,1.5,zb+0.005,1),sm.goods);
+   addBox(a,b,za,zb,1.6);}
+ // 後牆飲料冰櫃（整排、會亮）
+ {const a=2.4,b=x1-T,za=z1-T-0.7;M.add(mbox(a,b,0,2.35,za,z1-T),MAT.whiteApp);M.add(facePlane(a+0.05,b-0.05,0.08,2.2,za-0.005,-1),sm.fridge);addBox(a,b,za,z1-T,2.35);STORE_GLOW.push(sm.fridge);}
+ // 東牆零食架、ATM
+ {const a=x1-T-0.4;M.add(mbox(a,x1-T,0,1.9,14.6,19.5),sm.shelf);M.add(sidePlane(14.65,19.45,0.1,1.85,a-0.005,-1),sm.goods);addBox(a,x1-T,14.6,19.5,1.9);
+  M.add(mbox(x1-T-0.6,x1-T,0,1.75,13.45,14.25),sm.atm);M.add(sidePlane(13.6,14.1,1.15,1.45,x1-T-0.605,-1),sm.screen);M.add(mbox(x1-T-0.7,x1-T-0.6,0.95,1.0,13.55,14.15),MAT.black);addBox(x1-T-0.6,x1-T,13.45,14.25,1.75);}
+ // 靠窗座位區：吧台桌＋高腳椅
+ {M.add(mbox(6.3,x1-T-0.7,1.0,1.05,z0+0.15,z0+0.55),sm.top);for(const x of [6.4,10.0])M.add(mbox(x,x+0.06,0,1.0,z0+0.3,z0+0.4),MAT.steel);addBox(6.3,x1-T-0.7,z0+0.12,z0+0.55,1.05);
+  for(const x of [6.9,7.8,8.7,9.6]){const g1=new THREE.CylinderGeometry(0.19,0.19,0.05,14);g1.translate(x,0.75,z0+0.95);M.add(g1,MAT.black);const g2=new THREE.CylinderGeometry(0.03,0.03,0.75,8);g2.translate(x,0.375,z0+0.95);M.add(g2,MAT.steel);addCircle(x,z0+0.95,0.18,0.78);}}
+ // 門口兩側：垃圾桶、資源回收
+ for(const [x,c] of [[3.15,'#2f8fd8'],[3.6,'#36a852']]){M.add(mbox(x,x+0.4,0,0.85,z0-0.5,z0-0.08),MAT.whiteApp);M.add(mbox(x,x+0.4,0.85,0.9,z0-0.5,z0-0.08),std({color:c}));}
+ addBox(3.15,4.0,z0-0.5,z0-0.08,0.9);
+}
 
 /* ---- 樹木、電線桿、車輛 ---- */
-for(const [x,z] of [[2,18],[9,25],[20,16],[-6,28],[15,30]]){const t=tree(rr(4.5,6.5));t.position.set(x,0,z);M.addObject(t);addCircle(x,z,0.25);}
-for(let i=0;i<10;i++){const m=mesh(pick(crownGeos),pick(MAT.leaves),rr(GRASS.x0+1,GRASS.x1-1),0.3,rr(GRASS.z0+2,GRASS.z1-1),0,R()*6,0);m.scale.set(rr(0.5,1),rr(0.4,0.7),rr(0.5,1));M.addObject(m);}
+for(const [x,z] of [[-6,17],[9,25],[20,16],[-6,28],[15,30]]){const t=tree(rr(4.5,6.5));t.position.set(x,0,z);M.addObject(t);addCircle(x,z,0.25);}
+for(let i=0;i<10;i++){const m=mesh(pick(crownGeos),pick(MAT.leaves),rr(GRASS.x0+1,GRASS.x1-1),0.3,rr(GRASS.z0+2,GRASS.z1-1),0,R()*6,0);m.scale.set(rr(0.5,1),rr(0.4,0.7),rr(0.5,1));
+  const p=m.position;if(p.x>STORE.x0-2.5&&p.x<STORE.x1+2.5&&p.z<STORE.z1+1.5)continue;M.addObject(m);}
 const POLES=[[13,LANE_Z1+0.5],[40,LANE_Z1+0.5],[67,LANE_Z1+0.5]];
 for(const [x,z] of POLES){const p=pole(-1);p.position.set(x,0,z);M.addObject(p);addCircle(x,z,0.2);}
 // 電線（略為下垂）
 {const lm=new THREE.LineBasicMaterial({color:'#1a1a1a'});
  for(let k=0;k<POLES.length-1;k++)for(const dx of [-0.8,0,0.8]){const a=POLES[k],b=POLES[k+1];const pts=[];for(let t=0;t<=20;t++){const s=t/20;pts.push(new V3(a[0]+(b[0]-a[0])*s,9.6-Math.sin(Math.PI*s)*0.9,a[1]+dx*0.3));}
    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),lm));}}
-// 鄰居前院的機車
+/* ---- 車子（小遊戲裡打得爆）：每台記成一個範圍，平常跟場景合併在一起，被打到才拆出來 ---- */
+function addVehicle(name,obj,x,z,ry,L,W,H,hp,y=0.03,lux=false){
+  obj.position.set(x,y,z);obj.rotation.y=ry;
+  const c=Math.abs(Math.cos(ry)),sn=Math.abs(Math.sin(ry)),hx=c*L/2+sn*W/2,hz=sn*L/2+c*W/2;
+  const r=region({name,kind:'car',max:hp,x0:x-hx,x1:x+hx,z0:z-hz,z1:z+hz,h:H,cx:x,cz:z,L,W,y0:y,lux});
+  M.forced=r;M.addObject(obj);M.forced=null;
+  const col=addBox(x-hx,x+hx,z-hz,z+hz,H);col.veh=true;col.orig={x0:col.x0,x1:col.x1,z0:col.z0,z1:col.z1,h:col.h};r.cols.push(col);
+  r.box0={x0:r.x0,x1:r.x1,z0:r.z0,z1:r.z1};return r;}
 // 前三戶（我家＋往東兩戶）前院：車頭朝房子停一台汽車（停在石材柱之間，不擋大門）＋一台機車（使用者要求）
 for(const [i,cc,sc] of [[0,'#e9e9e6','#3c3f43'],[1,'#9aa3ab','#d9dcdc'],[2,'#2f3f5a','#b8302a']]){const x0=ux(i),cx=i===0?3.1:x0+1.6,cz=Z_1F+0.2+2.27;
-  const k=car(cc);k.position.set(cx,0.03,cz);k.rotation.y=Math.PI/2;M.addObject(k);addBox(cx-0.95,cx+0.95,cz-2.3,cz+2.3,1.5);
-  const sx=i===0?0.75:x0+4.15,sz=2.2,m=scooter(sc);m.position.set(sx,0.03,sz);m.rotation.y=Math.PI/2;M.addObject(m);addBox(sx-0.25,sx+0.25,sz-0.7,sz+0.7,1.1);}
-for(const [i,c] of [[4,'#efefea'],[5,'#3c3f43'],[7,'#c7a54a']]){const s=scooter(c);const x=ux(i)+rr(1.2,2.6);s.position.set(x,0.03,rr(1.2,3.4));s.rotation.y=Math.PI/2+rr(-0.15,0.15);M.addObject(s);addBox(x-0.25,x+0.25,s.position.z-0.7,s.position.z+0.7,1.1);}
-for(const [x,z,ry,c] of [[-18.6,-18,Math.PI/2,'#e9e9e6'],[-18.6,-28,Math.PI/2,'#3a3d42'],[58,-8,0,'#9aa3ab'],[-13.4,20,-Math.PI/2,'#7b1c1c']]){const k=car(c);k.position.set(x,0,z);k.rotation.y=ry;M.addObject(k);
-  const along=Math.abs(Math.sin(ry))>0.5;addBox(x-(along?0.95:2.3),x+(along?0.95:2.3),z-(along?2.3:0.95),z+(along?2.3:0.95),1.5);}
+  addVehicle('汽車',car(cc),cx,cz,Math.PI/2,4.5,1.9,1.5,160);
+  addVehicle('機車',scooter(sc),i===0?0.75:x0+4.15,2.2,Math.PI/2,1.4,0.5,1.1,50);}
+for(const [i,c] of [[4,'#efefea'],[5,'#3c3f43'],[7,'#c7a54a']]){const x=ux(i)+rr(1.2,2.6),z=rr(1.2,3.4);addVehicle('機車',scooter(c),x,z,Math.PI/2+rr(-0.15,0.15),1.4,0.5,1.1,50);}
+for(const [x,z,ry,c] of [[-18.6,-18,Math.PI/2,'#e9e9e6'],[-18.6,-28,Math.PI/2,'#3a3d42'],[58,-8,0,'#9aa3ab'],[-13.4,20,-Math.PI/2,'#7b1c1c']])addVehicle('汽車',car(c),x,z,ry,4.5,1.9,1.5,160,0);
+// 大馬路：兩台公車＋公車站牌、候車亭
+addVehicle('公車',bus('#f2f2ee','#1f8a4c'),-13.9,33,Math.PI/2,11,2.5,3.5,450,0);
+addVehicle('公車',bus('#f4f1e8','#c8372d'),-18.2,-42,-Math.PI/2,11,2.5,3.5,450,0);
+{const bx=-11.3;M.add(mbox(bx-0.04,bx+0.04,0,2.7,38.6,38.68),MAT.steel);M.add(mbox(bx-0.03,bx+0.03,2.1,2.7,38.3,39.0),std({color:'#1f5fae'}));addCircle(bx,38.64,0.08);
+ M.add(mbox(-11.9,-10.5,2.45,2.55,29.6,33.6),MAT.polycarb);M.add(mbox(-10.6,-10.5,0,2.45,29.6,33.6),MAT.frostedGlass);   // 候車亭：頂棚＋背板
+ for(const z of [29.65,33.55])M.add(mbox(-10.62,-10.48,0,2.5,z-0.05,z+0.05),MAT.darkAlu);M.add(mbox(-11.0,-10.62,0.42,0.47,30.2,33.0),MAT.steel);
+ addBox(-10.62,-10.48,29.6,33.6,2.5);}
+// 門前巷子（全家這側路邊）：跑車、豪華轎車
+addVehicle('跑車',sportsCar('#f2c200'),1.4,9.5,0,4.6,1.95,1.2,200,0,true);
+addVehicle('豪華轎車',luxSedan('#15171a'),9.8,9.5,0,5.3,1.9,1.6,220,0,true);
+addVehicle('跑車',sportsCar('#c8102e'),24,9.5,Math.PI,4.6,1.95,1.2,200,0,true);
+addVehicle('豪華轎車',luxSedan('#e6e6e3'),33,9.5,0,5.3,1.9,1.6,220,0,true);
+// 全家門口：重型機車、一排機車（車頭朝巷子）
+addVehicle('重型機車',motorbike('#d81e1e'),-0.5,11.55,Math.PI/2,2.0,0.7,1.3,70);
+addVehicle('重型機車',motorbike('#1d1f22'),0.4,11.55,Math.PI/2,2.0,0.7,1.3,70);
+addVehicle('重型機車',motorbike('#2a62c9'),42,9.6,0,2.0,0.7,1.3,70,0);
+{const cs=['#efefea','#3c3f43','#9fc7e0','#c7a54a','#d9dcdc','#b8302a'];cs.forEach((c,k)=>addVehicle('機車',scooter(c),6.6+k*0.7,11.6,Math.PI/2,1.4,0.5,1.1,50));}
 
 M.build(scene);
+// 碰撞盒、可以站的面：跨戶的在戶界切開，再分給各自的範圍（打壞時一起關掉）
+{const split=arr=>{for(let i=arr.length-1;i>=0;i--){const c=arr[i];if(c.circle||c.veh||c.z0<ROW_Z0-0.01||c.z1>ROW_Z1+0.01)continue;
+    const cuts=ROW_CUTS.filter(x=>x>c.x0+0.01&&x<c.x1-0.01);if(!cuts.length)continue;const xs=[c.x0,...cuts,c.x1],parts=[];for(let k=0;k<xs.length-1;k++)parts.push({...c,x0:xs[k],x1:xs[k+1]});arr.splice(i,1,...parts);}};
+ split(colliders);split(surfaces);
+ for(const c of colliders){if(c.veh)continue;const r=regionOf(c);if(r)r.cols.push(c);}
+ for(const sf of surfaces){const r=regionOf(sf);if(r)r.surfs.push(sf);}}
 
 /* ---------------- 標籤 ---------------- */
 function labelSprite(name,desc,color='rgba(16,24,32,0.78)'){
@@ -1973,7 +2206,7 @@ function setTime(h){
   const night=1-THREE.MathUtils.smoothstep(Math.sin(el),0.0,0.14);
   for(const m of glowMats)m.emissiveIntensity=night*0.55;
   for(const m of Object.values(aptCache))m.emissiveIntensity=night*0.9;
-  MAT.lamp.emissiveIntensity=night*4;MAT.headLight.emissiveIntensity=0.2+night*2;
+  MAT.lamp.emissiveIntensity=night*4;for(const m of STORE_GLOW)m.emissiveIntensity=(m.userData.base??(m.userData.base=m.emissiveIntensity))*(1+night*2.2);MAT.headLight.emissiveIntensity=0.2+night*2;
   scene.fog.color.copy(fNight).lerp(fDusk,THREE.MathUtils.smoothstep(day,0,0.5)).lerp(fDay,THREE.MathUtils.smoothstep(day,0.4,1));
   renderer.toneMappingExposure=0.68+0.35*(1-day);
   scene.environmentIntensity=0.2+0.4*day;
@@ -2077,6 +2310,7 @@ const SPOTS=[
   {name:'後陽台',x:3.6,z:-13.0,yaw:-Math.PI/2},
   {name:'西側通道',x:0.7,z:-5,yaw:0},
   {name:'巷口',x:-10.5,z:7.6,yaw:-Math.PI/2},
+  {name:'全家便利商店',x:(STORE.dx0+STORE.dx1)/2,z:10.8,yaw:Math.PI},
 ];
 
 /* ---------------- 輸入 ---------------- */
@@ -2169,7 +2403,7 @@ function drawMinimapBg(){
   rect(GRASS,'#5d7246');
   for(const r of ROADS)rect(r,'#23272b');
   for(const b of SURR)rect(b,'#9aa3aa');
-  rect(NB,'#5d7246');rect(NBB,'#8fb3c0');
+  rect(NB,'#5d7246');rect(NBB,'#8fb3c0');rect(STORE,'#3f8fd6');
   rect({x0:ux(1),x1:ROW_X1,z0:Z_BACK,z1:Z_YARD},'#d8d2c6');
   for(let i=2;i<=N_UNITS;i++){const [a,b]=w2m(ux(i-1),Z_BACK),[,d]=w2m(0,Z_YARD);g.fillStyle='#8b857b';g.fillRect(a-0.5,b,1,d-b);}
   rect({x0:0,x1:ux(1),z0:Z_BACK,z1:Z_YARD},'#ffb454');
@@ -2177,6 +2411,7 @@ function drawMinimapBg(){
   {const [x,y]=w2m(ux(0)+UW/2-0.7,(Z_BACK+Z_YARD)/2);g.fillText('我家',x,y);}
   g.fillStyle='#c9d1d7';g.font=`${Math.max(9,Math.min(13,sc*2.4))}px ${FONT}`;
   {const [x,y]=w2m(30,(LANE_Z0+LANE_Z1)/2);g.fillText('門前巷子',x,y);}
+  {const [x,y]=w2m((STORE.x0+STORE.x1)/2,(STORE.z0+STORE.z1)/2);g.fillStyle='#ffffff';g.fillText('全家',x,y);g.fillStyle='#c9d1d7';}
   {const [x,y]=w2m(-16,-35);g.save();g.translate(x,y);g.rotate(-Math.PI/2);g.fillText('大馬路',0,0);g.restore();}
   {const [x,y]=w2m(67,-30);g.save();g.translate(x,y);g.rotate(-Math.PI/2);g.fillText('側邊巷子',0,0);g.restore();}
   mmBg=c;
@@ -2213,6 +2448,8 @@ function updatePlace(){
   else if(inR(x,z,{x0:ux(1),x1:ROW_X1,z0:Z_1F,z1:Z_YARD})){const n=Math.floor((x-X0)/UW);t=[`鄰居（往東第 ${n} 戶）`,z<0?'騎樓':'前院'];}
   else if(inR(x,z,{x0:0,x1:HX1,z0:ZRY,z1:Z_BACK}))t=['我家','後陽台'];
   else if(inR(x,z,{x0:-0.5,x1:ROW_X1,z0:-15.8,z1:Z_BACK}))t=['屋後','鄰居後院'];
+  else if(inR(x,z,STORE))t=['全家便利商店',player.y>=STORE.h-0.3?'屋頂':''];
+  else if(inR(x,z,{x0:STORE.x0-2,x1:STORE.x1+2,z0:LANE_Z1,z1:STORE.z0}))t=['全家便利商店','門口'];
   else if(inR(x,z,GRASS))t=['對面空地',''];
   else if(inR(x,z,NB))t=['側邊空地',''];
   else for(const r of ROADS)if(inR(x,z,r)){t=[r.name,'道路'];break;}
@@ -2266,6 +2503,10 @@ const AUDIO=(()=>{
       case 'swish':noise(t,0.6,0.18,o,'bandpass',rp(1500),900,0.8);break;
       case 'rattle':for(let i=0;i<6;i++)noise(t+i*0.05,0.03,0.2,o,'bandpass',2200,0,3);break;
       case 'thud':noise(t,0.15,0.35,o,'lowpass',500,120);tone('sine',rp(90),40,t,0.15,0.5,o);break;
+      case 'crack':noise(t,0.14,0.35,o,'bandpass',rp(1100),300,1.2);tone('sine',rp(110),50,t,0.14,0.3,o);break;
+      case 'carboom':noise(t,1.4,1,o,'lowpass',3000,70);tone('sine',70,24,t,1.0,1,o);for(let i=0;i<5;i++)noise(t+0.05+i*0.07,0.06,0.25,o,'highpass',rp(5000));break;   // 爆炸＋玻璃碎
+      case 'collapse':noise(t,3.0,0.9,o,'lowpass',1200,50);tone('sine',48,22,t,2.6,0.9,o);for(let i=0;i<9;i++)noise(t+i*0.24+rnd(0,0.1),0.3,0.4,o,'bandpass',rnd(250,900),0,1);break;   // 轟隆倒塌
+      case 'chime':tone('sine',1047,0,t,0.9,0.18,o);tone('sine',831,0,t+0.4,1.1,0.18,o);break;   // 自動門叮咚
       case 'bigboom':noise(t,1.3,1,o,'lowpass',2500,60);tone('sine',60,22,t,1.1,1,o);tone('sawtooth',90,30,t,0.7,0.3,o,['lowpass',400]);break;}}
   // 蓄力的聲音：越來越高，放開就停
   function chargeSound(){if(!ok())return null;const c=A.ctx,t=c.currentTime,o=c.createOscillator(),o2=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain();
@@ -2320,7 +2561,7 @@ const AUDIO=(()=>{
    技能都是按了馬上放、沒有魔力／冷卻：J／1 拳、L／2 踢、U／3 旋風腿、I／5 升龍拳、O／4 氣功炮；畫面下方有技能按鈕。
    連段（連續按，間隔 0.8 秒內）：拳拳拳＝三連重拳、拳拳踢＝連環踢、踢拳＝升龍拳、踢踢＝飛踢、拳踢氣＝超級氣功波。 */
 const GAME=(()=>{
-  const G={charge:-1,full:false,on:false,over:false,hp:100,wave:0,kills:0,zs:[],toSpawn:0,spawnT:0,waveT:0,shots:[],fx:[],act:null,queue:null,hist:[],side:0,calm:0,prevView:null,combo:0,comboT:0,best:0,stop:0,shake:0,blastCd:0};
+  const G={airHits:0,charge:-1,full:false,on:false,over:false,hp:100,wave:0,kills:0,zs:[],toSpawn:0,spawnT:0,waveT:0,shots:[],fx:[],act:null,queue:null,hist:[],side:0,calm:0,prevView:null,combo:0,comboT:0,best:0,stop:0,shake:0,blastCd:0};
   const $=id=>document.getElementById(id);
   const hud=$('gHud'),hpEl=$('gHp'),waveEl=$('gWave'),killEl=$('gKills'),comboEl=$('gCombo'),skills=$('gSkills'),overEl=$('gOver'),flash=$('gFlash'),bigEl=$('gBig');
   // 每招：dur＝動作時間、hits＝打中的時間點（0～1）、r 距離、cone 前方角度（-1＝一圈）、dmg、kb 擊退、up 往上飛、name 連段名稱
@@ -2330,7 +2571,7 @@ const GAME=(()=>{
     kick:{dur:0.3,hits:[0.5],r:1.95,cone:0.3,dmg:45,kb:8},
     flurry:{dur:0.62,hits:[0.2,0.45,0.75],r:2.1,cone:0.25,dmg:32,kb:4,lastKb:11,lastUp:5,shake:0.15,name:'連環踢！',safe:true},
     spin:{dur:0.45,hits:[0.25,0.5,0.75],r:2.9,cone:-1,dmg:30,kb:11,up:5,shake:0.15,name:'旋風腿！',safe:true},
-    upper:{dur:0.45,hits:[0.35],r:1.9,cone:0.15,dmg:60,kb:4,up:12,shake:0.2,stop:0.06,name:'升龍拳！',safe:true},
+    upper:{dur:0.45,hits:[0.35],r:1.9,cone:0.15,dmg:60,kb:1.5,up:12,shake:0.2,stop:0.06,name:'升龍拳！',safe:true},
     fly:{dur:0.5,hits:[],r:1.6,cone:0.1,dmg:60,kb:16,up:6,shake:0.18,name:'飛踢！',safe:true},
     blast:{dur:0.22,hits:[]},
     beam:{dur:0.5,hits:[0.25],shake:0.45,stop:0.08,name:'超級氣功波！',safe:true},
@@ -2351,7 +2592,7 @@ const GAME=(()=>{
   // 兩點之間有沒有牆擋（在這個高度、身體範圍內）
   // 碰撞盒分到 2 m 的格子裡，查的時候只看附近幾個（手機省效能）
   let grid=null;const GS=2,gk=(i,j)=>i*100003+j;
-  function cellsOf(x,z){return grid.get(gk(Math.floor(x/GS),Math.floor(z/GS)))||[];}
+  function cellsOf(x,z){if(!grid)buildGrid();return grid.get(gk(Math.floor(x/GS),Math.floor(z/GS)))||[];}
   function buildGrid(){grid=new Map();for(const c of colliders){if(c.circle)continue;const i0=Math.floor((c.x0-0.1)/GS),i1=Math.floor((c.x1+0.1)/GS),j0=Math.floor((c.z0-0.1)/GS),j1=Math.floor((c.z1+0.1)/GS);
     if((i1-i0+1)*(j1-j0+1)>400)continue;for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const k=gk(i,j);let a=grid.get(k);if(!a)grid.set(k,a=[]);a.push(c);}}}
   function blockedAt(x,z,y0,y1){for(const c of cellsOf(x,z)){if(c.off)continue;if(c.h<=y0||c.y0>=y1)continue;if(x>c.x0-0.1&&x<c.x1+0.1&&z>c.z0-0.1&&z<c.z1+0.1)return c;}return null;}
@@ -2404,17 +2645,27 @@ const GAME=(()=>{
   // ---- 玩家的方向、手的位置 ----
   const fwd=()=>new V2(-Math.sin(player.yaw),-Math.cos(player.yaw));
   const handPos=()=>{const f=fwd();return new V3(player.pos.x+f.x*0.55,player.y+bodyH().head*0.68,player.pos.y+f.y*0.55);};
-  function hurtZombie(z,dmg,dir,kb,up){if(z.dead||z.rise>0.3)return false;dmg=Math.round(dmg*rr(0.9,1.1));z.hp-=dmg;z.flash=0.16;z.kb.set(dir.x*kb,dir.y*kb);z.stun=0.35;
-    if(up){z.vy=Math.max(z.vy,up);z.air=0.01;z.spin=Math.random()<0.5?-1:1;}
-    const p=new V3(z.pos.x,z.y+1.25,z.pos.y);fx(p,sparkTex,0.4,1.1+dmg/80,0.2);dmgText(new V3(z.pos.x,z.y+1.9,z.pos.y),dmg,dmg>=55);
+  // 浮空連段：在空中的殭屍（打死後還在飛的也算）可以繼續打，每下再往上飛、落得比較慢
+  const airborne=z=>z.air>0&&(!z.dead||z.deadT<1.4);
+  const hittable=z=>z.rise<=0.3&&(!z.dead||airborne(z));
+  function hurtZombie(z,dmg,dir,kb,up){if(!hittable(z))return false;dmg=Math.round(dmg*rr(0.9,1.1));const inAir=airborne(z);
+    if(inAir){up=Math.max(up||0,6);kb=Math.min(kb*0.1,0.8);z.juggle=true;G.airHits++;}   // 空中再被打：主要往上飛、不要飛太遠，才接得下去
+    z.flash=0.16;z.kb.set(dir.x*kb,dir.y*kb);z.stun=0.35;
+    if(inAir){const h=z.y-heightAt(z.pos.x,z.pos.y,z.y);z.vy=h>3?Math.max(Math.min(z.vy,0),2):Math.max(z.vy,Math.min(up*0.6,6.5));z.spin=z.spin||1;}   // 空中再被打：維持在離地 2～4 m，接得到
+    else if(up){z.vy=Math.max(z.vy,up);z.air=0.01;z.spin=Math.random()<0.5?-1:1;}
+    const p=new V3(z.pos.x,z.y+1.25,z.pos.y);fx(p,sparkTex,0.4,1.1+dmg/80,0.2);dmgText(new V3(z.pos.x,z.y+1.9,z.pos.y),dmg,dmg>=55||inAir);
     G.combo++;G.comboT=2;G.best=Math.max(G.best,G.combo);
+    if(z.dead){z.deadT=0;return true;}   // 屍體在空中被接著打：只是再飛起來
+    z.hp-=dmg;
     if(z.hp<=0){z.dead=true;z.deadT=0;G.kills++;killEl.textContent=`擊倒 ${G.kills}`;z.vy=Math.max(z.vy,(up||3)*1.3);z.kb.multiplyScalar(1.4);z.air=0.01;z.spin=z.spin||(Math.random()<0.5?-1:1);snd('zdie');}   // 打死的會多飛一段
     return true;}
   // 依招式打一次範圍內的殭屍
   function strike(m,opt={}){const f=fwd();let hit=false;
-    for(const z of G.zs){if(z.dead||(opt.once&&opt.once.has(z)))continue;const dx=z.pos.x-player.pos.x,dz=z.pos.y-player.pos.y,d=Math.hypot(dx,dz);if(d>m.r||Math.abs(z.y-player.y)>1.4)continue;
+    for(const z of G.zs){if(!hittable(z)||(opt.once&&opt.once.has(z)))continue;const dx=z.pos.x-player.pos.x,dz=z.pos.y-player.pos.y,d=Math.hypot(dx,dz),dy=z.y-player.y,air=airborne(z);
+      if(d>m.r+(air?0.6:0)||dy<-1.4||dy>(air?4.5:1.4))continue;   // 空中的殭屍：往上 4.5 m 內都打得到
       const dir=d>0.01?new V2(dx/d,dz/d):f;if(m.cone>-1&&d>0.6&&dir.x*f.x+dir.y*f.y<m.cone)continue;
       if(hurtZombie(z,opt.dmg||m.dmg,dir,opt.kb||m.kb,opt.up!==undefined?opt.up:m.up)){hit=true;if(opt.once)opt.once.add(z);}}
+    if(DESTR.melee(m,opt))hit=true;
     if(hit){snd(m.dmg>=55||opt.kb>=10?'heavy':'hit');if(m.shake)G.shake=Math.max(G.shake,m.shake);if(m.stop)G.stop=m.stop;}
     return hit;}
   // ---- 出招：輸入 → 連段判斷 → 動作（正在出招時先排隊，動作做到七成就接下一招） ----
@@ -2426,51 +2677,180 @@ const GAME=(()=>{
     for(const [pat,mv] of COMBOS){if(seq.length>=pat.length&&pat.every((p,i)=>seq[seq.length-pat.length+i]===p)){move=mv;G.hist=[];break;}}
     if(G.act&&G.act.t<G.act.dur*0.7){G.queue=move;return;}
     doMove(move);}
-  // 自動瞄準：出招時轉向最近的殭屍（氣功類找 12 m 內、近身招找 3.5 m 內）
-  function aim(range){let best=null,bd=range;for(const z of G.zs){if(z.dead||z.rise>0.3||Math.abs(z.y-player.y)>1.4)continue;const d=Math.hypot(z.pos.x-player.pos.x,z.pos.y-player.pos.y);if(d<bd){bd=d;best=z;}}
-    if(best)player.yaw=Math.atan2(-(best.pos.x-player.pos.x),-(best.pos.y-player.pos.y));}
-  function doMove(move){aim(move==='blast'||move==='beam'?12:3.5);const m=MOVES[move];G.side^=1;G.act={kind:move,t:0,dur:m.dur,next:0,once:new Set()};avatar.yaw=player.yaw;G.queue=null;
+  // 技能一律往前方放（使用者：不要自動瞄準）；往上抬視角就往上打（打浮空的殭屍）
+  function aimDir(){const f=fwd(),pitch=player.pitch>0.1?Math.min(1.2,player.pitch*1.8):0;   /* 第三人稱視角最多抬 0.6，放大才打得到頭頂上的 */return new V3(f.x*Math.cos(pitch),Math.sin(pitch),f.y*Math.cos(pitch)).normalize();}
+  function doMove(move){const m=MOVES[move];G.side^=1;G.act={kind:move,t:0,dur:m.dur,next:0,once:new Set()};avatar.yaw=player.yaw;G.queue=null;
     if(m.name)bigText(m.name);else snd('whoosh');
     if(move==='blast')fireBall();
     if(move==='upper'){player.vy=Math.max(player.vy,3.2);player.ground=false;}
     if(move==='fly'){player.vy=Math.max(player.vy,2.2);player.ground=false;}}
   // 氣功炮：馬上射出一顆
   // c＝蓄力程度 0～1（一般氣功炮是 0）：越大顆、越慢、範圍越大、打得越高
-  function fireBall(c=0){const f=fwd(),p=handPos(),pitch=Math.max(-0.4,Math.min(0.4,player.pitch+0.05));
-    const dir=new V3(f.x*Math.cos(pitch),Math.sin(pitch),f.y*Math.cos(pitch)).normalize(),r=0.32+0.6*c;
+  function fireBall(c=0){const p=handPos(),dir=aimDir(),r=0.32+0.6*c;
     const core=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),new THREE.MeshBasicMaterial({color:'#e8fbff'}));core.scale.setScalar(r*0.6);core.position.copy(p);scene.add(core);
     const glow=sprite(glowTex,r*5.5);glow.position.copy(p);
     G.shots.push({p,dir,v:20-6*c,r,dmg:65+215*c,aoe:2.0+4.5*c,kb:10+14*c,up:5+10*c,big:c>=0.95,life:1.8+c,core,glow,trail:0});snd(c>0.4?'beam':'blast');}
   function explode(s){const p=s.p;fx(p,glowTex,s.r*3,s.aoe*3.2,0.45);fx(p,sparkTex,s.r*2,s.aoe*2.2,0.3);snd(s.big?'bigboom':'boom');G.shake=Math.max(G.shake,s.big?0.6:0.2+s.aoe*0.04);if(s.big){G.stop=0.1;fx(p,glowTex,1,s.aoe*5,0.8);fx(p,sparkTex,1,s.aoe*3.5,0.6);}
-    for(const z of G.zs){if(z.dead)continue;const dx=z.pos.x-p.x,dz=z.pos.y-p.z,dy=z.y+1-p.y,d=Math.hypot(dx,dz,dy);if(d>s.aoe+0.4)continue;const k=1-Math.min(1,d/(s.aoe+0.4))*0.5,dd=Math.hypot(dx,dz)||1;hurtZombie(z,s.dmg*k,new V2(dx/dd,dz/dd),s.kb*k,s.up*k);}
+    for(const z of G.zs){if(!hittable(z))continue;const dx=z.pos.x-p.x,dz=z.pos.y-p.z,dy=z.y+1-p.y,d=Math.hypot(dx,dz,dy);if(d>s.aoe+0.4)continue;const k=1-Math.min(1,d/(s.aoe+0.4))*0.5,dd=Math.hypot(dx,dz)||1;hurtZombie(z,s.dmg*k,new V2(dx/dd,dz/dd),s.kb*k,s.up*k);}
+    DESTR.blast(p,s.aoe+0.3,s.dmg);
     scene.remove(s.core,s.glow);s.core.geometry.dispose();s.dead=true;}
   // 蓄力氣功彈：按住集氣（集氣中無敵），放開射出；集滿約 1.2 秒＝全力氣功彈
   let chargeSnd=null;const chBall=sprite(glowTex,0.3);chBall.visible=false;
   function chargeStart(){if(!G.on||G.over||player.climb||G.charge>=0)return;G.charge=0;G.full=false;avatar.yaw=player.yaw;chargeSnd=AUDIO.chargeSound();}
   function chargeStop(){G.charge=-1;chBall.visible=false;if(chargeSnd){chargeSnd.stop();chargeSnd=null;}}
   function chargeRelease(){if(G.charge<0)return;const c=Math.min(1,G.charge/1.2);chargeStop();
-    aim(14);avatar.yaw=player.yaw;G.act={kind:'blast',t:0,dur:0.3,next:0,once:new Set()};fireBall(c);if(c>=0.95)bigText('全力氣功彈！');else if(c>0.4)bigText('蓄力氣功彈！');}
+    avatar.yaw=player.yaw;G.act={kind:'blast',t:0,dur:0.3,next:0,once:new Set()};fireBall(c);if(c>=0.95)bigText('全力氣功彈！');else if(c>0.4)bigText('蓄力氣功彈！');}
   // 超級氣功波：一直線打穿
-  function superBeam(){const f=fwd(),p=handPos(),L=22;
+  function superBeam(){const p=handPos(),f=fwd(),L=22;const d3=aimDir();   // 視角平視就水平打，往上抬就往上打
     const g=new THREE.CylinderGeometry(0.5,0.35,L,20,1,true);g.rotateX(Math.PI/2);g.translate(0,0,-L/2);
     const beam=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:'#8fe6ff',transparent:true,opacity:0.85,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
-    beam.position.copy(p);beam.rotation.y=player.yaw;scene.add(beam);
+    beam.position.copy(p);beam.rotation.order='YXZ';beam.rotation.y=Math.atan2(-d3.x,-d3.z);beam.rotation.x=Math.asin(Math.max(-1,Math.min(1,d3.y)));scene.add(beam);
     const inner=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.16,L,14,1,true).rotateX(Math.PI/2).translate(0,0,-L/2),new THREE.MeshBasicMaterial({color:'#ffffff',transparent:true,opacity:1,blending:THREE.AdditiveBlending,depthWrite:false}));
     beam.add(inner);
     G.fx.push({mesh:beam,t:0,life:0.55});fx(p,glowTex,1.2,3.5,0.5);snd('beam');
-    for(const z of G.zs){if(z.dead||Math.abs(z.y-player.y)>1.6)continue;const dx=z.pos.x-player.pos.x,dz=z.pos.y-player.pos.y,along=dx*f.x+dz*f.y,side=Math.abs(dx*f.y-dz*f.x);
-      if(along>0&&along<L&&side<1.0)hurtZombie(z,150,f,18,10);}}
+    const hd=new V2(d3.x,d3.z);if(hd.length()<0.01)hd.copy(f);else hd.normalize();
+    for(const z of G.zs){if(!hittable(z))continue;const v=new V3(z.pos.x-p.x,z.y+1.0-p.y,z.pos.y-p.z),along=v.dot(d3),side=v.clone().addScaledVector(d3,-along).length();
+      if(along>0&&along<L&&side<1.1)hurtZombie(z,150,hd,18,10);}
+    DESTR.beam(p,d3,L);}
+  // ---- 破壞：車子、鄰居的房子、隔壁大樓、周邊建築、全家（我家不會壞；遊戲結束會復原） ----
+  // 範圍、合併網格裡的位置在「打得壞的東西」那段（REGIONS）。打到才把那段拆出來：車子會晃、打爆炸飛變焦黑殘骸並連鎖爆炸；房子倒塌成瓦礫。
+  const DESTR=(()=>{
+    const D={n:0,falls:[],debris:[],vehs:[],pend:[],tgtT:0,shT:0};
+    const tgtRow=$('gTgtRow'),tgtName=$('gTgtName'),tgtBar=$('gTgt'),wreckEl=$('gWreck');
+    const smokeTex=radTex([[0,'rgba(55,52,50,0.75)'],[1,'rgba(55,52,50,0)']]);
+    const fireTex=radTex([[0,'rgba(255,250,210,1)'],[0.35,'rgba(255,150,40,0.9)'],[1,'rgba(200,40,0,0)']]);
+    const chunkGeo=new THREE.BoxGeometry(1,1,1),chunkMats=new Map(),rubbleGray=std({color:'#8e8a83',roughness:0.95});
+    const chunkMat=c=>{let m=chunkMats.get(c);if(!m){m=std({color:c,roughness:0.9});chunkMats.set(c,m);}return m;};
+    const burnt=new Map();
+    function burntMat(m){let b=burnt.get(m);if(!b){b=m.clone();if(b.color)b.color.multiplyScalar(0.13);b.roughness=1;b.metalness=0.1;if(b.emissive){b.emissive.setRGB(0,0,0);b.emissiveMap=null;}b.transparent=false;b.opacity=1;burnt.set(m,b);}return b;}
+    const busy=()=>G.fx.length>260;
+    // 把這個範圍從合併網格拿出來變成獨立網格（原本那段縮成一點藏起來，備份留著復原用）
+    function detach(r,pivot){const grp=new THREE.Group();grp.position.copy(pivot);scene.add(grp);const by=new Map();
+      for(const pt of r.parts){let a=by.get(pt.mesh);if(!a)by.set(pt.mesh,a=[]);a.push(pt);}
+      r.backup=[];
+      for(const [m,pts] of by){const A=m.geometry.attributes,PA=A.position;let cnt=0;for(const pt of pts)cnt+=pt.count;
+        const P=new Float32Array(cnt*3),Nn=new Float32Array(cnt*3),U=new Float32Array(cnt*2);let o=0;
+        for(const pt of pts){const a=pt.start,b=a+pt.count;P.set(PA.array.subarray(a*3,b*3),o*3);Nn.set(A.normal.array.subarray(a*3,b*3),o*3);U.set(A.uv.array.subarray(a*2,b*2),o*2);
+          r.backup.push({PA,a,data:PA.array.slice(a*3,b*3)});PA.array.fill(0,a*3,b*3);PA.addUpdateRange(a*3,pt.count*3);o+=pt.count;}
+        PA.needsUpdate=true;
+        for(let i=0;i<P.length;i+=3){P[i]-=pivot.x;P[i+1]-=pivot.y;P[i+2]-=pivot.z;}
+        const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setAttribute('normal',new THREE.BufferAttribute(Nn,3));g.setAttribute('uv',new THREE.BufferAttribute(U,2));
+        const mm=new THREE.Mesh(g,m.material);mm.castShadow=m.castShadow;mm.receiveShadow=true;grp.add(mm);}
+      renderer.shadowMap.needsUpdate=true;return grp;}
+    function reattach(r){if(r.backup){for(const b of r.backup){b.PA.array.set(b.data,b.a*3);b.PA.addUpdateRange(b.a*3,b.data.length);b.PA.needsUpdate=true;}r.backup=null;}
+      if(r.grp){scene.remove(r.grp);r.grp.traverse(o=>{if(o.isMesh)o.geometry.dispose();});r.grp=null;}}
+    const boxDist=(r,x,y,z)=>Math.hypot(Math.max(r.x0-x,0,x-r.x1),Math.max(-y,0,y-r.h),Math.max(r.z0-z,0,z-r.z1));
+    const center=r=>new V3((r.x0+r.x1)/2,r.h/2,(r.z0+r.z1)/2);
+    function showTgt(r){tgtRow.hidden=false;tgtName.textContent=r.name;tgtBar.style.width=Math.max(0,r.hp/r.max*100)+'%';D.tgtT=2.5;}
+    function debris(p,col,sz,v){if(D.debris.length>150){const o=D.debris.shift();scene.remove(o.m);}
+      const m=new THREE.Mesh(chunkGeo,chunkMat(col));m.scale.set(sz*rr(0.7,1.4),sz*rr(0.5,1),sz*rr(0.7,1.4));m.position.copy(p);scene.add(m);
+      D.debris.push({m,v,av:new V3(rr(-6,6),rr(-6,6),rr(-6,6)),t:0,life:rr(3,5)});}
+    function cloud(p,tx,s0,s1,life,vy){if(busy())return;const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthWrite:false}));sp.position.copy(p);sp.scale.setScalar(s0);scene.add(sp);
+      G.fx.push({sp,s0,s1,life,t:0,vel:new V3(rr(-0.5,0.5),vy,rr(-0.5,0.5))});}
+    const perim=r=>{const t=Math.random()*2*((r.x1-r.x0)+(r.z1-r.z0)),W=r.x1-r.x0,Dd=r.z1-r.z0;
+      return t<W?{x:r.x0+t,z:r.z0}:t<W+Dd?{x:r.x1,z:r.z0+t-W}:t<2*W+Dd?{x:r.x1-(t-W-Dd),z:r.z1}:{x:r.x0,z:r.z1-(t-2*W-Dd)};};
+    function damage(r,dmg,p,dir){if(r.dead||dmg<=0)return;dmg=Math.round(dmg);r.hp-=dmg;showTgt(r);
+      const c=p||center(r);
+      if(r.kind==='car'){if(!r.grp){r.grp=detach(r,new V3(r.cx,r.y0+r.h/2,r.cz));D.vehs.push(r);}r.wob=Math.min(0.3,(r.wob||0)+0.12);fx(c,sparkTex,0.3,1.2,0.2);}
+      else{for(let i=0;i<3;i++)debris(c,r.mat,rr(0.08,0.22),new V3(rr(-3,3),rr(2,6),rr(-3,3)));cloud(c,dustTex,0.6,2.4,0.7,0.4);snd('crack');}
+      if(r.hp<=0){r.dead=true;D.n++;wreckEl.textContent=`破壞 ${D.n}`;tgtBar.style.width='0%';if(r.kind==='car')blowUp(r,dir);else collapse(r);}}
+    // 車子爆炸：變焦黑、炸飛翻滾、著火冒煙；波及附近的殭屍和東西（連鎖爆炸）
+    function blowUp(r,dir){const g=r.grp;g.traverse(o=>{if(o.isMesh)o.material=burntMat(o.material);});
+      for(const c of r.cols)c.off=true;grid=null;
+      const big=r.L>8,p=g.position.clone(),d=dir&&dir.lengthSq()>0.01?dir.clone().normalize():new V2(rr(-1,1),rr(-1,1)).normalize();
+      r.v=new V3(d.x*(big?1.5:4),big?5.5:r.L>3?9:11,d.y*(big?1.5:4));r.av=new V3(rr(-3,3),rr(-2,2),rr(-3,3)).multiplyScalar(big?0.35:1);r.fly=true;r.fire=big?10:7;r.fireT=0;r.wob=0;
+      fx(p,glowTex,1,big?14:9,0.55);fx(p,sparkTex,1,big?10:7,0.45);fx(p,fireTex,1,big?9:6,0.7);
+      for(let i=0;i<(big?14:8);i++)debris(p.clone().add(new V3(rr(-1,1),rr(0,1),rr(-1,1))),'#2a2a2a',rr(0.1,0.35),new V3(rr(-6,6),rr(4,10),rr(-6,6)));
+      snd('carboom');G.shake=Math.max(G.shake,big?0.8:0.5);G.stop=Math.max(G.stop,0.06);if(big||r.lux)bigText(`${r.name}爆炸！`);
+      const rad=big?6:4.5,dmg=big?220:140;
+      for(const z of G.zs){if(!hittable(z))continue;const dx=z.pos.x-p.x,dz=z.pos.y-p.z,dd=Math.hypot(dx,dz,z.y+1-p.y);if(dd>rad)continue;const L=Math.hypot(dx,dz)||1;hurtZombie(z,dmg*(1-dd/rad*0.5),new V2(dx/L,dz/L),12,8);}
+      blast(p,rad,dmg*0.8,r);}
+    // 房子倒塌：一邊微微傾斜一邊往下沉（地面以下看不到），揚起大片灰塵、碎塊往外噴，瓦礫堆慢慢冒出來
+    function collapse(r){for(const c of r.cols)c.off=true;for(const sf of r.surfs)sf.off=true;grid=null;
+      const cx=(r.x0+r.x1)/2,cz=(r.z0+r.z1)/2,g=detach(r,new V3(cx,0,cz));r.grp=g;const a=rr(0,Math.PI*2);
+      D.falls.push({r,g,cx,cz,t:0,dur:2.2+r.h*0.06,tx:Math.cos(a)*0.12,tz:Math.sin(a)*0.12,dT:0,cT:0});
+      r.rub=rubble(r);
+      snd('collapse');G.shake=Math.max(G.shake,1.0);bigText(`${r.name}倒了！`);
+      for(const z of G.zs){if(z.dead||z.pos.x<r.x0||z.pos.x>r.x1||z.pos.y<r.z0||z.pos.y>r.z1)continue;const dx=z.pos.x-cx,dz=z.pos.y-cz,L=Math.hypot(dx,dz)||1;hurtZombie(z,999,new V2(dx/L,dz/L),8,9);}
+      for(let i=0;i<10;i++){const q=perim(r);cloud(new V3(q.x,rr(0.5,2),q.z),dustTex,3,9,3,0.8);}}
+    function rubble(r){const W=r.x1-r.x0,Dd=r.z1-r.z0,n=Math.min(220,Math.round(W*Dd/1.4)+16),g=new THREE.Group(),o=new THREE.Object3D(),cnt=[0,0];
+      const ims=[rubbleGray,chunkMat(r.mat)].map(m=>{const im=new THREE.InstancedMesh(chunkGeo,m,n);im.castShadow=true;im.receiveShadow=true;g.add(im);return im;});
+      for(let i=0;i<n;i++){const x=rr(r.x0+0.2,r.x1-0.2),z=rr(r.z0+0.2,r.z1-0.2),e=Math.min(x-r.x0,r.x1-x,z-r.z0,r.z1-z),hm=0.3+Math.min(1,e/2.5)*Math.min(1.2,r.h/10);
+        o.position.set(x,rr(0,hm),z);o.rotation.set(rr(0,3),rr(0,3),rr(0,3));const sz=rr(0.4,1.3);o.scale.set(sz,sz*rr(0.3,0.7),sz*rr(0.6,1.2));o.updateMatrix();const k=i%3===0?1:0;ims[k].setMatrixAt(cnt[k]++,o.matrix);}
+      ims.forEach((im,k)=>{im.count=cnt[k];im.instanceMatrix.needsUpdate=true;im.computeBoundingSphere();});
+      g.position.y=-2;scene.add(g);
+      r.rubSurf={x0:r.x0+0.4,x1:r.x1-0.4,z0:r.z0+0.4,z1:r.z1-0.4,y:0.3};surfaces.push(r.rubSurf);return g;}
+    // 爆炸波及範圍內的東西（src＝哪台車炸的：連鎖爆炸稍微延遲比較好看）
+    function blast(p,rad,dmg,src){for(const r of REGIONS){if(r===src||r.dead)continue;const d=boxDist(r,p.x,p.y,p.z);if(d>rad)continue;
+        const c=center(r),dx=c.x-p.x,dz=c.z-p.z,L=Math.hypot(dx,dz)||1,q=new V3(Math.max(r.x0,Math.min(r.x1,p.x)),Math.max(0.3,Math.min(r.h,p.y)),Math.max(r.z0,Math.min(r.z1,p.z)));
+        const hit={r,dmg:dmg*(1-0.5*d/rad),p:q,dir:new V2(dx/L,dz/L)};if(src){hit.t=rr(0.12,0.32);D.pend.push(hit);}else damage(hit.r,hit.dmg,hit.p,hit.dir);}}
+    // 超級氣功波：直線穿過的東西都打
+    function beam(p,d,L){for(const r of REGIONS){if(r.dead)continue;let t0=0,t1=L;
+        for(const [o,dd,a,b] of [[p.x,d.x,r.x0-0.4,r.x1+0.4],[p.y,d.y,-0.5,r.h+0.4],[p.z,d.z,r.z0-0.4,r.z1+0.4]]){if(Math.abs(dd)<1e-6){if(o<a||o>b){t0=1;t1=0;break;}continue;}
+          let ta=(a-o)/dd,tb=(b-o)/dd;if(ta>tb)[ta,tb]=[tb,ta];t0=Math.max(t0,ta);t1=Math.min(t1,tb);if(t0>t1)break;}
+        if(t0<=t1)damage(r,150,p.clone().addScaledVector(d,t0),new V2(d.x,d.z));}}
+    // 近身招：前方（旋風腿一圈）範圍內的東西
+    function melee(m,opt){if(!m.r)return false;const f=fwd(),px=player.pos.x,pz=player.pos.y,py=player.y+1;let hit=false;
+      for(const r of REGIONS){if(r.dead||(opt.once&&opt.once.has(r)))continue;if(boxDist(r,px,py,pz)>m.r)continue;
+        const qx=Math.max(r.x0,Math.min(r.x1,px)),qz=Math.max(r.z0,Math.min(r.z1,pz)),dx=qx-px,dz=qz-pz,L=Math.hypot(dx,dz),dir=L>0.01?new V2(dx/L,dz/L):f;
+        if(m.cone>-1&&L>0.6&&dir.x*f.x+dir.y*f.y<m.cone)continue;
+        damage(r,opt.dmg||m.dmg,new V3(qx,Math.max(0.3,Math.min(r.h,py)),qz),dir);if(opt.once)opt.once.add(r);hit=true;}
+      return hit;}
+    function update(dt){
+      if(D.tgtT>0){D.tgtT-=dt;if(D.tgtT<=0)tgtRow.hidden=true;}
+      if(D.pend.length){for(const q of D.pend)q.t-=dt;const due=D.pend.filter(q=>q.t<=0);D.pend=D.pend.filter(q=>q.t>0);for(const q of due)damage(q.r,q.dmg,q.p,q.dir);}
+      let shadow=false;
+      // 倒塌
+      for(const f of D.falls){f.t+=dt;const p=Math.min(1,f.t/f.dur),e=p*p,r=f.r,g=f.g;shadow=true;
+        g.position.set(f.cx+rr(-0.08,0.08)*(1-p),-(r.h+0.6)*e,f.cz+rr(-0.08,0.08)*(1-p));g.rotation.x=f.tx*Math.sin(p*Math.PI/2);g.rotation.z=f.tz*Math.sin(p*Math.PI/2);
+        if(r.rub)r.rub.position.y=-2+2*THREE.MathUtils.smoothstep(p,0.15,0.9);
+        f.dT-=dt;if(f.dT<=0){f.dT=0.07;const q=perim(r);cloud(new V3(q.x,rr(0.3,2.5),q.z),dustTex,rr(2,3),rr(6,10),rr(2.5,3.5),rr(0.3,1.2));}
+        f.cT-=dt;if(f.cT<=0&&p<0.85){f.cT=0.06;const top=Math.max(1,r.h*(1-e)),q=perim(r);debris(new V3(q.x,top,q.z),r.mat,rr(0.2,0.6),new V3((q.x-f.cx)*0.3+rr(-2,2),rr(1,5),(q.z-f.cz)*0.3+rr(-2,2)));}
+        if(p>=1){scene.remove(g);g.traverse(o=>{if(o.isMesh)o.geometry.dispose();});r.grp=null;f.done=true;}}
+      D.falls=D.falls.filter(f=>!f.done);
+      // 碎塊：彈幾下停住，幾秒後縮小消失
+      for(const d of D.debris){d.t+=dt;const m=d.m;
+        if(!d.rest){d.v.y-=16*dt;m.position.addScaledVector(d.v,dt);m.rotation.x+=d.av.x*dt;m.rotation.y+=d.av.y*dt;m.rotation.z+=d.av.z*dt;
+          const fl=heightAt(m.position.x,m.position.z,m.position.y+0.3)+m.scale.y*0.4;
+          if(m.position.y<fl){m.position.y=fl;if(d.v.y<-3){d.v.y*=-0.3;d.v.x*=0.6;d.v.z*=0.6;d.av.multiplyScalar(0.5);}else d.rest=true;}}
+        if(d.t>d.life){m.scale.multiplyScalar(Math.exp(-dt*5));if(m.scale.x<0.03){scene.remove(m);d.dead=true;}}}
+      D.debris=D.debris.filter(d=>!d.dead);
+      // 車子：被打到會晃；打爆後飛起來翻、彈一下、翻正或翻過來停住，燒一陣子
+      for(const r of D.vehs){const g=r.grp;if(!g)continue;
+        if(!r.dead){if(r.wob>0){r.wob=Math.max(0,r.wob-dt*0.9);const t=performance.now();g.rotation.z=Math.sin(t/25)*r.wob*0.25;g.rotation.x=Math.cos(t/31)*r.wob*0.15;}continue;}
+        if(r.fly){shadow=true;r.v.y-=16*dt;g.position.addScaledVector(r.v,dt);g.rotation.x+=r.av.x*dt;g.rotation.y+=r.av.y*dt;g.rotation.z+=r.av.z*dt;
+          const fl=heightAt(g.position.x,g.position.z,g.position.y)+r.h/2;
+          if(g.position.y<=fl&&r.v.y<0){g.position.y=fl;if(r.v.y<-5){r.v.y*=-0.28;r.v.x*=0.5;r.v.z*=0.5;r.av.multiplyScalar(0.45);snd('thud');dust(g.position.clone());G.shake=Math.max(G.shake,0.15);}else{r.fly=false;r.settle=true;}}}
+        else if(r.settle){shadow=true;const k=1-Math.exp(-dt*8),tx=Math.round(g.rotation.x/Math.PI)*Math.PI,tz=Math.round(g.rotation.z/Math.PI)*Math.PI;g.rotation.x+=(tx-g.rotation.x)*k;g.rotation.z+=(tz-g.rotation.z)*k;
+          if(Math.abs(tx-g.rotation.x)<0.01&&Math.abs(tz-g.rotation.z)<0.01){g.rotation.x=tx;g.rotation.z=tz;r.settle=false;g.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(g);
+            for(const c of r.cols){c.x0=b.min.x;c.x1=b.max.x;c.z0=b.min.z;c.z1=b.max.z;c.h=b.max.y;c.off=false;}grid=null;}}
+        if(r.fire>0){r.fire-=dt;r.fireT-=dt;if(r.fireT<=0){r.fireT=0.09;const p=g.position.clone().add(new V3(rr(-r.L*0.3,r.L*0.3),r.h*0.3,rr(-0.4,0.4)));
+            if(!busy())fx(p,fireTex,rr(0.6,1.2)*(r.L>3?1:0.6),rr(0.1,0.3),rr(0.4,0.7),new V3(rr(-0.3,0.3),rr(1.5,2.5),rr(-0.3,0.3)));
+            if(Math.random()<0.5)cloud(p.clone().add(new V3(0,0.6,0)),smokeTex,0.8,3.5,2.2,1.6);}}}
+      // 陰影平常不重算，有東西在動時每 0.2 秒算一次
+      D.shT-=dt;if(shadow&&D.shT<=0){D.shT=0.2;renderer.shadowMap.needsUpdate=true;}
+    }
+    function reset(){for(const f of D.falls)scene.remove(f.g);D.falls=[];for(const d of D.debris)scene.remove(d.m);D.debris=[];D.pend=[];
+      for(const r of REGIONS){reattach(r);r.dead=false;r.hp=r.max;r.fly=r.settle=false;r.fire=0;r.wob=0;
+        for(const c of r.cols){c.off=false;if(c.orig)Object.assign(c,c.orig);}for(const sf of r.surfs)sf.off=false;
+        if(r.rub){scene.remove(r.rub);r.rub.traverse(o=>{if(o.isInstancedMesh)o.dispose();});r.rub=null;}
+        if(r.rubSurf){const i=surfaces.indexOf(r.rubSurf);if(i>=0)surfaces.splice(i,1);r.rubSurf=null;}}
+      D.vehs=[];D.n=0;wreckEl.textContent='破壞 0';tgtRow.hidden=true;D.tgtT=0;grid=null;renderer.shadowMap.needsUpdate=true;}
+    return {damage,blast,beam,melee,update,reset,D,get n(){return D.n;}};
+  })();
   // ---- 開始／結束 ----
   function clearAll(){grid=null;chargeStop();for(const z of G.zs)scene.remove(z.m.root);G.zs=[];for(const s of G.shots)scene.remove(s.core,s.glow);G.shots=[];
     for(const e of G.fx){if(e.sp)scene.remove(e.sp);if(e.mesh)scene.remove(e.mesh);}G.fx=[];G.act=null;G.queue=null;G.hist=[];}
-  function start(){clearAll();Object.assign(G,{on:true,over:false,hp:100,wave:0,kills:0,toSpawn:0,spawnT:0,waveT:1.5,calm:0,combo:0,comboT:0,best:0,stop:0,shake:0});
+  // free＝自由破壞模式：沒有殭屍，只是拆東西
+  function start(free){clearAll();DESTR.reset();Object.assign(G,{on:true,over:false,free:!!free,hp:100,wave:0,kills:0,toSpawn:0,spawnT:0,waveT:1.5,calm:0,combo:0,comboT:0,best:0,stop:0,shake:0,airHits:0});
     if(mode!=='walk')toggleAerial();if(G.prevView===null)G.prevView=view;view='third';syncViewUI();   // 遊戲中用第三人稱（不存成偏好）
     teleport(5.26,0.6,Math.PI,0);   // 面向巷子（殭屍從那邊來）
     document.body.classList.add('gaming');hud.hidden=false;skills.hidden=false;overEl.hidden=true;killEl.textContent='擊倒 0';comboEl.textContent='';waveEl.textContent='準備…';menu.hidden=true;bMenu.classList.remove('on');
-    AUDIO.musicStart();toast('殭屍來襲！守住家裡！按下方按鈕放技能（會自動對準最近的殭屍），按住「蓄力」集氣放開發射');}
-  function end(){clearAll();AUDIO.musicStop();document.body.classList.remove('gaming');G.on=false;G.over=false;hud.hidden=true;skills.hidden=true;overEl.hidden=true;flash.style.boxShadow='';if(G.prevView){view=G.prevView;syncViewUI();}G.prevView=null;}
-  function gameOver(){G.over=true;overEl.hidden=false;$('gOverMsg').textContent=`撐到第 ${G.wave} 波，擊倒 ${G.kills} 隻殭屍，最高 ${G.best} 連擊`;AUDIO.musicStop();chargeStop();snd('over');}
-  $('gStart').onclick=start;$('gQuit').onclick=end;$('gRetry').onclick=start;$('gExit').onclick=end;
+    if(G.free)waveEl.textContent='自由破壞';
+    AUDIO.musicStart();toast(G.free?'自由破壞模式：車子、鄰居的房子、周邊建築、全家都打得壞（我家不會壞）；技能往前方放，視角往上抬就往上打':'殭屍來襲！守住家裡！按下方按鈕往前方放技能，按住「蓄力」集氣放開發射；車子、別人的房子也打得壞');}
+  function end(){clearAll();DESTR.reset();AUDIO.musicStop();document.body.classList.remove('gaming');G.on=false;G.over=false;hud.hidden=true;skills.hidden=true;overEl.hidden=true;flash.style.boxShadow='';if(G.prevView){view=G.prevView;syncViewUI();}G.prevView=null;}
+  function gameOver(){G.over=true;overEl.hidden=false;$('gOverMsg').textContent=`撐到第 ${G.wave} 波，擊倒 ${G.kills} 隻殭屍，破壞 ${DESTR.n} 個東西，最高 ${G.best} 連擊`;AUDIO.musicStop();chargeStop();snd('over');}
+  $('gStart').onclick=()=>start(false);$('gFree').onclick=()=>start(true);$('gQuit').onclick=end;$('gRetry').onclick=()=>start(G.free);$('gExit').onclick=end;
   // 技能按鈕（電腦點、手機按都可以，按下去馬上出招）
   for(const b of skills.querySelectorAll('button')){const s=b.dataset.s;
     b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});
@@ -2494,6 +2874,7 @@ const GAME=(()=>{
       if(!e.text)e.sp.scale.setScalar(e.s0+(e.s1-e.s0)*p);e.sp.material.opacity=e.text?(p<0.6?1:1-(p-0.6)/0.4):1-p;if(e.vel){e.sp.position.addScaledVector(e.vel,dt);if(e.text)e.vel.y-=2.5*dt;}
       if(p>=1){scene.remove(e.sp);e.sp.material.map&&e.text&&e.sp.material.map.dispose();e.sp.material.dispose();e.dead=true;}}
     G.fx=G.fx.filter(e=>!e.dead);
+    DESTR.update(dt);
     // 畫面震動（鏡頭已經放好，這裡再加一點偏移）
     if(G.shake>0){G.shake=Math.max(0,G.shake-dt);const a=G.shake*0.35;camera.position.x+=rr(-a,a);camera.position.y+=rr(-a,a);camera.position.z+=rr(-a,a);}
     if(G.over)return;
@@ -2505,10 +2886,11 @@ const GAME=(()=>{
       G.chT=(G.chT||0)-dt;if(G.chT<=0){G.chT=0.04;const a=Math.random()*Math.PI*2,r=1.2+Math.random()*0.8,q=new V3(p.x+Math.cos(a)*r,p.y+rr(-0.6,0.8),p.z+Math.sin(a)*r);fx(q,glowTex,0.3,0.05,0.35,p.clone().sub(q).multiplyScalar(2.8));}
       if(c>=1&&!G.full){G.full=true;snd('combo');fx(p,glowTex,0.5,3,0.4);}}
     // 連擊數
-    G.comboT-=dt;if(G.comboT<=0)G.combo=0;comboEl.textContent=G.combo>=2?`${G.combo} 連擊！`:'';
+    G.comboT-=dt;if(G.comboT<=0){G.combo=0;G.airHits=0;}comboEl.textContent=G.combo>=2?`${G.combo} 連擊！${G.airHits>=2?`（空中 ${G.airHits}）`:''}`:'';
+    if(G.airHits>=5&&!G.airSaid){G.airSaid=true;bigText('浮空連段！');}if(G.airHits<5)G.airSaid=false;
     // 波數
     const alive=G.zs.filter(z=>!z.dead).length;
-    if(G.toSpawn<=0&&alive===0){G.waveT-=dt;if(G.waveT<=0){G.wave++;G.toSpawn=6+3*(G.wave-1);G.spawnT=0;snd('wave');AUDIO.setTempo(G.wave);waveEl.textContent=`第 ${G.wave} 波`;toast(`第 ${G.wave} 波殭屍來了！（${G.toSpawn} 隻）`);G.waveT=3;}}
+    if(!G.free&&G.toSpawn<=0&&alive===0){G.waveT-=dt;if(G.waveT<=0){G.wave++;G.toSpawn=6+3*(G.wave-1);G.spawnT=0;snd('wave');AUDIO.setTempo(G.wave);waveEl.textContent=`第 ${G.wave} 波`;toast(`第 ${G.wave} 波殭屍來了！（${G.toSpawn} 隻）`);G.waveT=3;}}
     if(G.toSpawn>0){G.spawnT-=dt;if(G.spawnT<=0&&alive<(POWER.save?12:18)){spawnZombie();G.toSpawn--;G.spawnT=0.8;}}
     G.calm+=dt;if(G.calm>2)G.hp=Math.min(100,G.hp+8*dt);
     // 動作：時間到就打；飛踢在前衝那段一路打；做到七成可以接排隊的下一招
@@ -2523,7 +2905,7 @@ const GAME=(()=>{
     for(const s of G.shots){if(s.dead)continue;s.life-=dt;const st=s.v*dt,n=Math.max(1,Math.ceil(st/0.2));
       for(let i=0;i<n&&!s.dead;i++){s.p.addScaledVector(s.dir,st/n);
         let hit=s.life<=0||s.p.y<heightAt(s.p.x,s.p.z,s.p.y+0.3)+0.05;
-        if(!hit)for(const z of G.zs){if(z.dead||z.rise>0.3)continue;if(Math.hypot(z.pos.x-s.p.x,z.pos.y-s.p.z,z.y+1.1-s.p.y)<s.r+0.5){hit=true;break;}}
+        if(!hit)for(const z of G.zs){if(!hittable(z))continue;if(Math.hypot(z.pos.x-s.p.x,z.pos.y-s.p.z,z.y+1.1-s.p.y)<s.r+0.5){hit=true;break;}}
         if(!hit&&blockedAt(s.p.x,s.p.z,s.p.y-0.01,s.p.y+0.01))hit=true;
         if(hit)explode(s);}
       if(s.dead)continue;s.core.position.copy(s.p);s.glow.position.copy(s.p);s.glow.material.rotation+=dt*6;
@@ -2534,7 +2916,7 @@ const GAME=(()=>{
     for(const z of G.zs){const m=z.m;
       // 高度：被打飛、樓梯、掉落
       const fl=heightAt(z.pos.x,z.pos.y,Math.max(z.y,0));
-      if(!z.dead||z.deadT<1.4){if(z.vy>0||z.y>fl+0.02){z.vy-=16*zdt;z.y+=z.vy*zdt;if(z.y<=fl){if(z.air>0.35){snd('thud');dust(new V3(z.pos.x,fl+0.15,z.pos.y));G.shake=Math.max(G.shake,0.06);}z.y=fl;z.vy=0;z.air=0;}else z.air+=zdt;}else{z.y=fl;z.air=0;}}
+      if(!z.dead||z.deadT<1.4){if(z.vy>0||z.y>fl+0.02){z.vy-=(z.juggle?9:16)*zdt;z.y+=z.vy*zdt;if(z.y<=fl){if(z.air>0.35){snd('thud');dust(new V3(z.pos.x,fl+0.15,z.pos.y));G.shake=Math.max(G.shake,0.06);}z.y=fl;z.vy=0;z.air=0;z.juggle=false;}else z.air+=zdt;}else{z.y=fl;z.air=0;}}
       if(z.dead){z.deadT+=zdt;const p=Math.min(1,z.deadT/0.5);m.body.rotation.x=z.air>0?-z.air*9:-p*Math.PI/2;m.body.rotation.z=z.air>0?z.air*6*(z.spin||1):0;
         z.kb.multiplyScalar(Math.exp(-zdt*4));const ns=Math.max(1,Math.ceil(z.kb.length()*zdt/0.2));for(let i=0;i<ns;i++){z.pos.x+=z.kb.x*zdt/ns;z.pos.y+=z.kb.y*zdt/ns;resolve(z.pos,0.28,z.y);}
         m.root.position.set(z.pos.x,z.deadT>1.4?z.y-(z.deadT-1.4)*1.2:z.y,z.pos.y);if(z.deadT>2.4){scene.remove(m.root);z.gone=true;}continue;}
@@ -2593,7 +2975,7 @@ const GAME=(()=>{
   // 殭屍靠近門也會開門
   function zNear(center,y){for(const z of G.zs)if(!z.dead&&Math.abs(z.y-y)<1&&Math.hypot(z.pos.x-center.x,z.pos.y-center.y)<1.8)return true;return false;}
   function drawMM(g,w2m){if(!G.on)return;g.fillStyle='#ff3b30';for(const z of G.zs){if(z.dead)continue;const [x,y]=w2m(z.pos.x,z.pos.y);g.beginPath();g.arc(x,y,3,0,Math.PI*2);g.fill();}}
-  return {get on(){return G.on;},key,update,animAvatar,zNear,drawMM,start,end,press,G,NODES,los};
+  return {get on(){return G.on;},key,update,animAvatar,zNear,drawMM,start,end,press,G,NODES,los,DESTR};
 })();
 
 /* ---------------- 省電模式 ---------------- */
@@ -2678,6 +3060,12 @@ function step(dt){
   for(const d of DOORS){if(d.wasNear===undefined)d.wasNear=false;const near=(mode==='walk'&&Math.abs(player.y-d.y)<1&&Math.hypot(player.pos.x-d.center.x,player.pos.y-d.center.y)<2.2)||GAME.zNear(d.center,d.y);   // 殭屍靠近也會開
     if(near&&!d.wasNear&&started)AUDIO.sfx('door');d.wasNear=near;   // 開門聲
     d.ang+=((near?d.max:0)-d.ang)*Math.min(1,dt*4);d.pivot.rotation.y=d.rot0+d.sgn*d.ang;d.col.off=d.ang>0.8;}
+  // 全家自動門：人或殭屍靠近就往兩側滑開，進門「叮咚」（店倒了就不見）
+  {const D=STORE_DOOR,cx=(STORE.dx0+STORE.dx1)/2,gone=STORE_REG.dead;
+   const pn=mode==='walk'&&player.y<1.5&&Math.hypot(player.pos.x-cx,player.pos.y-STORE.z0)<2.4,near=!gone&&(pn||GAME.zNear(new V2(cx,STORE.z0),0));
+   if(pn&&!D.near&&!gone&&started)AUDIO.sfx('chime');D.near=pn;
+   D.t+=((near?1:0)-D.t)*Math.min(1,dt*5);const e=D.t,w=(STORE.dx1-STORE.dx0)/2;
+   for(const pg of D.panels){pg.visible=!gone;pg.position.x=pg.userData.x+pg.userData.sd*e*w*0.95;}D.col.off=gone||e>0.6;}
   GAME.update(dt);
 }
 let frameAcc=0;
@@ -2701,7 +3089,7 @@ syncViewUI();
 loop();
 const startBtn=document.getElementById('start');startBtn.disabled=false;startBtn.textContent='進入';
 startBtn.onclick=()=>{document.getElementById('overlay').style.display='none';started=true;guardBack();hintUntil=performance.now()+9000;syncHint();setTimeout(syncHint,9100);};
-window.__dbg={scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME};
+window.__dbg={scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders};
 </script>
 </body>
 </html>
