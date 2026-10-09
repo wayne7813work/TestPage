@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-09.31"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-09.34"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -81,8 +81,20 @@
 
   /* 小遊戲：殭屍來襲 */
   #fsBtn{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px;font-size:14px;margin-bottom:14px}
-  #gStart,#gFree{width:100%;background:#c0392b;color:#fff;border:0;border-radius:10px;padding:10px;font-size:15px;font-weight:700;margin-bottom:6px}
+  #gStart,#gFree,#ftStart{width:100%;background:#c0392b;color:#fff;border:0;border-radius:10px;padding:10px;font-size:15px;font-weight:700;margin-bottom:6px}
   #gFree{background:#2d6a8f}
+  #ftStart{background:#d9771f}
+  #ftBar{position:fixed;left:50%;bottom:calc(150px + var(--sab));transform:translateX(-50%);z-index:12;width:min(380px,92vw);padding:8px 12px;text-align:center;font-size:13px}
+  #ftInfo{white-space:nowrap;font-size:min(13px,3.3vw)}
+  #ftBar[hidden]{display:none!important}
+  #ftBar .bar{position:relative;height:18px;border-radius:9px;background:rgba(255,255,255,.18);margin:6px 0 4px;overflow:hidden}
+  #ftBar .z{position:absolute;top:0;bottom:0;background:#3fbf5f}
+  #ftBar .z2{position:absolute;top:0;bottom:0;background:#ffe14a}
+  #ftBar .m{position:absolute;top:-3px;bottom:-3px;width:4px;margin-left:-2px;background:#fff;box-shadow:0 0 6px #000}
+  #ftBar .k{color:var(--ink-2);font-size:11px}
+  body.ft #bbBtns button:not([data-k=shoot]){display:none!important}
+  body.touch #ftBar{bottom:calc(320px + var(--sab))}
+  @media (max-height:520px){body.touch #ftBar{bottom:calc(90px + var(--sab));width:260px}}
   #gHud .row[hidden]{display:none}
   #gHud #gTgtName{width:auto;max-width:9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
   #gHud .bar.tgt i{background:#f0a030}
@@ -166,6 +178,10 @@
   body.touch #bMap,body.touch #minimap{display:none!important}
   /* 上排按鈕一律靠右（打怪時左上角的位置資訊藏起來，按鈕原本會跑到左邊被血條蓋住） */
   #topbar .btns{margin-left:auto}
+  #emotePanel{position:fixed;top:60px;right:12px;width:270px;max-width:calc(100vw - 24px);padding:12px;z-index:12;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  #emotePanel[hidden]{display:none!important}
+  #emotePanel button{padding:11px 8px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:inherit;font-size:14px;font-weight:700}
+  body.touch #emotePanel{top:calc(64px + var(--sat));right:calc(12px + var(--sar))}
   /* 直排輪：速度／花式分數、按鈕（手機在右下，跟小遊戲技能同位置） */
   #skHud,#bbHud{position:fixed;left:50%;top:calc(60px + var(--sat));transform:translateX(-50%);padding:6px 14px;z-index:12;font-size:13px;text-align:center;white-space:nowrap}
   #skHud b,#bbHud b{font-size:17px;margin:0 4px}
@@ -224,11 +240,13 @@
   </div>
 </div>
 
+<div id="emotePanel" class="panel" hidden></div>
 <div id="topbar">
   <div id="place" class="panel"><b>我家漫遊</b><span></span></div>
   <div class="btns">
     <button id="bView">第三人稱</button>
     <button id="bAerial">空拍</button>
+    <button id="bEmote">動作</button>
     <button id="bMap">地圖</button>
     <button id="bMenu">選單</button>
   </div>
@@ -258,6 +276,7 @@
   <h3 style="margin-top:14px">小遊戲</h3>
   <button id="gStart">殭屍來襲！開始</button>
   <button id="gFree">自由破壞模式（沒有殭屍）</button>
+  <button id="ftStart">罰球大賽（籃球場）</button>
   <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。開始後畫面下方才會出現技能按鈕，按了馬上往前方放：氣功炮（J）、超級氣功波（L）、旋風腿（U）、如來神掌（I）、足球（O）、按住蓄力氣功彈（H）。視角往上抬就往上打（打飛到空中的殭屍可以接著打）。車子、鄰居的房子、周邊建築、全家都打得壞（我家不會壞），遊戲結束會復原。</p>
   <h3 style="margin-top:14px">舒適設定</h3>
   <label><span>視角轉動靈敏度</span><span id="sensVal">100%</span></label>
@@ -291,6 +310,7 @@
 <div id="skHud" class="panel" hidden><span>直排輪</span><b id="skSpd">0</b><span>km/h</span>　<span>花式</span><b id="skScore">0</b><span id="skCombo"></span>
   <div class="k">W 加速｜S 煞車／倒退｜A D 轉彎｜Shift 飆速｜按住 X 甩尾｜B 倒溜｜T 花式（空中按＝轉體）｜空白鍵 跳｜F 脫下</div></div>
 <div id="bbHud" class="panel" hidden><span>籃球</span>　<span>得分</span><b id="bbScore">0</b>　<span>命中</span><b id="bbMade">0/0</b>　<span id="bbStreak" style="color:#ff8a3a;font-weight:800"></span><div class="k">T 花式運球　J 投籃（自動對準籃框）　U 灌籃（9.5 m 內）　O 空中接力　F 放下</div></div>
+<div id="ftBar" class="panel" hidden><div id="ftInfo">罰球大賽</div><div class="bar"><div class="z" id="ftZone"></div><div class="z2" id="ftPerf"></div><div class="m" id="ftMark"></div></div><div class="k">按「投籃」（J）讓指針停在綠色就會進，正中間黃色＝空心</div></div>
 <div id="bbBtns" hidden><button data-k="trick">花式<small>T</small></button><button data-k="shoot">投籃<small>J</small></button><button data-k="dunk">灌籃<small>U</small></button><button data-k="oop">接力<small>O</small></button></div>
 <div id="skBtns" hidden><button data-k="boost">飆速<small>Shift</small></button><button data-k="drift">甩尾<small>X</small></button><button data-k="back">倒溜<small>B</small></button><button data-k="trick">花式<small>T</small></button></div>
 <div id="gOver" class="panel" hidden><h2>被殭屍抓到了！</h2><div id="gOverMsg"></div><div><button id="gRetry">再玩一次</button><button id="gExit">離開</button></div></div>
@@ -372,10 +392,16 @@ const RING = {cx:-16, cz:110, r0:15, r1:26};   // 大圓環：中心、安全島
 // 運動場（使用者要求：想溜直排輪）：巷子對面空地再往南，田徑場跑道中心 (14, 49)
 const FIELD = {cx:14, cz:49, L:24, r0:7, r1:11, x0:-10, x1:38, z0:37, z1:61.5};
 // 跳台公園（使用者要求：運動場附近弄一個大跳台、中跳台）：運動場東邊的空地，運動場東側圍籬開口直接溜過去
-const JUMP_PARK = {x0:39, x1:94, z0:33, z1:66};
+const JUMP_PARK = {x0:107, x1:236, z0:30, z1:70};   // 使用者：跳台放旁邊一點、要有助跑的直線 → 搬到東邊大路東側的空地，60 m 直線助跑道
 // 籃球場（使用者要求：圓環那邊再擴大、弄一個籃球場）：圓環東南邊、圓環大道南側，標準全場 28×15
 const COURT = {cx:36, cz:133, L:28, W:15};COURT.x0=COURT.cx-COURT.L/2;COURT.x1=COURT.cx+COURT.L/2;COURT.z0=COURT.cz-COURT.W/2;COURT.z1=COURT.cz+COURT.W/2;
-const COURT_PARK = {x0:COURT.x0-8, x1:COURT.x1+8, z0:COURT.z0-6.5, z1:COURT.z1+8};   // 球場外圍（綠色地坪、看台、圍網）
+const COURT_PARK = {x0:COURT.x0-8, x1:COURT.x1+8, z0:COURT.z0-6.5, z1:COURT.z1+8};
+// 彈跳床（使用者要求：可以彈跳灌籃）：東邊籃框前面的禁區裡，離籃框約 3.4 m
+const TRAMPS = [
+  {name:'彈跳床', x:COURT.x1-5.0, z:COURT.cz, r:1.5, y:0.42, boost:2.6, cap:12.5, rest:0.92, col:'#2f7fd1', dip:0, dv:0, mat:null},
+  {name:'超級彈跳床', x:-5.2, z:-8.3, r:2.2, y:0.42, boost:4.8, cap:24, rest:0.95, col:'#e94f8a', dip:0, dv:0, mat:null},   // 使用者：房子旁邊（西側空地）再放一個，跳得比房子還高（最高約 21 m）
+];
+const TRAMP = {list:TRAMPS, last:-9999, jumpAt:-9999, armed:false, boosted:false, cur:null, peak:true, told:false};   // 彈跳床的共用狀態
 
 /* ---------------- 合併器：靜態物件依材質合併，降低 draw call ---------------- */
 class Merger{
@@ -2247,8 +2273,8 @@ const FIELD_CONES=[],FIELD_RACK={x:FIELD.cx+5.6,z:FIELD.z0-0.6};   // 直排輪�
    起跳：溜上去會記住往上的速度，到起跳口（比平台高 30 cm）就飛出去；落地顯示飛了幾公尺。
    碰撞：沿斜度切成一段一段（每段高差 ≤ 0.3 m），溜在上面不會被擋，從側面走過來會被擋住。 */
 const JUMPS=[
-  {name:'大跳台',z0:46,z1:52,x0:52,kL:6,kH:2.4,p:1.25,tH:2.1,tL:9,lL:15,marks:[10,15,20,25,30]},
-  {name:'中跳台',z0:38,z1:42,x0:50,kL:4,kH:1.2,p:1.2,tH:1.0,tL:5,lL:7,marks:[5,10,15,20]},
+  {name:'大跳台',z0:46,z1:52,x0:172,kL:6,kH:2.4,p:1.25,tH:2.1,tL:9,lL:15,marks:[10,15,20,25,30]},
+  {name:'中跳台',z0:38,z1:42,x0:170,kL:4,kH:1.2,p:1.2,tH:1.0,tL:5,lL:7,marks:[5,10,15,20]},
 ];
 {const JP=JUMP_PARK,RIDE=std({color:'#4f565e',roughness:0.7}),SIDE=std({color:'#bdb8ae',roughness:0.9}),YEL=std({color:'#f2c230',roughness:0.55});
  const cc=(()=>{const [c,x]=cvs(256,256);x.fillStyle='#a9aca9';x.fillRect(0,0,256,256);grain(x,256,256,18);x.strokeStyle='rgba(60,60,60,0.35)';x.lineWidth=2;x.strokeRect(0,0,256,256);return c;})();
@@ -2261,6 +2287,13 @@ const JUMPS=[
  const label=(text,x,z,w,h,y,color='#ffffff')=>{const [c,g]=cvs(512,Math.round(512*h/w));g.fillStyle=color;g.font=`900 ${Math.round(c.height*0.78)}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText(text,256,c.height/2+4);
    const pg=new THREE.PlaneGeometry(w,h);pg.rotateX(-Math.PI/2);pg.rotateY(-Math.PI/2);   /* 往東溜的人看起來是正的：字往 +z 讀、字頂朝東 */
    pg.translate(x,y,z);M.add(pg,std({map:tex(c),transparent:true,roughness:0.8,depthWrite:false}));};
+ // 助跑道：從公園西邊（東邊大路旁）一路直線到起跳台；深色柏油、白邊線、中間虛線、起點線、每 10 m 距離（到起跳台）
+ for(const J of JUMPS){const {z0,z1,x0}=J,xs=JP.x0+2,zc=(z0+z1)/2;M.add(groundRect(xs,x0,z0,z1,0.02),MAT.asphalt);
+   for(const z of [z0+0.06,z1-0.06])M.add(groundRect(xs,x0,z-0.06,z+0.06,0.026),MAT.line);
+   for(let x=xs+4;x<x0-3;x+=3)M.add(groundRect(x,x+1.5,zc-0.05,zc+0.05,0.026),MAT.line);
+   M.add(groundRect(xs+1.4,xs+1.7,z0,z1,0.027),MAT.line);label('起點',xs+3,zc,(z1-z0)*0.7,1.3,0.03);
+   for(let m=10;m<x0-xs-2;m+=10)label(`${m}m`,x0-m,z1+1.3,1.8,0.9,0.03,'#fff7c2');
+   label(`${J.name}助跑道`,xs+9,z1+1.6,4.6,1.0,0.03,'#ffe08a');}
  for(const J of JUMPS){const {z0,z1,x0,kL,kH,p,tH,tL,lL}=J,x1=x0+kL,x2=x1+tL,x3=x2+lL,W=z1-z0;J.x1=x1;J.x2=x2;J.x3=x3;
    // 剖面（沿 x）：弧形起跳台 → 起跳口往下 30 cm → 平台 → 落地坡
    const kick=[];for(let i=0;i<=10;i++){const t=i/10;kick.push([x0+kL*t,kH*Math.pow(t,p)]);}
@@ -2350,6 +2383,30 @@ const COURT_SCORE={cv:null,tex:null};
     const br=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.05,0.16),orange);br.position.set(dir*0.07,-0.01,0);rim.add(br);}
    const net=new THREE.Mesh(new THREE.CylinderGeometry(0.215,0.13,0.42,18,3,true),netMat);net.geometry.translate(0,-0.21,0);net.position.set(dir*0.355,0,0);rim.add(net);
    HOOPS.push({dir,x:rx,z:cz,xb,board,rim,net,glass:gm,broken:0,bend:0,bv:0,sh:0,netT:9,by:3.425});}
+ // 彈跳床：護墊外框、黑色彈跳布（會往下陷再彈回）、外圍裙布、腳
+ for(const T of TRAMPS){M.add((()=>{const g=new THREE.TorusGeometry(T.r-0.04,0.09+T.r*0.01,8,56);g.rotateX(Math.PI/2);g.translate(T.x,T.y,T.z);return g;})(),std({color:T.col,roughness:0.6}));
+  M.add((()=>{const g=new THREE.CylinderGeometry(T.r+0.02,T.r+0.02,T.y-0.06,48,1,true);g.translate(T.x,(T.y-0.06)/2,T.z);return g;})(),std({color:'#23324a',roughness:0.8,side:THREE.DoubleSide}));
+  const mg=new THREE.CircleGeometry(T.r-0.1,48);mg.rotateX(-Math.PI/2);T.mat=new THREE.Mesh(mg,std({color:'#15171a',roughness:0.95}));T.mat.position.set(T.x,T.y-0.01,T.z);T.mat.receiveShadow=true;scene.add(T.mat);
+  const nl=Math.round(T.r*4);for(let k=0;k<nl;k++){const a=k/nl*Math.PI*2,lx=T.x+Math.cos(a)*(T.r-0.05),lz=T.z+Math.sin(a)*(T.r-0.05);M.add(mbox(lx-0.04,lx+0.04,0,T.y-0.05,lz-0.04,lz+0.04),MAT.steel);}
+  const q=T.r*0.86;surfaces.push({x0:T.x-q,x1:T.x+q,z0:T.z-q,z1:T.z+q,y:T.y});}
+ // 超級彈跳床旁邊的高度尺（看得出跳得比房子還高）：每 5 m 一格，房子屋頂 13.4 m、水塔頂約 14.8 m 有標記
+ {const T=TRAMPS[1],x=T.x-T.r-0.9,z=T.z;M.add(mbox(x-0.08,x+0.08,0,22,z-0.08,z+0.08),std({color:'#f4f4f4',roughness:0.5}));addBox(x-0.1,x+0.1,z-0.1,z+0.1,22);
+  for(let h=5;h<=20;h+=5){M.add(mbox(x-0.3,x+0.3,h-0.05,h+0.05,z-0.12,z+0.12),std({color:'#e94f8a',roughness:0.5}));
+    const [c,g]=cvs(128,64);g.fillStyle='#fff';g.font=`900 44px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText(`${h}m`,64,34);const pg=new THREE.PlaneGeometry(0.9,0.45);pg.rotateY(Math.PI/2);pg.translate(x+0.13,h+0.35,z);M.add(pg,std({map:tex(c),transparent:true,side:THREE.DoubleSide,depthWrite:false}));}
+  M.add(mbox(x-0.45,x+0.45,FL[4]-0.04,FL[4]+0.04,z-0.15,z+0.15),std({color:'#ffd23f',roughness:0.5}));
+  {const [c,g]=cvs(256,64);g.fillStyle='#ffd23f';g.font=`900 40px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText('屋頂高度',128,34);const pg=new THREE.PlaneGeometry(1.6,0.4);pg.rotateY(Math.PI/2);pg.translate(x+0.13,FL[4]+0.35,z);M.add(pg,std({map:tex(c),transparent:true,side:THREE.DoubleSide,depthWrite:false}));}}
+ // 落在彈跳床上就彈起來。按「跳」的時機很寬鬆：往下掉的時候按過一次、或一直按住「跳」、或落地前 0.45 秒內按、或彈起來 0.25 秒內補按，都算「用力彈」
+ TRAMP.at=()=>{for(const T of TRAMPS){const dx=player.pos.x-T.x,dz=player.pos.y-T.z;if(dx*dx+dz*dz<(T.r-0.15)*(T.r-0.15))return T;}return null;};
+ TRAMP.near=()=>!!TRAMP.at()&&player.vy<0;
+ TRAMP.press=()=>{const now=performance.now();TRAMP.jumpAt=now;
+   if(!player.ground&&TRAMP.at()&&player.vy<0){TRAMP.armed=true;return true;}                                           // 往下掉時按：記下來，落地時用力彈
+   const T=TRAMP.cur;if(T&&!TRAMP.boosted&&now-TRAMP.last<250&&player.vy>0){player.vy=Math.min(T.cap,player.vy+T.boost);TRAMP.boosted=true;AUDIO.sfx('boing');return true;}   // 剛彈起來才按：補上
+   return false;};
+ TRAMP.after=(vin)=>{if(!player.ground)return;const T=TRAMP.at();if(!T||Math.abs(player.y-T.y)>0.05)return;
+   const now=performance.now(),boost=TRAMP.armed||now-TRAMP.jumpAt<450||!!keys.Space||jumpHeld;
+   const v=Math.min(T.cap,Math.max(boost?7.5:4.2,-vin*T.rest+(boost?T.boost:0.4)));
+   player.vy=v;player.ground=false;player.jumps=1;T.dip=Math.min(0.32+T.r*0.05,0.08-vin*0.025);T.dv=0;TRAMP.last=now;TRAMP.armed=false;TRAMP.boosted=boost;TRAMP.cur=T;TRAMP.peak=false;AUDIO.sfx('boing');
+   if(!TRAMP.told){TRAMP.told=true;toast('彈跳床：往下掉的時候按一下「跳」（或一直按住）就越彈越高；拿著球在空中按「灌籃」＝彈跳床灌籃');}};
  // 兩端高圍網（籃架後面）
  const fenceMat=(()=>{const [c,g]=cvs(64,64);g.strokeStyle='rgba(60,110,70,0.95)';g.lineWidth=2;for(const o of [0,32]){g.beginPath();g.moveTo(o,0);g.lineTo(o+32,64);g.stroke();g.beginPath();g.moveTo(o+32,0);g.lineTo(o,64);g.stroke();}
    const t=tex(c,1,1);return new THREE.MeshStandardMaterial({map:t,transparent:true,alphaTest:0.3,side:THREE.DoubleSide,roughness:0.9});})();
@@ -2547,7 +2604,7 @@ const LIE=(()=>{const L={on:false,bed:null,z:0,roll:0,half:0};
     for(const b of BEDS)if(Math.abs(player.y-b.floor)<0.6&&px>b.x0-0.8&&px<b.x1+0.8&&pz>b.z0-0.8&&pz<b.z1+0.8)return b;return null;};
   L.act=()=>L.on?'起來':near()?'躺到床上':null;
   L.toggle=()=>{if(L.on)L.stop();else{const b=near();if(b)L.start(b);}};
-  L.start=b=>{L.on=true;L.bed=b;L.z=Math.max(b.z0+0.3,Math.min(b.z1-0.3,player.pos.y));L.roll=0;L.half=0;player.vel.set(0,0);player.climb=false;
+  L.start=b=>{if(EMOTE.on)EMOTE.stop(true);L.on=true;L.bed=b;L.z=Math.max(b.z0+0.3,Math.min(b.z1-0.3,player.pos.y));L.roll=0;L.half=0;player.vel.set(0,0);player.climb=false;
     player.yaw=Math.PI/2;player.pitch=-0.75;AUDIO.sfx('swish');   // 第三人稱鏡頭在腳那邊、往下看
     if(!L.told){L.told=true;toast('躺在床上：左右推搖桿（A／D）翻滾，滾過床邊會滾下床；按「起來」或「跳」起身');}};
   // 起身：站到床尾（fall＝滾下床：站到滾出去那一邊）
@@ -2585,7 +2642,7 @@ const SKATE=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,back:false,ground:tru
   S.nearRack=()=>!S.on&&started&&mode==='walk'&&!GAME.on&&!BALLOON.riding&&!LIE.on&&Math.hypot(player.pos.x-FIELD_RACK.x,player.pos.y-FIELD_RACK.z)<2.2&&player.y<1;
   S.act=()=>S.on?(Math.abs(S.v)<1.5&&S.ground?'脫下直排輪':null):S.nearRack()?'穿上直排輪':null;
   S.toggle=()=>{if(S.on)S.stop();else S.start();};
-  S.start=()=>{if(S.on||GAME.on||BALLOON.riding||LIE.on)return;if(BB.on)BB.stop();S.on=true;S.vel.set(0,0);S.v=0;S.dir=player.yaw;S.back=false;S.ground=true;S.vy=0;S.gv=0;S.fallT=0;S.spin=S.spinT=0;S.trick=null;player.climb=false;
+  S.start=()=>{if(S.on||GAME.on||BALLOON.riding||LIE.on)return;if(BB.on)BB.stop();if(EMOTE.on)EMOTE.stop(true);S.on=true;S.vel.set(0,0);S.v=0;S.dir=player.yaw;S.back=false;S.ground=true;S.vy=0;S.gv=0;S.fallT=0;S.spin=S.spinT=0;S.trick=null;player.climb=false;
     avatar.setSkates(true);hud.hidden=false;btns.hidden=false;menuBtn.textContent='脫下直排輪';if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}
     S.snd=AUDIO.skateLoop();toast('直排輪：往前推加速、往後拉煞車；Shift／推到底飆速、按住「甩尾」甩尾、「倒溜」倒著溜、「花式」做花式（跳起來按＝空中轉體）');};
   S.stop=()=>{if(!S.on)return;S.on=false;avatar.setSkates(false);hud.hidden=true;btns.hidden=true;menuBtn.textContent='穿上直排輪';player.vel.set(0,0);player.vy=0;
@@ -2787,20 +2844,21 @@ const BB=(()=>{
   B.near=()=>started&&mode==='walk'&&!GAME.on&&!SKATE.on&&!LIE.on&&!BALLOON.riding&&player.y<1.2&&inR(player.pos.x,player.pos.y,COURT_PARK);
   B.label=()=>B.on?(B.cur||B.st!=='hand'?null:'放下籃球'):B.near()?'拿籃球':null;
   B.toggle=()=>{if(B.on)B.stop();else if(B.near())B.start();};
-  B.start=()=>{B.on=true;B.st='hand';B.cur=null;B.fly=false;B.dph=0;B.trick=null;ball.visible=true;hud.hidden=false;btns.hidden=false;document.body.classList.add('bb');draw();{const [h]=nearestHoop();if(h){mateSpot(h,false);MATE.pos.copy(MATE.target);}}MATE.state='idle';
+  B.start=()=>{if(EMOTE.on)EMOTE.stop(true);B.on=true;B.st='hand';B.cur=null;B.fly=false;B.dph=0;B.trick=null;ball.visible=true;hud.hidden=false;btns.hidden=false;document.body.classList.add('bb');draw();{const [h]=nearestHoop();if(h){mateSpot(h,false);MATE.pos.copy(MATE.target);}}MATE.state='idle';
     if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}AUDIO.sfx('bounce');
     if(!B.told){B.told=true;toast(isTouch?'拿到籃球：右邊「花式」花式運球、「投籃」自動對準籃框、「灌籃」9 m 內飛過去灌、「接力」隊友高吊空中接力':'拿到籃球：T 花式運球、J 投籃（自動對準籃框）、U 灌籃（9 m 內）、O 空中接力；F 放下');}};
-  B.stop=()=>{if(!B.on)return;B.on=false;MATE.state='idle';MATE.root.visible=false;B.camK=0;{const fl=document.getElementById('gFlash');if(fl&&B.vig){fl.style.boxShadow='';B.vig='';}}B.cur=null;B.fly=false;B.trick=null;B.sh=null;B.slow=0;ball.visible=false;hud.hidden=true;btns.hidden=true;document.body.classList.remove('bb');B.fire=0;ballMat.emissiveIntensity=0;
+  B.stop=()=>{if(!B.on)return;if(B.ft)ftCancel();B.on=false;MATE.state='idle';MATE.root.visible=false;B.camK=0;{const fl=document.getElementById('gFlash');if(fl&&B.vig){fl.style.boxShadow='';B.vig='';}}B.cur=null;B.fly=false;B.trick=null;B.sh=null;B.slow=0;ball.visible=false;hud.hidden=true;btns.hidden=true;document.body.classList.remove('bb');B.fire=0;ballMat.emissiveIntensity=0;
     for(const b of btns.querySelectorAll('button'))b.classList.remove('hit');
-    const A=avatar;A.body.rotation.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);};
-  B.reset=()=>{if(!B.on)return;B.cur=null;B.fly=false;B.trick=null;B.sh=null;B.st='hand';B.slow=0;MATE.state='idle';{const [h]=nearestHoop();if(h){mateSpot(h,false);MATE.pos.copy(MATE.target);}}};   // 傳送：球回到手上
-  B.lock=()=>!!B.cur;
+    const A=avatar;A.body.rotation.set(0,0,0);A.body.position.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);};
+  B.reset=()=>{if(!B.on)return;if(B.ft)ftCancel();B.cur=null;B.fly=false;B.trick=null;B.sh=null;B.st='hand';B.slow=0;MATE.state='idle';{const [h]=nearestHoop();if(h){mateSpot(h,false);MATE.pos.copy(MATE.target);}}};   // 傳送：球回到手上
+  B.lock=()=>!!B.cur||!!B.ft;
   B.rt=dt=>{if(B.slow>0){B.slow-=dt;return B.slowK;}return 1;};   // 慢動作（主迴圈用）
   const slowMo=(sec,k=0.32)=>{B.slow=sec;B.slowK=k;};
   // ================= 花式運球 =================
   const TRICKS=[{name:'換手運球',dur:0.62,pts:60},{name:'胯下運球',dur:0.8,pts:90},{name:'背後運球',dur:0.8,pts:90},{name:'轉身運球',dur:0.78,pts:110},
     {name:'繞身運球',dur:1.1,pts:120},{name:'八字繞腿',dur:1.5,pts:150},{name:'指尖轉球',dur:1.8,pts:130}];
-  B.doTrick=()=>{if(!B.on||B.cur||B.st!=='hand')return;if(B.trick){B.queue=true;return;}const t=TRICKS[B.tIdx++%TRICKS.length];B.trick={...t,t:0,s0:B.hand};
+  const AIR_TRICKS=[{name:'空中繞身',dur:0.8,pts:120},{name:'空中胯下換手',dur:0.7,pts:140,swap:true},{name:'空中背後換手',dur:0.7,pts:130,swap:true},{name:'空中指尖轉球',dur:1.1,pts:130}];   // 在空中（彈跳床）按花式：不拍地
+  B.doTrick=()=>{if(!B.on||B.cur||B.st!=='hand'||B.ft)return;if(B.trick){B.queue=true;return;}const t=player.ground?TRICKS[B.tIdx++%TRICKS.length]:AIR_TRICKS[B.aIdx=((B.aIdx||0)+1)%AIR_TRICKS.length];B.trick={...t,t:0,s0:B.hand};
     const now=performance.now()/1000;B.combo=now-B.lastT<2.6?B.combo+1:0;B.lastT=now;const pts=Math.round(t.pts*(1+0.5*B.combo));B.style+=pts;B.dirty=true;
     big(`${t.name}${B.combo>0?` ×${(1+0.5*B.combo).toFixed(1)}`:''} +${pts}`);AUDIO.sfx('whoosh');};
   // 花式運球的球路（身體座標）＋手
@@ -2817,6 +2875,10 @@ const BB=(()=>{
       case '繞身運球':{const an=4*Math.PI*p;x=0.38*s0*Math.cos(an);z=0.38*Math.sin(an);y=0.98+0.08*Math.sin(2*an);side=Math.abs(x)<0.04?(T.side||s0):Math.sign(x);T.side=side;break;}
       case '八字繞腿':{a.body.position.y-=0.26;a.legL.rotation.z=-0.32;a.legR.rotation.z=0.32;a.legL.rotation.x=a.legR.rotation.x=-0.25;
         const an=4*Math.PI*p;x=0.3*s0*Math.cos(an);z=0.22*Math.sin(2*an)+0.05;y=0.42;side=Math.abs(x)<0.04?(T.side||s0):Math.sign(x);T.side=side;break;}
+      case '空中繞身':{const an=4*Math.PI*p;x=0.4*s0*Math.cos(an);z=0.4*Math.sin(an);y=1.05+0.1*Math.sin(2*an);side=Math.abs(x)<0.04?(T.side||s0):Math.sign(x);T.side=side;a.legL.rotation.x=-0.5;a.legR.rotation.x=0.3;break;}
+      case '空中胯下換手':{a.legL.rotation.set(-1.25,0,-0.28);a.legR.rotation.set(-1.25,0,0.28);x=0.3*s0*Math.cos(Math.PI*p);y=1.0-0.45*Math.sin(Math.PI*p);z=0.3;side=p<0.5?s0:-s0;break;}
+      case '空中背後換手':{x=0.32*s0*Math.cos(Math.PI*p);y=1.05;z=0.12-0.45*Math.sin(Math.PI*p);side=p<0.5?s0:-s0;a.legL.rotation.x=-0.4;a.legR.rotation.x=0.4;break;}
+      case '空中指尖轉球':
       case '指尖轉球':{const top=new V3(0.16*s0,2.16,0.12),low=new V3(0.3*s0,0.92,0.28);
         if(p<0.15){const k=sm(p/0.15);x=low.x+(top.x-low.x)*k;y=low.y+(top.y-low.y)*k;z=low.z+(top.z-low.z)*k;}
         else if(p<0.85){x=top.x;y=top.y+0.03*Math.sin(T.t*9);z=top.z;ball.rotation.y+=dt*32;const o=armOf(a,-s0);o.rotation.set(-0.2,0,-1.25*s0);a.body.rotation.z=-0.06*s0;}
@@ -2824,9 +2886,33 @@ const BB=(()=>{
         side=s0;reach(armOf(a,s0),x,y-R*0.9,z);L.set(x,y,z);return;}}
     if(B.prevY!==undefined&&y<R+0.03&&B.prevY>=R+0.03)sfxBounce();B.prevY=y;
     reach(armOf(a,side),x,y+R*0.7,z);const o=armOf(a,-side);if(T.name!=='指尖轉球')o.rotation.set(-0.45,0,-0.35*side);L.set(x,y,z);}
+
+  // ================= 罰球大賽（選單 → 小遊戲）：站在罰球線，10 球；按「投籃」讓左右跑的指針停在綠色就進（黃色＝空心），越後面越快、綠色越窄 =================
+  const ftEl=document.getElementById('ftBar');B.ft=null;
+  let ftBest=0;try{ftBest=+localStorage.getItem('home-ft-best')||0;}catch(_){}
+  function ftDraw(){const f=B.ft;if(!f)return;document.getElementById('ftInfo').textContent=`罰球大賽　第 ${Math.min(f.n+(f.wait?0:1),f.N)}/${f.N} 球　命中 ${f.made}　空心 ${f.swish}${ftBest?`　紀錄 ${ftBest}`:''}`;
+    const z=document.getElementById('ftZone'),pz=document.getElementById('ftPerf');z.style.left=`${(0.5-f.green/2)*100}%`;z.style.width=`${f.green*100}%`;pz.style.left=`${(0.5-f.green*0.15)*100}%`;pz.style.width=`${f.green*30}%`;
+    document.getElementById('ftMark').style.left=`${f.m*100}%`;}
+  B.ftStart=()=>{if(GAME.on){toast('小遊戲中不能玩罰球大賽');return;}if(SKATE.on)SKATE.stop();if(BALLOON.riding)BALLOON.reset();if(LIE.on)LIE.stop();
+    if(mode==='aerial')toggleAerial();const C=COURT;teleport(C.x0+5.8+0.35,C.cz,Math.PI/2);if(!B.on)B.start();
+    B.fire=0;ballMat.emissiveIntensity=0;B.streak=0;B.ft={n:0,N:10,made:0,swish:0,m:0,dir:1,spd:0.85,green:0.24,wait:false};document.body.classList.add('ft');ftEl.hidden=false;ftDraw();
+    big('罰球大賽！10 球',false);AUDIO.sfx('wave');toast(isTouch?'罰球大賽：按「投籃」讓指針停在綠色就會進，正中間黃色＝空心':'罰球大賽：按 J（或「投籃」）讓指針停在綠色就會進，正中間黃色＝空心；F 放下球＝結束');};
+  function ftCancel(){B.ft=null;document.body.classList.remove('ft');ftEl.hidden=true;}
+  function ftEnd(){const f=B.ft;ftCancel();const rate=f.made>=10?'百發百中！神射手！':f.made>=8?'超準！':f.made>=6?'不錯喔！':f.made>=4?'再練練':'加油！';
+    let rec='';if(f.made>ftBest){if(ftBest)rec='　新紀錄！';ftBest=f.made;try{localStorage.setItem('home-ft-best',String(ftBest));}catch(_){}}
+    setTimeout(()=>{big(`10 投 ${f.made} 中　${rate}`,false);AUDIO.sfx(f.made>=8?'bigcheer':f.made>=5?'cheer':'over');if(f.made>=8)B.flashT=2;},400);
+    toast(`罰球大賽結束：10 投 ${f.made} 中（空心 ${f.swish}）${rec}　最佳紀錄 ${ftBest} 中`);}
+  // 每格：指針左右跑；球回到手上就換下一球
+  function ftTick(dt){const f=B.ft;if(!f)return;
+    if(f.wait){if(B.st==='hand'&&!B.cur){f.wait=false;if(f.n>=f.N){ftEnd();return;}f.spd+=0.11;f.green=Math.max(0.12,f.green-0.013);f.m=0;f.dir=1;}}
+    else if(!B.cur){f.m+=f.dir*f.spd*dt;if(f.m>1){f.m=2-f.m;f.dir=-1;}if(f.m<0){f.m=-f.m;f.dir=1;}}
+    ftDraw();}
+  function ftShoot(){const f=B.ft;if(f.wait||B.cur||B.st!=='hand')return;const [h,d]=nearestHoop();const a=Math.abs(f.m-0.5),perfect=a<=f.green*0.15,good=a<=f.green/2;
+    f.wait=true;f.n++;B.trick=null;B.cur={kind:'shot',name:'罰球',cat:'ft',h,d,pts:1,make:good,aimR:perfect?0:good?0.05:Math.min(0.36,0.22+(a-f.green/2)*0.5),t:0,rel:false,jv:1.6,trel:0.16+1.6/14*0.92,bank:false,ft:true};
+    AUDIO.sfx(perfect?'combo':'whoosh');if(perfect)big('完美！',false);ftDraw();}
   // ================= 投籃 =================
   const SHOTS={lay:['上籃','反手上籃','拋投','拉竿上籃'],mid:['跳投','後仰跳投','勾射','轉身跳投','擦板跳投'],three:['三分球','後撤步三分','單腳後仰三分'],far:['超遠三分','半場出手'],super:['超級遠投']};
-  B.shoot=()=>{if(!B.on||B.cur||B.st!=='hand')return;const [h,d]=nearestHoop();if(!h||d>42){toast('附近沒有籃框');return;}
+  B.shoot=()=>{if(B.ft){ftShoot();return;}if(!B.on||B.cur||B.st!=='hand')return;const [h,d]=nearestHoop();if(!h||d>42){toast('附近沒有籃框');return;}
     const cat=d<2.6?'lay':d<6.75?'mid':d<11?'three':d<20?'far':'super',list=SHOTS[cat],i=B.iShot[cat]||0;B.iShot[cat]=i+1;const name=list[i%list.length];
     const pMake=B.fire>0?1:{lay:0.93,mid:0.8,three:0.66,far:0.45,super:0.3}[cat];B.trick=null;
     const jv={lay:5.2,mid:4.0,three:3.8,far:3.6,super:3.4}[cat]*(name==='拋投'?0.85:1);
@@ -2838,35 +2924,42 @@ const BB=(()=>{
     if(make){const r=Math.random()<0.78?Math.random()*0.035:0.085;return new V3(h.x+toward.x*r,RIM_Y+0.02,h.z+toward.y*r);}
     const r=0.22+Math.random()*0.08;return new V3(h.x+Math.cos(a)*r,RIM_Y+0.02,h.z+Math.sin(a)*r);}
   function release(c){const h=c.h,tw=new V2(player.pos.x-h.x,player.pos.y-h.z);if(tw.length()<1e-3)tw.set(h.dir,0);tw.normalize();
-    const tgt=rimTarget(h,c.make,tw),arc={lay:0.55,mid:1.25+0.08*c.d,three:1.6+0.08*c.d,far:2.2+0.06*c.d,super:3+0.05*c.d}[c.cat]+(c.name==='拋投'?1.1:0);
-    B.st='fly';B.tries++;B.dirty=true;B.sh={h,name:c.name,pts:c.pts,make:c.make,t:0,scored:false,rim:false,bank:c.bank,tgt,done:false,cat:c.cat};
+    const tgt=c.aimR!==undefined?(()=>{const a=c.make?Math.atan2(tw.y,tw.x):Math.atan2(tw.y,tw.x)+(Math.random()<0.5?0:Math.PI)+(Math.random()-0.5)*1.2;return new V3(h.x+Math.cos(a)*c.aimR,RIM_Y+0.02,h.z+Math.sin(a)*c.aimR);})():rimTarget(h,c.make,tw),arc={ft:1.45,lay:0.55,mid:1.25+0.08*c.d,three:1.6+0.08*c.d,far:2.2+0.06*c.d,super:3+0.05*c.d}[c.cat]+(c.name==='拋投'?1.1:0);
+    B.st='fly';B.tries++;B.dirty=true;B.sh={h,name:c.name,pts:c.pts,make:c.make,t:0,scored:false,rim:false,bank:c.bank,tgt,done:false,cat:c.cat,ft:!!c.ft};
     if(c.bank){const fx=h.xb+h.dir*(0.02+R);const bt=new V3(fx,RIM_Y+0.42,h.z+(player.pos.y-h.z)*0.18);launch(bt,Math.max(bp.y,bt.y)+0.7);}
     else{const T=launch(tgt,Math.max(bp.y,RIM_Y)+arc);if(c.make&&(c.cat==='three'||c.cat==='far'||c.cat==='super'))B.sh.slowAt=Math.max(0,T-0.5);}   // 遠投：快到籃框時慢動作
     AUDIO.sfx('whoosh');}
   // ================= 灌籃 =================
   const DUNKS=['單手暴扣','雙手爆扣','360 度轉身灌籃','風車灌籃','戰斧暴扣','胯下換手灌籃','反身灌籃','背後換手灌籃'];
-  function makeDunk(h,d,name,oop){let n=new V2(player.pos.x-h.x,player.pos.y-h.z);if(n.length()<1e-3)n.set(h.dir,0);n.normalize();if(n.x*h.dir<0.35){n.x=h.dir*0.35;n.normalize();}   // 從籃板前面灌（在籃板後面就繞到前面）
+  const TDUNKS=['前空翻灌籃','360 度轉身灌籃','風車灌籃','戰斧暴扣','反身灌籃','胯下換手灌籃'];
+  function makeDunk(h,d,name,oop,tr){let n=new V2(player.pos.x-h.x,player.pos.y-h.z);if(n.length()<1e-3)n.set(h.dir,0);n.normalize();if(n.x*h.dir<0.35){n.x=h.dir*0.35;n.normalize();}   // 從籃板前面灌（在籃板後面就繞到前面）
     const sc=bodyH().scale,E=new V3(h.x+n.x*0.42,RIM_Y+0.28-2.05*sc,h.z+n.y*0.42);
-    const c={kind:'dunk',name:(oop?'空中接力・':d>4.2?'罰球線起跳・':'')+name,base:name,h,d,long:d>4.2,oop:null,S:new V3(player.pos.x,player.y,player.pos.y),E,T:0.72+0.07*d+(oop?0.12:0),t:-0.2,slam:false,hang:0,slowed:false,side:Math.random()<0.5?1:-1};
-    B.cur=c;B.fly=true;B.trick=null;player.vel.set(0,0);B.tries++;B.dirty=true;return c;}
+    const air=!player.ground;
+    const c={kind:'dunk',name:(oop?'空中接力・':tr?'彈跳床・':air?'空中・':d>4.2?'罰球線起跳・':'')+name,base:name,h,d,long:!air&&d>4.2,air,tramp:!!tr,oop:null,S:new V3(player.pos.x,player.y,player.pos.y),E,
+      T:air?0.55+0.06*d+Math.max(0,player.y-E.y)*0.05+(oop?0.12:0):0.72+0.07*d+(oop?0.12:0),t:air?0:-0.2,slam:false,hang:0,slowed:false,side:Math.random()<0.5?1:-1};
+    if(air&&!oop){ring(new V3(player.pos.x,player.y+1,player.pos.y),'#ffe7a0',0.5,5,false);AUDIO.sfx('takeoff');B.shk=Math.max(B.shk,0.15);}
+    B.cur=c;B.fly=true;B.trick=null;player.vel.set(0,0);player.vy=0;B.tries++;B.dirty=true;return c;}
   // 灌籃飛行的位置（u＝0～1）：水平稍微先慢後快、垂直是拋物線，最高點在 u≈0.7
-  function flightPos(c,u,out){const k=sm(u)*0.25+u*0.75,yE=c.E.y-c.S.y;return out.set(c.S.x+(c.E.x-c.S.x)*k,c.S.y+(-yE/0.4)*u*u+3.5*yE*u,c.S.z+(c.E.z-c.S.z)*k);}
-  B.dunk=()=>{if(!B.on||B.cur||B.st!=='hand')return;const [h,d]=nearestHoop();if(!h||d>9.5){toast(h&&d<42?'離籃框太遠了：9.5 m 內才能灌籃':'附近沒有籃框');return;}
-    if(!player.ground)return;makeDunk(h,d,DUNKS[B.iDunk++%DUNKS.length],false);AUDIO.sfx('whoosh');};
+  function flightPos(c,u,out){const k=sm(u)*0.25+u*0.75,yE=c.E.y-c.S.y;
+    if(c.air){const arc=Math.max(0.35,0.9-Math.max(0,-yE)*0.15);return out.set(c.S.x+(c.E.x-c.S.x)*k,c.S.y+yE*u+arc*4*u*(1-u),c.S.z+(c.E.z-c.S.z)*k);}   /* 空中（彈跳床）起手：直接從現在的高度飛過去 */
+    return out.set(c.S.x+(c.E.x-c.S.x)*k,c.S.y+(-yE/0.4)*u*u+3.5*yE*u,c.S.z+(c.E.z-c.S.z)*k);}
+  B.dunk=()=>{if(!B.on||B.cur||B.st!=='hand'||B.ft)return;const [h,d]=nearestHoop();if(!h||d>9.5){toast(h&&d<42?'離籃框太遠了：9.5 m 內才能灌籃':'附近沒有籃框');return;}
+    const tr=!player.ground&&performance.now()-TRAMP.last<2500;   // 彈跳床彈起來的空中
+    makeDunk(h,d,tr?TDUNKS[(B.iTr=(B.iTr||0)+1)%TDUNKS.length]:DUNKS[B.iDunk++%DUNKS.length],false,tr);AUDIO.sfx('whoosh');};
   // 空中接力：0～0.32 秒球傳給隊友 → 隊友把球舉高 → 0.6 秒高吊（1 秒以上）→ 你算好時間起跳，飛到 60% 時在空中接到球 → 灌籃
-  B.oop=()=>{if(!B.on||B.cur||B.st!=='hand')return;const [h,d]=nearestHoop();if(!h||d>12){toast(h&&d<42?'離籃框太遠了：12 m 內才能空中接力':'附近沒有籃框');return;}
-    if(!player.ground)return;mateSpot(h,true);
-    const c=makeDunk(h,d,DUNKS[B.iOop++%DUNKS.length],true),uc=0.6,tp=0.32,tt=0.6,sc=bodyH().scale;
+  B.oop=()=>{if(!B.on||B.cur||B.st!=='hand'||B.ft)return;const [h,d]=nearestHoop();if(!h||d>12){toast(h&&d<42?'離籃框太遠了：12 m 內才能空中接力':'附近沒有籃框');return;}
+    mateSpot(h,true);const air=!player.ground;
+    const c=makeDunk(h,d,DUNKS[B.iOop++%DUNKS.length],true),uc=0.6,tp=air?0.28:0.32,tt=air?0.42:0.6,sc=bodyH().scale;
+    if(air)c.T=Math.max(c.T,1.95);   // 空中（彈跳床）：飛得慢一點，等隊友的高吊
     const cp=flightPos(c,uc,new V3());{const ux=h.x-cp.x,uz=h.z-cp.z,l=Math.hypot(ux,uz)||1;cp.x+=ux/l*0.22;cp.z+=uz/l*0.22;}cp.y+=2.2*sc;
-    let Tl=1.0,tj=tt+Tl-uc*c.T;if(tj<0.75){tj=0.75;Tl=tj+uc*c.T-tt;}
+    let Tl=1.0,tj=tt+Tl-uc*c.T;if(air){tj=0;Tl=uc*c.T-tt;}else if(tj<0.75){tj=0.75;Tl=tj+uc*c.T-tt;}
     c.t=-tj;c.oop={uc,tp,tt,Tl,tj,cp,p0:bp.clone(),caught:false,got:false,thrown:false,l0:new V3(),v0:new V3(),cl:new V3(),bt:9};
     B.st='oop';MATE.state='wait';MATE.t=0;AUDIO.sfx('whoosh');big('空中接力！',false);};
   // 灌籃飛行（主迴圈：取代走路）
   B.flyStep=dt=>{const c=B.cur;if(!c||c.kind!=='dunk'){B.fly=false;return;}const t0=c.t;c.t+=dt;player.vel.set(0,0);player.vy=0;player.ground=false;
     if(t0<0&&c.t>=0)takeoff(c);
     if(c.t<0){player.ground=true;return;}
-    if(!c.slam){const u=Math.min(1,c.t/c.T),k=sm(u)*0.25+u*0.75,yE=c.E.y-c.S.y;
-      player.pos.set(c.S.x+(c.E.x-c.S.x)*k,c.S.z+(c.E.z-c.S.z)*k);player.y=c.S.y+(-yE/0.4)*u*u+3.5*yE*u;
+    if(!c.slam){const u=Math.min(1,c.t/c.T),fp=flightPos(c,u,T2);player.pos.set(fp.x,fp.z);player.y=fp.y;
       if(!c.oop&&u>0.55&&!c.slowed){c.slowed=true;slowMo(0.7);}
       if(u>=1)slam(c);}
     else{c.hang+=dt;player.pos.set(c.E.x,c.E.z);player.y=c.E.y-0.12-0.04*Math.sin(c.hang*14);
@@ -2875,14 +2968,15 @@ const BB=(()=>{
   function takeoff(c){const p=new V3(player.pos.x,player.y+0.06,player.pos.y);ring(p,'#ffe7a0',0.55,7);ring(p,'#ffffff',0.4,4);burst(p,10,'#e8dcc0',2.5);B.shk=Math.max(B.shk,0.18);AUDIO.sfx('takeoff');}
   function slam(c){c.slam=true;const h=c.h;bp.set(h.x,RIM_Y+0.16,h.z);bv.set(0,-7.5,0);B.st='fly';
     B.sh={h,name:c.name,pts:2,make:true,t:0,scored:false,rim:true,dunk:true,done:false,cat:'dunk'};
-    const huge=!!c.oop||c.long||B.fire>0,rc=B.fire>0?'#ff7a2a':'#ffe7a0';
+    const huge=!!c.oop||c.long||c.tramp||B.fire>0,rc=B.fire>0?'#ff7a2a':'#ffe7a0';
     h.bend=huge?0.55:0.42;h.bv=0;h.sh=1;B.shk=huge?0.8:0.55;slowMo(0.2,0.05);   // 打擊停頓
     AUDIO.sfx('slam');AUDIO.sfx('bigcheer');burst(new V3(h.x,RIM_Y,h.z),huge?40:26,B.fire>0?'#ff6a1a':'#ffd36a',huge?6.5:5);
     ring(new V3(h.x,RIM_Y,h.z),rc,0.6,huge?12:8);ring(new V3(h.x,RIM_Y,h.z),'#ffffff',0.45,5,false);ring(new V3(h.x,0.06,h.z),rc,0.9,16);
-    if(c.oop||B.fire>0||(c.long&&Math.random()<0.4))B.sh.boom=shatter(h);   // 大招灌爆籃板
+    if(c.oop||B.fire>0||((c.long||c.tramp)&&Math.random()<0.45))B.sh.boom=shatter(h);   // 大招灌爆籃板
     B.flashT=2.0;B.whiteT=0.12;MATE.state='cheer';MATE.t=0;}
   // ================= 球的物理 =================
-  function scored(h){const s=B.sh;s.scored=true;B.made++;B.score+=s.pts;B.streak++;B.dirty=true;h.netT=0;AUDIO.sfx('net');
+  function scored(h){const s=B.sh;s.scored=true;
+    if(s.ft&&B.ft){B.ft.made++;if(!s.rim)B.ft.swish++;B.made++;B.score+=1;B.dirty=true;h.netT=0;AUDIO.sfx('net');big(s.rim?'罰球進了！ +1':'空心！ +1',false);burst(new V3(h.x,RIM_Y-0.2,h.z),10,'#ffe08a',2.2);bv.x*=0.3;bv.z*=0.3;bv.y=Math.min(bv.y,-2.2);B.retT=0.55;return;}B.made++;B.score+=s.pts;B.streak++;B.dirty=true;h.netT=0;AUDIO.sfx('net');
     const wasFire=B.fire>0;let msg=s.dunk?(s.boom?`灌爆籃板！${s.name}！！ +2`:`${s.name}！！ +2`):`${s.name}${s.rim||s.bank?'':'・空心'}！ +${s.pts}`;
     if(s.bank&&!s.dunk)msg=`${s.name}・擦板得分！ +${s.pts}`;
     if(wasFire){B.fire--;if(B.fire===0){setTimeout(()=>big('手感冷卻了',false),900);ballMat.emissiveIntensity=0;}}
@@ -2890,8 +2984,8 @@ const BB=(()=>{
     big(msg,!s.dunk);if(s.pts===3||s.cat==='far'||s.cat==='super')AUDIO.sfx('cheer');
     if(!s.dunk)burst(new V3(h.x,RIM_Y-0.2,h.z),12,B.fire>0||wasFire?'#ff6a1a':'#ffe08a',2.5);
     bv.x*=0.3;bv.z*=0.3;bv.y=Math.min(bv.y,-2.2);B.retT=1.1;}
-  function missed(){const s=B.sh;s.done=true;B.streak=0;B.dirty=true;big(s.rim?'打框不進…':'沒進…',false);B.retT=0.7;}
-  function physics(dt){const n=Math.max(1,Math.ceil(bv.length()*dt/0.04)),h=dt/n,s=B.sh;
+  function missed(){const s=B.sh;s.done=true;if(s.ft&&B.ft){B.dirty=true;big(s.rim?'打框不進…':'沒進…',false);B.retT=0.45;return;}B.streak=0;B.dirty=true;big(s.rim?'打框不進…':'沒進…',false);B.retT=0.7;}
+  function physics(dt){if(!isFinite(bv.x+bv.y+bv.z))bv.set(0,0,0);const n=Math.min(120,Math.max(1,Math.ceil(bv.length()*dt/0.04))),h=dt/n,s=B.sh;
     for(let i=0;i<n;i++){const py=bp.y;bv.y-=GR*h;bp.addScaledVector(bv,h);
       if(bp.y<R){bp.y=R;if(bv.y<0){if(bv.y<-1.3)sfxBounce();bv.y=-bv.y*0.74;bv.x*=0.86;bv.z*=0.86;if(s&&!s.scored&&!s.done&&s.t>0.2)missed();}}
       for(const H of HOOPS){const dx=bp.x-H.x,dz=bp.z-H.z,hr=Math.hypot(dx,dz);
@@ -2912,6 +3006,9 @@ const BB=(()=>{
       if(H.broken){H.broken-=dt;if(H.broken<=0){H.broken=0;H.glass.visible=true;burst(new V3(H.xb,3.425,H.z),12,'#bfe9ff',1.5);AUDIO.sfx('chime');}}}
     fxTick(dt);shardTick(dt);mateTick(dt);
     if(B.dirty)draw();
+    for(const T of TRAMPS)if(T.dip||T.dv){T.dv+=(-260*T.dip-11*T.dv)*dt;T.dip+=T.dv*dt;if(Math.abs(T.dip)<1e-3&&Math.abs(T.dv)<1e-2){T.dip=0;T.dv=0;}T.mat.position.y=T.y-0.01-T.dip;}
+    if(!TRAMP.peak&&!player.ground&&player.vy<=0&&!B.fly){TRAMP.peak=true;const hy=player.y;   // 彈到最高點：顯示高度
+      if(hy>14.8){big(`比房子還高！${hy.toFixed(1)} m`,true);B.flashT=Math.max(B.flashT,0);}else if(hy>3)big(`${hy.toFixed(1)} m`,false);}
     if(!B.on)return;
     // 投籃的時間軸：蹲 → 起跳 → 最高點出手 → 落地
     const c=B.cur;
@@ -2932,6 +3029,7 @@ const BB=(()=>{
         const t2=ta-o.tt;bp.set(o.l0.x+o.v0.x*t2,o.l0.y+o.v0.y*t2-0.5*GR*t2*t2,o.l0.z+o.v0.z*t2);ball.rotation.x+=dt*8;}
       if(c.t>=o.uc*c.T){o.caught=true;o.bt=0;avatar.root.updateMatrixWorld(true);o.cl.copy(avatar.body.worldToLocal(T1.copy(bp)));slowMo(0.75);big('接到了！',false);AUDIO.sfx('catch');burst(bp,16,'#ffe08a',3);}}
     if(c&&c.oop&&c.oop.caught)c.oop.bt+=dt;
+    ftTick(dt);
     // 球：飛行／彈跳／飛回手上
     if(B.st==='fly'){const s=B.sh;if(s){s.t+=dt;if(s.slowAt!==undefined&&s.t>=s.slowAt){slowMo(0.5);s.slowAt=undefined;}if(!s.scored&&!s.done&&s.t>3.2)missed();}
       physics(dt);if((s&&(s.scored||s.done))||!s){B.retT-=dt;if(B.retT<=0&&!B.fly){B.st='ret';B.ret=0;B.r0=bp.clone();AUDIO.sfx('whoosh');}}}
@@ -2956,13 +3054,13 @@ const BB=(()=>{
     if(B.queue&&!B.trick){B.queue=false;B.doTrick();}};
   // ================= 人物動作（updateAvatar 最後呼叫） =================
   B.pose=(a,dt)=>{if(!B.on)return;const c=B.cur,sp=player.vel.length();
-    a.body.rotation.y=a.body.rotation.z=0;a.armL.rotation.z=a.armR.rotation.z=0;a.armL.rotation.y=a.armR.rotation.y=0;for(const l of [a.legL,a.legR])l.rotation.y=l.rotation.z=0;   /* 花式動作改過的角度先歸零 */
+    a.body.rotation.y=a.body.rotation.z=0;a.body.position.z=0;a.armL.rotation.z=a.armR.rotation.z=0;a.armL.rotation.y=a.armR.rotation.y=0;for(const l of [a.legL,a.legR])l.rotation.y=l.rotation.z=0;   /* 花式動作改過的角度先歸零 */
     if(c){const h=c.h;a.yaw=yawTo(h.x,h.z);if(c.kind==='dunk')a.yaw=Math.atan2(-(h.x-player.pos.x),-(h.z-player.pos.y));a.root.rotation.y=a.yaw+Math.PI;}
     a.root.updateMatrixWorld(true);
     if(c&&c.kind==='dunk'){dunkPose(a,c);}
     else if(c&&c.kind==='shot'){shotPose(a,c);}
     else if(B.st==='hand'){
-      if(B.trick){B.trick.t+=dt;trickPose(a,B.trick,dt);if(B.trick.t>=B.trick.dur){B.trick=null;B.dph=0.0;B.prevP=0;}}
+      if(B.trick){B.trick.t+=dt;trickPose(a,B.trick,dt);if(B.trick.t>=B.trick.dur){if(B.trick.swap)B.hand=-B.trick.s0;B.trick=null;B.dph=0.0;B.prevP=0;}}
       else if(!player.ground){reach(a.armR,0.12,1.3,0.32);reach(a.armL,-0.12,1.3,0.32);L.set(0,1.3,0.42);}   // 跳起來：球抱在胸前
       else{const run=Math.min(1,sp/5),per=0.5-0.16*run;B.dph+=dt/per;if(B.dph>=1)B.dph-=1;const p=B.dph,yh=0.92-0.14*run;
         if(p>=0.5&&B.prevP<0.5)sfxBounce();B.prevP=p;const s=B.hand,x=0.3*s,z=0.26+0.22*run;L.set(x,bounceY(p,yh),z);
@@ -2990,6 +3088,8 @@ const BB=(()=>{
     else if(!c.slam&&!has){a.legL.rotation.x=-1.0;a.legR.rotation.x=0.45;const lb=a.body.worldToLocal(T2.copy(bp));reach(a.armR,lb.x+0.1,lb.y,lb.z);reach(a.armL,lb.x-0.1,lb.y,lb.z);return;}   // 空中伸手接球
     else if(!c.slam){const u0=Math.min(1,c.t/c.T),u=o?0.3+(u0-o.uc)/(1-o.uc)*0.7:u0,late=u>0.9;a.legL.rotation.x=-1.0;a.legR.rotation.x=0.45;
       switch(c.base){
+        case '前空翻灌籃':{const th=-Math.PI*2*sm(cl((u-0.05)/0.75,0,1));a.body.rotation.x=th;a.body.position.y=1-Math.cos(th);a.body.position.z=-Math.sin(th);   // 繞身體中心往前翻一圈
+          if(!late)L.set(0,1.15,0.32);else L.set(0,2.1,0.5);reach(a.armR,0.1,L.y,L.z);reach(a.armL,-0.1,L.y,L.z);if(u<0.8){a.legL.rotation.x=a.legR.rotation.x=-1.3;}break;}
         case '戰斧暴扣':if(u<0.5)L.set(0.2,1.3+0.5*u/0.5,0.3);else if(!late){L.set(0.18,2.05,-0.55);a.body.rotation.x=-0.35;}else{L.set(0.2,2.0,0.55);a.body.rotation.x=0.3;}reach(a.armR,L.x,L.y,L.z);a.armL.rotation.set(-1.4,0,-0.9);a.legR.rotation.x=0.9;break;
         case '反身灌籃':{a.body.rotation.y=Math.PI*sm(cl((u-0.2)/0.6,0,1));if(!late)L.set(0,2.25,-0.05);else L.set(0,2.15,-0.5);reach(a.armR,0.1,L.y,L.z);reach(a.armL,-0.1,L.y,L.z);a.legL.rotation.x=-0.6;a.legR.rotation.x=-0.6;break;}
         case '單手暴扣':if(u<0.55)L.set(0.25,1.3+0.6*u/0.55,0.3);else if(!late)L.set(0.2,2.2,-0.35);else L.set(0.2,2.1,0.5);reach(a.armR,L.x,L.y,L.z);a.armL.rotation.set(-1.2,0,-0.6);break;
@@ -3011,8 +3111,95 @@ const BB=(()=>{
     const dn=e=>{e.preventDefault();e.stopPropagation();if(k==='trick')B.doTrick();else if(k==='shoot')B.shoot();else if(k==='oop')B.oop();else B.dunk();b.classList.add('hit');};
     const up=e=>{e.preventDefault();e.stopPropagation();b.classList.remove('hit');};
     b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('touchend',up,{passive:false});b.addEventListener('touchcancel',up,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('mouseup',up);}
+  document.getElementById('ftStart').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');B.ftStart();};
   draw();
   return B;})();
+
+/* ---------------- 動作（使用者要求：月球漫步、最近很紅的 Bye Bye Bye，順便放一些常見的動作） ----------------
+   上方「動作」按鈕（電腦 N 鍵）打開清單，點一個就開始做（會切到第三人稱，人物轉過來面對鏡頭）。
+   跳舞類（Bye Bye Bye、牙線舞、騎馬舞、機器人舞、月球漫步、坐下）會一直做，推搖桿／按方向鍵、跳、再點一次就停；其他做完自己停。
+   跳舞時有節奏鼓聲（自己合成的鼓＋貝斯，不是原曲）。月球漫步會戴上黑色紳士帽、自己往後滑。 */
+const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
+  const panel=document.getElementById('emotePanel'),btn=document.getElementById('bEmote');
+  const LIST=[
+    {k:'moon',name:'月球漫步',loop:true,bpm:112,face:Math.PI/2},
+    {k:'bye',name:'Bye Bye Bye',loop:true,bpm:120},
+    {k:'floss',name:'牙線舞',loop:true,bpm:128},
+    {k:'horse',name:'騎馬舞',loop:true,bpm:132},
+    {k:'robot',name:'機器人舞',loop:true,bpm:110},
+    {k:'wave',name:'揮手',dur:2.4},
+    {k:'clap',name:'拍手',dur:2.6},
+    {k:'bow',name:'鞠躬',dur:2.4},
+    {k:'salute',name:'敬禮',dur:2.2},
+    {k:'dab',name:'Dab',dur:2.0},
+    {k:'sit',name:'坐下',loop:true},
+  ];
+  const sm=t=>t*t*(3-2*t),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+  function reach(arm,x,y,z){const p=arm.position,dx=x-p.x,dy=y-p.y,dz=z-p.z,l=Math.hypot(dx,dy,dz)||1;arm.rotation.set(Math.atan2(-dz/l,-dy/l),0,Math.asin(cl(dx/l,-1,1)));}
+  // 清單
+  for(const it of LIST){const b=document.createElement('button');b.textContent=it.name;b.onclick=e=>{e.stopPropagation();panel.hidden=true;btn.classList.remove('on');E.start(it.k);};panel.appendChild(b);}
+  E.toggle=()=>{panel.hidden=!panel.hidden;btn.classList.toggle('on',!panel.hidden);if(!panel.hidden){menu.hidden=true;bMenu.classList.remove('on');}};
+  btn.onclick=e=>{e.stopPropagation();if(E.on){E.stop();return;}E.toggle();};
+  E.can=()=>started&&mode==='walk'&&!GAME.on&&!BALLOON.riding&&!player.climb;
+  E.start=k=>{const it=LIST.find(x=>x.k===k);if(!it)return;if(!E.can()){toast(GAME.on?'小遊戲中不能做動作':'現在不能做動作');return;}
+    if(E.on)E.stop(true);if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BB.on)BB.stop();
+    E.on=it;E.t=0;E.cnt=0;player.vel.set(0,0);if(view!=='third'){view='third';syncViewUI();}
+    avatar.yaw=player.yaw+Math.PI+(it.face||0);   // 轉過來面對鏡頭（月球漫步：側面）
+    if(it.k==='moon')E.addHat();
+    if(it.bpm){AUDIO.beat(it.bpm);E.beat=true;}
+    btn.textContent='停止';btn.classList.add('on');
+    const el=document.getElementById('gBig');if(el){el.textContent=it.k==='bye'?'Bye Bye Bye 👋':it.k==='moon'?'月球漫步 🌙':it.name;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
+  E.stop=quiet=>{if(!E.on)return;const it=E.on;E.on=null;if(E.beat){AUDIO.beat(0);E.beat=false;}E.removeHat();btn.textContent='動作';btn.classList.remove('on');
+    const A=avatar;A.body.rotation.set(0,0,0);A.body.position.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);
+    if(it.k==='moon'&&!quiet){const el=document.getElementById('gBig');if(el){el.textContent='Hee-hee!';el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}}};
+  // 月球漫步的紳士帽（黑色、白色帽帶）
+  E.addHat=()=>{if(E.hat)return;const g=new THREE.Group(),blk=std({color:'#121214',roughness:0.5}),wh=std({color:'#f2f2f2',roughness:0.5});
+    const brim=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,0.015,28),blk);g.add(brim);
+    const crown=new THREE.Mesh(new THREE.CylinderGeometry(0.115,0.13,0.13,24),blk);crown.position.y=0.07;g.add(crown);
+    const band=new THREE.Mesh(new THREE.CylinderGeometry(0.132,0.132,0.03,24),wh);band.position.y=0.025;g.add(band);
+    g.position.set(0,1.79,0.0);g.rotation.x=-0.12;g.traverse(o=>{if(o.isMesh)o.castShadow=true;});avatar.body.add(g);E.hat=g;};
+  E.removeHat=()=>{if(E.hat){avatar.body.remove(E.hat);E.hat=null;}};
+  // 每格（走路前）：推搖桿就停；月球漫步自己往後滑
+  E.step=(dt,f,s)=>{if(!E.on)return false;E.t+=dt;const it=E.on;
+    if(E.t>0.35&&(Math.abs(f)>0.15||Math.abs(s)>0.15)){E.stop();return false;}
+    if(!it.loop&&E.t>=it.dur){E.stop();return false;}
+    if(it.k==='moon'){if(E.t>9){E.stop();return false;}const back=avatar.yaw,sp=0.75;   // 往人物的背後滑
+      const p=player.pos.clone();p.x+=Math.sin(back)*sp*dt;p.y+=Math.cos(back)*sp*dt;resolve(p,0.3,player.y);player.pos.copy(p);}
+    player.vel.set(0,0);return true;};
+  // ---- 動作（updateAvatar 最後呼叫）----
+  E.pose=(a,dt)=>{const it=E.on;if(!it)return;const t=E.t,b=it.bpm?t*it.bpm/60:0;a.root.rotation.y=a.yaw+Math.PI;
+    a.body.rotation.set(0,0,0);a.body.position.set(0,0,0);for(const g of [a.armL,a.armR,a.legL,a.legR])g.rotation.set(0,0,0);
+    switch(it.k){
+      case 'moon':{const ph=(t/0.9)%1,lead=ph<0.5?0:1,q=(ph*2)%1;   // 一腳平貼往後滑、另一腳踮腳尖（膝蓋往前）
+        const slide=-0.15+0.5*q,toe=-0.28;const L=lead?a.legR:a.legL,T=lead?a.legL:a.legR;L.rotation.x=slide;T.rotation.x=toe;
+        a.body.rotation.x=0.07;a.body.position.y=0.015*Math.sin(q*Math.PI);a.armL.rotation.set(0.15+0.12*Math.sin(t*7),0,-0.12);a.armR.rotation.set(0.15-0.12*Math.sin(t*7),0,0.12);
+        if(E.hat)E.hat.rotation.z=0.04*Math.sin(t*3.5);break;}
+      case 'bye':{const sub=b%4;a.body.position.y=-0.035*Math.abs(Math.sin(Math.PI*b));a.body.rotation.z=0.06*Math.sin(Math.PI*b);
+        a.armL.rotation.set(0.15,0,-0.75);   // 左手插腰
+        if(sub<1){const k=sm(sub);a.armR.rotation.set(-1.55*k,0,0.05);a.body.rotation.y=-0.3*k;a.legR.rotation.x=-0.25*k;}   // 右手往前推（手掌朝外）
+        else if(sub<2.5){a.armR.rotation.set(-1.55,0,0.05+0.38*Math.sin(2*Math.PI*(sub-1)*2));a.body.rotation.y=-0.3;a.legR.rotation.x=-0.25;a.body.rotation.x=0.05*Math.sin(Math.PI*4*sub);}   // Bye、Bye、Bye（左右揮）
+        else if(sub<3.25){const w=Math.sin(8*Math.PI*sub);a.armR.rotation.set(-1.2+0.25*w,0,-0.2);a.armL.rotation.set(-1.2-0.25*w,0,0.2);}   // 兩手在胸前轉
+        else{const k=sm((sub-3.25)/0.75);a.armR.rotation.set(-1.4,0,-0.9+1.9*k);a.body.rotation.y=0.3-0.6*k;}   // 右手從左往右甩過去
+        break;}
+      case 'floss':{const side=Math.sin(Math.PI*b),fb=Math.cos(Math.PI*b);   // 兩手打直一起甩到同一邊，一前一後交換；屁股往反方向
+        a.armR.rotation.set(-0.35*fb,0,0.5*side+0.12);a.armL.rotation.set(0.35*fb,0,0.5*side-0.12);a.body.position.x=-0.07*side;a.body.rotation.z=0.12*side;
+        a.legL.rotation.z=0.1*side;a.legR.rotation.z=0.1*side;break;}
+      case 'horse':{const s=Math.sin(Math.PI*b);a.body.position.y=0.07*Math.abs(s);a.legL.rotation.x=-0.5*Math.max(0,s);a.legR.rotation.x=-0.5*Math.max(0,-s);
+        if(Math.floor(b/8)%2===1&&b%8>=6){const w=b*Math.PI*2;a.armR.rotation.set(-2.9,0,0.35+0.25*Math.sin(w));a.armL.rotation.set(-1.1,0,0.25);}   // 甩套繩
+        else{a.armR.rotation.set(-1.15,0,-0.38);a.armL.rotation.set(-1.15,0,0.38);a.body.rotation.x=0.08;}   // 兩手交叉在胸前（拉韁繩）
+        break;}
+      case 'robot':{const P=[[[-1.57,0,0],[0,0,-0.15],0.25,0],[[-1.57,0,0],[-1.57,0,0],0,0],[[0,0,1.57],[0,0,-1.57],0,0.15],[[-2.6,0,0],[0,0,-0.15],-0.25,0],[[0,0,0.2],[-1.57,0,0],-0.25,0],[[-0.8,0,1.2],[-0.8,0,-1.2],0,-0.1]];
+        const i=Math.floor(b)%P.length,pz=P[i];a.armR.rotation.set(...pz[0]);a.armL.rotation.set(...pz[1]);a.body.rotation.y=pz[2];a.body.position.y=pz[3]*0.3;
+        if(Math.floor(b)!==E.cnt){E.cnt=Math.floor(b);}break;}   // 一拍換一個姿勢、卡卡的
+      case 'wave':{const k=sm(cl(t/0.3,0,1))*sm(cl((it.dur-t)/0.3,0,1));a.armR.rotation.set(-2.85*k,0,(0.3+0.35*Math.sin(t*11))*k);a.body.rotation.z=-0.04*k;break;}
+      case 'clap':{const w=Math.abs(Math.sin(t*9)),k=sm(cl(t/0.25,0,1))*sm(cl((it.dur-t)/0.25,0,1));a.armR.rotation.set(-1.3*k,0,(-0.32+0.32*w)*k);a.armL.rotation.set(-1.3*k,0,(0.32-0.32*w)*k);
+        const c=Math.floor(t*9/Math.PI+0.5);if(c!==E.cnt&&k>0.8){E.cnt=c;AUDIO.sfx('clap');}break;}
+      case 'bow':{const k=sm(cl(t/0.5,0,1))*sm(cl((it.dur-t)/0.6,0,1)),th=0.85*k;a.body.rotation.x=th;a.body.position.y=0.95-0.95*Math.cos(th);a.body.position.z=-0.95*Math.sin(th);   // 繞腰往前彎，腳保持直立
+        a.legL.rotation.x=a.legR.rotation.x=-th;a.armR.rotation.set(-0.7*k,0,-0.55*k);a.armL.rotation.set(0.5*k,0,-0.1*k);break;}
+      case 'salute':{const k=sm(cl(t/0.35,0,1))*sm(cl((it.dur-t)/0.35,0,1));if(k>0.02){reach(a.armR,0.13,1.66,0.13);a.armR.rotation.x*=k;a.armR.rotation.z*=k;}a.body.position.y=0.01*k;break;}
+      case 'dab':{const k=sm(cl(t/0.25,0,1))*sm(cl((it.dur-t)/0.3,0,1));a.armR.rotation.set(-2.25*k,0,1.05*k);reach(a.armL,0.28,1.72,0.36);a.armL.rotation.x*=k;a.armL.rotation.z*=k;a.body.rotation.x=0.18*k;a.body.rotation.z=-0.12*k;break;}
+      case 'sit':{const k=sm(cl(t/0.6,0,1));a.body.position.y=-0.52*k;a.legL.rotation.set(-1.45*k,0,-0.08*k);a.legR.rotation.set(-1.45*k,0,0.08*k);a.armR.rotation.set(0.55*k,0,0.25*k);a.armL.rotation.set(0.55*k,0,-0.25*k);a.body.rotation.x=-0.12*k;break;}}};
+  return E;})();
 
 /* ---------------- 標籤 ---------------- */
 function labelSprite(name,desc,color='rgba(16,24,32,0.78)'){
@@ -3074,13 +3261,16 @@ const player={pos:new V2(),y:0,vy:0,yaw:0,pitch:-0.05,vel:new V2(),runTime:0,gro
 // 跳：在地上跳一次，空中可以再跳一次（二段跳）
 // 人物的上下：重力、落地、室內跳起來不穿過天花板（走路時、空拍時都要算：空拍時放如來神掌也要飛得起來）
 function playerFall(dt){
-  const fl=heightAt(player.pos.x,player.pos.y,player.y);
+  const fl=heightAt(player.pos.x,player.pos.y,player.y),vin=player.vy;
   if(player.vy>0||player.y>fl+0.02){player.vy-=14*dt;player.y+=player.vy*dt;if(player.y<=fl){player.y=fl;player.vy=0;player.ground=true;player.jumps=0;}else player.ground=false;}
   else{player.y=fl;player.vy=0;player.ground=true;player.jumps=0;}
   // 室內跳起來不要穿過天花板
   const r=player.ground?null:roomAt(player.pos.x,player.pos.y,player.y);if(r&&!r.out&&!r.stair&&player.y<roomCeil(r)&&player.y+bodyH().head+0.1>roomCeil(r)){player.y=Math.max(FL[r.f],roomCeil(r)-bodyH().head-0.1);player.vy=Math.min(player.vy,0);}
+  TRAMP.after(vin);   // 彈跳床
 }
-function doJump(){if(!started||mode!=='walk')return;if(BALLOON.riding){BALLOON.burnPress();return;}if(SKATE.on){SKATE.jump();return;}if(BB.lock())return;if(LIE.on){LIE.stop();syncActBtn();return;}if(player.climb)return;
+let jumpHeld=false;   // 手機「跳」按住中（彈跳床：按住就一直用力彈）
+function doJump(){if(!started||mode!=='walk')return;if(EMOTE.on)EMOTE.stop();if(BALLOON.riding){BALLOON.burnPress();return;}if(SKATE.on){SKATE.jump();return;}if(BB.lock())return;if(LIE.on){LIE.stop();syncActBtn();return;}if(player.climb)return;
+  if(TRAMP.press())return;   // 彈跳床：往下掉時按＝下一下彈更高（不是二段跳）、剛彈起來補按也算
   if(player.ground){player.vy=4.6;player.ground=false;player.jumps=1;}else if(player.jumps<2){player.vy=4.6;player.jumps=2;}}
 const lidShut=()=>HATCH_LID.t<0.95;
 let climbTold=false;   /* 爬梯範圍：靠近屋頂那段涵蓋整個梯口（站在梯口西半邊也算在梯子上，不會直接掉到露台） */
@@ -3358,7 +3548,7 @@ function updateAvatar(dt,stage){
   a.body.position.y=Math.abs(Math.sin(a.phase))*0.04*amp;
   GAME.animAvatar(a,dt);   // 小遊戲：出拳、踢腿、集氣的動作
   a.tick&&a.tick(dt,sp);
-  if(LIE.on)LIE.pose(a);else if(SKATE.on)SKATE.pose(a,dt);else if(BB.on)BB.pose(a,dt);else if(a.root.rotation.x)a.root.rotation.x=0;   // 躺床、直排輪
+  if(LIE.on)LIE.pose(a);else if(SKATE.on)SKATE.pose(a,dt);else if(BB.on)BB.pose(a,dt);else if(EMOTE.on)EMOTE.pose(a,dt);else if(a.root.rotation.x)a.root.rotation.x=0;   // 躺床、直排輪
 }
 // 第三人稱鏡頭：碰到牆會自動拉近
 const camTmp=new V2();
@@ -3391,7 +3581,7 @@ const keys={};let mode='walk';let started=false;
 const orbit=new OrbitControls(camera,renderer.domElement);orbit.enabled=false;orbit.enableDamping=true;orbit.maxPolarAngle=Math.PI*0.48;orbit.minDistance=6;orbit.maxDistance=220;
 
 let placeTimer=0;
-function teleport(x,z,yaw,y=0){if(BALLOON.riding)BALLOON.reset();BB.reset();if(LIE.on)LIE.stop();if(SKATE.on){SKATE.vel.set(0,0);SKATE.v=0;SKATE.ground=true;SKATE.vy=0;if(yaw!==undefined)SKATE.dir=yaw;}player.y=y;player.vy=0;const fd=document.getElementById('fade');if(fd&&started){fd.style.transition='none';fd.style.opacity=1;requestAnimationFrame(()=>{fd.style.transition='opacity .35s';fd.style.opacity=0;});}player.vel.set(0,0);player.pos.set(x,z);resolve(player.pos,0.3,y);if(yaw!==undefined){player.yaw=yaw;player.pitch=-0.05;}if(mode==='aerial'){orbit.target.set(x,0,z);}placeTimer=0;}
+function teleport(x,z,yaw,y=0){if(BALLOON.riding)BALLOON.reset();BB.reset();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(SKATE.on){SKATE.vel.set(0,0);SKATE.v=0;SKATE.ground=true;SKATE.vy=0;if(yaw!==undefined)SKATE.dir=yaw;}player.y=y;player.vy=0;const fd=document.getElementById('fade');if(fd&&started){fd.style.transition='none';fd.style.opacity=1;requestAnimationFrame(()=>{fd.style.transition='opacity .35s';fd.style.opacity=0;});}player.vel.set(0,0);player.pos.set(x,z);resolve(player.pos,0.3,y);if(yaw!==undefined){player.yaw=yaw;player.pitch=-0.05;}if(mode==='aerial'){orbit.target.set(x,0,z);}placeTimer=0;}
 const SPOTS=[
   {name:'我家門口',x:DOOR.x,z:3.6,yaw:0},
   {name:'1F 客廳',x:3.8,z:-4.0,yaw:0},
@@ -3405,8 +3595,9 @@ const SPOTS=[
   {name:'巷口',x:-10.5,z:7.6,yaw:-Math.PI/2},
   {name:'熱氣球',bal:true},
   {name:'運動場',x:18.2,z:35.5,yaw:Math.PI-0.3},
-  {name:'跳台公園',x:41,z:49,yaw:-Math.PI/2},
-  {name:'籃球場',x:COURT.cx+2,z:COURT.z0-3.2,yaw:Math.PI},   // 球車旁、面向球場   // 大跳台起跳區、面向東
+  {name:'跳台公園',x:109.5,z:49,yaw:-Math.PI/2},   // 大跳台助跑道的起點、面向東
+  {name:'籃球場',x:COURT.cx+2,z:COURT.z0-3.2,yaw:Math.PI},
+  {name:'超級彈跳床',x:-5.2,z:-4.6,yaw:0},   // 房子西邊的空地，面向彈跳床   // 球車旁、面向球場   // 大跳台起跳區、面向東
   {name:'大圓環',x:-16,z:80,yaw:Math.PI},   // 直排輪架旁邊、面向入口   // 傳送到熱氣球現在停的地方（可能降落在別處）
   {name:'全家便利商店',x:(STORE.dx0+STORE.dx1)/2,z:10.8,yaw:Math.PI},
 ];
@@ -3417,9 +3608,10 @@ addEventListener('keydown',e=>{keys[e.code]=true;if(!started){if(e.code==='Enter
   if(GAME.on&&GAME.key(e,true))return;   // 小遊戲的技能鍵
   if(SKATE.on&&SKATE.key(e,true))return;   // 直排輪：B 倒溜、T 花式
   if(BB.on&&BB.key(e,true))return;   // 籃球：T 花式運球、J 投籃、U 灌籃
-  if(e.code==='KeyV')toggleAerial();if(e.code==='KeyC')toggleView();if(e.code==='KeyM')toggleMap();if(e.code==='KeyF'&&!e.repeat)toggleAct();if(e.code==='KeyK'&&!e.repeat)setKid(!kid,true);
+  if(e.code==='KeyV')toggleAerial();if(e.code==='KeyC')toggleView();if(e.code==='KeyM')toggleMap();if(e.code==='KeyF'&&!e.repeat)toggleAct();if(e.code==='KeyK'&&!e.repeat)setKid(!kid,true);if(e.code==='KeyN'&&!e.repeat){if(EMOTE.on)EMOTE.stop();else EMOTE.toggle();}
   if(e.code==='Space'){e.preventDefault();if(!e.repeat)doJump();}});
-document.getElementById('jumpBtn').addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();doJump();},{passive:false});
+document.getElementById('jumpBtn').addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();jumpHeld=true;doJump();},{passive:false});
+for(const ev of ['touchend','touchcancel'])document.getElementById('jumpBtn').addEventListener(ev,()=>{jumpHeld=false;});
 document.getElementById('jumpBtn').addEventListener('click',doJump);
 addEventListener('keyup',e=>{keys[e.code]=false;if(GAME.on)GAME.key(e,false);});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
@@ -3503,7 +3695,7 @@ function toast(msg){toastEl.textContent=msg;toastEl.classList.add('show');clearT
 
 /* ---------------- 小地圖（北朝上） ---------------- */
 const mm=document.getElementById('mm'),mmc=mm.getContext('2d');
-const MB={x0:-60,z0:-50,x1:120,z1:155};let mmT={sc:1,ox:0,oy:0},mmBg=null;
+const MB={x0:-60,z0:-50,x1:240,z1:155};let mmT={sc:1,ox:0,oy:0},mmBg=null;
 const w2m=(x,z)=>[(x-MB.x0)*mmT.sc+mmT.ox,(z-MB.z0)*mmT.sc+mmT.oy];
 function drawMinimapBg(){
   if(!mmOn||document.body.classList.contains('touch'))return;
@@ -3576,10 +3768,11 @@ function updatePlace(){
   else if(inR(x,z,{x0:-0.5,x1:ROW_X1,z0:-15.8,z1:Z_BACK}))t=['屋後','鄰居後院'];
   else if(inR(x,z,FIELD))t=['運動場',SKATE.on?'直排輪':'跑道、跳台、繞樁'];
   else if(inR(x,z,COURT_PARK))t=['圓環籃球場',BB.on?'籃球':inR(x,z,COURT)?'全場 28×15':'場邊'];
-  else if(inR(x,z,JUMP_PARK)){const J=JUMPS.find(J=>x>J.x0-8&&x<J.x3+12&&z>J.z0-1.5&&z<J.z1+1.5);t=['跳台公園',J?J.name+(player.y>0.4?`（高 ${player.y.toFixed(1)} m）`:''):'大跳台、中跳台'];}
+  else if(inR(x,z,JUMP_PARK)){const J=JUMPS.find(J=>x>J.x0-8&&x<J.x3+12&&z>J.z0-1.5&&z<J.z1+1.5);t=['跳台公園',J?J.name+(player.y>0.4?`（高 ${player.y.toFixed(1)} m）`:''):JUMPS.some(J=>z>J.z0&&z<J.z1&&x<J.x0)?'助跑道':'大跳台、中跳台'];}
   else if(inR(x,z,STORE))t=['全家便利商店',player.y>=STORE.h-0.3?'屋頂':''];
   else if(inR(x,z,{x0:STORE.x0-2,x1:STORE.x1+2,z0:LANE_Z1,z1:STORE.z0}))t=['全家便利商店','門口'];
   else if(inR(x,z,GRASS))t=['對面空地',''];
+  else if(Math.hypot(x-TRAMPS[1].x,z-TRAMPS[1].z)<4.5)t=['超級彈跳床',player.y>1?`高 ${player.y.toFixed(1)} m`:'跳得比房子還高'];
   else if(inR(x,z,NB))t=['側邊空地',''];
   else if(Math.hypot(x-RING.cx,z-RING.cz)<RING.r1+2)t=['大圓環',Math.hypot(x-RING.cx,z-RING.cz)<RING.r0?'安全島（噴水池）':'圓環'];
   else for(const r of ROADS)if(inR(x,z,r)){t=[r.name,'道路'];break;}
@@ -3665,12 +3858,24 @@ const AUDIO=(()=>{
       case 'board':tone('sine',rp(150),70,t,0.18,0.55,o);noise(t,0.1,0.4,o,'lowpass',1700,300);break;   // 打板
       case 'slam':tone('sine',rp(82),30,t,0.45,1,o);noise(t,0.35,0.75,o,'lowpass',2600,140);tone('triangle',rp(400),0,t,1.0,0.3,o);tone('sine',rp(1150),0,t,0.9,0.12,o);break;   // 灌籃：重擊＋籃框震
       case 'cheer':noise(t+0.05,2.0,0.32,o,'bandpass',950,1350,0.6);noise(t+0.12,1.8,0.22,o,'bandpass',1900,2500,0.8);for(let i=0;i<3;i++)tone('sine',rp(2300),rp(2900),t+0.2+i*0.25,0.25,0.04,o);break;   // 歡呼
+      case 'clap':noise(t,0.07,0.6,o,'bandpass',rp(1500),0,1.2);noise(t+0.008,0.05,0.3,o,'highpass',3200);break;   // 拍手
+      case 'boing':tone('sine',rp(130),330,t,0.28,0.5,o);tone('triangle',rp(85),210,t,0.22,0.25,o);noise(t,0.06,0.25,o,'lowpass',700);break;   // 彈跳床「咚～」
       case 'takeoff':noise(t,0.45,0.55,o,'bandpass',rp(250),1600,1.2);tone('sine',rp(65),32,t,0.32,0.75,o);break;   // 灌籃起跳「轟」
       case 'catch':tone('sine',rp(190),95,t,0.09,0.55,o);noise(t,0.05,0.35,o,'bandpass',1300,0,2);break;   // 接球「啪」
       case 'shatter':noise(t,0.7,0.85,o,'highpass',2600,1200);for(let i=0;i<12;i++)tone('sine',rnd(2400,5400),0,t+i*0.035+rnd(0,0.02),0.35,0.07,o);noise(t,0.22,0.55,o,'lowpass',900,200);break;   // 籃板玻璃碎掉
       case 'bigcheer':noise(t+0.05,3.0,0.42,o,'bandpass',950,1400,0.5);noise(t+0.1,2.8,0.3,o,'bandpass',2000,2700,0.7);noise(t+0.2,2.4,0.22,o,'bandpass',600,800,0.6);for(let i=0;i<5;i++)tone('sine',rp(2400),rp(3000),t+0.15+i*0.22,0.25,0.05,o);break;   // 全場大歡呼
       case 'fire':noise(t,0.9,0.5,o,'bandpass',300,1800,0.8);tone('sawtooth',rp(110),330,t,0.8,0.18,o,['lowpass',1200]);break;   // 手感發燙
       case 'bigboom':noise(t,1.3,1,o,'lowpass',2500,60);tone('sine',60,22,t,1.1,1,o);tone('sawtooth',90,30,t,0.7,0.3,o,['lowpass',400]);break;}}
+  // 跳舞的節奏：自己合成的鼓（大鼓、小鼓、Hi-hat）＋貝斯，不是任何歌曲；A.beat(bpm) 開始、A.beat(0) 停
+  let beatT=null,beatN=0,beatNext=0;
+  A.beat=bpm=>{if(beatT){clearInterval(beatT);beatT=null;}if(!bpm||!A.ctx)return;const st=60/bpm/2,bass=[55,55,65.41,49,55,73.42,65.41,49];beatNext=A.ctx.currentTime+0.06;beatN=0;
+    beatT=setInterval(()=>{if(!ok())return;const c=A.ctx,o=A.sfx;if(beatNext<c.currentTime)beatNext=c.currentTime+0.02;
+      while(beatNext<c.currentTime+0.18){const t=beatNext,i=beatN%8;
+        if(i===0||i===4||(i===5&&beatN%32>=24))tone('sine',150,42,t,0.2,0.85,o);
+        if(i===2||i===6){noise(t,0.13,0.42,o,'bandpass',1900,0,0.8);tone('triangle',200,120,t,0.08,0.18,o);}
+        noise(t,0.03,i%2?0.1:0.16,o,'highpass',7500);
+        if(i%2===0)tone('sawtooth',bass[(beatN>>3)%8]*(i===4?2:1),0,t,0.18,0.16,o,['lowpass',520,2]);
+        beatN++;beatNext+=st;}},40);};
   // 蓄力的聲音：越來越高，放開就停
   function chargeSound(){if(!ok())return null;const c=A.ctx,t=c.currentTime,o=c.createOscillator(),o2=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain();
     o.type='sawtooth';o2.type='sine';o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(440,t+1.2);o2.frequency.setValueAtTime(220,t);o2.frequency.exponentialRampToValueAtTime(880,t+1.2);
@@ -3721,7 +3926,7 @@ const AUDIO=(()=>{
     const roll=mk('bandpass',400,0.8),skid=mk('bandpass',2600,4);
     return {set(v,drift){const t=c.currentTime;roll.g.gain.setTargetAtTime(Math.min(0.22,v/15*0.22),t,0.08);roll.fl.frequency.setTargetAtTime(300+v*70,t,0.1);skid.g.gain.setTargetAtTime(drift?0.12:0,t,0.05);},
       stop(){const t=c.currentTime;for(const n of [roll,skid]){n.g.gain.setTargetAtTime(0,t,0.05);n.s.stop(t+0.3);}}};}
-  return {sfx,chargeSound,musicStart,musicStop,setTempo,skateLoop,A};
+  return {sfx,chargeSound,musicStart,musicStop,setTempo,skateLoop,A,beat:bpm=>A.beat(bpm)};
 })();
 
 /* ---------------- 小遊戲：殭屍來襲（選單「小遊戲」開始） ----------------
@@ -4158,7 +4363,7 @@ const GAME=(()=>{
   function clearAll(){grid=null;chargeStop();specialClear();for(const z of G.zs)scene.remove(z.m.root);G.zs=[];for(const s of G.shots)scene.remove(s.core,s.glow);G.shots=[];
     for(const e of G.fx){if(e.sp)scene.remove(e.sp);if(e.mesh)scene.remove(e.mesh);}G.fx=[];G.act=null;G.queue=null;G.hist=[];}
   // free＝自由破壞模式：沒有殭屍，只是拆東西
-  function start(free){if(BB.on)BB.stop();if(BALLOON.riding)BALLOON.reset();if(LIE.on)LIE.stop();if(SKATE.on)SKATE.stop();clearAll();DESTR.reset();Object.assign(G,{on:true,over:false,free:!!free,hp:100,wave:0,kills:0,toSpawn:0,spawnT:0,waveT:1.5,calm:0,combo:0,comboT:0,best:0,stop:0,shake:0,airHits:0});
+  function start(free){if(BB.on)BB.stop();if(EMOTE.on)EMOTE.stop(true);if(BALLOON.riding)BALLOON.reset();if(LIE.on)LIE.stop();if(SKATE.on)SKATE.stop();clearAll();DESTR.reset();Object.assign(G,{on:true,over:false,free:!!free,hp:100,wave:0,kills:0,toSpawn:0,spawnT:0,waveT:1.5,calm:0,combo:0,comboT:0,best:0,stop:0,shake:0,airHits:0});
     if(mode!=='walk')toggleAerial();if(G.prevView===null)G.prevView=view;view='third';syncViewUI();   // 遊戲中用第三人稱（不存成偏好）
     teleport(5.26,0.6,Math.PI,0);   // 面向巷子（殭屍從那邊來）
     document.body.classList.add('gaming');document.body.classList.toggle('dk',avatar.morph);{const mb=$('gMorph');if(mb)mb.firstChild.textContent=avatar.morph?'還原':'變身';}hud.hidden=false;skills.hidden=false;overEl.hidden=true;killEl.textContent='擊倒 0';comboEl.textContent='';waveEl.textContent='準備…';menu.hidden=true;bMenu.classList.remove('on');
@@ -4352,6 +4557,7 @@ function step(dt){
     let running=keys.ShiftLeft||keys.ShiftRight;
     if(joy.id!==null){f+=-joy.y;s+=joy.x;if(Math.hypot(joy.x,joy.y)>0.92)running=true;}
     if(BB.lock()){f=0;s=0;running=false;}   // 投籃、灌籃中不能走
+    if(EMOTE.on&&EMOTE.step(dt,f,s)){f=0;s=0;}   // 做動作中：推搖桿就停
     const stage=running&&Math.hypot(f,s)>0.1?1:0;
     const speed=[2.4,5.5][stage]*comfort.speed;
     const len=Math.hypot(f,s);if(len>1){f/=len;s/=len;}
@@ -4412,14 +4618,14 @@ function step(dt){
   BB.tick(dt);
   avatar.fxTick(dt);
 }
-let frameAcc=0;
+let frameAcc=0,loopErr=false;
 function loop(){
   requestAnimationFrame(loop);   // 先排下一格：就算這一格哪裡出錯，畫面也不會整個停住
   frameAcc+=clock.getDelta();
   if(POWER.save&&frameAcc<1/31)return;   // 省電模式：每秒最多 30 張
   const dt=Math.min(0.05,frameAcc);frameAcc=0;
   fitT-=dt;if(fitT<=0){fitT=0.3;fitView();}
-  if(started)step(dt*BB.rt(dt));   // 灌籃、遠投進球前有慢動作
+  if(started){try{step(dt*BB.rt(dt));}catch(e){if(!loopErr){loopErr=true;console.error(e);}}}   // 灌籃、遠投進球前有慢動作；這一格出錯也照樣畫畫面（不會整個卡住）
   if(labels.visible){const pf=floorOf(player.y);for(const s of labels.children){const d=camera.position.distanceTo(s.position);let o;
     if(s.userData.room)o=mode==='walk'&&s.userData.floor===pf&&indoors()?THREE.MathUtils.smoothstep(d,1.0,2.0)*(1-THREE.MathUtils.smoothstep(d,5,7.5)):0;
     else o=(mode==='aerial'||s.userData.always)?1:THREE.MathUtils.smoothstep(d,8,18);
@@ -4434,7 +4640,7 @@ syncViewUI();
 loop();
 const startBtn=document.getElementById('start');startBtn.disabled=false;startBtn.textContent='進入';
 startBtn.onclick=()=>{document.getElementById('overlay').style.display='none';started=true;guardBack();hintUntil=performance.now()+9000;syncHint();setTimeout(syncHint,9100);};
-window.__dbg={scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct};
+window.__dbg={scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP};
 </script>
 </body>
 </html>
