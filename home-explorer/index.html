@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-09.23"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-09.27"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -179,6 +179,10 @@
   body.touch #skBtns{left:auto;right:calc(108px + var(--sar));bottom:calc(16px + var(--sab));transform:none;display:grid;grid-template-columns:repeat(2,58px);gap:8px}
   body.touch #skBtns button{width:58px;height:58px;font-size:14px}
   body.touch #skBtns button small{display:none}
+  /* 死亡騎士（變身）：技能列換成騎士的三招 */
+  body.dk #gSkills .norm,body:not(.dk) #gSkills .dk{display:none!important}
+  #gSkills button[data-s=morph]{background:rgba(70,20,90,.75)}
+  #gSkills button.dk{background:rgba(150,40,20,.7);font-size:14px}
 </style>
 </head>
 <body>
@@ -246,7 +250,7 @@
   <div class="grid" id="charO"></div>
   <label><span>髮色</span></label>
   <div class="grid" id="charH"></div>
-  <div class="grid"><button id="skMenu">穿上直排輪</button></div>
+  <div class="grid"><button id="skMenu">穿上直排輪</button><button id="dkMenu">變身：死亡騎士</button></div>
   <h3 style="margin-top:14px">小遊戲</h3>
   <button id="gStart">殭屍來襲！開始</button>
   <button id="gFree">自由破壞模式（沒有殭屍）</button>
@@ -276,9 +280,9 @@
   <div class="row"><span>生命</span><div class="bar"><i id="gHp"></i></div></div>
   <div class="row" id="gTgtRow" hidden><span id="gTgtName"></span><div class="bar tgt"><i id="gTgt"></i></div></div>
   <div class="row2"><span id="gWave">準備…</span><span id="gKills">擊倒 0</span><span id="gWreck">破壞 0</span><span id="gCombo"></span><button id="gQuit">結束遊戲</button></div>
-  <div class="keyhint">J 氣功炮｜L 超級氣功波｜U 旋風腿｜I 如來神掌｜O 足球｜按住 H 蓄力氣功彈</div>
+  <div class="keyhint">J 氣功炮｜L 超級氣功波｜U 旋風腿｜I 如來神掌｜O 足球｜按住 H 蓄力氣功彈｜G 變身（死亡騎士：J 光刀揮砍｜L 光刀射箭｜U 地裂術）</div>
 </div>
-<div id="gSkills" hidden><button data-s="blast">氣功炮<small>J</small></button><button data-s="beam">超級<br>氣功波<small>L</small></button><button data-s="spin">旋風腿<small>U</small></button><button data-s="palm">如來<br>神掌<small>I</small></button><button data-s="ball">足球<small>O</small></button><button data-s="charge">蓄力<br>氣功彈<small>H 按住</small></button></div>
+<div id="gSkills" hidden><button class="norm" data-s="blast">氣功炮<small>J</small></button><button class="norm" data-s="beam">超級<br>氣功波<small>L</small></button><button class="norm" data-s="spin">旋風腿<small>U</small></button><button class="norm" data-s="palm">如來<br>神掌<small>I</small></button><button class="norm" data-s="ball">足球<small>O</small></button><button class="norm" data-s="charge">蓄力<br>氣功彈<small>H 按住</small></button><button class="dk" data-s="slash">光刀<br>揮砍<small>J</small></button><button class="dk" data-s="bladeShot">光刀<br>射箭<small>L</small></button><button class="dk" data-s="quake">地裂術<small>U</small></button><button data-s="morph" id="gMorph">變身<small>G</small></button></div>
 <div id="gBig"></div>
 <div id="skHud" class="panel" hidden><span>直排輪</span><b id="skSpd">0</b><span>km/h</span>　<span>花式</span><b id="skScore">0</b><span id="skCombo"></span>
   <div class="k">W 加速｜S 煞車／倒退｜A D 轉彎｜Shift 飆速｜按住 X 甩尾｜B 倒溜｜T 花式（空中按＝轉體）｜空白鍵 跳｜F 脫下</div></div>
@@ -330,6 +334,13 @@ const ROADS = [
   {name:'門前巷子', x0:-20, x1:96, z0:LANE_Z0, z1:LANE_Z1},
   {name:'大馬路', x0:-20, x1:-12, z0:-70, z1:60},
   {name:'側邊巷子', x0:64, x1:70, z0:-70, z1:LANE_Z0},
+  // 擴大地圖（使用者：想溜道路、規劃大圓環）：大馬路往南接到大圓環；圓環往東、西、南各接一條大路；門前巷子往東接東邊大路，繞成一大圈
+  {name:'大馬路', x0:-20, x1:-12, z0:60, z1:84.5},
+  {name:'圓環大道', x0:9.5, x1:215, z0:106, z1:114},
+  {name:'西邊大路', x0:-170, x1:-41.5, z0:106, z1:114},
+  {name:'南邊大路', x0:-20, x1:-12, z0:135.5, z1:215},
+  {name:'東邊大路', x0:96, x1:104, z0:LANE_Z0, z1:106},
+  {name:'門前巷子', x0:96, x1:104, z0:LANE_Z0, z1:LANE_Z1},
 ];
 // 周邊建築（依空拍圖推估，量體示意）
 const NB = {name:'側邊空地', x0:-9.6, x1:-0.25, z0:-13.85, z1:Z_1F-0.55};   // 西側通道（側邊陽台）百葉窗外面是空地、沒有建築物（使用者更正）
@@ -349,7 +360,9 @@ const SURR = [
 const GRASS = {x0:-11, x1:26, z0:11.4, z1:34};
 // 全家便利商店：巷子對面的空地上，門口正對我家大門（門 x 4.1～5.9）
 const STORE = {x0:-1, x1:11, z0:12.6, z1:20.6, h:4.2, dx0:4.1, dx1:5.9};
-const BOUND = {x0:-48, x1:96, z0:-60, z1:68};   // 南邊延伸到運動場
+const BOUND = {x0:-170, x1:215, z0:-60, z1:215};   // 擴大地圖：往西、東、南都可以走／溜（大圓環、新道路）
+const BOUND_CORE = {x0:-48, x1:96, z0:-60, z1:68};   // 原本的範圍：水泥地面只鋪到這附近，外面是綠地
+const RING = {cx:-16, cz:110, r0:15, r1:26};   // 大圓環：中心、安全島半徑、外緣半徑
 // 運動場（使用者要求：想溜直排輪）：巷子對面空地再往南，田徑場跑道中心 (14, 49)
 const FIELD = {cx:14, cz:49, L:24, r0:7, r1:11, x0:-10, x1:38, z0:37, z1:61.5};
 
@@ -920,9 +933,9 @@ const M=new Merger(true);
 const labels=new THREE.Group();scene.add(labels);
 
 // 地面
-for(const r of rectSub([{x0:BOUND.x0-60,x1:BOUND.x1+60,z0:BOUND.z0-60,z1:BOUND.z1+60}],[{x0:ux(0),x1:ux(1),z0:Z_BACK,z1:Z_1F}]))M.add(groundRect(r.x0,r.x1,r.z0,r.z1,0),MAT.concrete);   // 房子底下挖掉（1F 廁所地板下沉）
+for(const r of rectSub([{x0:BOUND_CORE.x0-60,x1:BOUND_CORE.x1+60,z0:BOUND_CORE.z0-60,z1:BOUND_CORE.z1+60}],[{x0:ux(0),x1:ux(1),z0:Z_BACK,z1:Z_1F}]))M.add(groundRect(r.x0,r.x1,r.z0,r.z1,0),MAT.concrete);   // 房子底下挖掉（1F 廁所地板下沉）
 // 外圍的地面（搭熱氣球飛高時看得到，不會看到世界的邊）
-{const far=std({color:'#7c876b',roughness:1});for(const r of rectSub([{x0:-2500,x1:2500,z0:-2500,z1:2500}],[{x0:BOUND.x0-60,x1:BOUND.x1+60,z0:BOUND.z0-60,z1:BOUND.z1+60}]))M.add(groundRect(r.x0,r.x1,r.z0,r.z1,0),far);}
+{const far=std({color:'#7c876b',roughness:1});for(const r of rectSub([{x0:-2500,x1:2500,z0:-2500,z1:2500}],[{x0:BOUND_CORE.x0-60,x1:BOUND_CORE.x1+60,z0:BOUND_CORE.z0-60,z1:BOUND_CORE.z1+60}]))M.add(groundRect(r.x0,r.x1,r.z0,r.z1,0),far);}
 for(const r of ROADS)M.add(groundRect(r.x0,r.x1,r.z0,r.z1,0.012),MAT.asphalt);
 M.add(groundRect(GRASS.x0,GRASS.x1,GRASS.z0,GRASS.z1,0.015),MAT.grass);
 // 標線：巷子兩側白色邊線、大馬路中線
@@ -2217,6 +2230,46 @@ const FIELD_CONES=[],FIELD_RACK={x:FIELD.cx+5.6,z:FIELD.z0-0.6};   // 直排輪�
   ['#e94f8a','#2f8fd8','#36a852','#f2a900'].forEach((c,k)=>{const x=r.x-0.9+k*0.6;for(const dx of [-0.07,0.07]){M.add(mbox(x+dx-0.05,x+dx+0.05,0.95,1.13,r.z-0.13,r.z+0.13),std({color:c,roughness:0.5}));M.add(mbox(x+dx-0.015,x+dx+0.015,0.93,0.95,r.z-0.14,r.z+0.14),MAT.steel);}});}
 }
 
+/* ---- 擴大的道路＋大圓環（使用者要求：直排輪想溜道路） ----
+   圓環：雙線道（白色邊線、虛線分道線）、路口斑馬線；中間草皮安全島＋噴水池、花圃、樹；入口藍色圓環標誌。新道路：中間虛線、兩側人行道、路燈、行道樹 */
+{const C=RING,line=MAT.line,walk=std({color:'#c9c4b8',roughness:0.95});
+ const ringG=(r0,r1,y,t0=0,tl=Math.PI*2,seg=96)=>{const g=new THREE.RingGeometry(r0,r1,seg,1,t0,tl);g.rotateX(-Math.PI/2);g.translate(C.cx,y,C.cz);return g;};
+ M.add(ringG(C.r0,C.r1,0.012),MAT.asphalt);                                                     // 圓環路面
+ M.add(ringG(C.r1,C.r1+2.2,0.03),walk);                                                         // 外圈人行道
+ for(const r of [C.r0+0.4,C.r1-0.4])M.add(ringG(r-0.07,r+0.07,0.02),line);                       // 邊線
+ for(let k=0;k<48;k++)if(k%2===0)M.add(ringG((C.r0+C.r1)/2-0.07,(C.r0+C.r1)/2+0.07,0.02,k/48*Math.PI*2,Math.PI*2/48,4),line);   // 虛線分道線
+ // 安全島：草皮、外圈石緣、花圃、噴水池、樹
+ M.add(ringG(0,C.r0,0.02,0,Math.PI*2,64),MAT.grass);M.add(ringG(C.r0-0.35,C.r0,0.05,0,Math.PI*2,96),MAT.granite);
+ {const fl=['#e63946','#f4c430','#ff7eb6','#ffffff','#9b5de5'];for(let k=0;k<60;k++){const a=k/60*Math.PI*2,r=C.r0-1.6+(k%2)*0.5,m=mesh(G('flw',()=>new THREE.SphereGeometry(0.28,8,6)),std({color:fl[k%fl.length],roughness:0.8}),C.cx+Math.cos(a)*r,0.25,C.cz+Math.sin(a)*r);m.scale.set(1,0.7,1);M.addObject(m);}}
+ {const st=std({color:'#d9d4c7',roughness:0.7}),wt=std({color:'#6fc3ea',emissive:'#2a7fb8',emissiveIntensity:0.25,roughness:0.15,metalness:0.1,transparent:true,opacity:0.85});
+  const add=(g,m,y)=>{g.translate(C.cx,y,C.cz);M.add(g,m);};
+  add(new THREE.CylinderGeometry(4.2,4.4,0.7,48),st,0.35);add(new THREE.CylinderGeometry(3.85,3.85,0.08,48),wt,0.62);
+  add(new THREE.CylinderGeometry(0.45,0.6,2.2,20),st,1.1);add(new THREE.CylinderGeometry(1.6,0.6,0.35,32),st,2.3);add(new THREE.CylinderGeometry(1.4,1.4,0.06,32),wt,2.47);
+  add(new THREE.CylinderGeometry(0.18,0.25,1.4,16),st,3.1);add(new THREE.SphereGeometry(0.35,16,12),std({color:'#e2b33a',roughness:0.3,metalness:0.6}),4.0);
+  for(let k=0;k<8;k++){const a=k/8*Math.PI*2,j=new THREE.ConeGeometry(0.12,1.6,8);j.rotateZ(Math.PI);j.rotateZ(0.5);j.rotateY(-a);j.translate(Math.cos(a)*1.9,1.25,Math.sin(a)*1.9);add(j,wt,0);}   // 水柱
+  addCircle(C.cx,C.cz,4.3,0.7);}
+ for(let k=0;k<6;k++){const a=k/6*Math.PI*2+0.3,x=C.cx+Math.cos(a)*9.5,z=C.cz+Math.sin(a)*9.5,t=tree(rr(5,7));t.position.set(x,0,z);M.addObject(t);addCircle(x,z,0.3);}
+ // 圓環入口：斑馬線、藍色圓環標誌
+ const zebra=(cx,cz,alongX,w)=>{for(let k=-3;k<=3;k++){const o=k*1.0;if(alongX)M.add(groundRect(cx-1.4,cx+1.4,cz+o-0.3,cz+o+0.3,0.022),line);else M.add(groundRect(cx+o-0.3,cx+o+0.3,cz-1.4,cz+1.4,0.022),line);}};
+ const signTex=(()=>{const [c,x]=cvs(128,128);x.fillStyle='#1f5fae';x.beginPath();x.arc(64,64,62,0,Math.PI*2);x.fill();x.strokeStyle='#ffffff';x.lineWidth=10;
+   for(let k=0;k<3;k++){const a=k*Math.PI*2/3;x.beginPath();x.arc(64,64,32,a+0.25,a+1.7);x.stroke();const ax=64+Math.cos(a+1.7)*32,ay=64+Math.sin(a+1.7)*32;x.fillStyle='#fff';x.beginPath();x.moveTo(ax+Math.cos(a+1.7)*14,ay+Math.sin(a+1.7)*14);x.lineTo(ax-Math.cos(a+1.7)*14,ay-Math.sin(a+1.7)*14);x.lineTo(ax+Math.cos(a+1.7+Math.PI/2)*16,ay+Math.sin(a+1.7+Math.PI/2)*16);x.fill();}
+   const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return std({map:t,transparent:true,roughness:0.5});})();
+ for(const [ex,ez,ax] of [[C.cx,C.cz-C.r1-1.5,false],[C.cx,C.cz+C.r1+1.5,false],[C.cx+C.r1+1.5,C.cz,true],[C.cx-C.r1-1.5,C.cz,true]]){zebra(ex,ez,ax);   // 斑馬線條紋跟車道方向平行
+   const sx=ax?ex:ex+5.2,sz=ax?ez+5.2:ez,ox=Math.sign(ex-C.cx),oz=Math.sign(ez-C.cz);M.add(mbox(sx-0.04,sx+0.04,0,2.4,sz-0.04,sz+0.04),MAT.steel);addCircle(sx,sz,0.08);
+   const g=new THREE.CircleGeometry(0.4,24);g.rotateY(Math.atan2(ox,oz));g.translate(sx+ox*0.05,2.15,sz+oz*0.05);M.add(g,signTex);}   // 標誌朝外（面對開進圓環的車）
+ // 新道路：中間虛線、兩側人行道、路燈（每 30 m）、行道樹
+ const NEW=ROADS.filter(r=>(r.x0<BOUND_CORE.x0-5||r.x1>BOUND_CORE.x1+5||r.z1>BOUND_CORE.z1+5||r.x0>=96)&&Math.max(r.x1-r.x0,r.z1-r.z0)>20);
+ const sidewalk=(x0,x1,z0,z1)=>{for(const q of rectSub([{x0,x1,z0,z1}],ROADS))M.add(groundRect(q.x0,q.x1,q.z0,q.z1,0.03),walk);};   // 人行道在路口斷開
+ for(const r of NEW){const alongX=(r.x1-r.x0)>(r.z1-r.z0),cx=(r.x0+r.x1)/2,cz=(r.z0+r.z1)/2;
+   if(alongX){for(let x=r.x0+2;x<r.x1-2;x+=6)M.add(groundRect(x,x+3,cz-0.07,cz+0.07,0.02),line);
+     for(const [a,b] of [[r.z0-2,r.z0],[r.z1,r.z1+2]])sidewalk(r.x0,r.x1,a,b);
+     let k=0;for(let x=r.x0+10;x<r.x1-5;x+=30,k++){const side=k%2?1:-1,pz=side>0?r.z1+1.2:r.z0-1.2,p=pole(-side);p.position.set(x,0,pz);M.addObject(p);addCircle(x,pz,0.2);
+       if(k%2===0){const t=tree(rr(4.5,6));t.position.set(x+15,0,side>0?r.z0-3.2:r.z1+3.2);M.addObject(t);addCircle(x+15,side>0?r.z0-3.2:r.z1+3.2,0.25);}}}
+   else{for(let z=r.z0+2;z<r.z1-2;z+=6)M.add(groundRect(cx-0.07,cx+0.07,z,z+3,0.02),line);
+     for(const [a,b] of [[r.x0-2,r.x0],[r.x1,r.x1+2]])sidewalk(a,b,r.z0,r.z1);
+     let k=0;for(let z=r.z0+10;z<r.z1-5;z+=30,k++){const side=k%2?1:-1,px=side>0?r.x1+1.2:r.x0-1.2,p=pole(-side);p.rotation.y=Math.PI/2;p.position.set(px,0,z);M.addObject(p);addCircle(px,z,0.2);}}}
+}
+
 /* ---- 樹木、電線桿、車輛 ---- */
 for(const [x,z] of [[-6,17],[9,25],[20,16],[-6,28],[15,30]]){const t=tree(rr(4.5,6.5));t.position.set(x,0,z);M.addObject(t);addCircle(x,z,0.25);}
 for(let i=0;i<10;i++){const m=mesh(pick(crownGeos),pick(MAT.leaves),rr(GRASS.x0+1,GRASS.x1-1),0.3,rr(GRASS.z0+2,GRASS.z1-1),0,R()*6,0);m.scale.set(rr(0.5,1),rr(0.4,0.7),rr(0.5,1));
@@ -2269,7 +2322,8 @@ M.build(scene);
 
 /* ---- 遠方的房子：一圈簡單的方塊（一個 draw call），搭熱氣球飛高時看得到城市 ---- */
 {const n=260,im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),std({color:'#ffffff',roughness:0.9}),n),o=new THREE.Object3D(),col=new THREE.Color(),rnd=mulberry(91);
- for(let i=0;i<n;i++){const a=rnd()*Math.PI*2,r=170+rnd()*650,w=8+rnd()*22,d=8+rnd()*22,h=5+rnd()*rnd()*40;
+ const onRoad=(x,z,m)=>ROADS.some(rd=>x>rd.x0-m&&x<rd.x1+m&&z>rd.z0-m&&z<rd.z1+m)||Math.hypot(x-RING.cx,z-RING.cz)<RING.r1+m;
+ for(let i=0;i<n;i++){let a,r,w,d,h,tries=0;do{a=rnd()*Math.PI*2;r=170+rnd()*650;w=8+rnd()*22;d=8+rnd()*22;h=5+rnd()*rnd()*40;tries++;}while(tries<30&&onRoad(22+Math.cos(a)*r,-2+Math.sin(a)*r,Math.max(w,d)/2+6));   // 不要蓋在新的道路上
    o.position.set(22+Math.cos(a)*r,h/2,-2+Math.sin(a)*r);o.rotation.set(0,rnd()*0.4,0);o.scale.set(w,h,d);o.updateMatrix();im.setMatrixAt(i,o.matrix);col.setHSL(0.07+rnd()*0.06,0.12,0.6+rnd()*0.22);im.setColorAt(i,col);}
  scene.add(im);}
 
@@ -2419,7 +2473,7 @@ const SKATE=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,back:false,ground:tru
       const na=ang+Math.sign(da)*Math.min(Math.abs(da),1.3*dt),ns=Math.max(0,sp0-1.0*dt);S.vel.set(Math.sin(na)*ns,Math.cos(na)*ns);S.v=ns;}
     else{
     if(S.ground&&S.fallT<=0){
-      if(f>0.1){v+=(boost?9:5)*f*dt;if(v>vmax)v=Math.max(vmax,v-6*dt);}
+      if(f>0.1){if(v<vmax)v=Math.min(vmax,v+(boost?9:5)*f*dt);else v=Math.max(vmax,v-3*dt);}   // 到最高速就不再加速（原本加的比減的多，會一直變快）
       else if(f<-0.1){if(v>0.3)v-=8*(-f)*dt;else v=Math.max(-3,v-3*(-f)*dt);}   // 煞車；停下來再往後拉＝往後退
       else v-=Math.sign(v)*Math.min(Math.abs(v),0.45*dt);                          // 滑行慢慢變慢
     }
@@ -2567,6 +2621,7 @@ const CHAR_OUTFITS={
      {name:'睡衣',top:'#a9cbe8',sleeve:'long',bottom:'pants',bc:'#a9cbe8',shoe:'#2f4a6b',extra:'pjM',pat:'pjStripe',patB:true}]};
 const CHAR_HAIR=[['黑','#1f1a17'],['深棕','#4a2f22'],['棕','#7a4a2a'],['金','#d9b25a'],['粉紅','#e58fb0']];
 let charCfg={g:'m',o:0,h:1};try{const v=JSON.parse(localStorage.getItem('home-char')||'null');if(v&&CHAR_OUTFITS[v.g])charCfg={g:v.g,o:Math.min(v.o|0,CHAR_OUTFITS[v.g].length-1),h:Math.min(v.h|0,CHAR_HAIR.length-1)};}catch(_){}
+const FLAME_TEX=(()=>{const [c,x]=cvs(64,64),gr=x.createRadialGradient(32,36,0,32,32,32);gr.addColorStop(0,'rgba(255,250,210,1)');gr.addColorStop(0.35,'rgba(255,140,30,0.85)');gr.addColorStop(1,'rgba(220,30,0,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
 const avatar=(()=>{
   const root=new THREE.Group(),body=new THREE.Group();root.add(body);
   const legL=new THREE.Group(),legR=new THREE.Group(),armL=new THREE.Group(),armR=new THREE.Group(),parts=new THREE.Group();body.add(legL,legR,armL,armR,parts);
@@ -2680,13 +2735,119 @@ const avatar=(()=>{
       case 'hood':{const h=at(ball(0.12,top,16,10),0,1.5,-0.13,P);h.scale.set(1.15,0.6,0.7);for(const sx of [-1,1])at(new THREE.Mesh(new THREE.CylinderGeometry(0.006,0.006,0.16,6),M('#ffffff',0.6)),sx*0.04,1.38,0.13,P);break;}}
   };
   // 直排輪鞋：靴子＋鋁框＋4 顆輪子（穿上時人物整個抬高 10 cm）
-  const dress0=A.dress;A.dress=cfg=>{dress0(cfg);if(!A.skates)return;const boot=M('#2b2f36',0.5),cuff=M('#e94f8a',0.45),fr=MAT.alu,wh=M('#36c2d8',0.4);
+  // 死亡騎士（變身）金光閃閃版（使用者：要金光閃閃、有美感、招牌姿勢、音效到位）
+  // 黑曜石盔甲＋大量金色裝飾（會反光、微微發光）、彎曲金角頭盔＋紅眼、三層金邊肩甲、繡金徽紋的暗紅披風（會飄）、燃燒的華麗大劍（金護手、紅寶石、白熱劍芯、火焰、火星）；
+  // 身邊金色光點環繞、盔甲隨機閃星光、腳下金色光暈。招牌姿勢：站著＝雙手握劍、劍尖朝下立在身前；走路＝單手拖著大劍。整個人 1.25 倍大
+  A.morph=false;A.flames=[];A.cape=null;A.dkSword=null;A.motes=[];A.stars=[];A.ring=null;A.fx=[];A.emberT=0;
+  const DKM=(()=>{const capeTex=(()=>{const W=256,H=512,[c,x]=cvs(W,H),gr=x.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#6a0c16');gr.addColorStop(1,'#2a0408');x.fillStyle=gr;x.fillRect(0,0,W,H);
+      x.strokeStyle='#e0b54a';x.lineWidth=14;x.strokeRect(10,-10,W-20,H);x.lineWidth=4;x.strokeRect(28,-10,W-56,H-20);
+      x.save();x.translate(W/2,H*0.4);x.strokeStyle='#f0c860';x.lineWidth=6;x.beginPath();x.arc(0,0,44,0,Math.PI*2);x.stroke();x.beginPath();x.moveTo(0,-72);x.lineTo(0,72);x.moveTo(-36,-12);x.lineTo(36,-12);x.stroke();
+      for(const sd of [-1,1]){x.beginPath();x.moveTo(sd*44,0);x.quadraticCurveTo(sd*92,-44,sd*104,8);x.quadraticCurveTo(sd*78,0,sd*58,26);x.stroke();}x.restore();
+      x.globalCompositeOperation='destination-out';for(let i=0;i<10;i++){const bx=i*W/10;x.beginPath();x.moveTo(bx,H);x.lineTo(bx+W/20,H-28-Math.random()*40);x.lineTo(bx+W/10,H);x.fill();}   // 下擺破損
+      const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;})();
+    return {ob:std({color:'#16181f',roughness:0.2,metalness:0.92}),gold:std({color:'#e2b64a',roughness:0.16,metalness:1,emissive:'#6a4410',emissiveIntensity:0.6}),
+      gold2:std({color:'#ffd77a',roughness:0.08,metalness:1,emissive:'#9a6a14',emissiveIntensity:1.0}),eye:std({color:'#ff3320',emissive:'#ff2010',emissiveIntensity:3.5}),
+      ruby:std({color:'#d0102a',roughness:0.05,metalness:0.3,emissive:'#700014',emissiveIntensity:1}),grip:std({color:'#3a2014',roughness:0.85}),
+      blade:std({color:'#ffd9a0',emissive:'#ff7a1a',emissiveIntensity:2.4,roughness:0.2,metalness:0.6}),core:new THREE.MeshBasicMaterial({color:'#fff6d8'}),
+      cape:std({map:capeTex,transparent:true,alphaTest:0.3,side:THREE.DoubleSide,roughness:0.85})};})();
+  const STAR_TEX=(()=>{const [c,x]=cvs(64,64),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,250,220,1)');g.addColorStop(0.2,'rgba(255,215,120,0.75)');g.addColorStop(1,'rgba(255,180,60,0)');x.fillStyle=g;x.fillRect(0,0,64,64);
+    x.fillStyle='rgba(255,255,240,0.95)';x.beginPath();for(const [px,py] of [[32,2],[35,29],[62,32],[35,35],[32,62],[29,35],[2,32],[29,29]])x.lineTo(px,py);x.closePath();x.fill();return new THREE.CanvasTexture(c);})();
+  const spr=(tex,add=true)=>new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false,blending:add?THREE.AdditiveBlending:THREE.NormalBlending}));
+  function buildDK(){for(const g of [parts,legL,legR,armL,armR])g.clear();A.flames=[];A.motes=[];A.stars=[];A.stride=1;const P=parts,K=DKM;
+    if(A.ring){root.remove(A.ring);A.ring=null;}for(const m of root.children.filter(o=>o.userData.dk))root.remove(m);
+    legL.position.set(-0.11,0.95,0);legR.position.set(0.11,0.95,0);armL.position.set(-0.29,1.47,0);armR.position.set(0.29,1.47,0);
+    const bx=(w,h,d,m)=>{const me=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);me.castShadow=true;return me;};
+    const tor=(r,tb,m,arc=Math.PI*2)=>{const me=new THREE.Mesh(new THREE.TorusGeometry(r,tb,8,36,arc),m);me.castShadow=true;return me;};
+    // 胸甲＋金色徽章（放射金線＋紅寶石）、V 字金紋、金領
+    const ch=at(cap(0.21,0.28,K.ob),0,1.25,0,P);ch.scale.set(1.32,1,0.82);
+    {const e=at(new THREE.Mesh(new THREE.CircleGeometry(0.075,28),K.gold2),0,1.3,0.178,P);at(ball(0.03,K.ruby,12,10),0,1.3,0.19,P);
+     for(let k=0;k<8;k++){const r=at(bx(0.012,0.06,0.01,K.gold),Math.sin(k/8*Math.PI*2)*0.105,1.3+Math.cos(k/8*Math.PI*2)*0.105,0.176,P);r.rotation.z=-k/8*Math.PI*2;}
+     for(const sd of [-1,1]){const v=at(bx(0.02,0.24,0.012,K.gold),sd*0.12,1.34,0.165,P);v.rotation.z=sd*0.45;v.rotation.y=sd*0.35;}}
+    {const c=at(tor(0.085,0.025,K.gold),0,1.53,0,P);c.rotation.x=Math.PI/2;c.scale.set(1.2,1,1);}
+    // 腹甲三層（金邊）、金腰帶＋扣環、六片腰甲（金邊）
+    for(let k=0;k<3;k++){const y=1.1-k*0.075;const p=at(bx(0.36-k*0.03,0.07,0.3,K.ob),0,y,0,P);at(bx(0.37-k*0.03,0.012,0.31,K.gold),0,y-0.035,0,P);}
+    {const bl=at(tor(0.2,0.022,K.gold),0,0.98,0,P);bl.rotation.x=Math.PI/2;bl.scale.set(1.1,0.85,1);at(bx(0.09,0.07,0.03,K.gold2),0,0.98,0.18,P);at(ball(0.018,K.ruby,8,6),0,0.98,0.2,P);}
+    for(let k=0;k<6;k++){const a=k/6*Math.PI*2,x=Math.sin(a)*0.22,z=Math.cos(a)*0.18,pl=at(bx(0.13,0.24,0.03,K.ob),x,0.84,z,P);pl.rotation.y=a;pl.rotation.x=0.18*Math.cos(a)-0.05;
+      const ed=at(bx(0.135,0.02,0.035,K.gold),x*1.06,0.725,z*1.06,P);ed.rotation.y=a;}
+    const hp=at(cap(0.15,0.12,K.ob),0,0.95,0,P);hp.rotation.z=Math.PI/2;
+    // 頭盔：面甲、紅眼、金色冠脊、額前金帶、往後彎的大金角（尖端）
+    const hm=at(ball(0.15,K.ob,24,18),0,1.73,0,P);hm.scale.set(1,1.12,1.08);
+    at(bx(0.21,0.15,0.08,K.ob),0,1.655,0.11,P);at(bx(0.2,0.02,0.02,new THREE.MeshBasicMaterial({color:'#080808'})),0,1.715,0.152,P);
+    for(const sd of [-1,1])at(bx(0.045,0.016,0.02,K.eye),sd*0.048,1.715,0.158,P);
+    {const r=at(tor(0.155,0.016,K.gold,Math.PI),0,1.75,0,P);r.rotation.y=Math.PI/2;const band=at(tor(0.158,0.014,K.gold),0,1.67,0,P);band.rotation.x=Math.PI/2;band.scale.set(1,1.08,1);}
+    at(new THREE.Mesh(new THREE.ConeGeometry(0.03,0.14,6),K.gold2),0,1.84,0.13,P).rotation.x=0.5;
+    for(const sd of [-1,1]){const cv=new THREE.CatmullRomCurve3([new V3(sd*0.12,1.78,0),new V3(sd*0.22,1.88,-0.03),new V3(sd*0.27,2.02,-0.13),new V3(sd*0.22,2.13,-0.28)]);
+      const h=new THREE.Mesh(new THREE.TubeGeometry(cv,20,0.032,10,false),K.gold);h.castShadow=true;P.add(h);const tp=at(new THREE.Mesh(new THREE.ConeGeometry(0.032,0.12,10),K.gold2),sd*0.2,2.18,-0.34,P);tp.rotation.x=-0.9;}
+    // 披風（會飄）
+    {const g=new THREE.PlaneGeometry(0.78,1.4,4,12);g.translate(0,-0.7,0);g.userData.base=g.attributes.position.array.slice();const c=new THREE.Mesh(g,K.cape);c.castShadow=true;at(c,0,1.5,-0.2,P);A.cape=c;}
+    // 手：三層金邊肩甲＋尖刺、金護腕、護手＋金指節
+    for(const a of [armL,armR]){const m=a===armL?-1:1;
+      for(const [y,r] of [[0.03,0.145],[-0.05,0.13]]){const sh=at(ball(r,K.ob,16,12),0,y,0,a);sh.scale.set(1.2,0.75,1.15);const rr_=at(tor(r*1.12,0.014,K.gold),0,y-0.03,0,a);rr_.rotation.x=Math.PI/2;rr_.scale.set(1.08,1,1);}
+      for(const [x,y,rz] of [[0,0.13,0],[0.09,0.09,-0.55],[-0.07,0.1,0.5]]){const sp=at(new THREE.Mesh(new THREE.ConeGeometry(0.028,0.15,8),K.gold2),x*m,y,0,a);sp.rotation.z=rz*m;}
+      at(cap(0.066,0.42,K.ob),0,-0.27,0,a);for(const y of [-0.36,-0.5]){const r=at(tor(0.07,0.012,K.gold),0,y,0,a);r.rotation.x=Math.PI/2;}
+      at(bx(0.115,0.12,0.12,K.ob),0,-0.6,0,a);at(bx(0.12,0.025,0.125,K.gold),0,-0.55,0,a);}
+    // 大劍（右手）：金劍首、纏繩握柄、彎曲金護手＋紅寶石、白熱劍芯、火焰
+    {const sw=new THREE.Group();sw.position.set(0,-0.62,0.04);sw.rotation.x=Math.PI/2-0.35;armR.add(sw);A.dkSword=sw;
+      at(ball(0.04,K.gold2,12,10),0,-0.15,0,sw);at(new THREE.Mesh(new THREE.CylinderGeometry(0.024,0.024,0.24,10),K.grip),0,0,0,sw);
+      for(const y of [-0.08,0,0.08]){const r=at(tor(0.026,0.006,K.gold),0,y,0,sw);r.rotation.x=Math.PI/2;}
+      at(bx(0.34,0.045,0.065,K.gold),0,0.135,0,sw);for(const sd of [-1,1]){const q=at(new THREE.Mesh(new THREE.ConeGeometry(0.03,0.12,8),K.gold2),sd*0.2,0.17,0,sw);q.rotation.z=-sd*0.6;}
+      at(ball(0.03,K.ruby,12,10),0,0.135,0.04,sw);
+      const bl=at(bx(0.1,1.2,0.022,K.blade),0,0.76,0,sw);bl.castShadow=true;at(bx(0.026,1.15,0.026,K.core),0,0.75,0,sw);
+      at(new THREE.Mesh(new THREE.ConeGeometry(0.071,0.16,4),K.blade),0,1.44,0,sw).rotation.y=Math.PI/4;
+      for(let k=0;k<6;k++){const f=spr(FLAME_TEX);f.position.set((k%2?1:-1)*0.04,0.3+k*0.2,0);sw.add(f);A.flames.push(f);}}
+    // 腳：金護膝＋尖刺、金脛甲邊、鐵靴＋金鞋尖
+    for(const lg of [legL,legR]){at(cap(0.09,0.66,K.ob),0,-0.43,0,lg);const kn=at(ball(0.07,K.gold,12,10),0,-0.4,0.07,lg);kn.scale.set(1,1,0.6);
+      const ks=at(new THREE.Mesh(new THREE.ConeGeometry(0.025,0.1,8),K.gold2),0,-0.4,0.13,lg);ks.rotation.x=Math.PI/2;
+      const gr=at(tor(0.092,0.012,K.gold),0,-0.74,0,lg);gr.rotation.x=Math.PI/2;
+      at(bx(0.15,0.12,0.3,K.ob),0,-0.88,0.05,lg);at(bx(0.152,0.04,0.08,K.gold),0,-0.9,0.18,lg);}
+    // 光：腳下金色光暈、環繞的金色光點、盔甲上閃的星光
+    {const g=new THREE.CircleGeometry(1.0,40);g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:STAR_TEX,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.5}));m.position.y=0.04;m.userData.dk=true;root.add(m);A.ring=m;}
+    for(let k=0;k<16;k++){const m=spr(STAR_TEX);m.userData={dk:true,a:Math.random()*6.28,r:0.55+Math.random()*0.45,h:0.2+Math.random()*1.8,w:0.6+Math.random()*0.8,f:1+Math.random()*2};m.scale.setScalar(0.06);root.add(m);A.motes.push(m);}
+    for(let k=0;k<7;k++){const m=spr(STAR_TEX);m.userData={dk:true,t:Math.random(),life:0.5+Math.random()*0.6};m.scale.setScalar(0.01);root.add(m);A.stars.push(m);}
+  }
+  const tq=new THREE.Quaternion(),tq2=new THREE.Quaternion(),tq3=new THREE.Quaternion(),tE=new THREE.Euler(),tv=new V3();
+  // 劍在人物座標裡的方向（不管手怎麼擺）：轉成相對右手的方向
+  function swordTo(rx){root.updateMatrixWorld(true);armR.getWorldQuaternion(tq);root.getWorldQuaternion(tq2);tq3.setFromEuler(tE.set(rx,0,0));A.dkSword.quaternion.copy(tq.invert().multiply(tq2).multiply(tq3));}
+  // 每格：火焰跳動、披風飄、光點環繞、星光閃爍；招牌姿勢（站著雙手握劍立在身前、走路單手拖劍）
+  A.tick=(dt,sp)=>{if(!A.morph)return;const t=performance.now()/1000;
+    A.flames.forEach((f,k)=>{const s=0.26+0.12*Math.sin(t*14+k*2.3)+Math.random()*0.07;f.scale.set(s,s*1.6,1);});
+    if(A.cape){const g=A.cape.geometry,pa=g.attributes.position.array,b0=g.userData.base,flow=Math.min(0.7,sp*0.09);
+      for(let i=0;i<pa.length;i+=3){const y=b0[i+1],d=-y/1.4;pa[i+2]=b0[i+2]-flow*d*1.2-0.08*d+Math.sin(t*3.2+y*4+b0[i]*3)*0.05*d;}g.attributes.position.needsUpdate=true;}
+    for(const m of A.motes){const u=m.userData;u.a+=dt*u.w;m.position.set(Math.cos(u.a)*u.r,u.h+Math.sin(t*u.f)*0.15,Math.sin(u.a)*u.r);m.material.opacity=0.55+0.45*Math.sin(t*u.f*2);m.scale.setScalar(0.05+0.03*Math.sin(t*u.f*3));}
+    for(const m of A.stars){const u=m.userData;u.t+=dt;if(u.t>u.life){u.t=0;u.life=0.4+Math.random()*0.7;m.position.set((Math.random()-0.5)*0.55,0.4+Math.random()*1.6,0.15+Math.random()*0.08);}m.scale.setScalar(Math.sin(Math.PI*u.t/u.life)*0.2);}
+    if(A.ring)A.ring.material.opacity=0.35+0.15*Math.sin(t*2.2);
+    const busy=(GAME.on&&GAME.G.act)||LIE.on||SKATE.on||player.climb||!player.ground;
+    if(busy){A.dkSword.rotation.set(Math.PI/2-0.35,0,0);return;}
+    if(sp<0.3){armL.rotation.set(-1.15,0,0.42);armR.rotation.set(-1.15,0,-0.42);body.rotation.set(0,0,0);body.position.y=Math.sin(t*1.6)*0.012;
+      legL.rotation.set(0,0,-0.07);legR.rotation.set(0,0,0.07);swordTo(Math.PI-0.06);}   // 招牌姿勢：雙手握劍、劍尖朝下立在身前
+    else{armR.rotation.set(0.3+Math.sin(t*6)*0.05,0,0.12);swordTo(Math.PI+0.75);}};          // 走路：右手拖著大劍
+  // 變身演出：黑煙、金色光柱衝天、地上光圈擴散、金光四射、畫面閃金光
+  const SMOKE=(()=>{const [c,x]=cvs(64,64),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(30,10,40,0.85)');g.addColorStop(1,'rgba(20,0,30,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
+  A.morphFx=on=>{const p=new V3(player.pos.x,player.y,player.pos.y),add=(o,life,upd)=>{scene.add(o);A.fx.push({o,t:0,life,upd});};
+    {const g=new THREE.CylinderGeometry(0.7,1.3,40,28,1,true);g.translate(0,20,0);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:on?'#ffd27a':'#c9b8ff',transparent:true,opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+      m.position.copy(p);add(m,1.3,(o,k)=>{o.scale.set(1+k*1.5,Math.min(1,k*6),1+k*1.5);o.material.opacity=0.8*(1-k);});}
+    {const g=new THREE.RingGeometry(0.6,1.1,48);g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:'#ffe08a',transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false}));
+      m.position.copy(p).y+=0.05;add(m,0.9,(o,k)=>{o.scale.setScalar(1+k*7);o.material.opacity=0.9*(1-k);});}
+    for(let k=0;k<34;k++){const m=spr(STAR_TEX);m.position.copy(p).add(new V3(0,1+Math.random(),0));const v=new V3(Math.random()-0.5,Math.random()*0.9+0.2,Math.random()-0.5).normalize().multiplyScalar(3+Math.random()*4);
+      add(m,0.8+Math.random()*0.6,(o,kk,dt)=>{o.position.addScaledVector(v,dt);v.multiplyScalar(Math.exp(-dt*2));o.scale.setScalar(0.35*(1-kk));});}
+    for(let k=0;k<12;k++){const m=spr(SMOKE,false);m.position.copy(p).add(new V3((Math.random()-0.5)*1.4,0.3+Math.random()*1.4,(Math.random()-0.5)*1.4));const v=new V3((Math.random()-0.5)*1.2,0.6+Math.random(),(Math.random()-0.5)*1.2);
+      add(m,1+Math.random()*0.6,(o,kk,dt)=>{o.position.addScaledVector(v,dt);o.scale.setScalar(0.8+kk*3);o.material.opacity=0.85*(1-kk);});}
+    const fl=document.getElementById('gFlash');if(fl){fl.style.boxShadow=`inset 0 0 260px ${on?'rgba(255,205,90,.85)':'rgba(190,170,255,.7)'}`;setTimeout(()=>fl.style.boxShadow='',260);}};
+  // 每格（主迴圈）：變身特效、大劍飄出的火星
+  A.fxTick=dt=>{for(const f of A.fx){f.t+=dt;const k=Math.min(1,f.t/f.life);f.upd(f.o,k,dt);if(k>=1){scene.remove(f.o);f.dead=true;}}A.fx=A.fx.filter(f=>!f.dead);
+    if(A.morph&&A.dkSword&&root.visible){A.emberT-=dt;if(A.emberT<=0){A.emberT=0.06;A.dkSword.updateMatrixWorld(true);const w=A.dkSword.localToWorld(tv.set((Math.random()-0.5)*0.08,0.3+Math.random()*1.1,0));
+      const m=spr(FLAME_TEX);m.position.copy(w);m.scale.setScalar(0.08);const v=new V3((Math.random()-0.5)*0.4,0.8+Math.random()*0.8,(Math.random()-0.5)*0.4);scene.add(m);A.fx.push({o:m,t:0,life:0.6+Math.random()*0.4,upd:(o,k,d)=>{o.position.addScaledVector(v,d);o.scale.setScalar(0.09*(1-k));}});}}};
+  A.setMorph=on=>{A.morph=on;if(!on){if(A.ring){root.remove(A.ring);A.ring=null;}for(const m of root.children.filter(o=>o.userData.dk))root.remove(m);A.motes=[];A.stars=[];A.dkSword=null;}
+    A.dress(charCfg);A.root.scale.setScalar(bodyH().scale*(on?1.25:1));A.morphFx(on);};
+  const dress0=A.dress;A.dress=cfg=>{if(A.morph)buildDK();else{A.cape=null;A.flames=[];dress0(cfg);}if(!A.skates)return;const boot=M('#2b2f36',0.5),cuff=M('#e94f8a',0.45),fr=MAT.alu,wh=M('#36c2d8',0.4);
     for(const lg of [legL,legR]){at(new THREE.Mesh(new THREE.BoxGeometry(0.13,0.2,0.3),boot),0,-0.86,0.03,lg).castShadow=true;at(new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.075,0.06,14),cuff),0,-0.73,0,lg);
       at(new THREE.Mesh(new THREE.BoxGeometry(0.04,0.05,0.34),fr),0,-0.98,0.03,lg);
       for(let k=0;k<4;k++){const w=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,0.03,14),wh);w.rotation.z=Math.PI/2;w.castShadow=true;at(w,0,-1.02,-0.1+k*0.087,lg);}}};
   A.dress(charCfg);
   return A;
 })();
+// 選單「人物」：變身死亡騎士（小遊戲裡技能列也有變身按鈕）
+{const b=document.getElementById('dkMenu');b.onclick=()=>{GAME.morph(!avatar.morph);b.textContent=avatar.morph?'變回人類':'變身：死亡騎士';if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}};}
 // 選單「人物」：男生／女生、衣服、髮色（換了就切到第三人稱讓你看到）
 {const gEl=document.getElementById('charG'),oEl=document.getElementById('charO'),hEl=document.getElementById('charH');
  const apply=()=>{try{localStorage.setItem('home-char',JSON.stringify(charCfg));}catch(_){}avatar.dress(charCfg);render();
@@ -2709,6 +2870,7 @@ function updateAvatar(dt,stage){
   a.body.rotation.x=-Math.min(0.2,sp*0.025);
   a.body.position.y=Math.abs(Math.sin(a.phase))*0.04*amp;
   GAME.animAvatar(a,dt);   // 小遊戲：出拳、踢腿、集氣的動作
+  a.tick&&a.tick(dt,sp);
   if(LIE.on)LIE.pose(a);else if(SKATE.on)SKATE.pose(a,dt);else if(a.root.rotation.x)a.root.rotation.x=0;   // 躺床、直排輪
 }
 // 第三人稱鏡頭：碰到牆會自動拉近
@@ -2732,7 +2894,7 @@ function thirdPersonCamera(){
   camera.lookAt(tx,ty+0.15,tz);
 }
 function toggleView(){view=view==='third'?'first':'third';try{localStorage.setItem('home-view2',view);}catch(_){}syncViewUI();}
-function setKid(on,say){kid=on;try{localStorage.setItem('home-kid',on?'1':'0');}catch(_){}avatar.root.scale.setScalar(bodyH().scale);const cb=document.getElementById('kid');if(cb)cb.checked=on;if(say)toast(on?'小孩視角（身高約 130 cm）':'大人視角');}
+function setKid(on,say){kid=on;try{localStorage.setItem('home-kid',on?'1':'0');}catch(_){}avatar.root.scale.setScalar(bodyH().scale*(avatar.morph?1.25:1));const cb=document.getElementById('kid');if(cb)cb.checked=on;if(say)toast(on?'小孩視角（身高約 130 cm）':'大人視角');}
 function syncViewUI(){const b=document.getElementById('bView');b.textContent=view==='third'?'第三人稱':'第一人稱';b.classList.toggle('on',view==='third');avatar.root.visible=mode==='aerial'||view==='third';   /* 空拍時也看得到人物（使用者要求） */}
 // 目前在我家的哪一層、哪個房間（室內自動切第一人稱，第三人稱鏡頭在小房間會卡牆）
 function floorOf(y){let f=0;for(let k=1;k<5;k++)if(y>=FL[k]-(k===4?0.3:0.6))f=k;return f;}   // 4＝屋頂
@@ -2755,7 +2917,8 @@ const SPOTS=[
   {name:'西側通道',x:0.7,z:-5,yaw:0},
   {name:'巷口',x:-10.5,z:7.6,yaw:-Math.PI/2},
   {name:'熱氣球',bal:true},
-  {name:'運動場',x:18.2,z:35.5,yaw:Math.PI-0.3},   // 直排輪架旁邊、面向入口   // 傳送到熱氣球現在停的地方（可能降落在別處）
+  {name:'運動場',x:18.2,z:35.5,yaw:Math.PI-0.3},
+  {name:'大圓環',x:-16,z:80,yaw:Math.PI},   // 直排輪架旁邊、面向入口   // 傳送到熱氣球現在停的地方（可能降落在別處）
   {name:'全家便利商店',x:(STORE.dx0+STORE.dx1)/2,z:10.8,yaw:Math.PI},
 ];
 
@@ -2850,7 +3013,7 @@ function toast(msg){toastEl.textContent=msg;toastEl.classList.add('show');clearT
 
 /* ---------------- 小地圖（北朝上） ---------------- */
 const mm=document.getElementById('mm'),mmc=mm.getContext('2d');
-const MB={x0:-48,z0:-50,x1:96,z1:64};let mmT={sc:1,ox:0,oy:0},mmBg=null;
+const MB={x0:-60,z0:-50,x1:120,z1:140};let mmT={sc:1,ox:0,oy:0},mmBg=null;
 const w2m=(x,z)=>[(x-MB.x0)*mmT.sc+mmT.ox,(z-MB.z0)*mmT.sc+mmT.oy];
 function drawMinimapBg(){
   if(!mmOn||document.body.classList.contains('touch'))return;
@@ -2863,6 +3026,7 @@ function drawMinimapBg(){
   const rect=(r,fill)=>{const [a,b]=w2m(r.x0,r.z0),[cc,d]=w2m(r.x1,r.z1);g.fillStyle=fill;g.fillRect(a,b,cc-a,d-b);};
   rect(GRASS,'#5d7246');
   for(const r of ROADS)rect(r,'#23272b');
+  {const [x,y]=w2m(RING.cx,RING.cz);g.strokeStyle='#23272b';g.lineWidth=(RING.r1-RING.r0)*sc;g.beginPath();g.arc(x,y,(RING.r0+RING.r1)/2*sc,0,Math.PI*2);g.stroke();g.fillStyle='#5d7246';g.beginPath();g.arc(x,y,RING.r0*sc,0,Math.PI*2);g.fill();}
   for(const b of SURR)rect(b,'#9aa3aa');
   rect(NB,'#5d7246');rect(NBB,'#8fb3c0');rect(STORE,'#3f8fd6');rect(FIELD,'#b14a33');rect({x0:FIELD.cx-12,x1:FIELD.cx+12,z0:FIELD.cz-6,z1:FIELD.cz+6},'#5d8a46');
   rect({x0:ux(1),x1:ROW_X1,z0:Z_BACK,z1:Z_YARD},'#d8d2c6');
@@ -2925,6 +3089,7 @@ function updatePlace(){
   else if(inR(x,z,{x0:STORE.x0-2,x1:STORE.x1+2,z0:LANE_Z1,z1:STORE.z0}))t=['全家便利商店','門口'];
   else if(inR(x,z,GRASS))t=['對面空地',''];
   else if(inR(x,z,NB))t=['側邊空地',''];
+  else if(Math.hypot(x-RING.cx,z-RING.cz)<RING.r1+2)t=['大圓環',Math.hypot(x-RING.cx,z-RING.cz)<RING.r0?'安全島（噴水池）':'圓環'];
   else for(const r of ROADS)if(inR(x,z,r)){t=[r.name,'道路'];break;}
   syncActBtn();
   const html=`<b>${t[0]}</b><span>${t[1]}</span>`;
@@ -2991,6 +3156,16 @@ const AUDIO=(()=>{
       case 'pop':noise(t,0.12,0.35,o,'highpass',2500);tone('sine',rp(300),900,t,0.12,0.3,o);break;   // 足球充氣彈出
       case 'kick':tone('sine',rp(130),45,t,0.14,0.9,o);noise(t,0.08,0.55,o,'lowpass',2200,300);break;   // 踢球
       case 'burner':noise(t,1.3,0.6,o,'bandpass',rp(420),260,0.7);noise(t,1.3,0.35,o,'lowpass',240);break;   // 熱氣球噴火
+      case 'slash':noise(t,0.32,0.65,o,'bandpass',3400,600,1.4);tone('triangle',rp(1900),900,t,0.22,0.2,o);tone('sine',rp(2700),0,t+0.03,0.45,0.07,o);for(let i=0;i<4;i++)noise(t+0.08+i*0.05,0.04,0.25,o,'highpass',rp(3500));break;   // 破風＋金屬聲＋火焰劈啪
+      case 'blade':for(let i=0;i<3;i++){tone('triangle',2100+i*350,1200,t+i*0.05,0.16,0.16,o);noise(t+i*0.05,0.12,0.3,o,'highpass',3200);}noise(t,0.5,0.4,o,'bandpass',500,1800,1);break;   // 三連「鏘」＋火焰呼嘯
+      case 'quake':tone('sine',90,28,t,0.7,1,o);noise(t,1.6,1,o,'lowpass',900,50);tone('sine',55,28,t,1.4,0.9,o);for(let i=0;i<6;i++)noise(t+0.1+i*0.18,0.2,0.45,o,'bandpass',rnd(250,700),0,1);break;   // 地裂：轟隆＋碎石
+      case 'morph':{tone('sine',72,24,t,1.7,1,o);noise(t,1.3,0.9,o,'lowpass',2400,60);noise(t+0.02,0.25,0.5,o,'highpass',2500);   // 爆響＋雷聲
+        tone('triangle',2500,1900,t+0.25,0.7,0.2,o);tone('sine',3700,0,t+0.25,1.0,0.07,o);                                                  // 拔劍「鏘」
+        const pad=(f,t0,dur,pk)=>{const c=A.ctx,o1=c.createOscillator(),o2=c.createOscillator(),fl=c.createBiquadFilter(),g=c.createGain();o1.type=o2.type='sawtooth';o1.frequency.value=f;o2.frequency.value=f*1.007;
+          fl.type='lowpass';fl.frequency.value=1100;fl.Q.value=2;o1.connect(fl);o2.connect(fl);fl.connect(g);g.connect(o);g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(pk,t0+0.5);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);o1.start(t0);o2.start(t0);o1.stop(t0+dur+0.1);o2.stop(t0+dur+0.1);};
+        for(const n of [38,45,50,53,57])pad(440*Math.pow(2,(n-69)/12),t+0.15,2.6,0.05);                                                      // 陰暗的合唱和弦（D 小調）
+        noise(t+0.35,0.9,0.45,o,'bandpass',350,1800,0.9);break;}                                                                              // 火焰燃起
+      case 'unmorph':tone('sine',300,90,t,0.6,0.4,o);noise(t,0.7,0.4,o,'bandpass',1800,300,1);tone('triangle',1600,600,t+0.1,0.4,0.1,o);break;   // 變身：低沉的吼聲
       case 'chime':tone('sine',1047,0,t,0.9,0.18,o);tone('sine',831,0,t+0.4,1.1,0.18,o);break;   // 自動門叮咚
       case 'bigboom':noise(t,1.3,1,o,'lowpass',2500,60);tone('sine',60,22,t,1.1,1,o);tone('sawtooth',90,30,t,0.7,0.3,o,['lowpass',400]);break;}}
   // 蓄力的聲音：越來越高，放開就停
@@ -3051,7 +3226,7 @@ const AUDIO=(()=>{
    技能都是按了馬上放、沒有魔力／冷卻：J／1 拳、L／2 踢、U／3 旋風腿、I／5 升龍拳、O／4 氣功炮；畫面下方有技能按鈕。
    連段（連續按，間隔 0.8 秒內）：拳拳拳＝三連重拳、拳拳踢＝連環踢、踢拳＝升龍拳、踢踢＝飛踢、拳踢氣＝超級氣功波。 */
 const GAME=(()=>{
-  const G={balls:[],prints:[],curBall:null,palm:null,palmHit:0,airHits:0,charge:-1,full:false,on:false,over:false,hp:100,wave:0,kills:0,zs:[],toSpawn:0,spawnT:0,waveT:0,shots:[],fx:[],act:null,queue:null,hist:[],side:0,calm:0,prevView:null,combo:0,comboT:0,best:0,stop:0,shake:0,blastCd:0};
+  const G={arcs:[],blades:[],quakes:[],rocks:[],cracks:[],balls:[],prints:[],curBall:null,palm:null,palmHit:0,airHits:0,charge:-1,full:false,on:false,over:false,hp:100,wave:0,kills:0,zs:[],toSpawn:0,spawnT:0,waveT:0,shots:[],fx:[],act:null,queue:null,hist:[],side:0,calm:0,prevView:null,combo:0,comboT:0,best:0,stop:0,shake:0,blastCd:0};
   const $=id=>document.getElementById(id);
   const hud=$('gHud'),hpEl=$('gHp'),waveEl=$('gWave'),killEl=$('gKills'),comboEl=$('gCombo'),skills=$('gSkills'),overEl=$('gOver'),flash=$('gFlash'),bigEl=$('gBig');
   // 每招：dur＝動作時間、hits＝打中的時間點（0～1）、r 距離、cone 前方角度（-1＝一圈）、dmg、kb 擊退、up 往上飛、name 連段名稱
@@ -3064,7 +3239,11 @@ const GAME=(()=>{
     // 如來神掌（取代升龍拳，使用者要求）：飛到天上、跟著一隻金色巨掌壓到地上，地上留下手印；時間由落地決定
     palm:{dur:3,hits:[],name:'如來神掌！',safe:true},
     // 足球（取代飛踢，使用者要求）：肚子的皮帶彈出一顆足球，充氣變大落到腳邊，一腳踢出去把殭屍踢飛
-    ball:{dur:0.95,hits:[0.62],name:'足球射門！',safe:true},   // 彈出來 → 充氣變大顆 → 0.6 秒時踢出去
+    ball:{dur:0.95,hits:[0.62],name:'足球射門！',safe:true},
+    // 死亡騎士（變身）的三招：光刀揮砍（前方大範圍斜劈）、光刀射箭（三道光刃扇形穿透）、地裂術（裂縫往前竄、沿路冒尖石）
+    slash:{dur:0.45,hits:[0.42],r:3.3,cone:0.05,dmg:85,kb:9,up:4,shake:0.22,stop:0.06},
+    bladeShot:{dur:0.38,hits:[0.4],shake:0.12},
+    quake:{dur:0.95,hits:[0.42],name:'地裂術！',safe:true,shake:0.3},   // 彈出來 → 充氣變大顆 → 0.6 秒時踢出去
     blast:{dur:0.22,hits:[]},
     beam:{dur:0.5,hits:[0.25],shake:0.45,stop:0.08,name:'超級氣功波！',safe:true},
   };
@@ -3286,14 +3465,64 @@ const GAME=(()=>{
     if(b.p.y-r<=heightAt(b.p.x,b.p.z,b.p.y+0.3)+0.02){const k=Math.exp(-dt*0.9);b.v.x*=k;b.v.z*=k;}   // 地上滾會慢下來
     const sp=b.v.length();if(sp>0.05){const ax=new V3(b.v.z,0,-b.v.x).normalize();b.m.rotateOnWorldAxis(ax,sp*dt/r);}
     b.m.position.copy(b.p);if(b.life<0.4)b.m.scale.setScalar(r*Math.max(0.01,b.life/0.4));if(b.life<=0){scene.remove(b.m);b.dead=true;}}
+  // ---- 死亡騎士 ----
+  const FIRE_TEX=radTex([[0,'rgba(255,245,200,1)'],[0.35,'rgba(255,140,30,0.9)'],[1,'rgba(200,30,0,0)']]),SMOKE_TEX=radTex([[0,'rgba(60,20,80,0.85)'],[1,'rgba(30,0,40,0)']]);
+  const arcMat=()=>new THREE.MeshBasicMaterial({color:'#ffb24a',transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+  // 光刀揮砍：前方一道火光弧
+  function slashArc(){const g=new THREE.RingGeometry(1.0,3.3,28,1,Math.PI/2-1.15,2.3);g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,arcMat());
+    m.position.set(player.pos.x,player.y+1.1,player.pos.y);m.rotation.set(0,player.yaw,G.side?0.35:-0.35,'YXZ');scene.add(m);G.arcs.push({m,t:0,life:0.28});snd('slash');}
+  // 光刀射箭：三道光刃扇形射出，穿透殭屍，撞牆就碎掉
+  const bladeGeo=new THREE.RingGeometry(0.42,0.72,20,1,0.25,Math.PI-0.5);
+  function bladeShot(){const p=handPos(),d0=aimDir();snd('blade');
+    for(const da of [-0.2,0,0.2]){const c=Math.cos(da),sn=Math.sin(da),dir=new V3(d0.x*c-d0.z*sn,d0.y,d0.x*sn+d0.z*c).normalize();
+      const m=new THREE.Mesh(bladeGeo,arcMat());m.position.copy(p);m.rotation.set(0,Math.atan2(-dir.x,-dir.z),0);scene.add(m);G.blades.push({m,p:p.clone(),dir,life:1.1,hit:new Set(),tr:0});}}
+  function bladeUpdate(b,dt){b.life-=dt;const n=Math.max(1,Math.ceil(26*dt/0.2));const d2=new V2(b.dir.x,b.dir.z).normalize();
+    for(let i=0;i<n&&!b.dead;i++){b.p.addScaledVector(b.dir,26*dt/n);
+      for(const z of G.zs){if(!hittable(z)||b.hit.has(z))continue;if(Math.hypot(z.pos.x-b.p.x,z.pos.y-b.p.z)<0.85&&b.p.y>z.y-0.2&&b.p.y<z.y+2.1){b.hit.add(z);hurtZombie(z,70,d2,10,4);fx(b.p.clone(),sparkTex,0.3,1.4,0.2);snd('hit');}}
+      DESTR.sphere(b.p,0.6,60,b.hit,d2);
+      if(blockedAt(b.p.x,b.p.z,b.p.y-0.05,b.p.y+0.05)||b.p.y<heightAt(b.p.x,b.p.z,b.p.y+0.3)){fx(b.p.clone(),FIRE_TEX,0.5,2,0.3);b.dead=true;}}
+    if(b.life<=0)b.dead=true;b.m.position.copy(b.p);b.m.material.opacity=Math.min(0.9,b.life*2);
+    b.tr-=dt;if(b.tr<=0&&!b.dead){b.tr=0.03;fx(b.p.clone(),FIRE_TEX,0.5,0.1,0.25);}
+    if(b.dead){scene.remove(b.m);b.m.material.dispose();}}
+  // 地裂術：大劍插地 → 裂縫往前竄 14 m，沿路冒尖石、灰塵，裂縫上的殭屍被掀飛，地上留下裂痕
+  const crackTex=(()=>{const [c,x]=cvs(128,128);x.strokeStyle='rgba(25,15,10,0.95)';x.lineCap='round';
+    const line=(x0,y0,x1,y1,w)=>{x.lineWidth=w;x.beginPath();x.moveTo(x0,y0);let px=x0,py=y0;for(let k=1;k<=6;k++){const t=k/6;px=x0+(x1-x0)*t+(Math.random()-0.5)*14;py=y0+(y1-y0)*t;x.lineTo(px,py);}x.stroke();};
+    line(64,128,64,0,9);for(let k=0;k<5;k++){const y=20+k*22;line(64,y,64+(Math.random()<0.5?-1:1)*(25+Math.random()*30),y-15,3);}
+    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;})();
+  const rockGeo=new THREE.ConeGeometry(0.28,0.95,5),rockMat=std({color:'#6e5a46',roughness:0.95,flatShading:true});
+  function quakeStart(){const f=fwd();G.quakes.push({x:player.pos.x+f.x*0.8,z:player.pos.y+f.y*0.8,y:player.y,dir:f.clone(),dist:0,next:0,hit:new Set()});snd('quake');G.shake=Math.max(G.shake,0.5);
+    fx(new V3(player.pos.x+f.x*0.8,player.y+0.3,player.pos.y+f.y*0.8),FIRE_TEX,1,4,0.4);}
+  function quakeUpdate(q,dt){q.dist+=20*dt;G.shake=Math.max(G.shake,0.25);
+    while(q.next<=Math.min(q.dist,14)){const d=q.next,x=q.x+q.dir.x*d,z=q.z+q.dir.y*d,gy=heightAt(x,z,q.y+0.5);
+      // 裂痕
+      const pl=new THREE.Mesh(new THREE.PlaneGeometry(1.4,0.8),new THREE.MeshBasicMaterial({map:crackTex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4}));
+      pl.rotation.set(-Math.PI/2,Math.atan2(-q.dir.x,-q.dir.y),0,'YXZ');pl.position.set(x,gy+0.03,z);scene.add(pl);G.cracks.push({m:pl,t:0});
+      // 尖石
+      for(let k=0;k<2;k++){const r=new THREE.Mesh(rockGeo,rockMat);const ox=(Math.random()-0.5)*1.2,s=0.6+Math.random()*0.7;r.scale.set(s,s*(0.8+Math.random()*0.6),s);
+        r.position.set(x+q.dir.y*ox,gy-1,z-q.dir.x*ox);r.rotation.set((Math.random()-0.5)*0.5,Math.random()*6,(Math.random()-0.5)*0.5);r.castShadow=true;scene.add(r);G.rocks.push({m:r,gy,t:0});}
+      dust(new V3(x,gy+0.3,z));
+      for(const zz of G.zs){if(!hittable(zz)||q.hit.has(zz))continue;if(Math.hypot(zz.pos.x-x,zz.pos.y-z)<1.6&&Math.abs(zz.y-gy)<1.5){q.hit.add(zz);const side=new V2(zz.pos.x-x,zz.pos.y-z);if(side.lengthSq()<1e-4)side.copy(q.dir);side.normalize();hurtZombie(zz,110,side,3,10);}}
+      DESTR.blast(new V3(x,gy+0.5,z),1.6,70);
+      q.next+=0.7;}
+    if(q.dist>14)q.done=true;}
+  // 變身：黑紫色煙霧、技能列換成騎士的三招
+  function morph(on){if(on===avatar.morph)return;avatar.setMorph(on);document.body.classList.toggle('dk',on);const mb=$('gMorph');if(mb)mb.firstChild.textContent=on?'還原':'變身';
+    const dm=$('dkMenu');if(dm)dm.textContent=on?'變回人類':'變身：死亡騎士';
+    if(G.on){G.shake=Math.max(G.shake,on?0.6:0.3);bigText(on?'死亡騎士！':'變回來了');}snd(on?'morph':'unmorph');}
   function specialUpdate(dt){
+    for(const a of G.arcs){a.t+=dt;const p=a.t/a.life;a.m.material.opacity=0.9*(1-p);a.m.scale.setScalar(1+p*0.25);if(p>=1){scene.remove(a.m);a.m.geometry.dispose();a.m.material.dispose();a.dead=true;}}G.arcs=G.arcs.filter(a=>!a.dead);
+    for(const b of G.blades)bladeUpdate(b,dt);G.blades=G.blades.filter(b=>!b.dead);
+    for(const q of G.quakes)quakeUpdate(q,dt);G.quakes=G.quakes.filter(q=>!q.done);
+    for(const r of G.rocks){r.t+=dt;const y=r.t<0.15?r.gy-1+r.t/0.15*1.25:r.t<0.9?r.gy+0.25:r.gy+0.25-(r.t-0.9)/0.5*1.4;r.m.position.y=y;if(r.t>1.4){scene.remove(r.m);r.dead=true;}}G.rocks=G.rocks.filter(r=>!r.dead);
+    for(const c of G.cracks){c.t+=dt;c.m.material.opacity=c.t<6?1:Math.max(0,1-(c.t-6)/2);if(c.t>8){scene.remove(c.m);c.m.geometry.dispose();c.m.material.dispose();c.dead=true;}}G.cracks=G.cracks.filter(c=>!c.dead);
     for(const b of G.balls)ballUpdate(b,dt);G.balls=G.balls.filter(b=>!b.dead);
     // 巨掌壓到地上：停一下再淡掉
     if(palmG.visible&&G.palm&&G.palm.phase==='done'){G.palmHit+=dt;palmG.userData.halo.material.opacity=Math.max(0,1-G.palmHit/0.8);if(G.palmHit>0.35){palmMat.opacity=Math.max(0,0.92*(1-(G.palmHit-0.35)/0.5));palmG.position.y+=dt*0.8;}if(G.palmHit>0.85){palmG.visible=false;palmMat.opacity=0.92;palmG.userData.halo.material.opacity=1;}}
     // 手印：金光 2 秒內退掉，焦黑的手印 12 秒後淡掉
     for(const q of G.prints){q.t+=dt;q.glow.material.opacity=Math.max(0,1-q.t/2);q.dark.material.opacity=q.t<12?1:Math.max(0,1-(q.t-12)/3);if(q.t>15){scene.remove(q.dark,q.glow);q.dead=true;}}
     G.prints=G.prints.filter(q=>!q.dead);}
-  function specialClear(){for(const b of G.balls)scene.remove(b.m);G.balls=[];G.curBall=null;for(const q of G.prints)scene.remove(q.dark,q.glow);G.prints=[];palmG.visible=false;palmMat.opacity=0.92;G.palm=null;}
+  function specialClear(){for(const l of [G.arcs,G.blades,G.rocks,G.cracks])for(const o of l)scene.remove(o.m);G.arcs=[];G.blades=[];G.rocks=[];G.cracks=[];G.quakes=[];
+    for(const b of G.balls)scene.remove(b.m);G.balls=[];G.curBall=null;for(const q of G.prints)scene.remove(q.dark,q.glow);G.prints=[];palmG.visible=false;palmMat.opacity=0.92;G.palm=null;}
   // ---- 破壞：車子、鄰居的房子、隔壁大樓、周邊建築、全家（我家不會壞；遊戲結束會復原） ----
   // 範圍、合併網格裡的位置在「打得壞的東西」那段（REGIONS）。打到才把那段拆出來：車子會晃、打爆炸飛變焦黑殘骸並連鎖爆炸；房子倒塌成瓦礫。
   const DESTR=(()=>{
@@ -3429,7 +3658,7 @@ const GAME=(()=>{
   function start(free){if(BALLOON.riding)BALLOON.reset();if(LIE.on)LIE.stop();if(SKATE.on)SKATE.stop();clearAll();DESTR.reset();Object.assign(G,{on:true,over:false,free:!!free,hp:100,wave:0,kills:0,toSpawn:0,spawnT:0,waveT:1.5,calm:0,combo:0,comboT:0,best:0,stop:0,shake:0,airHits:0});
     if(mode!=='walk')toggleAerial();if(G.prevView===null)G.prevView=view;view='third';syncViewUI();   // 遊戲中用第三人稱（不存成偏好）
     teleport(5.26,0.6,Math.PI,0);   // 面向巷子（殭屍從那邊來）
-    document.body.classList.add('gaming');hud.hidden=false;skills.hidden=false;overEl.hidden=true;killEl.textContent='擊倒 0';comboEl.textContent='';waveEl.textContent='準備…';menu.hidden=true;bMenu.classList.remove('on');
+    document.body.classList.add('gaming');document.body.classList.toggle('dk',avatar.morph);{const mb=$('gMorph');if(mb)mb.firstChild.textContent=avatar.morph?'還原':'變身';}hud.hidden=false;skills.hidden=false;overEl.hidden=true;killEl.textContent='擊倒 0';comboEl.textContent='';waveEl.textContent='準備…';menu.hidden=true;bMenu.classList.remove('on');
     if(G.free)waveEl.textContent='自由破壞';
     AUDIO.musicStart();toast(G.free?'自由破壞模式：車子、鄰居的房子、周邊建築、全家都打得壞（我家不會壞）；技能往前方放，視角往上抬就往上打':'殭屍來襲！守住家裡！按下方按鈕往前方放技能，按住「蓄力」集氣放開發射；車子、別人的房子也打得壞');}
   function end(){clearAll();DESTR.reset();AUDIO.musicStop();document.body.classList.remove('gaming');G.on=false;G.over=false;hud.hidden=true;skills.hidden=true;overEl.hidden=true;flash.style.boxShadow='';if(G.prevView){view=G.prevView;syncViewUI();}G.prevView=null;}
@@ -3438,13 +3667,17 @@ const GAME=(()=>{
   // 技能按鈕（電腦點、手機按都可以，按下去馬上出招）
   for(const b of skills.querySelectorAll('button')){const s=b.dataset.s;
     b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});
+    if(s==='morph'){const go=e=>{e.preventDefault();e.stopPropagation();morph(!avatar.morph);};b.addEventListener('touchstart',go,{passive:false});b.addEventListener('mousedown',go);continue;}
     if(s==='charge'){const dn=e=>{e.preventDefault();e.stopPropagation();chargeStart();b.classList.add('hit');},up=e=>{e.preventDefault();e.stopPropagation();chargeRelease();b.classList.remove('hit');};   // 按住集氣、放開發射
       b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('touchend',up,{passive:false});b.addEventListener('touchcancel',up,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('mouseup',up);b.addEventListener('mouseleave',e=>{if(G.charge>=0)up(e);});continue;}
     const go=e=>{e.preventDefault();e.stopPropagation();press(s);b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),120);};
     b.addEventListener('touchstart',go,{passive:false});b.addEventListener('mousedown',go);}
   // 點畫面不放招（使用者要求：手機點空白處會自動放氣功炮；已經有技能按鈕了）：點畫面、拖曳只轉視角
   // 鍵盤
-  function key(e,down){const m={KeyJ:'blast',Digit1:'blast',KeyL:'beam',Digit2:'beam',KeyU:'spin',Digit3:'spin',KeyI:'palm',Digit4:'palm',KeyO:'ball',Digit5:'ball'}[e.code];
+  function key(e,down){
+    if(e.code==='KeyG'){if(down&&!e.repeat)morph(!avatar.morph);return true;}
+    const m=(avatar.morph?{KeyJ:'slash',Digit1:'slash',KeyL:'bladeShot',Digit2:'bladeShot',KeyU:'quake',Digit3:'quake'}:{KeyJ:'blast',Digit1:'blast',KeyL:'beam',Digit2:'beam',KeyU:'spin',Digit3:'spin',KeyI:'palm',Digit4:'palm',KeyO:'ball',Digit5:'ball'})[e.code];
+    if(avatar.morph&&['KeyI','Digit4','KeyO','Digit5','KeyH','Digit6'].includes(e.code))return true;
     if(e.code==='KeyH'||e.code==='Digit6'){if(down&&!e.repeat)chargeStart();else if(!down)chargeRelease();return true;}
     if(!m)return false;if(down&&!e.repeat)press(m);return true;}
   // ---- 每格更新 ----
@@ -3479,6 +3712,9 @@ const GAME=(()=>{
       while(a.next<m.hits.length&&p>=m.hits[a.next]){const last=a.next===m.hits.length-1;
         if(a.kind==='beam')superBeam();
         else if(a.kind==='ball')ballKick();
+        else if(a.kind==='slash'){strike(m);slashArc();}
+        else if(a.kind==='bladeShot')bladeShot();
+        else if(a.kind==='quake')quakeStart();
         else if(a.kind==='flurry')strike(m,{kb:last?m.lastKb:m.kb,up:last?m.lastUp:0});
         else strike(m);a.next++;}
       if(a.kind==='palm')palmUpdate(a,dt);
@@ -3558,13 +3794,16 @@ const GAME=(()=>{
           a.body.rotation.x=th;a.body.position.set(0,0.9*(1-Math.cos(th)),-0.9*Math.sin(th));
           a.armR.rotation.x=-3.0;a.armL.rotation.x=-2.7;a.armR.rotation.z=0.12;a.armL.rotation.z=-0.35;a.legL.rotation.x=0.15;a.legR.rotation.x=-0.25;}
         else{a.armR.rotation.x=-1.0;a.armL.rotation.x=0.3;a.body.rotation.x=0.3;a.legL.rotation.x=-0.6;a.legR.rotation.x=0.5;}break;}                       // 落地蹲著
+      case 'slash':{const k=Math.min(1,p/0.45);a.armR.rotation.set(-2.7+3.2*k,0,G.side?0.5-1.0*k:-0.5+1.0*k);a.body.rotation.y=(G.side?1:-1)*(0.6-1.2*k);a.body.rotation.x=0.25*k;a.armL.rotation.x=-0.5;break;}   // 大劍斜劈
+      case 'bladeShot':a.armR.rotation.set(-1.55,0,0.1);a.armL.rotation.set(-0.4,0,-0.3);a.body.rotation.y=-0.3*s;break;                                                          // 往前刺出光刃
+      case 'quake':{const k=Math.min(1,p/0.42);a.armR.rotation.set(-3.0+2.6*k,0,0);a.armL.rotation.set(-3.0+2.6*k,0,0);a.body.rotation.x=0.55*k;a.body.position.y=-0.25*k;a.legL.rotation.x=-0.8*k;a.legR.rotation.x=0.5*k;break;}   // 舉劍插地
       case 'ball':{if(p<0.5){const w=p/0.5;a.legR.rotation.x=0.8*w;a.body.rotation.x=-0.12*w;a.armL.rotation.z=-0.7*w;a.armR.rotation.z=0.7*w;}           // 準備：腳往後拉
         else{const k=Math.min(1,(p-0.5)/0.2);a.legR.rotation.x=0.8-2.8*k+(p>0.7?(p-0.7)*2:0);a.body.rotation.x=-0.3*k;a.armL.rotation.z=-0.9;a.armR.rotation.z=0.7;a.armL.rotation.x=-0.6*k;}break;}   // 一腳踢出去
       case 'blast':case 'beam':a.armL.rotation.x=a.armR.rotation.x=-1.6;a.armL.rotation.z=-0.12;a.armR.rotation.z=0.12;a.body.rotation.x=-0.15*s;break;}}
   // 殭屍靠近門也會開門
   function zNear(center,y){for(const z of G.zs)if(!z.dead&&Math.abs(z.y-y)<1&&Math.hypot(z.pos.x-center.x,z.pos.y-center.y)<1.8)return true;return false;}
   function drawMM(g,w2m){if(!G.on)return;g.fillStyle='#ff3b30';for(const z of G.zs){if(z.dead)continue;const [x,y]=w2m(z.pos.x,z.pos.y);g.beginPath();g.arc(x,y,3,0,Math.PI*2);g.fill();}}
-  return {get on(){return G.on;},key,update,animAvatar,zNear,drawMM,start,end,press,G,NODES,los,DESTR};
+  return {get on(){return G.on;},key,update,animAvatar,zNear,drawMM,start,end,press,G,NODES,los,DESTR,morph};
 })();
 
 /* ---------------- 省電模式 ---------------- */
@@ -3665,6 +3904,7 @@ function step(dt){
    for(const pg of D.panels){pg.visible=!gone;pg.position.x=pg.userData.x+pg.userData.sd*e*w*0.95;}D.col.off=gone||e>0.6;}
   GAME.update(dt);
   SKATE.cones(dt);
+  avatar.fxTick(dt);
 }
 let frameAcc=0;
 function loop(){
@@ -3688,7 +3928,7 @@ syncViewUI();
 loop();
 const startBtn=document.getElementById('start');startBtn.disabled=false;startBtn.textContent='進入';
 startBtn.onclick=()=>{document.getElementById('overlay').style.display='none';started=true;guardBack();hintUntil=performance.now()+9000;syncHint();setTimeout(syncHint,9100);};
-window.__dbg={scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar};
+window.__dbg={scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE};
 </script>
 </body>
 </html>
