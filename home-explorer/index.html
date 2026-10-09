@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-09.8"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-09.15"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -100,9 +100,9 @@
   #gSkills button small{font-size:11px;font-weight:600;opacity:.7;margin-top:3px}
   #gSkills button.hit{transform:scale(.88);background:rgba(255,180,84,.75);color:#3a2300}
   #gSkills button[data-s=blast]{background:rgba(40,120,200,.65)}
-  #gSkills button[data-s=upper]{background:rgba(190,80,40,.6)}
+  #gSkills button[data-s=palm]{background:rgba(190,80,40,.6);font-size:14px}
   #gSkills button[data-s=beam]{background:rgba(120,60,200,.65);font-size:14px}
-  #gSkills button[data-s=fly]{background:rgba(40,140,90,.6)}
+  #gSkills button[data-s=ball]{background:rgba(40,140,90,.6)}
   #gSkills button[data-s=charge]{background:rgba(220,170,30,.7);font-size:13px}
   body.touch #gSkills{left:auto;right:108px;bottom:16px;transform:none;display:grid;grid-template-columns:repeat(3,58px);gap:8px}
   body.touch #gSkills button[data-s=charge]{font-size:12px}
@@ -151,8 +151,20 @@
   @media (orientation:landscape) and (max-height:520px){
     body.touch #topbar{top:calc(20px + var(--sat))}
     body.touch #menu{top:calc(64px + var(--sat));max-height:calc(100dvh - 72px - var(--sat))}
-    body.touch #gHud{top:calc(64px + var(--sat))}
   }
+  /* 手機打殭屍：血條等資訊縮成左上角一小條（使用者：中間血條太礙眼），位置資訊遊戲中先藏起來 */
+  body.touch.gaming #place{display:none}
+  body.touch #gHud{left:calc(10px + var(--sal));top:calc(10px + var(--sat));transform:none;width:min(230px,42vw);padding:5px 8px;font-size:11px;background:rgba(18,24,30,.35);border-color:transparent}
+  body.touch #gHud .row{margin-bottom:3px;gap:6px}
+  body.touch #gHud .row span{width:auto}
+  body.touch #gHud .bar{height:6px}
+  body.touch #gHud .row2{gap:4px 8px;flex-wrap:wrap;font-weight:600}
+  body.touch #gHud .row2 button{padding:2px 8px;font-size:11px;margin-left:0}
+  body.touch #gHud .keyhint{display:none}
+  /* 手機不顯示地圖按鈕和小地圖（使用者要求：打怪時按空拍再按地圖會當機） */
+  body.touch #bMap,body.touch #minimap{display:none!important}
+  /* 上排按鈕一律靠右（打怪時左上角的位置資訊藏起來，按鈕原本會跑到左邊被血條蓋住） */
+  #topbar .btns{margin-left:auto}
 </style>
 </head>
 <body>
@@ -218,7 +230,7 @@
   <h3 style="margin-top:14px">小遊戲</h3>
   <button id="gStart">殭屍來襲！開始</button>
   <button id="gFree">自由破壞模式（沒有殭屍）</button>
-  <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。開始後畫面下方才會出現技能按鈕，按了馬上往前方放：氣功炮（J）、超級氣功波（L）、旋風腿（U）、升龍拳（I）、飛踢（O）、按住蓄力氣功彈（H）；滑鼠左鍵＝氣功炮、右鍵＝超級氣功波。視角往上抬就往上打（打飛到空中的殭屍可以接著打）。車子、鄰居的房子、周邊建築、全家都打得壞（我家不會壞），遊戲結束會復原。</p>
+  <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。開始後畫面下方才會出現技能按鈕，按了馬上往前方放：氣功炮（J）、超級氣功波（L）、旋風腿（U）、如來神掌（I）、足球（O）、按住蓄力氣功彈（H）；滑鼠左鍵＝氣功炮、右鍵＝超級氣功波。視角往上抬就往上打（打飛到空中的殭屍可以接著打）。車子、鄰居的房子、周邊建築、全家都打得壞（我家不會壞），遊戲結束會復原。</p>
   <h3 style="margin-top:14px">舒適設定</h3>
   <label><span>視角轉動靈敏度</span><span id="sensVal">100%</span></label>
   <input id="sens" type="range" min="0.3" max="1.5" step="0.05" value="1">
@@ -244,9 +256,9 @@
   <div class="row"><span>生命</span><div class="bar"><i id="gHp"></i></div></div>
   <div class="row" id="gTgtRow" hidden><span id="gTgtName"></span><div class="bar tgt"><i id="gTgt"></i></div></div>
   <div class="row2"><span id="gWave">準備…</span><span id="gKills">擊倒 0</span><span id="gWreck">破壞 0</span><span id="gCombo"></span><button id="gQuit">結束遊戲</button></div>
-  <div class="keyhint">J 氣功炮｜L 超級氣功波｜U 旋風腿｜I 升龍拳｜O 飛踢｜按住 H 蓄力氣功彈｜滑鼠左鍵＝氣功炮、右鍵＝超級氣功波</div>
+  <div class="keyhint">J 氣功炮｜L 超級氣功波｜U 旋風腿｜I 如來神掌｜O 足球｜按住 H 蓄力氣功彈｜滑鼠左鍵＝氣功炮、右鍵＝超級氣功波</div>
 </div>
-<div id="gSkills" hidden><button data-s="blast">氣功炮<small>J</small></button><button data-s="beam">超級<br>氣功波<small>L</small></button><button data-s="spin">旋風腿<small>U</small></button><button data-s="upper">升龍拳<small>I</small></button><button data-s="fly">飛踢<small>O</small></button><button data-s="charge">蓄力<br>氣功彈<small>H 按住</small></button></div>
+<div id="gSkills" hidden><button data-s="blast">氣功炮<small>J</small></button><button data-s="beam">超級<br>氣功波<small>L</small></button><button data-s="spin">旋風腿<small>U</small></button><button data-s="palm">如來<br>神掌<small>I</small></button><button data-s="ball">足球<small>O</small></button><button data-s="charge">蓄力<br>氣功彈<small>H 按住</small></button></div>
 <div id="gBig"></div>
 <div id="gOver" class="panel" hidden><h2>被殭屍抓到了！</h2><div id="gOverMsg"></div><div><button id="gRetry">再玩一次</button><button id="gExit">離開</button></div></div>
 <div id="gFlash"></div>
@@ -884,6 +896,8 @@ const labels=new THREE.Group();scene.add(labels);
 
 // 地面
 for(const r of rectSub([{x0:BOUND.x0-60,x1:BOUND.x1+60,z0:BOUND.z0-60,z1:BOUND.z1+60}],[{x0:ux(0),x1:ux(1),z0:Z_BACK,z1:Z_1F}]))M.add(groundRect(r.x0,r.x1,r.z0,r.z1,0),MAT.concrete);   // 房子底下挖掉（1F 廁所地板下沉）
+// 外圍的地面（搭熱氣球飛高時看得到，不會看到世界的邊）
+{const far=std({color:'#7c876b',roughness:1});for(const r of rectSub([{x0:-2500,x1:2500,z0:-2500,z1:2500}],[{x0:BOUND.x0-60,x1:BOUND.x1+60,z0:BOUND.z0-60,z1:BOUND.z1+60}]))M.add(groundRect(r.x0,r.x1,r.z0,r.z1,0),far);}
 for(const r of ROADS)M.add(groundRect(r.x0,r.x1,r.z0,r.z1,0.012),MAT.asphalt);
 M.add(groundRect(GRASS.x0,GRASS.x1,GRASS.z0,GRASS.z1,0.015),MAT.grass);
 // 標線：巷子兩側白色邊線、大馬路中線
@@ -1162,7 +1176,7 @@ const backHoles=[
     :[{a:2.2,b:3.6,y0:FL[k]+1.0,y1:FL[k]+2.3},{a:5.12,b:5.95,y0:FL[k],y1:FL[k]+2.15,door:true}]),   // 4F 後牆：窗＋走道盡頭通往後陽台的門
 ];
 const westHoles=[   // 沿西側通道的窗（z 範圍）
-  [{a:-9.0,b:-8.1,y0:2.75,y1:3.4},   // 客廳西牆沒有窗（照片）；樓梯平台窗
+  [{a:-9.0,b:-8.1,y0:2.3,y1:2.92},   // 客廳西牆沒有窗（照片）；樓梯平台窗：在側邊通道採光罩、花崗石平台（3.0～3.36）下面（使用者更正）
    {a:-12.0,b:-10.8,y0:0.95,y1:2.6,mat:'dark'},   // 廚房西牆：深灰框窗，靠北邊（廚房照片）
    {a:-8.15,b:-7.6,y0:0.95,y1:1.55,mat:'dark'}],   // 廁所窗（平台下方，開向側邊通道）
   ...[1,2].map(k=>[{a:-9.0,b:-8.1,y0:FL[k]+2.2,y1:FL[k]+2.85},{a:-6.5,b:-5.6,y0:FL[k]+1.7,y1:FL[k]+2.3,mat:'dark'},   // 2F、3F 前房床頭那面沒有窗；浴室小窗（淋浴間上方，深灰框）
@@ -1511,11 +1525,11 @@ function nearCab(){if(!started||mode!=='walk')return null;const px=player.pos.x,
     const sc=d*(1.45-face);if(sc<bs){best=u;bd=d;bs=sc;}}   /* 越正對著越優先：斜前方比較近的抽屜不要搶走正前方的衣櫃 */
   return best?{u:best,d:bd}:null;}
 // 衣櫃／抽屜／屋頂蓋子和窗簾：取比較近的那個
-function currentAct(){const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
+function currentAct(){const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
 function syncActBtn(){const a=currentAct();actCur=a;
-  const html=!a?'':a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
+  const html=!a?'':a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
   if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
-function toggleAct(){const a=currentAct();if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
+function toggleAct(){const a=currentAct();if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
 actBtn.addEventListener('click',e=>{e.stopPropagation();toggleAct();});
 actBtn.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleAct();},{passive:false});
 document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)c.target=0;syncActBtn();AUDIO.sfx('swish');};
@@ -1719,6 +1733,7 @@ for(const k of [1,2]){const y=FL[k],c=CEIL(k);
 }
 
 // ---- 3F 前房（依照片：小孩房） ----
+const BEDS=[];   // 可以躺上去翻滾的床（使用者要求）：x0 是床頭（枕頭那端、西邊）
 {const y=FL[2],c=CEIL(2);
  M.add(mbox(IX0,2.0,c-0.45,c,FRZ,-0.6),MAT.intWall);   // 沿西牆的樑
  // 雙人加大床 182×188（兩個床箱）＋橘色巧拼床頭板，靠西牆（柱子南邊）
@@ -1726,6 +1741,7 @@ for(const k of [1,2]){const y=FL[k],c=CEIL(k);
  M.add(mbox(1.67,3.51,y+0.42,y+0.62,-3.83,-2.05),MAT.sheet);
  M.add(mbox(1.75,2.1,y+0.62,y+0.74,-3.67,-3.0),MAT.pillowGray);M.add(mbox(1.75,2.1,y+0.62,y+0.74,-2.88,-2.21),MAT.sheet);
  M.add(mbox(1.6,1.63,y+0.55,y+1.25,-3.92,-1.96),MAT.orange);addBox(1.6,3.55,-3.87,-2.01,y+0.62,y);
+ BEDS.push({name:'3F 前房的床',x0:1.65,x1:3.53,z0:-3.85,z1:-2.03,top:y+0.62,floor:y});
  // 床邊黃色小櫃；書桌（淺灰桌面、藍色桌腳、上層架、黑色檯燈）在西後角、柱子旁
  M.add(mbox(1.62,2.0,y,y+0.42,-4.25,-3.9),MAT.yellow);addBox(1.62,2.0,-4.25,-3.9,y+0.42,y);   // 黃色小櫃：床頭和書桌之間（照片）
  for(const [y0,y1] of [[y+1.65,y+2.15],[y+0.75,y+1.15]])M.add(mbox(IX1-0.02,IX1,y0,y1,-0.95,-0.6),MAT.beigeTop);   // 東牆靠窗的電箱
@@ -1754,7 +1770,8 @@ for(const k of [1,2]){const y=FL[k],c=CEIL(k);
    const pw=(z1-z0-0.3)/2;for(const k of [0,1]){const pz=z0+0.1+k*(pw+0.1);M.add(mbox(x0+0.1,x0+0.55,y+0.62,y+0.74,pz,pz+pw),k?MAT.sheet:MAT.pillowGray);}
    addBox(x0,x1,z0,z1,y+0.62,y);};
  const zK0=FRZ,zK1=zK0+1.82,zS1=zK1+1.52;   // 北邊雙人加大（床頭頂著柱子）→ 南邊標準雙人（床頭貼西牆）
- const BX=COL+0.03;bed(BX,zK0,zK1);bed(BX,zK1,zS1);   // 兩張床頭對齊（長度都是 188，只有寬度不同；照片）
+ const BX=COL+0.03;bed(BX,zK0,zK1);bed(BX,zK1,zS1);
+ BEDS.push({name:'2F 主臥的床',x0:BX,x1:BX+1.88,z0:zK0,z1:zS1,top:y+0.62,floor:y,wall:-1});   // 兩張床併在一起，可以從一張滾到另一張；北邊靠牆滾不下去   // 兩張床頭對齊（長度都是 188，只有寬度不同；照片）
  // 橘色巧拼床頭板：橫跨兩張床（柱子面＋西牆），北邊那張床靠北牆那側也一片（照片）
  M.add(mbox(COL,BX,y+0.45,y+1.3,zK0+0.03,zS1-0.04),MAT.orange);addBox(IX0,BX,FRZ+0.95,zS1-0.04,y+1.3,y);   // 一整片立在床頭後面
  M.add(mbox(BX+0.05,BX+1.85,y+0.45,y+1.2,FRZ,FRZ+0.03),MAT.orange);
@@ -1867,7 +1884,7 @@ for(const k of [1,2]){const y=FL[k],BZ=BR_Z-T/2;
  {const x0=2.75,x1=x0+1.88,z0=ZB+0.03,z1=z0+1.52;
   M.add(mbox(x0,x1,y,y+0.2,z0,z1),std({color:'#7d8fa6',roughness:0.95}));
   M.add(mbox(x0+0.06,x0+0.5,y+0.2,y+0.3,z0+0.15,z0+0.7),MAT.sheet);M.add(mbox(x0+0.06,x0+0.5,y+0.2,y+0.3,z0+0.82,z0+1.37),MAT.pillowGray);
-  addBox(x0,x1,z0,z1,y+0.2,y);}
+  addBox(x0,x1,z0,z1,y+0.2,y);BEDS.push({name:'3F 後房的床墊',x0,x1,z0,z1,top:y+0.2,floor:y,wall:-1});}
  // 兒童書桌（淺灰桌面、藍色桌腳）靠北牆、在西北角，坐著面向北牆、窗在左手邊；兒童椅在桌子南邊
  {const dx0=IX0+0.08,dx1=dx0+0.9,dz0=ZB+0.02,dz1=dz0+0.55,cx=(dx0+dx1)/2;
   M.add(mbox(dx0,dx1,y+0.58,y+0.61,dz0,dz1),MAT.deskTop);
@@ -1987,9 +2004,9 @@ M.add(mbox(-0.2,0,0,1.15,ZRY,LZ1),MAT.brick);M.add(mbox(-0.23,0.03,1.15,1.23,ZRY
    const pole=new THREE.CylinderGeometry(0.025,0.025,2.4,10);pole.rotateX(Math.PI/2);pole.translate(0.64,2.62,z);M.add(pole,MAT.whiteApp);
    for(const dz of [-0.6,0.6])M.add(mbox(0.63,0.65,2.62,2.82,z+dz-0.01,z+dz+0.01),MAT.alu);}
  // 房子西牆上的黑色戶外壁燈
- M.add(mbox(HX0-0.12,HX0,2.15,2.2,-9.03,-8.97),MAT.black);
- {const l=new THREE.CylinderGeometry(0.07,0.07,0.28,14);l.translate(HX0-0.15,2.15,-9);M.add(l,MAT.lamp);
-  const t=new THREE.CylinderGeometry(0.075,0.075,0.05,14);t.translate(HX0-0.15,2.31,-9);M.add(t,MAT.black);}
+ M.add(mbox(HX0-0.12,HX0,2.15,2.2,-9.43,-9.37),MAT.black);   // 在樓梯平台小窗北邊（原本貼在窗邊）
+ {const l=new THREE.CylinderGeometry(0.07,0.07,0.28,14);l.translate(HX0-0.15,2.15,-9.4);M.add(l,MAT.lamp);
+  const t=new THREE.CylinderGeometry(0.075,0.075,0.05,14);t.translate(HX0-0.15,2.31,-9.4);M.add(t,MAT.black);}
  // 房子西北角的石頭漆柱子（補充照片：出後門往西看，左手邊突出的柱子）
  M.add(mbox(HX0-0.1,HX0+0.3,0,3.2,Z_BACK-0.4,Z_BACK),MAT.granite);addBox(HX0-0.1,HX0+0.3,Z_BACK-0.4,Z_BACK);   // 不擋到後門（x 1.75 起）
  // 後門外的腳踏墊、虎尾蘭（後陽台只有 1.2 m 深，放在後門東邊靠矮牆，留路通側邊通道）
@@ -2180,6 +2197,108 @@ M.build(scene);
  for(const c of colliders){if(c.veh)continue;const r=regionOf(c);if(r)r.cols.push(c);}
  for(const sf of surfaces){const r=regionOf(sf);if(r)r.surfs.push(sf);}}
 
+/* ---- 遠方的房子：一圈簡單的方塊（一個 draw call），搭熱氣球飛高時看得到城市 ---- */
+{const n=260,im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),std({color:'#ffffff',roughness:0.9}),n),o=new THREE.Object3D(),col=new THREE.Color(),rnd=mulberry(91);
+ for(let i=0;i<n;i++){const a=rnd()*Math.PI*2,r=170+rnd()*650,w=8+rnd()*22,d=8+rnd()*22,h=5+rnd()*rnd()*40;
+   o.position.set(22+Math.cos(a)*r,h/2,-2+Math.sin(a)*r);o.rotation.set(0,rnd()*0.4,0);o.scale.set(w,h,d);o.updateMatrix();im.setMatrixAt(i,o.matrix);col.setHSL(0.07+rnd()*0.06,0.12,0.6+rnd()*0.22);im.setColorAt(i,col);}
+ scene.add(im);}
+
+/* ---------------- 熱氣球（使用者要求：想要搭著飛上天）：停在巷子對面空地上（全家後面） ----------------
+   走到吊籃旁邊按 F（手機點下方按鈕）上去；按「跳」（空白鍵）噴火往上升，不噴火會慢慢下降；搖桿／WASD 慢慢飄（Shift 或搖桿推到底比較快）；
+   空中按「降落」自動慢慢降到地面（可以降在屋頂上），落地後按「下熱氣球」。小遊戲中不能搭。 */
+const BALLOON=(()=>{const HOME=new V2(2,27.5),g=new THREE.Group();scene.add(g);
+  const add=(geo,m,x,y,z,cast=true)=>{const me=new THREE.Mesh(geo,m);me.position.set(x,y,z);me.castShadow=cast;me.receiveShadow=true;g.add(me);return me;};
+  // 藤編吊籃（中間空的，人站在裡面）、深色皮革邊、角落瓦斯桶
+  const wick=(()=>{const [c,x]=cvs(128,128);x.fillStyle='#9a6a35';x.fillRect(0,0,128,128);x.lineWidth=3;
+    for(let i=0;i<=128;i+=10){x.strokeStyle='rgba(60,35,15,0.5)';x.beginPath();x.moveTo(0,i);x.lineTo(128,i);x.stroke();}
+    for(let i=0;i<128;i+=16){x.strokeStyle='rgba(205,160,100,0.35)';x.beginPath();x.moveTo(i,0);x.lineTo(i,128);x.stroke();}return c;})();
+  const basketM=std({map:tex(wick,3,2),roughness:1}),rimM=std({color:'#3d2516',roughness:0.8}),W=1.7,H=1.05,T=0.06;
+  add(new THREE.BoxGeometry(W,0.12,W),basketM,0,0.06,0);
+  for(const [x,z,w,d] of [[0,-(W-T)/2,W,T],[0,(W-T)/2,W,T],[-(W-T)/2,0,T,W],[(W-T)/2,0,T,W]]){add(new THREE.BoxGeometry(w,H,d),basketM,x,H/2,z);add(new THREE.BoxGeometry(w+0.06,0.09,d+0.06),rimM,x,H,z);}
+  for(const sx of [-1,1])for(const sz of [-1,1]){add(new THREE.CylinderGeometry(0.14,0.14,0.7,12),MAT.stainless,sx*0.6,0.47,sz*0.6);add(new THREE.CylinderGeometry(0.02,0.02,1.6,6),MAT.steel,sx*0.78,H+0.8,sz*0.78);}
+  // 燃燒器框架、燃燒器
+  for(const [a,b] of [[[-0.78,-0.78],[0.78,-0.78]],[[-0.78,0.78],[0.78,0.78]],[[-0.78,-0.78],[-0.78,0.78]],[[0.78,-0.78],[0.78,0.78]]])add(strut(new V3(a[0],H+1.6,a[1]),new V3(b[0],H+1.6,b[1]),0.035),MAT.steel,0,0,0);
+  add(new THREE.CylinderGeometry(0.2,0.26,0.32,14),MAT.stainless,0,H+1.72,0);
+  for(const [x,z] of [[-0.78,-0.78],[0.78,-0.78],[-0.78,0.78],[0.78,0.78]])add(strut(new V3(x,H+1.6,z),new V3(x*0.75,2.98,z*0.75),0.02),MAT.black,0,0,0);   // 吊繩
+  // 球皮：彩色直條（每片一個顏色）＋一圈白帶
+  const envC=(()=>{const Wc=1024,Hc=512,[c,x]=cvs(Wc,Hc),cols=['#e63946','#f4a261','#e9c46a','#2a9d8f','#264653','#ffffff','#e76f51','#457b9d'];
+    for(let k=0;k<16;k++){x.fillStyle=cols[k%cols.length];x.fillRect(k*Wc/16,0,Wc/16+1,Hc);}
+    x.fillStyle='rgba(255,255,255,0.92)';x.fillRect(0,Hc*0.36,Wc,Hc*0.07);x.fillStyle='#c0392b';x.font=`900 34px ${FONT}`;x.textAlign='center';x.textBaseline='middle';
+    for(let k=0;k<4;k++)x.fillText('我家漫遊',(k+0.5)*Wc/4,Hc*0.395);
+    x.strokeStyle='rgba(0,0,0,0.18)';x.lineWidth=2;for(let k=0;k<16;k++){x.beginPath();x.moveTo(k*Wc/16,0);x.lineTo(k*Wc/16,Hc);x.stroke();}return c;})();
+  const envMat=std({map:tex(envC),roughness:0.85,side:THREE.DoubleSide,emissive:'#ff8a2a',emissiveIntensity:0});
+  const prof=[[0.8,2.95],[0.95,3.5],[1.6,4.5],[2.7,5.5],[3.7,6.7],[4.4,7.9],[4.7,9.1],[4.65,10.3],[4.3,11.5],[3.6,12.5],[2.6,13.3],[1.4,13.8],[0.01,14.0]];
+  add(new THREE.LatheGeometry(prof.map(p=>new V2(p[0],p[1])),36),envMat,0,0,0);
+  // 火焰
+  const flameTex=(()=>{const [c,x]=cvs(64,64),gr=x.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,220,1)');gr.addColorStop(0.35,'rgba(255,170,40,0.9)');gr.addColorStop(1,'rgba(255,60,0,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
+  const flame=new THREE.Sprite(new THREE.SpriteMaterial({map:flameTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));flame.position.set(0,H+2.2,0);flame.visible=false;g.add(flame);
+  const lab=labelSprite('熱氣球','走到吊籃旁按 F 搭乘');lab.scale.multiplyScalar(0.7);lab.position.set(0,16,0);g.add(lab);   // 搭乘中不顯示
+  const B={g,pos:HOME.clone(),y:0,vy:0,vel:new V2(),burn:0,riding:false,landing:false,shT:0,t:0,told:false};
+  B.col=addBox(HOME.x-0.9,HOME.x+0.9,HOME.y-0.9,HOME.y+0.9,1.1);
+  const place=()=>g.position.set(B.pos.x,B.y,B.pos.y);place();
+  const ground=()=>heightAt(B.pos.x,B.pos.y,B.y+0.3);
+  B.grounded=()=>B.y<=ground()+0.02;
+  B.near=()=>!B.riding&&started&&mode==='walk'&&!GAME.on&&Math.hypot(player.pos.x-B.pos.x,player.pos.y-B.pos.y)<2.4&&Math.abs(player.y-B.y)<1.5;
+  B.act=()=>B.riding?(B.grounded()?'下熱氣球':B.landing?'降落中…':'降落'):B.near()?'搭熱氣球':null;
+  B.toggle=()=>{if(!B.riding)board();else if(B.grounded())dismount();else{B.landing=true;B.burn=0;}};
+  function board(){B.riding=true;B.landing=false;B.col.off=true;B.vel.set(0,0);player.vel.set(0,0);player.climb=false;player.pos.copy(B.pos);player.y=B.y+0.12;AUDIO.sfx('click');
+    if(!B.told){B.told=true;toast('熱氣球：按「跳」（空白鍵）噴火往上升，不噴火會慢慢下降；搖桿／WASD 往哪飄；空中按「降落」自動降到地面');}}
+  function setCol(){const c=B.col;c.x0=B.pos.x-0.9;c.x1=B.pos.x+0.9;c.z0=B.pos.y-0.9;c.z1=B.pos.y+0.9;c.y0=B.y;c.h=B.y+1.1;c.off=false;}
+  function dismount(){lab.visible=true;B.riding=false;B.landing=false;const p=new V2(B.pos.x+1.5,B.pos.y);resolve(p,0.3,B.y);player.pos.copy(p);player.y=heightAt(p.x,p.y,B.y+0.5);player.vy=0;setCol();renderer.shadowMap.needsUpdate=true;}
+  // 傳送、開始小遊戲時：人下來，熱氣球回到空地上
+  B.reset=()=>{lab.visible=true;B.riding=false;B.landing=false;B.burn=0;B.vy=0;B.vel.set(0,0);B.pos.copy(HOME);B.y=0;flame.visible=false;envMat.emissiveIntensity=0;g.rotation.set(0,0,0);place();setCol();renderer.shadowMap.needsUpdate=true;};
+  B.burnPress=()=>{B.burn=Math.min(B.burn+1.3,3);B.landing=false;AUDIO.sfx('burner');};
+  B.step=(dt,f,s,stage)=>{B.t+=dt;lab.visible=false;
+    // 水平：慢慢加速、慢慢停（熱氣球的感覺）
+    const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),rx=Math.cos(player.yaw),rz=-Math.sin(player.yaw),sp=[3,7][stage],k=1-Math.exp(-dt*1.2);
+    if(!B.grounded()||B.burn>0){B.vel.x+=((fx*f+rx*s)*sp-B.vel.x)*k;B.vel.y+=((fz*f+rz*s)*sp-B.vel.y)*k;}else B.vel.multiplyScalar(Math.exp(-dt*6));
+    B.pos.x+=B.vel.x*dt;B.pos.y+=B.vel.y*dt;
+    if(B.y-ground()<20)resolve(B.pos,1.0,B.y);   // 低空才擋建築物
+    B.pos.x=Math.max(-320,Math.min(360,B.pos.x));B.pos.y=Math.max(-320,Math.min(320,B.pos.y));
+    // 垂直：噴火往上升（最快 3 m/s），不噴火慢慢下降；降落中 2 m/s 往下
+    B.burn=Math.max(0,B.burn-dt);const target=B.landing?-2.0:B.burn>0?3.0:-0.5;B.vy+=(target-B.vy)*(1-Math.exp(-dt*(B.burn>0?1.4:0.7)));
+    B.y=Math.min(150,B.y+B.vy*dt);const gy=ground();if(B.y<=gy){B.y=gy;if(B.vy<0)B.vy=0;if(B.landing){B.landing=false;AUDIO.sfx('thud');}}
+    const air=B.y>gy+0.05;g.rotation.z=air?Math.sin(B.t*0.6)*0.025:0;g.rotation.x=air?Math.sin(B.t*0.45)*0.02:0;
+    flame.visible=B.burn>0;if(flame.visible)flame.scale.setScalar(0.9+Math.random()*0.7);envMat.emissiveIntensity+=((B.burn>0?0.35:0)-envMat.emissiveIntensity)*Math.min(1,dt*6);
+    place();player.pos.copy(B.pos);player.y=B.y+0.12;player.vy=0;player.ground=true;player.vel.set(0,0);player.climb=false;
+    B.shT-=dt;if(B.shT<=0&&(Math.abs(B.vy)>0.05||B.vel.lengthSq()>0.01)){B.shT=0.3;renderer.shadowMap.needsUpdate=true;}};
+  B.spot=()=>({x:B.pos.x,z:B.pos.y-2.3,yaw:Math.PI,y:B.y});   // 熱氣球北邊 2.3 m、面向吊籃
+  Object.defineProperty(B,'alt',{get:()=>B.y-ground()});
+  return B;})();
+
+/* ---------------- 躺床、翻滾（使用者要求） ----------------
+   走到床邊按 F（手機點下方按鈕）「躺到床上」；左右推搖桿（A／D）在床上翻滾，滾過床邊會滾下床；按「起來」或「跳」起身。
+   第一人稱：躺著看天花板（翻滾時畫面跟著轉）；第三人稱：從腳那邊看人躺著。小遊戲、搭熱氣球中不能躺。 */
+const LIE=(()=>{const L={on:false,bed:null,z:0,roll:0,half:0};
+  const near=()=>{if(!started||mode!=='walk'||GAME.on||BALLOON.riding)return null;const px=player.pos.x,pz=player.pos.y;
+    for(const b of BEDS)if(Math.abs(player.y-b.floor)<0.6&&px>b.x0-0.8&&px<b.x1+0.8&&pz>b.z0-0.8&&pz<b.z1+0.8)return b;return null;};
+  L.act=()=>L.on?'起來':near()?'躺到床上':null;
+  L.toggle=()=>{if(L.on)L.stop();else{const b=near();if(b)L.start(b);}};
+  L.start=b=>{L.on=true;L.bed=b;L.z=Math.max(b.z0+0.3,Math.min(b.z1-0.3,player.pos.y));L.roll=0;L.half=0;player.vel.set(0,0);player.climb=false;
+    player.yaw=Math.PI/2;player.pitch=-0.75;AUDIO.sfx('swish');   // 第三人稱鏡頭在腳那邊、往下看
+    if(!L.told){L.told=true;toast('躺在床上：左右推搖桿（A／D）翻滾，滾過床邊會滾下床；按「起來」或「跳」起身');}};
+  // 起身：站到床尾（fall＝滾下床：站到滾出去那一邊）
+  L.stop=(fall,side)=>{if(!L.on)return;const b=L.bed;L.on=false;L.bed=null;
+    const p=fall?new V2(Math.min(b.x1-0.4,Math.max(b.x0+0.6,b.x0+0.9)),side>0?b.z1+0.4:b.z0-0.4):new V2(b.x1+0.45,L.z);
+    resolve(p,0.3,b.floor);player.pos.copy(p);player.y=b.floor;player.vy=0;player.ground=true;player.yaw=fall?(side>0?Math.PI:0):-Math.PI/2;player.pitch=-0.05;
+    avatar.root.rotation.set(0,player.yaw+Math.PI,0);avatar.body.rotation.y=0;
+    if(fall){AUDIO.sfx('thud');toast('滾下床了！');}else AUDIO.sfx('swish');};
+  L.step=(dt,f,s)=>{const b=L.bed,sc=bodyH().scale;
+    // 往畫面右邊滾：第一人稱（看天花板、頭朝上）畫面右邊是南（+z）；第三人稱照鏡頭方向
+    const rz=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),vz=(view==='first'?s:(fz*f+rz*s))*1.4;
+    if(Math.abs(vz)>0.05){L.z+=vz*dt;L.roll+=vz*dt/0.17;const h=Math.floor(L.roll/Math.PI);if(h!==L.half){L.half=h;AUDIO.sfx('swish');}}
+    if(b.wall===-1&&L.z<b.z0+0.3)L.z=b.z0+0.3;   // 靠牆那邊滾不下去
+    if(L.z>b.z1+0.05){L.stop(true,1);return;}if(L.z<b.z0-0.05){L.stop(true,-1);return;}   // 滾過床邊：滾下床
+    player.pos.set(b.x0+0.85*sc,L.z);player.y=b.top;player.vy=0;player.ground=true;player.vel.set(0,0);};
+  // 人物躺著：頭朝西（枕頭）、臉朝上；翻滾＝繞身體長軸轉
+  L.pose=a=>{const b=L.bed,sc=bodyH().scale;a.root.position.set(b.x0+0.25+1.7*sc,b.top+0.13*sc,L.z);a.root.rotation.set(-Math.PI/2,Math.PI/2,0,'YXZ');a.body.rotation.y=-L.roll;
+    a.body.rotation.x=0;a.body.position.y=0;a.legL.rotation.x=a.legR.rotation.x=0;a.armL.rotation.x=a.armR.rotation.x=0;a.armL.rotation.z=-0.12;a.armR.rotation.z=0.12;};
+  // 第一人稱：從枕頭的位置看天花板，翻滾時畫面跟著轉
+  const tmp=new V3();
+  L.cam=()=>{if(view!=='first')return;const b=L.bed;camera.position.set(b.x0+0.3,b.top+0.25,L.z);tmp.set(camera.position.x+0.25,camera.position.y+Math.cos(L.roll),camera.position.z+Math.sin(L.roll));
+    camera.up.set(-1,0,0);camera.lookAt(tmp);camera.up.set(0,1,0);};
+  return L;})();
+
 /* ---------------- 標籤 ---------------- */
 function labelSprite(name,desc,color='rgba(16,24,32,0.78)'){
   const [m,mg]=cvs(8,8);mg.font=`bold 64px ${FONT}`;const w1=mg.measureText(name).width;mg.font=`30px ${FONT}`;const w2=desc?mg.measureText(desc).width:0;
@@ -2238,10 +2357,11 @@ setTime(15);refreshEnv();
 /* ---------------- 玩家 ---------------- */
 const player={pos:new V2(),y:0,vy:0,yaw:0,pitch:-0.05,vel:new V2(),runTime:0,ground:true,climb:false,jumps:0};
 // 跳：在地上跳一次，空中可以再跳一次（二段跳）
-function doJump(){if(!started||mode!=='walk'||player.climb)return;
+function doJump(){if(!started||mode!=='walk')return;if(BALLOON.riding){BALLOON.burnPress();return;}if(LIE.on){LIE.stop();syncActBtn();return;}if(player.climb)return;
   if(player.ground){player.vy=4.6;player.ground=false;player.jumps=1;}else if(player.jumps<2){player.vy=4.6;player.jumps=2;}}
 const lidShut=()=>HATCH_LID.t<0.95;
-const onLadder=()=>player.pos.x>LADDER.x0&&player.pos.x<LADDER.x1&&player.pos.y>LADDER.z0&&player.pos.y<LADDER.z1&&player.y>FL[3]-0.05&&player.y<FL[4]+0.95&&!(lidShut()&&player.y>FL[4]-1);
+let climbTold=false;   /* 爬梯範圍：靠近屋頂那段涵蓋整個梯口（站在梯口西半邊也算在梯子上，不會直接掉到露台） */
+const onLadder=()=>player.pos.x>(player.y>FL[4]-1.2?HATCH.x0:LADDER.x0)&&player.pos.x<LADDER.x1&&player.pos.y>LADDER.z0&&player.pos.y<LADDER.z1&&player.y>FL[3]-0.05&&player.y<FL[4]+0.95&&!(lidShut()&&player.y>FL[4]-1);
 const comfort={sens:1,speed:1,camDist:4.2};
 const START=new V2(ux(0)+3.2,8.4);player.pos.copy(START);
 
@@ -2282,19 +2402,21 @@ function updateAvatar(dt,stage){
   a.phase+=dt*(2.4+Math.min(sp,8)*1.15);
   const amp=Math.min(1,sp/2.4)*[0.55,0.9][stage];const sw=Math.sin(a.phase)*amp;
   a.legL.rotation.x=sw;a.legR.rotation.x=-sw;a.armL.rotation.x=-sw*0.9;a.armR.rotation.x=sw*0.9;
-  if(player.climb){a.yaw=0;a.root.rotation.y=Math.PI;const c=Math.sin(player.y*6);a.armL.rotation.x=-2.6+c*0.3;a.armR.rotation.x=-2.6-c*0.3;a.legL.rotation.x=-0.6-c*0.4;a.legR.rotation.x=-0.6+c*0.4;}
+  if(player.climb){a.yaw=Math.PI/2;a.root.rotation.y=a.yaw+Math.PI;const c=Math.sin(player.y*6);a.armL.rotation.x=-2.6+c*0.3;a.armR.rotation.x=-2.6-c*0.3;a.legL.rotation.x=-0.6-c*0.4;a.legR.rotation.x=-0.6+c*0.4;}
   else if(!player.ground){a.legL.rotation.x=0.5;a.legR.rotation.x=-0.3;a.armL.rotation.x=-2.4;a.armR.rotation.x=-2.4;}
   a.body.rotation.x=-Math.min(0.2,sp*0.025);
   a.body.position.y=Math.abs(Math.sin(a.phase))*0.04*amp;
   GAME.animAvatar(a,dt);   // 小遊戲：出拳、踢腿、集氣的動作
+  if(LIE.on)LIE.pose(a);else if(a.root.rotation.x)a.root.rotation.x=0;   // 躺床
 }
 // 第三人稱鏡頭：碰到牆會自動拉近
 const camTmp=new V2();
 function thirdPersonCamera(){
-  const tx=player.pos.x,ty=player.y+bodyH().cam,tz=player.pos.y;
+  const tx=player.pos.x,ty=player.y+(LIE.on?0.3:bodyH().cam),tz=player.pos.y;   // 躺床時看著床上的人
   const cp=Math.cos(player.pitch),fx=-Math.sin(player.yaw)*cp,fy=Math.sin(player.pitch),fz=-Math.cos(player.yaw)*cp;
-  let dist=comfort.camDist;
-  for(let t=0.6;t<=comfort.camDist;t+=0.2){camTmp.set(tx-fx*t,tz-fz*t);const cy=ty-fy*t+0.35;let hit=false;
+  const cd=BALLOON.riding?Math.max(comfort.camDist,9):comfort.camDist;   // 搭熱氣球時鏡頭拉遠一點
+  let dist=cd;
+  for(let t=0.6;t<=cd;t+=0.2){camTmp.set(tx-fx*t,tz-fz*t);const cy=ty-fy*t+0.35;let hit=false;
     for(const c of colliders){if(c.circle||c.off||c.h<cy||c.y0>cy)continue;if(camTmp.x>c.x0-0.25&&camTmp.x<c.x1+0.25&&camTmp.y>c.z0-0.25&&camTmp.y<c.z1+0.25){hit=true;break;}}
     if(hit){dist=Math.max(0.6,t-0.3);break;}}
   // 在騎樓下時鏡頭不要穿過 2F 樓板
@@ -2309,7 +2431,7 @@ function thirdPersonCamera(){
 }
 function toggleView(){view=view==='third'?'first':'third';try{localStorage.setItem('home-view2',view);}catch(_){}syncViewUI();}
 function setKid(on,say){kid=on;try{localStorage.setItem('home-kid',on?'1':'0');}catch(_){}avatar.root.scale.setScalar(bodyH().scale);const cb=document.getElementById('kid');if(cb)cb.checked=on;if(say)toast(on?'小孩視角（身高約 130 cm）':'大人視角');}
-function syncViewUI(){const b=document.getElementById('bView');b.textContent=view==='third'?'第三人稱':'第一人稱';b.classList.toggle('on',view==='third');avatar.root.visible=view==='third'&&mode==='walk';}
+function syncViewUI(){const b=document.getElementById('bView');b.textContent=view==='third'?'第三人稱':'第一人稱';b.classList.toggle('on',view==='third');avatar.root.visible=mode==='aerial'||view==='third';   /* 空拍時也看得到人物（使用者要求） */}
 // 目前在我家的哪一層、哪個房間（室內自動切第一人稱，第三人稱鏡頭在小房間會卡牆）
 function floorOf(y){let f=0;for(let k=1;k<5;k++)if(y>=FL[k]-(k===4?0.3:0.6))f=k;return f;}   // 4＝屋頂
 function roomAt(x,z,y){if(x<HX0||x>HX1||z<Z_BACK||z>0.1)return null;const f=floorOf(y);for(const r of ROOMS)if(r.f===f&&x>=r.x0-0.1&&x<=r.x1+0.1&&z>=r.z0-0.1&&z<=r.z1+0.1&&!(r.ymax!==undefined&&y>FL[f]+r.ymax))return r;return null;}
@@ -2318,7 +2440,7 @@ const keys={};let mode='walk';let started=false;
 const orbit=new OrbitControls(camera,renderer.domElement);orbit.enabled=false;orbit.enableDamping=true;orbit.maxPolarAngle=Math.PI*0.48;orbit.minDistance=6;orbit.maxDistance=220;
 
 let placeTimer=0;
-function teleport(x,z,yaw,y=0){player.y=y;player.vy=0;const fd=document.getElementById('fade');if(fd&&started){fd.style.transition='none';fd.style.opacity=1;requestAnimationFrame(()=>{fd.style.transition='opacity .35s';fd.style.opacity=0;});}player.vel.set(0,0);player.pos.set(x,z);resolve(player.pos,0.3,y);if(yaw!==undefined){player.yaw=yaw;player.pitch=-0.05;}if(mode==='aerial'){orbit.target.set(x,0,z);}placeTimer=0;}
+function teleport(x,z,yaw,y=0){if(BALLOON.riding)BALLOON.reset();if(LIE.on)LIE.stop();player.y=y;player.vy=0;const fd=document.getElementById('fade');if(fd&&started){fd.style.transition='none';fd.style.opacity=1;requestAnimationFrame(()=>{fd.style.transition='opacity .35s';fd.style.opacity=0;});}player.vel.set(0,0);player.pos.set(x,z);resolve(player.pos,0.3,y);if(yaw!==undefined){player.yaw=yaw;player.pitch=-0.05;}if(mode==='aerial'){orbit.target.set(x,0,z);}placeTimer=0;}
 const SPOTS=[
   {name:'我家門口',x:DOOR.x,z:3.6,yaw:0},
   {name:'1F 客廳',x:3.8,z:-4.0,yaw:0},
@@ -2330,6 +2452,7 @@ const SPOTS=[
   {name:'後陽台',x:3.6,z:-13.0,yaw:-Math.PI/2},
   {name:'西側通道',x:0.7,z:-5,yaw:0},
   {name:'巷口',x:-10.5,z:7.6,yaw:-Math.PI/2},
+  {name:'熱氣球',bal:true},   // 傳送到熱氣球現在停的地方（可能降落在別處）
   {name:'全家便利商店',x:(STORE.dx0+STORE.dx1)/2,z:10.8,yaw:Math.PI},
 ];
 
@@ -2389,8 +2512,7 @@ function toggleAerial(){
     camera.position.set(player.pos.x+Math.sin(player.yaw)*35+10,38,player.pos.y+Math.cos(player.yaw)*35+10);
     orbit.enabled=true;orbit.update();bA.classList.add('on');
   }else{
-    mode='walk';orbit.enabled=false;bA.classList.remove('on');camera.rotation.order='YXZ';
-    const t=orbit.target;player.pos.set(t.x,t.z);player.y=0;player.vy=0;resolve(player.pos,0.3);
+    mode='walk';orbit.enabled=false;bA.classList.remove('on');camera.rotation.order='YXZ';   // 離開空拍：人留在原地（原本會傳送到鏡頭看的地方）
   }
   syncViewUI();syncHint();
 }
@@ -2398,7 +2520,7 @@ function toggleAerial(){
 let mmOn=!isTouch;try{const v=localStorage.getItem('home-mm');if(v!==null)mmOn=v==='1';}catch(_){}
 function setMinimap(on){mmOn=on;mmWrap.classList.toggle('off',!on);if(!on)mmWrap.classList.remove('big');bM.classList.toggle('on',mmWrap.classList.contains('big'));
   try{localStorage.setItem('home-mm',on?'1':'0');}catch(_){}if(on)setTimeout(drawMinimapBg,30);}
-function toggleMap(){if(!mmOn){setMinimap(true);return;}mmWrap.classList.toggle('big');bM.classList.toggle('on',mmWrap.classList.contains('big'));setTimeout(drawMinimapBg,280);}
+function toggleMap(){if(document.body.classList.contains('touch'))return;if(!mmOn){setMinimap(true);return;}mmWrap.classList.toggle('big');bM.classList.toggle('on',mmWrap.classList.contains('big'));setTimeout(drawMinimapBg,280);}
 document.getElementById('mmClose').addEventListener('click',e=>{e.stopPropagation();setMinimap(false);});
 setMinimap(mmOn);
 bA.onclick=toggleAerial;bM.onclick=toggleMap;
@@ -2406,7 +2528,7 @@ bMenu.onclick=()=>{menu.hidden=!menu.hidden;bMenu.classList.toggle('on',!menu.hi
 document.getElementById('time').oninput=e=>setTime(+e.target.value);
 document.getElementById('lbl').onchange=e=>{labels.visible=e.target.checked;};
 {const gotoEl=document.getElementById('goto');
- for(const s of SPOTS){const btn=document.createElement('button');btn.textContent=s.name;btn.onclick=()=>{if(mode==='aerial')toggleAerial();teleport(s.x,s.z,s.yaw,s.y||0);menu.hidden=true;bMenu.classList.remove('on');};gotoEl.appendChild(btn);}}
+ for(const s of SPOTS){const btn=document.createElement('button');btn.textContent=s.name;btn.onclick=()=>{if(mode==='aerial')toggleAerial();const t=s.bal?BALLOON.spot():s;teleport(t.x,t.z,t.yaw,t.y||0);menu.hidden=true;bMenu.classList.remove('on');};gotoEl.appendChild(btn);}}
 function bindComfort(id,valId,fmt,apply){const el=document.getElementById(id),lab=document.getElementById(valId);
   let v=null;try{v=localStorage.getItem('home-'+id);}catch(_){}
   if(v!==null)el.value=v;const upd=()=>{apply(+el.value);lab.textContent=fmt(+el.value);try{localStorage.setItem('home-'+id,el.value);}catch(_){}};el.oninput=upd;upd();}
@@ -2427,8 +2549,10 @@ const mm=document.getElementById('mm'),mmc=mm.getContext('2d');
 const MB={x0:-48,z0:-50,x1:96,z1:40};let mmT={sc:1,ox:0,oy:0},mmBg=null;
 const w2m=(x,z)=>[(x-MB.x0)*mmT.sc+mmT.ox,(z-MB.z0)*mmT.sc+mmT.oy];
 function drawMinimapBg(){
-  if(!mmOn)return;
-  const dpr=Math.min(devicePixelRatio,2),w=mm.clientWidth,h=mm.clientHeight;mm.width=w*dpr;mm.height=h*dpr;
+  if(!mmOn||document.body.classList.contains('touch'))return;
+  const dpr=Math.min(devicePixelRatio,2),w=mm.clientWidth,h=mm.clientHeight;
+  if(!w||!h){mmBg=null;return;}   // 小地圖被藏起來（大小是 0）：不畫，不然 drawImage 會出錯讓整個畫面卡住
+  mm.width=w*dpr;mm.height=h*dpr;
   const sc=Math.min(w/(MB.x1-MB.x0),h/(MB.z1-MB.z0));mmT={sc,ox:(w-(MB.x1-MB.x0)*sc)/2,oy:(h-(MB.z1-MB.z0)*sc)/2};
   const [c,g]=cvs(w*dpr,h*dpr);g.scale(dpr,dpr);
   g.fillStyle='#4b5157';g.fillRect(0,0,w,h);
@@ -2450,7 +2574,7 @@ function drawMinimapBg(){
   mmBg=c;
 }
 function drawMinimap(){
-  if(!mmBg||!mmOn)return;const dpr=mm.width/mm.clientWidth;mmc.setTransform(1,0,0,1,0,0);mmc.drawImage(mmBg,0,0);mmc.setTransform(dpr,0,0,dpr,0,0);
+  if(!mmBg||!mmOn||!mmBg.width||!mm.width||!mm.clientWidth){if(mmOn&&!mmBg&&mm.clientWidth)drawMinimapBg();return;}const dpr=mm.width/mm.clientWidth;mmc.setTransform(1,0,0,1,0,0);mmc.drawImage(mmBg,0,0);mmc.setTransform(dpr,0,0,dpr,0,0);
   let px,pz,yaw;if(mode==='walk'){px=player.pos.x;pz=player.pos.y;yaw=player.yaw;}else{px=orbit.target.x;pz=orbit.target.z;yaw=Math.atan2(camera.position.x-orbit.target.x,camera.position.z-orbit.target.z);}
   const [x,y]=w2m(px,pz);const fx=-Math.sin(yaw),fz=-Math.cos(yaw);
   mmc.save();mmc.translate(x,y);mmc.rotate(Math.atan2(fz,fx));
@@ -2482,8 +2606,9 @@ const inR=(x,z,r)=>x>=r.x0&&x<=r.x1&&z>=r.z0&&z<=r.z1;
 function updatePlace(){
   const [x,z]=mode==='walk'?[player.pos.x,player.pos.y]:[orbit.target.x,orbit.target.z];
   let t=['周邊',''];
-  const room=mode==='walk'?roomAt(x,z,player.y):null;
-  if(room)t=[`我家 ${room.f+1}F`,room.name];
+  const room=mode==='walk'&&!BALLOON.riding?roomAt(x,z,player.y):null;
+  if(BALLOON.riding)t=['熱氣球',`高度 ${Math.max(0,Math.round(BALLOON.alt))} m`];
+  else if(room)t=[`我家 ${room.f+1}F`,room.name];
   else if(mode==='walk'&&player.y>=FL[4]-0.3&&x>HX0&&x<XN&&z<Z_4F&&z>Z_4B)t=['我家','屋頂（水塔）'];
   else if(mode==='walk'&&player.y>=FL[3]-0.3&&x>=XN&&x<ROW_X1&&z<0.1&&z>Z_BACK){const n=Math.floor((x-X0)/UW);t=[`鄰居（往東第 ${n} 戶）`,player.y>=FL[4]-0.3?'屋頂':z>Z_4F?'4F 露台':'4F 後陽台'];}
   else if(inR(x,z,{x0:0,x1:ux(1),z0:Z_1F,z1:Z_YARD}))t=['我家',z<0?'騎樓':'前院'];
@@ -2506,8 +2631,14 @@ function updatePlace(){
 const AUDIO=(()=>{
   const A={ctx:null,master:null,sfx:null,music:null,amb:null,noise:null,vol:0.7,mute:false,ambOn:true};
   try{const v=localStorage.getItem('home-vol');if(v!==null)A.vol=+v;A.mute=localStorage.getItem('home-mute')==='1';A.ambOn=localStorage.getItem('home-amb')!=='0';}catch(_){}
-  function init(){if(A.ctx){if(A.ctx.state==='suspended'&&!document.hidden)A.ctx.resume();return;}
+  // 開聲音：手機瀏覽器要「手指放開／點完」才算點擊（剛碰到不算），所以 touchend、click、pointerup 都試一次；
+  // 狀態不是 running（suspended、iPhone 切回來的 interrupted）就再叫醒一次
+  function init(){
+    try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(_){}   // iPhone：側邊靜音開關打開時網頁也能出聲（Safari 16.4 以上）
+    if(A.ctx){if(A.ctx.state!=='running'&&!document.hidden)A.ctx.resume().catch(()=>{});return;}
     const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=A.ctx=new C();
+    try{const b=c.createBuffer(1,1,22050),src=c.createBufferSource();src.buffer=b;src.connect(c.destination);src.start(0);}catch(_){}   // 播一個無聲的樣本：舊 iPhone 要這樣才「解鎖」聲音
+    if(c.state!=='running')c.resume().catch(()=>{});
     A.master=c.createGain();A.master.connect(c.destination);
     const comp=c.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;comp.connect(A.master);
     A.sfx=c.createGain();A.sfx.gain.value=0.9;A.sfx.connect(comp);
@@ -2516,8 +2647,8 @@ const AUDIO=(()=>{
     const n=c.createBuffer(1,c.sampleRate*2,c.sampleRate),d=n.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;A.noise=n;
     applyVol();startAmbient();}
   function applyVol(){if(A.master)A.master.gain.setTargetAtTime(A.mute?0:A.vol,A.ctx.currentTime,0.05);}
-  for(const ev of ['pointerdown','keydown','touchstart'])addEventListener(ev,init,{passive:true});
-  document.addEventListener('visibilitychange',()=>{if(!A.ctx)return;if(document.hidden)A.ctx.suspend();else A.ctx.resume();});
+  for(const ev of ['pointerdown','pointerup','keydown','touchstart','touchend','click'])addEventListener(ev,init,{passive:true,capture:true});
+  document.addEventListener('visibilitychange',()=>{if(!A.ctx)return;if(document.hidden)A.ctx.suspend();else A.ctx.resume().catch(()=>{});});   // 回來時叫不醒的話，下一次點畫面會再叫醒（init）
   // ---- 基本聲音：音調（可以滑音、可以過濾）、雜訊（帶通／低通掃頻） ----
   const ok=()=>A.ctx&&A.ctx.state==='running';
   function env(g,t,a,peak,dec){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+a+dec);}
@@ -2549,6 +2680,11 @@ const AUDIO=(()=>{
       case 'crack':noise(t,0.14,0.35,o,'bandpass',rp(1100),300,1.2);tone('sine',rp(110),50,t,0.14,0.3,o);break;
       case 'carboom':noise(t,1.4,1,o,'lowpass',3000,70);tone('sine',70,24,t,1.0,1,o);for(let i=0;i<5;i++)noise(t+0.05+i*0.07,0.06,0.25,o,'highpass',rp(5000));break;   // 爆炸＋玻璃碎
       case 'collapse':noise(t,3.0,0.9,o,'lowpass',1200,50);tone('sine',48,22,t,2.6,0.9,o);for(let i=0;i<9;i++)noise(t+i*0.24+rnd(0,0.1),0.3,0.4,o,'bandpass',rnd(250,900),0,1);break;   // 轟隆倒塌
+      case 'palmUp':noise(t,0.8,0.5,o,'bandpass',300,2500,1.4);tone('sine',rp(180),720,t,0.75,0.35,o);break;   // 往天上飛
+      case 'palm':[98,147,196].forEach((f,i)=>tone('sine',f,f*0.97,t,2.2-i*0.4,0.6-i*0.15,o));noise(t,0.5,0.5,o,'lowpass',1500,100);break;   // 巨掌落地：低沉的鐘聲
+      case 'pop':noise(t,0.12,0.35,o,'highpass',2500);tone('sine',rp(300),900,t,0.12,0.3,o);break;   // 足球充氣彈出
+      case 'kick':tone('sine',rp(130),45,t,0.14,0.9,o);noise(t,0.08,0.55,o,'lowpass',2200,300);break;   // 踢球
+      case 'burner':noise(t,1.3,0.6,o,'bandpass',rp(420),260,0.7);noise(t,1.3,0.35,o,'lowpass',240);break;   // 熱氣球噴火
       case 'chime':tone('sine',1047,0,t,0.9,0.18,o);tone('sine',831,0,t+0.4,1.1,0.18,o);break;   // 自動門叮咚
       case 'bigboom':noise(t,1.3,1,o,'lowpass',2500,60);tone('sine',60,22,t,1.1,1,o);tone('sawtooth',90,30,t,0.7,0.3,o,['lowpass',400]);break;}}
   // 蓄力的聲音：越來越高，放開就停
@@ -2604,7 +2740,7 @@ const AUDIO=(()=>{
    技能都是按了馬上放、沒有魔力／冷卻：J／1 拳、L／2 踢、U／3 旋風腿、I／5 升龍拳、O／4 氣功炮；畫面下方有技能按鈕。
    連段（連續按，間隔 0.8 秒內）：拳拳拳＝三連重拳、拳拳踢＝連環踢、踢拳＝升龍拳、踢踢＝飛踢、拳踢氣＝超級氣功波。 */
 const GAME=(()=>{
-  const G={airHits:0,charge:-1,full:false,on:false,over:false,hp:100,wave:0,kills:0,zs:[],toSpawn:0,spawnT:0,waveT:0,shots:[],fx:[],act:null,queue:null,hist:[],side:0,calm:0,prevView:null,combo:0,comboT:0,best:0,stop:0,shake:0,blastCd:0};
+  const G={balls:[],prints:[],curBall:null,palm:null,palmHit:0,airHits:0,charge:-1,full:false,on:false,over:false,hp:100,wave:0,kills:0,zs:[],toSpawn:0,spawnT:0,waveT:0,shots:[],fx:[],act:null,queue:null,hist:[],side:0,calm:0,prevView:null,combo:0,comboT:0,best:0,stop:0,shake:0,blastCd:0};
   const $=id=>document.getElementById(id);
   const hud=$('gHud'),hpEl=$('gHp'),waveEl=$('gWave'),killEl=$('gKills'),comboEl=$('gCombo'),skills=$('gSkills'),overEl=$('gOver'),flash=$('gFlash'),bigEl=$('gBig');
   // 每招：dur＝動作時間、hits＝打中的時間點（0～1）、r 距離、cone 前方角度（-1＝一圈）、dmg、kb 擊退、up 往上飛、name 連段名稱
@@ -2614,8 +2750,10 @@ const GAME=(()=>{
     kick:{dur:0.3,hits:[0.5],r:1.95,cone:0.3,dmg:45,kb:8},
     flurry:{dur:0.62,hits:[0.2,0.45,0.75],r:2.1,cone:0.25,dmg:32,kb:4,lastKb:11,lastUp:5,shake:0.15,name:'連環踢！',safe:true},
     spin:{dur:0.45,hits:[0.25,0.5,0.75],r:2.9,cone:-1,dmg:30,kb:11,up:5,shake:0.15,name:'旋風腿！',safe:true},
-    upper:{dur:0.45,hits:[0.35],r:1.9,cone:0.15,dmg:60,kb:1.5,up:12,shake:0.2,stop:0.06,name:'升龍拳！',safe:true},
-    fly:{dur:0.5,hits:[],r:1.6,cone:0.1,dmg:60,kb:16,up:6,shake:0.18,name:'飛踢！',safe:true},
+    // 如來神掌（取代升龍拳，使用者要求）：飛到天上、跟著一隻金色巨掌壓到地上，地上留下手印；時間由落地決定
+    palm:{dur:3,hits:[],name:'如來神掌！',safe:true},
+    // 足球（取代飛踢，使用者要求）：肚子的皮帶彈出一顆足球，充氣變大落到腳邊，一腳踢出去把殭屍踢飛
+    ball:{dur:0.6,hits:[0.55],name:'足球射門！',safe:true},
     blast:{dur:0.22,hits:[]},
     beam:{dur:0.5,hits:[0.25],shake:0.45,stop:0.08,name:'超級氣功波！',safe:true},
   };
@@ -2725,8 +2863,8 @@ const GAME=(()=>{
   function doMove(move){const m=MOVES[move];G.side^=1;G.act={kind:move,t:0,dur:m.dur,next:0,once:new Set()};avatar.yaw=player.yaw;G.queue=null;
     if(m.name)bigText(m.name);else snd('whoosh');
     if(move==='blast')fireBall();
-    if(move==='upper'){player.vy=Math.max(player.vy,3.2);player.ground=false;}
-    if(move==='fly'){player.vy=Math.max(player.vy,2.2);player.ground=false;}}
+    if(move==='palm')palmStart();
+    if(move==='ball')ballSpawn();}
   // 氣功炮：馬上射出一顆
   // c＝蓄力程度 0～1（一般氣功炮是 0）：越大顆、越慢、範圍越大、打得越高
   function fireBall(c=0){const p=handPos(),dir=aimDir(),r=0.32+0.6*c;
@@ -2755,6 +2893,81 @@ const GAME=(()=>{
     for(const z of G.zs){if(!hittable(z))continue;const v=new V3(z.pos.x-p.x,z.y+1.0-p.y,z.pos.y-p.z),along=v.dot(d3),side=v.clone().addScaledVector(d3,-along).length();
       if(along>0&&along<L&&side<1.1)hurtZombie(z,150,hd,18,10);}
     DESTR.beam(p,d3,L);}
+  // ---- 如來神掌：往上飛到天上（室內就到天花板下）→ 往下衝，一隻金色巨掌跟著壓下來 → 落地衝擊波、地上留下手印 ----
+  const goldTex=radTex([[0,'rgba(255,250,225,1)'],[0.3,'rgba(255,205,90,0.85)'],[1,'rgba(255,150,0,0)']]);
+  // 手的形狀（給手印貼圖）：中心在原點、手指朝畫面上方
+  function handShape(g,S){g.beginPath();g.ellipse(0,0.16*S,0.3*S,0.33*S,0,0,Math.PI*2);
+    for(const [x,tip,w] of [[-0.21,-0.43,0.065],[-0.07,-0.5,0.07],[0.07,-0.48,0.07],[0.2,-0.4,0.062]])g.roundRect((x-w)*S,tip*S,2*w*S,(0.1-tip)*S,w*S);
+    g.save();g.translate(-0.3*S,0.12*S);g.rotate(-0.8);g.roundRect(-0.07*S,-0.3*S,0.14*S,0.34*S,0.07*S);g.restore();}
+  function handTex(fill,glow){const N=256,[c,g]=cvs(N,N);g.translate(N/2,N/2);if(glow){g.shadowColor=glow;g.shadowBlur=22;}g.fillStyle=fill;handShape(g,N*0.92);g.fill();
+    if(!glow){g.globalCompositeOperation='source-atop';g.strokeStyle='rgba(0,0,0,0.45)';g.lineWidth=2;for(let i=0;i<18;i++){const a=Math.random()*6.28;g.beginPath();g.moveTo(Math.cos(a)*N*0.05,Math.sin(a)*N*0.05+20);g.lineTo(Math.cos(a)*N*0.45,Math.sin(a)*N*0.45+20);g.stroke();}}   // 裂痕
+    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
+  const printTex=handTex('rgba(48,34,22,0.9)'),printGlowTex=handTex('rgba(255,215,100,1)','rgba(255,170,40,1)');
+  // 地上的手印：剛壓下去金光，之後變焦黑凹痕，十幾秒後淡掉
+  function handPrint(x,y,z,yaw){const S=4.6,mk=(tex,add)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(S,S),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4,blending:add?THREE.AdditiveBlending:THREE.NormalBlending}));
+      m.rotation.set(-Math.PI/2,yaw,0,'YXZ');m.position.set(x,y+0.035,z);m.renderOrder=2;scene.add(m);return m;};
+    if(G.prints.length>=5){const o=G.prints.shift();scene.remove(o.dark,o.glow);}
+    G.prints.push({dark:mk(printTex,false),glow:mk(printGlowTex,true),t:0});}
+  // 天上壓下來的金色巨掌（手掌朝下、手指朝前）
+  const palmMat=std({color:'#ffcf5a',emissive:'#ffa51f',emissiveIntensity:0.9,metalness:0.3,roughness:0.35,transparent:true,opacity:0.92});
+  const palmG=(()=>{const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.BoxGeometry(2.3,0.6,2.3),palmMat));
+    for(const [x,L] of [[-0.8,1.4],[-0.27,1.7],[0.27,1.62],[0.8,1.25]]){const f=new THREE.Mesh(new THREE.CapsuleGeometry(0.25,L,4,10),palmMat);f.rotation.x=Math.PI/2;f.position.set(x,0,-1.15-L/2);g.add(f);}
+    {const t=new THREE.Mesh(new THREE.CapsuleGeometry(0.28,1.1,4,10),palmMat);t.rotation.set(Math.PI/2,Math.PI/4,0,'YXZ');t.position.set(-1.45,0,-0.55);g.add(t);}
+    {const w=new THREE.Mesh(new THREE.CylinderGeometry(0.85,1.0,2.4,18),palmMat);w.rotation.x=Math.PI/2;w.position.set(0,0.15,2.2);g.add(w);}
+    const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:goldTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));halo.scale.setScalar(9);g.add(halo);g.userData.halo=halo;
+    g.visible=false;scene.add(g);return g;})();
+  function palmStart(){const r=roomAt(player.pos.x,player.pos.y,player.y);let h=8;
+    if(r&&!r.out&&!r.stair)h=Math.max(0.6,roomCeil(r)-bodyH().head-0.15-player.y);   // 室內：只飛到天花板下
+    player.vy=Math.sqrt(2*14*h);player.ground=false;G.palm={phase:'up',t:0,ft:0};snd('palmUp');}
+  function palmUpdate(a,dt){const P=G.palm;if(!P)return;P.t+=dt;const f=fwd();
+    if(P.phase==='up'){P.ft-=dt;if(P.ft<=0){P.ft=0.05;fx(new V3(player.pos.x+rr(-0.4,0.4),player.y+rr(0,1.6),player.pos.y+rr(-0.4,0.4)),goldTex,0.6,0.1,0.4,new V3(0,-2,0));}
+      if(player.vy<=0.3||P.t>1.8){P.phase='down';P.t=0;player.vy=-26;palmG.visible=true;palmMat.opacity=0.92;palmG.scale.setScalar(1);snd('whoosh');}}
+    else if(P.phase==='down'){palmG.position.set(player.pos.x+f.x*1.0,player.y+2.6,player.pos.y+f.y*1.0);palmG.rotation.set(0,player.yaw,0);
+      if(player.ground||P.t>2.5){P.phase='done';P.t=0;palmImpact();a.t=a.dur*0.85;}}}
+  function palmImpact(){const f=fwd(),cx=player.pos.x+f.x*1.0,cz=player.pos.y+f.y*1.0,gy=heightAt(cx,cz,player.y+0.5),p=new V3(cx,gy+0.3,cz);
+    handPrint(cx,gy,cz,player.yaw);
+    palmG.position.set(cx,gy+0.32,cz);palmG.scale.set(1.05,0.8,1.05);G.palmHit=0;
+    fx(p,goldTex,2,16,0.7);fx(p,sparkTex,1,10,0.45);for(let i=0;i<18;i++){const a=i/18*Math.PI*2;dust(new V3(cx+Math.cos(a)*3.2,gy+0.2,cz+Math.sin(a)*3.2));}
+    snd('bigboom');snd('palm');G.shake=Math.max(G.shake,0.9);G.stop=0.12;
+    const R=5.5;for(const z of G.zs){if(!hittable(z))continue;const dx=z.pos.x-cx,dz=z.pos.y-cz,d=Math.hypot(dx,dz);if(d>R||Math.abs(z.y-gy)>3)continue;const L=d||1;hurtZombie(z,170*(1-0.4*d/R),new V2(dx/L,dz/L),8,11);}
+    DESTR.blast(p,R,220);}
+  // ---- 足球：皮帶彈出一顆足球（充氣變大、彈到腳邊）→ 一腳踢出去：會在地上彈、撞牆反彈，一路把殭屍踢飛 ----
+  const soccerTex=(()=>{const W=512,H=256,[c,g]=cvs(W,H);g.fillStyle='#f7f7f4';g.fillRect(0,0,W,H);g.fillStyle='#1b1b1b';
+    const pent=(x,y,r)=>{g.beginPath();for(let k=0;k<5;k++){const a=-Math.PI/2+k*Math.PI*2/5;g.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r);}g.closePath();g.fill();};
+    for(const [v,n,off,r] of [[0.5,5,0,30],[0.2,5,0.1,26],[0.8,5,0.1,26]])for(let k=-1;k<=n;k++)pent(((k/n+off)%1)*W,v*H,r);
+    g.fillRect(0,0,W,12);g.fillRect(0,H-12,W,12);
+    g.strokeStyle='rgba(0,0,0,0.25)';g.lineWidth=2;for(let k=0;k<10;k++){g.beginPath();g.moveTo(k*W/10,0);g.lineTo(k*W/10+25,H);g.stroke();}
+    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;})();
+  const ballGeo=new THREE.SphereGeometry(0.22,20,14),ballMat=std({map:soccerTex,roughness:0.5});
+  function ballSpawn(){const m=new THREE.Mesh(ballGeo,ballMat);m.castShadow=true;m.scale.setScalar(0.05);scene.add(m);
+    const b={m,p:new V3(),v:new V3(),state:'pop',t:0,life:4,hit:new Set(),rest:0};G.balls.push(b);G.curBall=b;snd('pop');ballFollow(b);}
+  function ballFollow(b){const f=fwd(),t=b.t,d=0.42+0.3*Math.min(1,t/0.33);b.p.set(player.pos.x+f.x*d,player.y+Math.max(0.24,1.0+1.5*t-10.5*t*t),player.pos.y+f.y*d);b.m.position.copy(b.p);}   // 從皮帶彈出來、落到腳邊
+  function ballKick(){const b=G.curBall;if(!b||b.state!=='pop')return;b.state='fly';G.curBall=null;b.m.scale.setScalar(1);
+    const d=aimDir();b.v.set(d.x*24,d.y*24+2.5,d.z*24);fx(b.p.clone(),sparkTex,0.3,1.4,0.2);snd('kick');G.shake=Math.max(G.shake,0.12);}
+  function ballUpdate(b,dt){const r=0.22;b.t+=dt;
+    if(b.state==='pop'){b.m.scale.setScalar(Math.min(1,0.05+b.t/0.15*(b.t<0.15?1:0)+(b.t>=0.15?0.95:0)));ballFollow(b);if(b.t>0.9)b.state='fly';return;}   // 0.15 秒充氣變大
+    b.life-=dt;const n=Math.max(1,Math.ceil(b.v.length()*dt/0.15));
+    for(let i=0;i<n;i++){const h=dt/n;b.v.y-=12*h;const nx=b.p.x+b.v.x*h,ny=b.p.y+b.v.y*h,nz=b.p.z+b.v.z*h;
+      if(blockedAt(nx,b.p.z,ny-0.1,ny+0.1))b.v.x*=-0.7;                    // 撞牆反彈
+      if(blockedAt(b.p.x,nz,ny-0.1,ny+0.1))b.v.z*=-0.7;
+      b.p.set(b.p.x+b.v.x*h,ny,b.p.z+b.v.z*h);
+      const fl=heightAt(b.p.x,b.p.z,b.p.y+0.3);
+      if(b.p.y-r<fl){b.p.y=fl+r;if(b.v.y<0){b.v.y=-b.v.y*0.55;b.v.x*=0.88;b.v.z*=0.88;if(b.v.y<1)b.v.y=0;}}   // 落地彈起來
+      const sp=Math.hypot(b.v.x,b.v.z);if(sp<0.3)continue;const dir=new V2(b.v.x/sp,b.v.z/sp);
+      for(const z of G.zs){if(!hittable(z)||b.hit.has(z))continue;if(Math.hypot(z.pos.x-b.p.x,z.pos.y-b.p.z)>r+0.45||b.p.y<z.y-0.1||b.p.y>z.y+1.9)continue;
+        b.hit.add(z);hurtZombie(z,95,dir,18,8);b.v.x*=0.85;b.v.z*=0.85;fx(b.p.clone(),sparkTex,0.4,1.6,0.2);snd('heavy');G.shake=Math.max(G.shake,0.15);G.stop=Math.max(G.stop,0.04);}
+      if(DESTR.sphere(b.p,r+0.15,110,b.hit,dir)){fx(b.p.clone(),sparkTex,0.4,1.6,0.2);snd('heavy');}}
+    if(b.p.y-r<=heightAt(b.p.x,b.p.z,b.p.y+0.3)+0.02){const k=Math.exp(-dt*0.9);b.v.x*=k;b.v.z*=k;}   // 地上滾會慢下來
+    const sp=b.v.length();if(sp>0.05){const ax=new V3(b.v.z,0,-b.v.x).normalize();b.m.rotateOnWorldAxis(ax,sp*dt/r);}
+    b.m.position.copy(b.p);if(b.life<0.4)b.m.scale.setScalar(Math.max(0.01,b.life/0.4));if(b.life<=0){scene.remove(b.m);b.dead=true;}}
+  function specialUpdate(dt){
+    for(const b of G.balls)ballUpdate(b,dt);G.balls=G.balls.filter(b=>!b.dead);
+    // 巨掌壓到地上：停一下再淡掉
+    if(palmG.visible&&G.palm&&G.palm.phase==='done'){G.palmHit+=dt;palmG.userData.halo.material.opacity=Math.max(0,1-G.palmHit/0.8);if(G.palmHit>0.35){palmMat.opacity=Math.max(0,0.92*(1-(G.palmHit-0.35)/0.5));palmG.position.y+=dt*0.8;}if(G.palmHit>0.85){palmG.visible=false;palmMat.opacity=0.92;palmG.userData.halo.material.opacity=1;}}
+    // 手印：金光 2 秒內退掉，焦黑的手印 12 秒後淡掉
+    for(const q of G.prints){q.t+=dt;q.glow.material.opacity=Math.max(0,1-q.t/2);q.dark.material.opacity=q.t<12?1:Math.max(0,1-(q.t-12)/3);if(q.t>15){scene.remove(q.dark,q.glow);q.dead=true;}}
+    G.prints=G.prints.filter(q=>!q.dead);}
+  function specialClear(){for(const b of G.balls)scene.remove(b.m);G.balls=[];G.curBall=null;for(const q of G.prints)scene.remove(q.dark,q.glow);G.prints=[];palmG.visible=false;palmMat.opacity=0.92;G.palm=null;}
   // ---- 破壞：車子、鄰居的房子、隔壁大樓、周邊建築、全家（我家不會壞；遊戲結束會復原） ----
   // 範圍、合併網格裡的位置在「打得壞的東西」那段（REGIONS）。打到才把那段拆出來：車子會晃、打爆炸飛變焦黑殘骸並連鎖爆炸；房子倒塌成瓦礫。
   const DESTR=(()=>{
@@ -2879,13 +3092,15 @@ const GAME=(()=>{
         if(r.rub){scene.remove(r.rub);r.rub.traverse(o=>{if(o.isInstancedMesh)o.dispose();});r.rub=null;}
         if(r.rubSurf){const i=surfaces.indexOf(r.rubSurf);if(i>=0)surfaces.splice(i,1);r.rubSurf=null;}}
       D.vehs=[];D.n=0;wreckEl.textContent='破壞 0';tgtRow.hidden=true;D.tgtT=0;grid=null;renderer.shadowMap.needsUpdate=true;}
-    return {damage,blast,beam,melee,update,reset,D,get n(){return D.n;}};
+    // 球形範圍碰到的東西（足球用；set 記住打過的不重複打）
+    function sphere(p,rad,dmg,set,dir){let hit=false;for(const r of REGIONS){if(r.dead||(set&&set.has(r)))continue;if(boxDist(r,p.x,p.y,p.z)>rad)continue;damage(r,dmg,p.clone(),dir);if(set)set.add(r);hit=true;}return hit;}
+    return {damage,blast,beam,melee,sphere,update,reset,D,get n(){return D.n;}};
   })();
   // ---- 開始／結束 ----
-  function clearAll(){grid=null;chargeStop();for(const z of G.zs)scene.remove(z.m.root);G.zs=[];for(const s of G.shots)scene.remove(s.core,s.glow);G.shots=[];
+  function clearAll(){grid=null;chargeStop();specialClear();for(const z of G.zs)scene.remove(z.m.root);G.zs=[];for(const s of G.shots)scene.remove(s.core,s.glow);G.shots=[];
     for(const e of G.fx){if(e.sp)scene.remove(e.sp);if(e.mesh)scene.remove(e.mesh);}G.fx=[];G.act=null;G.queue=null;G.hist=[];}
   // free＝自由破壞模式：沒有殭屍，只是拆東西
-  function start(free){clearAll();DESTR.reset();Object.assign(G,{on:true,over:false,free:!!free,hp:100,wave:0,kills:0,toSpawn:0,spawnT:0,waveT:1.5,calm:0,combo:0,comboT:0,best:0,stop:0,shake:0,airHits:0});
+  function start(free){if(BALLOON.riding)BALLOON.reset();if(LIE.on)LIE.stop();clearAll();DESTR.reset();Object.assign(G,{on:true,over:false,free:!!free,hp:100,wave:0,kills:0,toSpawn:0,spawnT:0,waveT:1.5,calm:0,combo:0,comboT:0,best:0,stop:0,shake:0,airHits:0});
     if(mode!=='walk')toggleAerial();if(G.prevView===null)G.prevView=view;view='third';syncViewUI();   // 遊戲中用第三人稱（不存成偏好）
     teleport(5.26,0.6,Math.PI,0);   // 面向巷子（殭屍從那邊來）
     document.body.classList.add('gaming');hud.hidden=false;skills.hidden=false;overEl.hidden=true;killEl.textContent='擊倒 0';comboEl.textContent='';waveEl.textContent='準備…';menu.hidden=true;bMenu.classList.remove('on');
@@ -2906,7 +3121,7 @@ const GAME=(()=>{
   canvas.addEventListener('mousedown',e=>{if(!G.on)return;if(e.button===2)press('beam');else if(e.button===0)md={x:e.clientX,y:e.clientY,t:performance.now()};});
   addEventListener('mouseup',e=>{if(!G.on)return;if(e.button===0&&md){if(Math.hypot(e.clientX-md.x,e.clientY-md.y)<6&&performance.now()-md.t<350)press('blast');md=null;}});
   // 鍵盤
-  function key(e,down){const m={KeyJ:'blast',Digit1:'blast',KeyL:'beam',Digit2:'beam',KeyU:'spin',Digit3:'spin',KeyI:'upper',Digit4:'upper',KeyO:'fly',Digit5:'fly'}[e.code];
+  function key(e,down){const m={KeyJ:'blast',Digit1:'blast',KeyL:'beam',Digit2:'beam',KeyU:'spin',Digit3:'spin',KeyI:'palm',Digit4:'palm',KeyO:'ball',Digit5:'ball'}[e.code];
     if(e.code==='KeyH'||e.code==='Digit6'){if(down&&!e.repeat)chargeStart();else if(!down)chargeRelease();return true;}
     if(!m)return false;if(down&&!e.repeat)press(m);return true;}
   // ---- 每格更新 ----
@@ -2936,14 +3151,16 @@ const GAME=(()=>{
     if(!G.free&&G.toSpawn<=0&&alive===0){G.waveT-=dt;if(G.waveT<=0){G.wave++;G.toSpawn=6+3*(G.wave-1);G.spawnT=0;snd('wave');AUDIO.setTempo(G.wave);waveEl.textContent=`第 ${G.wave} 波`;toast(`第 ${G.wave} 波殭屍來了！（${G.toSpawn} 隻）`);G.waveT=3;}}
     if(G.toSpawn>0){G.spawnT-=dt;if(G.spawnT<=0&&alive<(POWER.save?12:18)){spawnZombie();G.toSpawn--;G.spawnT=0.8;}}
     G.calm+=dt;if(G.calm>2)G.hp=Math.min(100,G.hp+8*dt);
-    // 動作：時間到就打；飛踢在前衝那段一路打；做到七成可以接排隊的下一招
+    // 動作：時間到就打；做到七成可以接排隊的下一招（如來神掌要等落地）
     if(G.act){const a=G.act,m=MOVES[a.kind];a.t+=dt;const p=a.t/a.dur;
       while(a.next<m.hits.length&&p>=m.hits[a.next]){const last=a.next===m.hits.length-1;
         if(a.kind==='beam')superBeam();
+        else if(a.kind==='ball')ballKick();
         else if(a.kind==='flurry')strike(m,{kb:last?m.lastKb:m.kb,up:last?m.lastUp:0});
         else strike(m);a.next++;}
-      if(a.kind==='fly'&&p>0.15&&p<0.8){const f=fwd();player.vel.x=f.x*9;player.vel.y=f.y*9;strike(m,{once:a.once});}
-      if(G.queue&&p>=0.7)doMove(G.queue);else if(p>=1)G.act=null;}
+      if(a.kind==='palm')palmUpdate(a,dt);
+      if(G.queue&&p>=0.7&&!(a.kind==='palm'&&G.palm&&G.palm.phase!=='done'))doMove(G.queue);else if(p>=1)G.act=null;}
+    specialUpdate(dt);
     // 氣功炮
     for(const s of G.shots){if(s.dead)continue;s.life-=dt;const st=s.v*dt,n=Math.max(1,Math.ceil(st/0.2));
       for(let i=0;i<n&&!s.dead;i++){s.p.addScaledVector(s.dir,st/n);
@@ -3012,8 +3229,12 @@ const GAME=(()=>{
       case 'kick':a.legR.rotation.x=-1.7*s;a.legL.rotation.x=0.2*s;a.body.rotation.x=-0.3*s;a.armL.rotation.x=-0.6*s;a.armR.rotation.x=0.5*s;break;
       case 'flurry':{const q=(p*3)%1,sq=Math.sin(q*Math.PI),odd=Math.floor(p*3)%2;(odd?a.legL:a.legR).rotation.x=-1.8*sq;a.body.rotation.x=-0.3;a.armL.rotation.z=-0.8;a.armR.rotation.z=0.8;break;}
       case 'spin':a.body.rotation.y=p*Math.PI*4;a.legR.rotation.x=-1.4;a.armL.rotation.z=-1.3;a.armR.rotation.z=1.3;break;
-      case 'upper':a.armR.rotation.x=0.4-3.3*p;a.armL.rotation.x=-0.6;a.body.rotation.x=-0.25*s;a.legL.rotation.x=0.6*s;break;
-      case 'fly':a.legR.rotation.x=-1.6;a.legL.rotation.x=0.9;a.body.rotation.x=-0.35;a.armL.rotation.x=-1.2;a.armR.rotation.z=0.9;break;
+      case 'palm':{const ph=G.palm?G.palm.phase:'done';
+        if(ph==='up'){a.armL.rotation.x=a.armR.rotation.x=-2.9;a.armL.rotation.z=-0.25;a.armR.rotation.z=0.25;a.legL.rotation.x=-0.9;a.legR.rotation.x=-0.3;}   // 雙手舉高往上飛
+        else if(ph==='down'){a.armR.rotation.x=-1.3;a.armL.rotation.x=0.5;a.body.rotation.x=0.45;a.legL.rotation.x=-0.5;a.legR.rotation.x=0.3;}            // 往下一掌
+        else{a.armR.rotation.x=-1.0;a.armL.rotation.x=0.3;a.body.rotation.x=0.3;a.legL.rotation.x=-0.6;a.legR.rotation.x=0.5;}break;}                       // 落地蹲著
+      case 'ball':{if(p<0.5){const w=p/0.5;a.legR.rotation.x=0.8*w;a.body.rotation.x=-0.12*w;a.armL.rotation.z=-0.7*w;a.armR.rotation.z=0.7*w;}           // 準備：腳往後拉
+        else{const k=Math.min(1,(p-0.5)/0.2);a.legR.rotation.x=0.8-2.8*k+(p>0.7?(p-0.7)*2:0);a.body.rotation.x=-0.3*k;a.armL.rotation.z=-0.9;a.armR.rotation.z=0.7;a.armL.rotation.x=-0.6*k;}break;}   // 一腳踢出去
       case 'blast':case 'beam':a.armL.rotation.x=a.armR.rotation.x=-1.6;a.armL.rotation.z=-0.12;a.armR.rotation.z=0.12;a.body.rotation.x=-0.15*s;break;}}
   // 殭屍靠近門也會開門
   function zNear(center,y){for(const z of G.zs)if(!z.dead&&Math.abs(z.y-y)<1&&Math.hypot(z.pos.x-center.x,z.pos.y-center.y)<1.8)return true;return false;}
@@ -3068,32 +3289,46 @@ function step(dt){
     const len=Math.hypot(f,s);if(len>1){f/=len;s/=len;}
     const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),rx=Math.cos(player.yaw),rz=-Math.sin(player.yaw);
     const k=1-Math.exp(-dt*7);
+    if(BALLOON.riding)BALLOON.step(dt,f,s,stage);else if(LIE.on)LIE.step(dt,f,s);else{
     player.vel.x+=((fx*f+rx*s)*speed-player.vel.x)*k;player.vel.y+=((fz*f+rz*s)*speed-player.vel.y)*k;
     {const mx=player.vel.x*dt,mz=player.vel.y*dt,n=Math.max(1,Math.ceil(Math.hypot(mx,mz)/0.2));for(let i=0;i<n;i++){player.pos.x+=mx/n;player.pos.y+=mz/n;resolve(player.pos,0.3,player.y);}}
     player.pos.x=Math.max(BOUND.x0,Math.min(BOUND.x1,player.pos.x));player.pos.y=Math.max(BOUND.z0,Math.min(BOUND.z1,player.pos.y));
     // 高度：踩上樓梯／樓板，懸空就往下掉
     // 高度：爬梯、跳躍、踩上樓梯／樓板，懸空就往下掉
-    player.climb=onLadder();
+    // 爬梯（使用者：很難爬、爬的時候沒有照著梯子）：上梯子就自動轉身面對梯子、人吸到梯子正前方；
+    // 不管面向哪裡，往前推＝往上、往後拉＝往下。從屋頂走進梯口時一開始往前推＝往下（放開一次之後恢復）；
+    // 在露台要往前推（不是背對梯子）才開始爬；爬到底繼續往後拉或往左右推就下梯子，爬到頂繼續往上推就跨到屋頂
+    const wasClimb=player.climb;player.climb=onLadder();
+    if(player.climbBlock&&(Math.abs(f)<0.1||!onLadder()))player.climbBlock=false;   /* 剛下梯子：放開搖桿一次才能再上去 */
+    if(player.climb&&!wasClimb){
+      player.climbT=0;player.climbInv=player.y>FL[4]-0.5;
+      if(!player.climbInv&&(player.climbBlock||!(f>0.1&&Math.sin(player.yaw)>-0.3)))player.climb=false;
+      else if(!climbTold){climbTold=true;toast('爬梯子：往前推＝往上爬、往後拉＝往下爬（會自動對準梯子）');}}
     if(player.climb){
-      // 面向梯子（往西）按前進＝往上爬；背對梯子按前進＝往下爬；爬梯上不會掉下去
-      const faceUp=Math.sin(player.yaw)>0.3;   // 大致面向西（梯子）才算往上
-      const v=f*(faceUp?1:-1)*1.6;
+      player.climbT+=dt;if(player.climbInv&&Math.abs(f)<0.1)player.climbInv=false;
+      const v=(player.climbInv?-Math.abs(f):f)*1.6;
       player.y=Math.min(lidShut()?FL[4]-0.35-bodyH().head:FL[4]+0.85,Math.max(FL[3],player.y+v*dt));player.vy=0;player.ground=true;   // 蓋子關著：頭頂到板子就停
-      if(player.y>FL[3]+0.3)player.pos.x=Math.min(player.pos.x,LADDER.x1-0.12);
-      player.pos.x=Math.max(player.pos.x,LADDER_X+0.25);   // 貼著爬梯（不會穿過梯子、牆，到頂也不會往西掉回梯口）
-      if(player.y<FL[4]+0.4)player.pos.y=Math.max(LADDER.z0+0.05,Math.min(LADDER.z1-0.05,player.pos.y));   // 爬到一半不會從側邊滑出去
-      if(player.y>=FL[4]+0.8&&f>0&&faceUp)player.pos.y-=1.4*dt;   // 爬到頂繼續往前：往北跨到屋頂上
-      if(player.y<FL[3]+0.02)player.climb=false;
+      player.vel.set(0,0);
+      const atBottom=player.y<=FL[3]+0.02;
+      if(atBottom&&(v<0||Math.abs(s)>0.3)){player.climb=false;player.climbBlock=true;player.vel.set(v<0?2:rx*s*2,v<0?0:rz*s*2);if(player.climbInv)player.yaw=-Math.PI/2;}   /* 一路按前進爬下來的：轉身朝露台，繼續按前進就走開 */   // 下梯子：往東退開或往旁邊走
+      else{
+        const k2=1-Math.exp(-dt*10);
+        if(player.y<FL[4]+0.4){player.pos.x+=(LADDER_X+0.34-player.pos.x)*k2;player.pos.y+=((LADDER_Z0+LADDER_Z1)/2-player.pos.y)*k2;}   // 吸到梯子正前方
+        if(player.climbT<0.5){let dy=Math.PI/2-player.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));player.yaw+=dy*Math.min(1,dt*9);}      // 剛上去 0.5 秒轉身面對梯子，之後可以自己轉頭看
+        if(player.y>FL[3]+0.3)player.pos.x=Math.min(player.pos.x,LADDER.x1-0.12);
+        player.pos.x=Math.max(player.pos.x,LADDER_X+0.25);   // 貼著爬梯（不會穿過梯子、牆，到頂也不會往西掉回梯口）
+        if(player.y<FL[4]+0.4)player.pos.y=Math.max(LADDER.z0+0.05,Math.min(LADDER.z1-0.05,player.pos.y));
+        if(player.y>=FL[4]+0.8&&v>0)player.pos.y-=1.4*dt;}   // 爬到頂繼續往上推：往北跨到屋頂上
     }else{
       const fl=heightAt(player.pos.x,player.pos.y,player.y);
       if(player.vy>0||player.y>fl+0.02){player.vy-=14*dt;player.y+=player.vy*dt;if(player.y<=fl){player.y=fl;player.vy=0;player.ground=true;player.jumps=0;}else player.ground=false;}
       else{player.y=fl;player.vy=0;player.ground=true;player.jumps=0;}
       // 室內跳起來不要穿過天花板
       const r=player.ground?null:roomAt(player.pos.x,player.pos.y,player.y);if(r&&!r.out&&!r.stair&&player.y<roomCeil(r)&&player.y+bodyH().head+0.1>roomCeil(r)){player.y=Math.max(FL[r.f],roomCeil(r)-bodyH().head-0.1);player.vy=Math.min(player.vy,0);}
-    }
+    }}
     if(view==='third'){avatar.root.visible=true;updateAvatar(dt,stage);thirdPersonCamera();}
-    else{avatar.root.visible=false;camera.position.set(player.pos.x,player.y+bodyH().eye,player.pos.y);camera.rotation.set(player.pitch,player.yaw,0,'YXZ');}
-  }else{orbit.update();}
+    else{avatar.root.visible=false;camera.position.set(player.pos.x,player.y+bodyH().eye,player.pos.y);camera.rotation.set(player.pitch,player.yaw,0,'YXZ');if(LIE.on)LIE.cam();}
+  }else{orbit.update();avatar.root.visible=true;updateAvatar(dt,0);}   // 空拍：人物站在原地
   // 衣櫃門約 0.5 秒打開到 100°、抽屜拉出 35 cm
   for(const u of CABS)if(u.t!==u.target){const v=dt*2.2;u.t=Math.abs(u.target-u.t)<=v?u.target:u.t+Math.sign(u.target-u.t)*v;const e=u.t*u.t*(3-2*u.t);
     if(u.kind==='door')for(const [pv,sd] of u.pivots)pv.rotation.y=sd*e*1.75;else if(u.kind==='louver')u.apply(e);else if(u.kind==='lid'){u.mesh.position.x=e*(HATCH.x1-HATCH.x0+0.08);HATCH_SURF.off=u.t>0.5;}else for(const gq of u.groups)gq.position.z=e*0.35;}
@@ -3113,8 +3348,9 @@ function step(dt){
 }
 let frameAcc=0;
 function loop(){
+  requestAnimationFrame(loop);   // 先排下一格：就算這一格哪裡出錯，畫面也不會整個停住
   frameAcc+=clock.getDelta();
-  if(POWER.save&&frameAcc<1/31){requestAnimationFrame(loop);return;}   // 省電模式：每秒最多 30 張
+  if(POWER.save&&frameAcc<1/31)return;   // 省電模式：每秒最多 30 張
   const dt=Math.min(0.05,frameAcc);frameAcc=0;
   fitT-=dt;if(fitT<=0){fitT=0.3;fitView();}
   if(started)step(dt);
@@ -3125,7 +3361,6 @@ function loop(){
   renderer.render(scene,camera);
   drawMinimap();
   placeTimer-=dt;if(placeTimer<=0){updatePlace();placeTimer=0.25;}
-  requestAnimationFrame(loop);
 }
 // 開場鏡頭：站在巷子裡看我家
 camera.position.set(START.x,1.6,START.y+3);camera.rotation.set(0.12,0,0,'YXZ');
