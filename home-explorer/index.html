@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-10.53"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-10.58"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -221,7 +221,13 @@
   #skHud .k,#bbHud .k{color:var(--ink-2);font-size:11px;margin-top:3px;white-space:normal}
   body.touch #skHud .k,body.touch #bbHud .k{display:none}
   #skBtns,#bbBtns{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:10px;z-index:11}
-  body.bb #act{bottom:96px}   /* 拿著籃球：「F 放下籃球」移到技能按鈕上面 */
+  /* 籃球：分數縮成左上角一小條（不擋投籃的拋物線）；「放下籃球」移到旁邊（電腦：右邊地圖上面；手機：左邊搖桿上面），不擋人物 */
+  #bbHud{left:calc(12px + var(--sal));top:calc(58px + var(--sat));transform:none;padding:4px 10px;font-size:12px;text-align:left;background:rgba(18,24,30,.4);border-color:transparent;display:flex;align-items:center;gap:6px}
+  #bbHud b{font-size:15px;margin:0 6px 0 2px}
+  #bbCam{margin-left:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:12px;pointer-events:auto}
+  body.touch #bbHud{top:calc(110px + var(--sat));font-size:11px}
+  body.bb #act{left:auto;right:calc(12px + var(--sar));transform:none;bottom:calc(226px + var(--sab))}
+  body.touch.bb #act{left:calc(16px + var(--sal));right:auto;bottom:calc(168px + var(--sab));padding:8px 14px;font-size:13px}
   #skBtns[hidden],#skHud[hidden],#bbBtns[hidden],#bbHud[hidden]{display:none!important}
   #skBtns button,#bbBtns button{width:66px;height:66px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(18,24,30,.6);color:#fff;font-size:15px;font-weight:800;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
   #skBtns button small,#bbBtns button small{font-size:10px;opacity:.7;margin-top:2px}
@@ -230,11 +236,12 @@
   body.touch #skBtns button,body.touch #bbBtns button{width:58px;height:58px;font-size:14px}
   body.touch #skBtns button small,body.touch #bbBtns button small{display:none}
   body.touch #bbBtns{right:calc(33px + var(--sar));bottom:calc(240px + var(--sab));grid-template-columns:58px}   /* 手機直向：疊在「跳」上面，不擋搖桿 */
-  body.touch #bbHud{top:calc(78px + var(--sat))}
-  @media (max-height:520px){body.touch #bbBtns{right:calc(108px + var(--sar));bottom:calc(16px + var(--sab));grid-template-columns:repeat(4,58px)}body.touch #bbHud{top:calc(56px + var(--sat))}}
+  @media (max-height:520px){body.touch #bbBtns{right:calc(108px + var(--sar));bottom:calc(16px + var(--sab));grid-template-columns:repeat(4,58px)}}
   /* 網球：HUD、招式按鈕（電腦在下面一排；手機在右下 3 欄，跳的按鈕藏起來） */
-  #tnHud{position:fixed;left:50%;top:calc(60px + var(--sat));transform:translateX(-50%);padding:6px 14px;z-index:12;font-size:13px;text-align:center;white-space:nowrap}
-  #tnHud b{font-size:17px;margin:0 6px}
+  #tnHud{position:fixed;left:calc(12px + var(--sal));top:calc(58px + var(--sat));padding:4px 10px;z-index:12;font-size:12px;white-space:nowrap;background:rgba(18,24,30,.4);border-color:transparent;display:flex;align-items:center;gap:6px;flex-wrap:wrap;max-width:calc(100vw - 24px)}   /* 使用者：比分擋畫面 → 左上角半透明一小條 */
+  body.touch #tnHud{top:calc(110px + var(--sat));font-size:11px}
+  #tnHud b{font-size:14px;margin:0 2px}
+  #tnHud .k{display:none}
   #tnHud #tnAura{color:#ffd84a;font-weight:800;margin-left:6px}
   #tnHud .k{color:var(--ink-2);font-size:11px;margin-top:3px;white-space:normal}
   #tnHud[hidden],#tnBtns[hidden]{display:none!important}
@@ -250,11 +257,11 @@
   body.touch #tnBtns{left:auto;right:calc(12px + var(--sar));bottom:calc(14px + var(--sab));transform:none;display:grid;grid-template-columns:repeat(3,56px);gap:7px}
   body.touch #tnBtns button{width:56px;height:56px;font-size:12px}
   body.touch #tnBtns button small{display:none}
-  body.touch #tnHud .k{display:none}
   body.tn #jumpBtn{display:none!important}
-  body.tn #toast{top:calc(150px + var(--sat))}
-  body.touch.tn #toast{top:calc(118px + var(--sat))}
+  body.tn #toast{top:calc(96px + var(--sat))}
+  body.touch.tn #toast{top:calc(146px + var(--sat))}
   body.tn #act{bottom:calc(210px + var(--sab))}
+  body.tn #act{left:auto;right:calc(12px + var(--sar));transform:none;bottom:calc(226px + var(--sab))}
   body.touch.tn #act{left:auto;right:calc(12px + var(--sar));transform:none;bottom:calc(272px + var(--sab))}
   @media (max-height:520px){body.touch #tnBtns{grid-template-columns:repeat(5,50px);gap:6px}body.touch #tnBtns button{width:50px;height:50px}body.touch.tn #act{bottom:calc(126px + var(--sab))}}
   /* 死亡騎士（變身）：技能列換成騎士的三招 */
@@ -376,10 +383,10 @@
 <div id="gBig"></div>
 <div id="skHud" class="panel" hidden><span>直排輪</span><b id="skSpd">0</b><span>km/h</span>　<span>花式</span><b id="skScore">0</b><span id="skCombo"></span>
   <div class="k">W 加速｜S 煞車／倒退｜A D 轉彎｜Shift 飆速｜按住 X 甩尾｜B 倒溜｜T 花式（空中按＝轉體）｜空白鍵 跳｜F 脫下</div></div>
-<div id="bbHud" class="panel" hidden><span>籃球</span>　<span>得分</span><b id="bbScore">0</b>　<span>命中</span><b id="bbMade">0/0</b>　<span id="bbStreak" style="color:#ff8a3a;font-weight:800"></span><div class="k">T 花式運球　J 投籃（自動對準籃框）　U 灌籃（9.5 m 內）　O 空中接力　F 放下</div></div>
+<div id="bbHud" class="panel" hidden><span>得分</span><b id="bbScore">0</b><span>命中</span><b id="bbMade">0/0</b><span id="bbStreak" style="color:#ff8a3a;font-weight:800"></span><button id="bbCam" title="投籃時的鏡頭">視角：側拍</button></div>
 <div id="ftBar" class="panel" hidden><div id="ftInfo">罰球大賽</div><div class="bar"><div class="z" id="ftZone"></div><div class="z2" id="ftPerf"></div><div class="m" id="ftMark"></div></div><div class="k">按「投籃」（J）讓指針停在綠色就會進，正中間黃色＝空心</div></div>
 <div id="bbBtns" hidden><button data-k="trick">花式<small>T</small></button><button data-k="shoot">投籃<small>J</small></button><button data-k="dunk">灌籃<small>U</small></button><button data-k="oop">接力<small>O</small></button></div>
-<div id="tnHud" class="panel" hidden><span>網球</span><b id="tnScore">你 0 : 0 對手</b><span id="tnPts">0-0</span><span id="tnAura"></span>
+<div id="tnHud" class="panel" hidden><b id="tnScore">你 0 : 0 對手</b><span id="tnPts">0-0</span><span id="tnAura"></span>
   <div class="k">WASD 跑位（Shift 衝刺）、黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J 擊球，同時按住 A／D＝打左右邊線、W＝打深、S＝放短。1 外旋發球　2 零式削球　3 燕回閃　4 波動球　5 迴旋蛇　6 破滅的輪舞曲　7 天衣無縫　8 手塚領域　9 跳躍扣殺　F 放下球拍</div></div>
 <div id="tnBtns" hidden><button data-k="hit">擊球<small>J</small></button><button data-k="twist">外旋<br>發球<small>1</small></button><button data-k="zero">零式<br>削球<small>2</small></button><button data-k="tsubame">燕回閃<small>3</small></button><button data-k="hadou">波動球<small>4</small></button><button data-k="snake">迴旋蛇<small>5</small></button><button data-k="rondo">輪舞曲<small>6</small></button><button data-k="aura">天衣<br>無縫<small>7</small></button><button data-k="zone">手塚<br>領域<small>8</small></button><button data-k="jack">跳躍<br>扣殺<small>9</small></button></div>
 <div id="skBtns" hidden><button data-k="boost">飆速<small>Shift</small></button><button data-k="drift">甩尾<small>X</small></button><button data-k="back">倒溜<small>B</small></button><button data-k="trick">花式<small>T</small></button></div>
@@ -3219,6 +3226,10 @@ const BB=(()=>{
     const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=ANISO;return t;})();
   const ballMat=std({map:BALL_TEX,roughness:0.62});ballMat.emissive=new THREE.Color('#ff4a00');ballMat.emissiveIntensity=0;
   const ball=new THREE.Mesh(new THREE.SphereGeometry(R,24,16),ballMat);ball.castShadow=true;ball.visible=false;scene.add(ball);B.ball=ball;B.bv=null;
+  B.camMode=(()=>{try{return localStorage.getItem('home-bbcam')==='back'?'back':'side';}catch(_){return 'side';}})();B.sk=0;B.sc=null;const SCL=new V3();   // 投籃鏡頭：side 側拍（預設）／back 背後
+  {const cb=document.getElementById('bbCam');const lbl=()=>{cb.textContent=B.camMode==='side'?'視角：側拍':'視角：背後';};lbl();
+   cb.onclick=e=>{e.stopPropagation();B.camMode=B.camMode==='side'?'back':'side';try{localStorage.setItem('home-bbcam',B.camMode);}catch(_){}lbl();toast(B.camMode==='side'?'投籃時鏡頭移到側面，看得到整條拋物線':'投籃時鏡頭在背後、轉向籃框');};
+   for(const ev of ['touchstart','mousedown'])cb.addEventListener(ev,e=>e.stopPropagation(),{passive:true});}
   const bp=ball.position,bv=new V3(),L=new V3(),T1=new V3(),N=new V3(),T2=new V3(),T3=new V3(),T4=new V3(),T5=new V3(),T6=new V3();B.bv=bv;
   const hud=document.getElementById('bbHud'),btns=document.getElementById('bbBtns');
   const big=(t,snd)=>{const el=document.getElementById('gBig');el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');if(snd!==false)AUDIO.sfx('combo');};
@@ -3263,10 +3274,12 @@ const BB=(()=>{
   function portHoop(){B.why='';if(player.y>0.6||indoors()){B.why='在室內／高處放不下籃框，到外面地上再試試';return null;}if(inR(player.pos.x,player.pos.y,COURT_PARK))return null;
     const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw);
     const free=(x,z,r)=>heightAt(x,z,0)<0.35&&!colliders.some(c=>!c.off&&c.h>0.5&&c.y0<2.5&&x>c.x0-r&&x<c.x1+r&&z>c.z0-r&&z<c.z1+r);
+    const clear=(x0,z0,x1,z1)=>!colliders.some(c=>{if(c.off||c.h<1||c.y0>2.5)return false;let t0=0,t1=1;const dx=x1-x0,dz=z1-z0;   // 你和籃框之間不能隔著牆（原本會穿牆變到店裡）
+      for(const [p,d,a,b] of [[x0,dx,c.x0-0.1,c.x1+0.1],[z0,dz,c.z0-0.1,c.z1+0.1]]){if(Math.abs(d)<1e-9){if(p<a||p>b)return false;continue;}let u=(a-p)/d,v=(b-p)/d;if(u>v)[u,v]=[v,u];t0=Math.max(t0,u);t1=Math.min(t1,v);if(t0>t1)return false;}return true;});
     for(const a of [0,0.4,-0.4,0.8,-0.8,1.1,-1.1,1.4,-1.4,1.8,-1.8,2.3,-2.3,2.8,-2.8])for(const dist of [4.5,3.6,5.6]){
       const rx=fx*Math.cos(a)-fz*Math.sin(a),rz=fx*Math.sin(a)+fz*Math.cos(a);if(Math.abs(rx)<0.55)continue;   /* 籃板只能朝東西：籃框放在前面偏左右，籃板才會對著你 */
       const x=player.pos.x+rx*dist,z=player.pos.y+rz*dist,dir=player.pos.x<x?-1:1,px=x-dir*1.55;
-      if(!free(x,z,0.5)||!free(px,z,0.7)||!free(px-dir*0.2,z,0.6)||!free((x+player.pos.x)/2,(z+player.pos.y)/2,0.3))continue;
+      if(!free(x,z,0.5)||!free(px,z,0.7)||!free(px-dir*0.2,z,0.6)||!free((x+player.pos.x)/2,(z+player.pos.y)/2,0.3)||!clear(player.pos.x,player.pos.y,x,z)||!clear(player.pos.x,player.pos.y,px,z))continue;
       if(PORT)BB_KIT.remove(PORT);PORT=BB_KIT.build(x,z,dir);
       const g=new V3(px,0.1,z);ring(g,'#ffe7a0',0.6,6);ring(new V3(x,RIM_Y,z),'#ffffff',0.5,4,false);burst(new V3(x,RIM_Y,z),24,'#ffd36a',4);burst(g,14,'#e8dcc0',2.5);
       PORT.sh=1;AUDIO.sfx('chime');AUDIO.sfx('takeoff');big('變出籃框！🏀',false);return PORT;}
@@ -3409,8 +3422,8 @@ const BB=(()=>{
   const TDUNKS=['前空翻灌籃','360 度轉身灌籃','風車灌籃','戰斧暴扣','反身灌籃','胯下換手灌籃'];
   function makeDunk(h,d,name,oop,tr){let n=new V2(player.pos.x-h.x,player.pos.y-h.z);if(n.length()<1e-3)n.set(h.dir,0);n.normalize();if(n.x*h.dir<0.35){n.x=h.dir*0.35;n.normalize();}   // 從籃板前面灌（在籃板後面就繞到前面）
     const sc=bodyH().scale,E=new V3(h.x+n.x*0.42,RIM_Y+0.28-2.05*sc,h.z+n.y*0.42);
-    const air=!player.ground;
-    const c={kind:'dunk',name:(oop?'空中接力・':tr?'彈跳床・':air?'空中・':d>4.2?'罰球線起跳・':'')+name,base:name,h,d,long:!air&&d>4.2,air,tramp:!!tr,oop:null,S:new V3(player.pos.x,player.y,player.pos.y),E,
+    const high=player.y>E.y+0.6,air=!player.ground||high;   // 起跳點比灌籃點高（站在屋頂、車頂上）：用空中的飛法往下撲（原本的起跳公式會先往下穿過地板再往上）
+    const c={kind:'dunk',name:(oop?'空中接力・':tr?'彈跳床・':player.ground&&high?'從天而降・':air?'空中・':d>4.2?'罰球線起跳・':'')+name,base:name,h,d,long:!air&&d>4.2,air,tramp:!!tr,oop:null,S:new V3(player.pos.x,player.y,player.pos.y),E,
       T:air?0.55+0.06*d+Math.max(0,player.y-E.y)*0.05+(oop?0.12:0):0.72+0.07*d+(oop?0.12:0),t:air?0:-0.2,slam:false,hang:0,slowed:false,side:Math.random()<0.5?1:-1};
     if(air&&!oop){ring(new V3(player.pos.x,player.y+1,player.pos.y),'#ffe7a0',0.5,5,false);AUDIO.sfx('takeoff');B.shk=Math.max(B.shk,0.15);}
     B.cur=c;B.fly=true;B.trick=null;player.vel.set(0,0);player.vy=0;B.tries++;B.dirty=true;return c;}
@@ -3487,7 +3500,7 @@ const BB=(()=>{
     if(!B.on)return;
     // 投籃的時間軸：蹲 → 起跳 → 最高點出手 → 落地
     const c=B.cur;
-    if(c&&c.kind==='shot'){c.t+=dt;const h=c.h;let dy=yawTo(h.x,h.z)-player.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));if(!CALM.on)player.yaw+=dy*Math.min(1,dt*4);   // 鏡頭轉向籃框（防暈模式不轉）
+    if(c&&c.kind==='shot'){c.t+=dt;const h=c.h;let dy=yawTo(h.x,h.z)-player.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));if(!CALM.on&&B.camMode==='back')player.yaw+=dy*Math.min(1,dt*4);   // 背後視角：鏡頭轉向籃框（防暈模式不轉）；側拍不轉（投完鏡頭回到原本的方向）
       if(c.t>=0.16&&!c.jumped){c.jumped=true;player.vy=c.jv;player.ground=false;}
       let mv=null;const away=new V2(player.pos.x-h.x,player.pos.y-h.z).normalize();
       if(c.name==='後撤步三分'&&c.t<0.16)mv=away.clone().multiplyScalar(5);
@@ -3520,6 +3533,18 @@ const BB=(()=>{
        if(wait)mid.lerp(bp,0.45);   /* 空中接力：接到球之前鏡頭把高吊的球也框進來 */
        const cpos=T5.set(mid.x+sx*dist-ux*1.0,0.75+player.y*0.4,mid.z+sz*dist-uz*1.0);
        camera.position.lerp(cpos,B.camK);camera.lookAt(T6.set(player.pos.x,player.y+1.3,player.pos.y).lerp(mid,B.camK*0.75));if(view==='first')avatar.root.visible=true;}}
+    // 投籃側拍（使用者：投籃都切到背後看、看不到拋物線）：出手前後鏡頭移到投籃路線的側面（從鏡頭原本比較靠近的那一側），把人、籃框、整條拋物線框進來；球落地或進了再 0.8 秒回去
+    {const shooting=c&&c.kind==='shot',sh=B.sh,fl=B.st==='fly'&&sh&&!sh.dunk&&!(sh.scored||sh.done);
+     if(shooting&&B.camMode==='side'&&mode==='walk'&&(!B.sc||B.sc.c!==c)){const h=c.h,px=player.pos.x,pz=player.pos.y,dx=h.x-px,dz=h.z-pz,L=Math.hypot(dx,dz)||1,ux=dx/L,uz=dz/L;
+       let nx=-uz,nz=ux;if((camera.position.x-px)*nx+(camera.position.z-pz)*nz<0){nx=-nx;nz=-nz;}
+       const asp=camera.aspect,a=asp<1?0.85:0.12,ca=Math.cos(a),sa=Math.sin(a),tf=Math.tan(camera.fov*Math.PI/360);   // 手機直向（畫面窄）：改從斜後方拍、拉遠一點，人和籃框才放得進來
+       const d=Math.max(6.5,(L*ca/2+1.3)/(tf*Math.min(1.6,asp))+1),mx=px+dx*0.5,mz=pz+dz*0.5,vx=nx*ca-ux*sa,vz=nz*ca-uz*sa;
+       B.sc={c,t:0,until:1,pos:new V3(mx+vx*d,player.y+1.8+Math.min(4,d*0.16),mz+vz*d),look:new V3(mx,player.y+1.8+Math.min(2.5,L*0.07),mz)};}
+     if(B.sc){B.sc.t+=dt;if(shooting||fl)B.sc.until=B.sc.t+0.8;}
+     const on=!!B.sc&&B.sc.t<B.sc.until&&mode==='walk'&&B.camMode==='side'&&!(c&&c.kind==='dunk');
+     B.sk+=((on?1:0)-B.sk)*Math.min(1,dt*(on?(CALM.on?2.2:3.5):2.0));
+     if(B.sk>0.01&&B.sc&&mode==='walk'){const q0=camera.quaternion.clone();camera.position.lerp(B.sc.pos,B.sk);SCL.copy(B.sc.look);if(B.st==='fly')SCL.lerp(bp,0.3);camera.lookAt(SCL);camera.quaternion.slerpQuaternions(q0,camera.quaternion.clone(),B.sk);if(view==='first')avatar.root.visible=true;}
+     else if(!on&&B.sc)B.sc=null;}
     // 飛行時身上拖一道金光
     if(c&&c.kind==='dunk'&&c.t>0&&!c.slam){avatar.root.updateMatrixWorld(true);puff(GLOW,avatar.body.localToWorld(T1.set(0,1.2,0)),0.35,0.5,0.05,null,B.fire>0?'#ff7a2a':'#ffd36a');}
     // 看台閃光燈、畫面邊緣（慢動作金光、灌進去白光一閃）
@@ -3601,8 +3626,8 @@ const BB=(()=>{
    按早一點點會等球過來（0.4 秒內），太早／太晚就揮空。擊球時按住左右＝打那邊的邊線、往前＝打深、往後＝放短。招式也是球到身邊按才會用。
    球場南北向：你在南邊（z 大）、對手在北邊。人物模型的 armR（拿拍的手）在你面向北時是在西邊（-x），對手面向南時在東邊（+x）。 */
 const TN=(()=>{
-  const C=TENNIS,P=TENNIS_PARK,R=0.05,GR=9.8,HL=C.L/2,SX=C.SW/2,DX=C.W/2;
-  const T={on:false,st:'idle',q:null,zone:0,zoneFx:0,buf:null,jump:null,in:{f:0,s:0},land:null,sc:{p:0,o:0},gm:{p:0,o:0},server:'p',slow:0,slowK:1,aura:0,shk:0,sw:null,seq:null,ptgt:null,told:false,serveT:0,tossT:-1,pend:null,auraFx:0,fxT:0};
+  const C=TENNIS,P=TENNIS_PARK,R=0.1,GR=9.8,HL=C.L/2,SX=C.SW/2,DX=C.W/2;
+  const T={cm:null,ck:0,cp:new V3(),cl:new V3(),cd:new V2(0,-1),bpPrev:new V3(),on:false,st:'idle',q:null,zone:0,zoneFx:0,buf:null,jump:null,in:{f:0,s:0},land:null,sc:{p:0,o:0},gm:{p:0,o:0},server:'p',slow:0,slowK:1,aura:0,shk:0,sw:null,seq:null,ptgt:null,told:false,serveT:0,tossT:-1,pend:null,auraFx:0,fxT:0};
   const sm=t=>t*t*(3-2*t),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=(a,b)=>a+Math.random()*(b-a);
   const hud=document.getElementById('tnHud'),btns=document.getElementById('tnBtns');
   const big=t=>{const el=document.getElementById('gBig');el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');};
@@ -3648,7 +3673,8 @@ const TN=(()=>{
     O.home=()=>O.tgt.set(C.cx,C.cz-HL-0.6);
     return O;})();
   // ---- 球＋地上的影子 ----
-  const ball=new THREE.Mesh(new THREE.SphereGeometry(R,16,12),std({color:'#dff23a',roughness:0.55,emissive:'#4a5a00',emissiveIntensity:0.35}));ball.castShadow=true;ball.visible=false;scene.add(ball);
+  const ball=new THREE.Mesh(new THREE.SphereGeometry(R,18,14),std({color:'#e6ff3a',roughness:0.5,emissive:'#7a9000',emissiveIntensity:0.6}));ball.castShadow=true;ball.visible=false;scene.add(ball);
+  {const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:'#eaff70',transparent:true,opacity:0.55,depthWrite:false,blending:THREE.AdditiveBlending}));gl.scale.setScalar(0.62);ball.add(gl);}   // 球旁邊一圈螢光，遠遠也看得到
   const shadow=(()=>{const [c,g]=cvs(32,32),gr=g.createRadialGradient(16,16,1,16,16,15);gr.addColorStop(0,'rgba(0,0,0,0.55)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,32,32);
     const m=new THREE.Mesh(new THREE.PlaneGeometry(0.22,0.22),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false}));m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);return m;})();
   const mark=(()=>{const g=new THREE.RingGeometry(0.5,0.68,40);g.rotateX(-Math.PI/2);const mt=new THREE.MeshBasicMaterial({color:'#ffe14a',transparent:true,opacity:0.95,depthWrite:false,toneMapped:false});const m=new THREE.Mesh(g,mt);m.renderOrder=3;
@@ -3669,9 +3695,14 @@ const TN=(()=>{
     return {x:TP.x,z:TP.z,t:5};}
   function landPt(){TP.copy(bp);TV.copy(bv);for(let i=0;i<300;i++){TV.y-=GR/60;TP.addScaledVector(TV,1/60);if(TP.y<R)return new V2(TP.x,TP.z);}return null;}
   const courtPt=(side,deep)=>new V3(C.cx+rnd(-SX+0.6,SX-0.6),R,side==='o'?C.cz-HL+rnd(1.0,deep?2.2:5.5):C.cz+HL-rnd(1.0,deep?2.2:5.5));
+  // ---- 招式被破解（使用者：放了技能對方都接不住，少了一些樂趣）：每招有機率被對手看穿，對手衝過去喊出破解、回一記強力反擊球；天衣無縫時機率剩 4 成 ----
+  const CNT={twist:0.3,zero:0.3,tsubame:0.3,hadou:0.35,snake:0.3,jack:0.35};
+  const CNAME={twist:'外旋球被破解了！',zero:'看穿零式了！',tsubame:'燕回閃被破解！',hadou:'波動球・回擊！！',snake:'早就看穿蛇球了！',jack:'羆落！'};
+  const willCounter=k=>Math.random()<(CNT[k]||0)*(T.aura>0?0.4:1);
   // ---- 你擊球 ----
   T.pHitCount=0;
-  function pHit(skill){const aura=T.aura>0;T.pHitCount++;AUDIO.sfx('pock');B.hitter='p';B.bounces=0;B.tag=null;B.net=false;B.roll=false;B.rollT=0;B.mode='phys';B.trail=aura?'#ffd84a':null;
+  function pHit(skill){const broke=B.hitter==='o'&&ONAME[B.tag];if(broke){T.broke=(T.broke||0)+1;AUDIO.sfx('combo');ring(bp.clone(),'#ffffff',0.45,5,false);burst(bp.clone(),18,'#ffffff',3);}
+    const aura=T.aura>0;T.pHitCount++;AUDIO.sfx('pock');B.hitter='p';B.bounces=0;B.tag=null;B.counter=false;OPP.boost=1;B.net=false;B.roll=false;B.rollT=0;B.mode='phys';B.trail=aura?'#ffd84a':null;
     const local=(bp.x<player.pos.x);T.sw={k:local?'fore':'back',t:0};   // 球在西邊（拿拍那邊）＝正拍
     let Q,Tf,ret=Math.random()<(aura?0.3:0.84);OPP.ret=true;
     switch(skill){
@@ -3683,19 +3714,21 @@ const TN=(()=>{
       case 'snake':snakeShot();return;
       case 'rondo':startRondo();return;
       case 'jack':startJack();return;
-      default:{const ai=T.in;Q=courtPt('o',aura||ai.f>0.3);   // 擊球時按住左右＝邊線、往前＝深、往後＝短
+      default:{if(broke)big('破解！'+broke+'！');const ai=T.in;Q=courtPt('o',aura||ai.f>0.3);   // 擊球時按住左右＝邊線、往前＝深、往後＝短
         if(ai.s>0.3)Q.x=C.cx+SX-0.55;else if(ai.s<-0.3)Q.x=C.cx-SX+0.55;else if(aura)Q.x=Math.random()<0.5?C.cx-SX+0.5:C.cx+SX-0.5;if(ai.f<-0.3)Q.z=C.cz-rnd(2.8,4.2);
         if(Math.abs(ai.s)>0.3&&!aura)ret=Math.random()<0.68;Tf=aura?0.72:rnd(1.0,1.2);}}
+    if(B.tag&&willCounter(B.tag)){B.counter=true;ret=true;OPP.boost=2.4;}   // 被看穿：對手衝刺過去
     launch(Q,Tf,skill==='tsubame'?1.0:1.2);OPP.ret=ret;
     const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);if(!ret){OPP.tgt.lerp(OPP.pos,skill==='zero'?0.15:0.5);}
     if(skill==='zero'||skill==='tsubame'||skill==='twist')AUDIO.sfx('whoosh');}
   // 迴旋蛇：往場外繞過網柱外面，再彎回場內的角落（三次貝茲曲線，不照物理）
   function snakeShot(){const sd=bp.x<C.cx?-1:1,Q=new V3(C.cx+sd*(SX-0.45),R,C.cz-HL+2.2);
     B.mode='path';B.tag='snake';B.trail='#58e07a';B.path={p:[bp.clone(),new V3(C.cx+sd*9.2,1.7,C.cz+4),new V3(C.cx+sd*9.2,1.5,C.cz-4),Q],T:1.35,t:0};
-    big('迴旋蛇！');T.sw.k='snake';OPP.ret=false;OPP.tgt.set(C.cx-sd*2.2,OPP.pos.y);AUDIO.sfx('whoosh');}
+    big('迴旋蛇！');T.sw.k='snake';OPP.ret=false;OPP.tgt.set(C.cx-sd*2.2,OPP.pos.y);AUDIO.sfx('whoosh');
+    B.counter=willCounter('snake');if(B.counter){OPP.ret=true;OPP.boost=2.0;OPP.tgt.set(Q.x-0.55,Q.z-0.6);}}   // 被看穿：對手先跑到角落等
   const bez=(q,t,out)=>{const u=1-t;return out.set(u*u*u*q[0].x+3*u*u*t*q[1].x+3*u*t*t*q[2].x+t*t*t*q[3].x,u*u*u*q[0].y+3*u*u*t*q[1].y+3*u*t*t*q[2].y+t*t*t*q[3].y,u*u*u*q[0].z+3*u*u*t*q[1].z+3*u*t*t*q[2].z+t*t*t*q[3].z);};
   // 跳躍扣殺：跳起來（0.8 秒）在最高點往下殺 → 球砸在對手前面、往上彈飛出場
-  function startJack(){T.jump={t:0,y0:player.y,h:1.6,launched:false};B.mode='jack';B.tag='jack';B.trail='#ff8a2a';OPP.ret=false;big('跳躍扣殺！');AUDIO.sfx('takeoff');T.sw={k:'smashW',t:0};slow(0.55,0.35);
+  function startJack(){T.jump={t:0,y0:player.y,h:1.6,launched:false};B.mode='jack';B.tag='jack';B.trail='#ff8a2a';OPP.ret=false;B.counter=willCounter('jack');big('跳躍扣殺！');AUDIO.sfx('takeoff');T.sw={k:'smashW',t:0};slow(0.55,0.35);
     ring(new V3(player.pos.x,player.y+0.05,player.pos.y),'#ff8a2a',0.5,5);burst(new V3(player.pos.x,player.y+0.2,player.pos.y),14,'#e8dcc0',2.5);}
   // 破滅的輪舞曲：跳起來殺球打掉對手球拍 → 球飄回你頭上 → 再跳起來殺第二擊
   function startRondo(){T.seq={t:0,ph:0,y0:player.y,a0:bp.clone()};B.mode='seq';B.tag='rondo';B.trail='#c78bff';OPP.ret=false;big('破滅的輪舞曲！');slow(0.7,0.3);AUDIO.sfx('takeoff');
@@ -3715,10 +3748,37 @@ const TN=(()=>{
       bp.lerpVectors(q.a0,q.dst,(t-1.63)/0.3);}
     else{const d=q.dst.clone().sub(q.a0).normalize();bp.copy(q.dst);bv.set(d.x*12,6,d.z*12);B.mode='phys';B.hitter='p';B.bounces=1;B.net=false;ring(new V3(bp.x,0.06,bp.z),'#c78bff',0.7,9);burst(bp.clone(),24,'#c78bff',5);AUDIO.sfx('slam');T.seq=null;}}
   // ---- 對手擊球 ----
-  function oHit(){AUDIO.sfx('pock');B.hitter='o';B.bounces=0;B.tag=null;B.net=false;B.roll=false;B.rollT=0;B.mode='phys';B.trail=null;OPP.sw={t:0,k:bp.x>OPP.pos.x?'fore':'back'};
+  function oHit(){const ctr=B.counter&&B.hitter==='p'?B.tag:null;
+    AUDIO.sfx('pock');B.hitter='o';B.bounces=0;B.tag=null;B.counter=false;OPP.boost=1;B.net=false;B.roll=false;B.rollT=0;B.mode='phys';B.trail=null;OPP.sw={t:0,k:bp.x>OPP.pos.x?'fore':'back'};
+    if(ctr){big(CNAME[ctr]||'被破解了！');slow(0.45,0.35);AUDIO.sfx('heavy');ring(bp.clone(),'#ff3a5a',0.5,6,false);burst(bp.clone(),22,'#ff5a7a',4);B.tag='ocounter';B.trail='#ff3a5a';   // 破解：強力反擊球
+      let Q,Tt;if(ctr==='jack'){Q=new V3(cl(player.pos.x,C.cx-SX+0.4,C.cx+SX-0.4),R,C.cz+HL-0.5);Tt=2.1;B.trail='#9ad0ff';}   // 羆落：高高吊到你後面底線
+      else if(ctr==='hadou'){Q=new V3(cl(player.pos.x,C.cx-SX+0.4,C.cx+SX-0.4),R,cl(player.pos.y-1.6,C.cz+2,C.cz+HL-0.3));Tt=0.62;shake(0.4);B.trail='#ff4a2a';}   // 波動球回擊：直直轟回來
+      else{Q=new V3(player.pos.x<C.cx?C.cx+SX-0.6:C.cx-SX+0.6,R,C.cz+HL-rnd(1.0,2.0));Tt=1.0;}   // 打到你另一邊的角落
+      launch(Q,Tt,1.2);T.land=landPt();OPP.home();return;}
+    if(T.zone<=0&&Math.random()<0.25){oSpecial(['ozero','otsubame','ohadou','osnake','otwist','ojack'][Math.floor(Math.random()*6)]);return;}   // 使用者：雙方都可以隨機開招式對打
     const Q=T.zone>0?new V3(cl(player.pos.x+0.5,C.cx-SX+0.3,C.cx+SX-0.3),R,cl(player.pos.y-3.0,C.cz+1.2,C.cz+HL-0.3)):courtPt('p',false);   // 手塚領域：球都回到你身邊（落在你前面 3 m）
     launch(Q,T.zone>0?1.35:rnd(1.25,1.5));T.land=landPt();OPP.home();
     if(T.zone>0){puff(bp.clone(),0.5,0.4,0.05,null,'#6fe3ff');B.trail='#6fe3ff';}}
+  // ---- 對手出招（使用者：雙方都可以隨機開招式對打）：對手正常回球時 1/4 機率出招；你打得回去＝「破解！」 ----
+  const ONAME={ozero:'零式削球',otsubame:'燕回閃',ohadou:'波動球',osnake:'迴旋蛇',otwist:'外旋球',ojack:'跳躍扣殺'};
+  const OCOL={ozero:'#ff9b3a',otsubame:'#7fd6ff',ohadou:'#ff4a2a',osnake:'#58e07a',otwist:'#bfe9ff',ojack:'#ff8a2a'};
+  function oSpecial(k){B.tag=k;B.trail=OCOL[k];big('對手：'+ONAME[k]+'！');AUDIO.sfx('whoosh');ring(bp.clone(),OCOL[k],0.45,4,false);burst(bp.clone(),14,OCOL[k],3);OPP.home();
+    const px=cl(player.pos.x,C.cx-SX+0.6,C.cx+SX-0.6);
+    switch(k){
+      case 'ozero':launch(new V3(cl(player.pos.x+rnd(-1.5,1.5),C.cx-SX+0.8,C.cx+SX-0.8),R,C.cz+1.4),1.0,1.2);break;   // 網前小球，落地往回滾
+      case 'otsubame':launch(new V3(C.cx+rnd(-2.5,2.5),R,C.cz+5.0),0.62,1.0);break;   // 低平球，落地貼地滑
+      case 'ohadou':launch(new V3(px,R,cl(player.pos.y-1.5,C.cz+2,C.cz+HL-0.3)),0.55,1.2);slow(0.4,0.3);shake(0.35);AUDIO.sfx('heavy');ring(bp.clone(),'#ff7a3a',0.5,7,false);B.knocked=false;break;   // 直直轟向你
+      case 'osnake':{const sd=player.pos.x<C.cx?1:-1,Q=new V3(C.cx+sd*(SX-0.45),R,C.cz+HL-2.2);B.mode='path';B.path={p:[bp.clone(),new V3(C.cx+sd*9.2,1.7,C.cz-4),new V3(C.cx+sd*9.2,1.5,C.cz+4),Q],T:1.35,t:0,by:'o'};T.land=new V2(Q.x,Q.z);return;}   // 繞過網柱，彎進你離比較遠的角落
+      case 'otwist':launch(new V3(C.cx+rnd(-1.5,1.5),R,C.cz+HL-2.4),0.85,1.2);break;   // 落地往你臉上彈
+      case 'ojack':OPP.jt=0;slow(0.4,0.35);launch(new V3(cl(player.pos.x+rnd(-1,1),C.cx-SX+0.6,C.cx+SX-0.6),R,cl(player.pos.y-3.2,C.cz+3,C.cz+HL-1)),0.48,1.25);shake(0.35);AUDIO.sfx('slam');break;}   // 跳起來殺，球砸地彈到你後面
+    T.land=landPt();}
+  // 對手的招在你這邊第一次落地
+  function oFirstBounce(){const g=new V3(bp.x,0.06,bp.z),c=OCOL[B.tag];if(!c)return;ring(g,c,0.5,5);
+    switch(B.tag){
+      case 'ozero':bv.set(0,0,-1.25);bp.y=R;B.roll=true;break;
+      case 'otsubame':bv.y=0;bp.y=R;B.roll=true;bv.x*=1.1;bv.z*=1.1;break;
+      case 'otwist':{const dx=player.pos.x-bp.x,dz=player.pos.y-bp.z;bv.set(dx/0.4,6.6,dz/0.4);B.roll=false;break;}
+      case 'ojack':bv.set(bv.x*0.25,9.0,4.2);B.roll=false;shake(0.4);burst(bp.clone(),24,'#ffb060',5);AUDIO.sfx('heavy');break;}}
   // ---- 物理：重力、落地、球網 ----
   function phys(dt){const n=Math.max(1,Math.ceil(bv.length()*dt/0.05)),h=dt/n;
     for(let i=0;i<n;i++){const z0=bp.z;if(!(B.roll))bv.y-=GR*h;bp.addScaledVector(bv,h);
@@ -3729,12 +3789,13 @@ const TN=(()=>{
     if(Math.abs(bv.y)>0.8)AUDIO.sfx('tbounce');
     bv.y=-bv.y*0.74;bv.x*=0.86;bv.z*=0.86;if(Math.abs(bv.y)<0.6){bv.y=0;B.roll=true;}
     if(B.dead||!B.hitter)return;
-    if(B.bounces===0&&!B.net&&side===recv){if(!inC){point(B.hitter==='p'?'o':'p','出界！');return;}B.bounces=1;if(B.hitter==='p')firstBounce();return;}
+    if(B.bounces===0&&!B.net&&side===recv){if(!inC){point(B.hitter==='p'?'o':'p','出界！');return;}B.bounces=1;if(B.hitter==='p')firstBounce();else oFirstBounce();return;}
     if(B.bounces===0&&side!==recv){point(recv,B.net?'掛網…':'');return;}
     point(B.hitter,B.tag?TAGWIN[B.tag]||'':'');}
-  const TAGWIN={jack:'跳躍扣殺得分！',twist:'外旋球得分！',zero:'零式削球得分！',tsubame:'燕回閃得分！',hadou:'波動球得分！',snake:'迴旋蛇得分！',rondo:'破滅的輪舞曲！'};
+  const TAGWIN={ocounter:'被反擊了…',ozero:'對手的零式削球…',otsubame:'對手的燕回閃…',ohadou:'對手的波動球…',osnake:'對手的迴旋蛇…',otwist:'對手的外旋球…',ojack:'對手的跳躍扣殺…',jack:'跳躍扣殺得分！',twist:'外旋球得分！',zero:'零式削球得分！',tsubame:'燕回閃得分！',hadou:'波動球得分！',snake:'迴旋蛇得分！',rondo:'破滅的輪舞曲！'};
   // 你的球在對手那邊第一次落地：各招的效果
   function firstBounce(){const g=new V3(bp.x,0.06,bp.z);
+    if(B.counter){ring(g,'#ff3a5a',0.4,3);return;}   // 被看穿了：正常彈起來讓對手打
     switch(B.tag){
       case 'twist':{const dx=OPP.pos.x-bp.x,dz=OPP.pos.y-bp.z;bv.set(dx/0.33,6.4,dz/0.33);B.roll=false;OPP.react='flinch';OPP.rt=0;ring(g,'#bfe9ff',0.5,6);burst(bp.clone(),14,'#bfe9ff',3);AUDIO.sfx('whoosh');break;}   // 往對手臉上彈
       case 'zero':bv.set(0,0,1.25);bp.y=R;B.roll=true;OPP.react='lunge';OPP.rt=0;slow(0.9,0.4);ring(g,'#ff9b3a',0.6,5);burst(bp.clone(),14,'#ffb060',2);break;   // 落地往回滾到網前
@@ -3757,7 +3818,7 @@ const TN=(()=>{
   // ---- 每一分開始：站位、發球 ----
   function restoreRacket(){if(OPP.fly){OPP.fly=null;}if(OPP.racket.parent!==OPP.armR){OPP.armR.add(OPP.racket);}OPP.racket.position.set(0,-0.6,0);OPP.racket.rotation.set(0,0,0);}
   function flyRacket(v){OPP.root.updateMatrixWorld(true);scene.attach(OPP.racket);OPP.fly={v,w:new V3(rnd(8,14),rnd(4,9),rnd(6,12))};}
-  function setupPoint(){T.buf=null;T.land=null;B.dead=false;B.net=false;B.roll=false;B.rollT=0;B.bounces=0;B.tag=null;B.trail=null;B.hitter=null;B.mode='held';T.seq=null;T.q=null;markQ();restoreRacket();OPP.react=null;OPP.sw=null;T.sw=null;
+  function setupPoint(){T.buf=null;T.land=null;T.knock=0;OPP.jt=undefined;B.counter=false;OPP.boost=1;B.dead=false;B.net=false;B.roll=false;B.rollT=0;B.bounces=0;B.tag=null;B.trail=null;B.hitter=null;B.mode='held';T.seq=null;T.q=null;markQ();restoreRacket();OPP.react=null;OPP.sw=null;T.sw=null;
     const deuce=(T.sc.p+T.sc.o)%2===0;T.st='serve';T.serveT=0;T.tossT=-1;T.ptgt=null;
     if(T.server==='p'){player.pos.set(C.cx+(deuce?0.8:-0.8),C.cz+HL+0.35);OPP.pos.set(C.cx+(deuce?-2.4:2.4),C.cz-HL-0.7);}
     else{player.pos.set(C.cx+(deuce?2.4:-2.4),C.cz+HL+0.7);OPP.pos.set(C.cx+(deuce?-0.8:0.8),C.cz-HL-0.35);}
@@ -3766,7 +3827,7 @@ const TN=(()=>{
   function doServe(){const deuce=(T.sc.p+T.sc.o)%2===0;T.st='rally';B.mode='phys';B.bounces=0;B.net=false;B.roll=false;B.rollT=0;AUDIO.sfx('pock');
     if(T.server==='p'){B.hitter='p';const tw=T.serveKind==='twist';T.sw={k:'smash',t:0};B.trail=tw?'#bfe9ff':T.aura>0?'#ffd84a':null;
       const Q=new V3(deuce?C.cx-rnd(0.6,SX-0.5):C.cx+rnd(0.6,SX-0.5),R,C.cz-rnd(tw?4.6:2.5,5.6));launch(Q,tw?0.85:0.62,1.15);
-      if(tw){B.tag='twist';OPP.ret=false;big('外旋發球！');AUDIO.sfx('whoosh');ring(bp.clone(),'#bfe9ff',0.45,4,false);}else OPP.ret=Math.random()<(T.aura>0?0.3:0.75);
+      if(tw){B.tag='twist';OPP.ret=false;B.counter=willCounter('twist');if(B.counter){OPP.ret=true;OPP.boost=2.0;}big('外旋發球！');AUDIO.sfx('whoosh');ring(bp.clone(),'#bfe9ff',0.45,4,false);}else OPP.ret=Math.random()<(T.aura>0?0.3:0.75);
       const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);if(!OPP.ret)OPP.tgt.lerp(OPP.pos,0.5);}
     else{B.hitter='o';OPP.sw={t:0,k:'smash'};const Q=new V3(deuce?C.cx+rnd(0.6,SX-0.5):C.cx-rnd(0.6,SX-0.5),R,C.cz+rnd(2.5,5.6));launch(Q,0.95,1.15);T.land=landPt();}}
   // ---- 開始／結束 ----
@@ -3780,7 +3841,7 @@ const TN=(()=>{
     setupPoint();AUDIO.sfx('chime');
     if(!T.told){T.told=true;toast(isTouch?'網球：自己跑（搖桿），黃圈＝球會落地的地方；球到身邊「擊球」變綠就按（同時推搖桿左右＝打邊線）。招式也是球到身邊按。先按「擊球」發球':'網球：WASD 跑位，黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J，同時按住 A／D＝打邊線。1～9 招式也是球到身邊按；F 放下球拍');}};
   T.stop=()=>{if(!T.on)return;T.on=false;OPP.root.visible=false;ball.visible=false;shadow.visible=false;hud.hidden=true;btns.hidden=true;document.body.classList.remove('tn');restoreRacket();
-    if(prk.parent)prk.parent.remove(prk);if(camSave!==null){comfort.camDist=camSave;camSave=null;}T.seq=null;T.aura=0;T.zone=0;T.jump=null;T.slow=0;mark.visible=false;
+    if(prk.parent)prk.parent.remove(prk);if(camSave!==null){comfort.camDist=camSave;camSave=null;}T.cm=null;T.ck=0;T.seq=null;T.aura=0;T.zone=0;T.jump=null;T.slow=0;mark.visible=false;
     const A=avatar;A.body.rotation.set(0,0,0);A.body.position.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);A.zeroJoints();};
   T.rt=dt=>{if(T.slow>0){T.slow-=dt;return T.slowK;}return 1;};
   // ---- 按鈕：擊球／發球、各招式（排隊＝下一球用；球已經在身邊就馬上打） ----
@@ -3808,6 +3869,7 @@ const TN=(()=>{
     if(T.st==='serve'&&T.server==='p'||T.jump)player.vel.set(0,0);
     else{const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),rx=Math.cos(player.yaw),rz=-Math.sin(player.yaw),spd=(T.aura>0?8.2:6.0)*(running?1.25:1);   // 自己跑（Shift／搖桿推到底＝衝刺）
       const k=1-Math.exp(-dt*12);player.vel.x+=((fx*f+rx*s)*spd-player.vel.x)*k;player.vel.y+=((fz*f+rz*s)*spd-player.vel.y)*k;}
+    if(T.knock>0){T.knock-=dt;player.pos.y+=dt*6*(T.knock/0.4);}
     player.pos.x+=player.vel.x*dt;player.pos.y+=player.vel.y*dt;resolve(player.pos,0.3,player.y);
     player.pos.x=cl(player.pos.x,P.x0+0.5,P.x1-0.5);player.pos.y=cl(player.pos.y,C.cz+0.6,P.z1-0.5);
     if(T.jump){const j=T.jump;j.t+=dt;const u=Math.min(1,j.t/0.8);player.y=j.y0+4*j.h*u*(1-u);player.vy=0;player.ground=false;if(u>=1){T.jump=null;player.y=j.y0;player.ground=true;}}
@@ -3822,13 +3884,15 @@ const TN=(()=>{
       if(T.tossT>=0){T.tossT+=dt;const u=Math.min(1,T.tossT/0.55),h=2.95;const bx=T.server==='p'?player.pos.x-0.2:OPP.pos.x+0.2,bz=T.server==='p'?player.pos.y-0.35:OPP.pos.y+0.35,by=(T.server==='p'?player.y:0)+1.3+(h-1.3)*Math.sin(Math.PI/2*u);
         bp.set(bx,by,bz);if(T.server==='p'&&!T.sw)T.sw={k:'toss',t:0};if(u>=1)doServe();}
       else{const bx=T.server==='p'?player.pos.x-0.25:OPP.pos.x+0.25,bz=T.server==='p'?player.pos.y-0.2:OPP.pos.y+0.2;bp.set(bx,1.0+(T.server==='p'?player.y:0)+Math.abs(Math.sin(T.serveT*5))*-0.0,bz);}}   // 拿在手上
-    else if(B.mode==='phys'){phys(dt);if(B.roll&&!B.dead&&B.hitter&&B.bounces===1){B.rollT=(B.rollT||0)+dt;if(B.rollT>(B.tag==='zero'?1.1:0.7))point(B.hitter,TAGWIN[B.tag]||'');}}   /* 零式、燕回閃：落地後在地上滾＝第二次落地 */
-    else if(B.mode==='path'){const q=B.path;q.t+=dt/q.T;if(q.t<1)bez(q.p,q.t,bp);else{bp.copy(q.p[3]);const d=q.p[3].clone().sub(q.p[2]).multiplyScalar(3/q.T*0.6);bv.set(d.x,3.0,d.z);B.mode='phys';B.hitter='p';B.bounces=1;B.net=false;
-        ring(new V3(bp.x,0.06,bp.z),'#58e07a',0.6,6);burst(bp.clone(),16,'#58e07a',3);AUDIO.sfx('tbounce');OPP.react='late';OPP.rt=0;}}
+    else if(B.mode==='phys'){phys(dt);if(B.roll&&!B.dead&&B.hitter&&B.bounces===1){B.rollT=(B.rollT||0)+dt;if(B.rollT>(B.tag==='ozero'?1.7:B.tag==='otsubame'?1.1:B.tag==='zero'?1.1:0.7))point(B.hitter,TAGWIN[B.tag]||'');}}   /* 零式、燕回閃：落地後在地上滾＝第二次落地 */
+    else if(B.mode==='path'){const q=B.path;q.t+=dt/q.T;if(q.t<1)bez(q.p,q.t,bp);else{bp.copy(q.p[3]);const d=q.p[3].clone().sub(q.p[2]).multiplyScalar(3/q.T*0.6);bv.set(d.x,3.0,d.z);B.mode='phys';B.hitter=q.by||'p';B.bounces=1;B.net=false;
+        ring(new V3(bp.x,0.06,bp.z),'#58e07a',0.6,6);burst(bp.clone(),16,'#58e07a',3);AUDIO.sfx('tbounce');if(!B.counter&&B.hitter==='p'){OPP.react='late';OPP.rt=0;}}}
     else if(B.mode==='seq'){}   // 輪舞曲：在 T.step 裡算
     else if(B.mode==='jack'){const j=T.jump;bp.set(player.pos.x-0.25,player.y+2.3,player.pos.y-0.2);   // 跳躍扣殺：球在頭上，跳到最高點往下殺
       if(!j||j.t>=0.36){if(j)j.launched=true;T.sw={k:'smash',t:0};AUDIO.sfx('pock');AUDIO.sfx('slam');shake(0.45);B.mode='phys';B.hitter='p';B.bounces=0;B.net=false;B.roll=false;B.rollT=0;
-        launch(new V3(cl(OPP.pos.x+rnd(-1,1),C.cx-SX+0.6,C.cx+SX-0.6),R,cl(OPP.pos.y+3.2,C.cz-HL+1,C.cz-3)),0.5,1.25);ring(bp.clone(),'#ff8a2a',0.45,6,false);burst(bp.clone(),20,'#ffb060',5);OPP.tgt.copy(OPP.pos);}}
+        launch(new V3(cl(OPP.pos.x+rnd(-1,1),C.cx-SX+0.6,C.cx+SX-0.6),R,cl(OPP.pos.y+3.2,C.cz-HL+1,C.cz-3)),0.5,1.25);ring(bp.clone(),'#ff8a2a',0.45,6,false);burst(bp.clone(),20,'#ffb060',5);OPP.tgt.copy(OPP.pos);
+        if(B.counter){OPP.ret=true;OPP.boost=2.2;const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);}}}
+    if(B.tag==='ohadou'&&B.hitter==='o'&&!B.dead&&!B.knocked&&Math.hypot(bp.x-player.pos.x,bp.z-player.pos.y)<0.55&&bp.y<2.2){B.knocked=true;T.knock=0.4;shake(0.5);big('被轟退了！');AUDIO.sfx('heavy');burst(bp.clone(),20,'#ff6a2a',4);}   // 對手的波動球沒接到：被轟得往後退
     // 你擊球：按早一點點會等球過來；擊球鈕變綠＝現在打得到
     if(T.buf){T.buf.t-=dt;if(canHit()){const k=T.buf.k;T.buf=null;pHit(k);}else if(T.buf.t<=0)T.buf=null;}
     {const r=canHit();if(r!==T.ready){T.ready=r;const hb=btns.querySelector('[data-k=hit]');if(hb)hb.classList.toggle('ready',r);}}
@@ -3837,7 +3901,7 @@ const TN=(()=>{
     {const on=T.land&&B.hitter==='o'&&B.bounces===0&&!B.dead&&T.st==='rally';mark.visible=!!on;if(on){mark.position.set(T.land.x,0.035,T.land.y);mark.scale.setScalar(1+0.15*Math.sin(performance.now()/90));}}
     // 對手：跑位、回擊、各招的反應
     {const O=OPP;O.rt+=dt;const busy=O.react==='blown'||O.react==='lunge';
-      if(!busy&&!(T.st==='serve'&&T.server==='o')){const spd=O.ret?6.6:3.2,dx=O.tgt.x-O.pos.x,dz=O.tgt.y-O.pos.y,l=Math.hypot(dx,dz);O.mv=l>0.06;if(O.mv){const u=Math.min(spd*dt,l);O.pos.x+=dx/l*u;O.pos.y+=dz/l*u;}}else O.mv=false;
+      if(!busy&&!(T.st==='serve'&&T.server==='o')){const spd=O.ret?6.6*(O.boost||1):3.2,dx=O.tgt.x-O.pos.x,dz=O.tgt.y-O.pos.y,l=Math.hypot(dx,dz);O.mv=l>0.06;if(O.mv){const u=Math.min(spd*dt,l);O.pos.x+=dx/l*u;O.pos.y+=dz/l*u;}}else O.mv=false;
       if(O.react==='lunge'&&O.rt<0.7){O.pos.y=Math.min(C.cz-0.9,O.pos.y+dt*6.5);O.mv=true;}   // 零式：衝到網前也來不及
       if(O.react==='blown'&&O.rt<0.6){O.pos.y-=dt*5*(1-O.rt/0.6);}   // 波動球：被轟到往後滑
       O.pos.x=cl(O.pos.x,P.x0+0.5,P.x1-0.5);O.pos.y=cl(O.pos.y,P.z0+0.5,C.cz-0.6);
@@ -3853,11 +3917,29 @@ const TN=(()=>{
     if(T.pend){T.pend.t+=dt;if(T.pend.t>0.35&&!T.pend.shown){T.pend.shown=true;big(T.pend.msg);}if(T.pend.t>2.1){T.pend=null;setupPoint();}}
     // 球的拖尾、影子
     T.fxT-=dt;if(T.fxT<=0&&ball.visible){T.fxT=0.02;if(B.trail&&!B.dead&&B.mode!=='held')puff(bp.clone(),0.35,0.32,0.05,null,B.trail);}
-    shadow.position.set(bp.x,0.03,bp.z);shadow.scale.setScalar(1+bp.y*0.25);shadow.material.opacity=Math.max(0.15,1-bp.y*0.2);
+    shadow.position.set(bp.x,0.03,bp.z);shadow.scale.setScalar(1.8+bp.y*0.3);shadow.material.opacity=Math.max(0.15,1-bp.y*0.2);
     ball.rotation.x+=dt*bv.length()*2;
+    // 招式運鏡（使用者：打出招式時鏡頭要跟著網球過去，像波動球打爆對方要看得到效果）：
+    // 一般招式＝鏡頭跟在球後面飛過去 → 球到對手那邊（落地／對手反應）就換到對手側前方的特寫；迴旋蛇＝從你後面高處看整條彎過網柱的球路；輪舞曲＝側面轉播視角。這一分結束後滑回來
+    {const isTag=B.tag&&B.hitter==='p'&&T.st==='rally'&&mode==='walk';
+     if(isTag&&!T.cm){T.cm={tag:B.tag,t:0};T.cp.copy(camera.position);T.cl.copy(bp);T.cd.set(0,-1);}
+     const cm=T.cm;
+     if(cm){cm.t+=dt;const out=T.st==='serve'||!T.on||mode!=='walk'||B.hitter==='o'||(T.pend&&T.pend.t>1.5);cm.out=out;
+       const vx=bp.x-T.bpPrev.x,vz=bp.z-T.bpPrev.z,l=Math.hypot(vx,vz);if(l>1e-4&&B.mode!=='held'){T.cd.x+=(vx/l-T.cd.x)*Math.min(1,dt*5);T.cd.y+=(vz/l-T.cd.y)*Math.min(1,dt*5);T.cd.normalize();}
+       const DP=TP,DL=TV,O=OPP;
+       if(cm.tag==='snake'){DP.set(C.cx,10,P.z1+2);DL.set(C.cx,0,C.cz-4);}
+       else if(cm.tag==='rondo'){DP.set(C.cx+12.5,5,C.cz+1.5);DL.set(C.cx,1.8,C.cz);}
+       else if(B.bounces>=1||O.react||B.dead){DP.set(O.pos.x+3.4,1.7,O.pos.y+3.6);DL.set(O.pos.x,0.95,O.pos.y);}   // 對手特寫：看被轟飛、撲空、揮空
+       else{const dx=T.cd.x,dz=T.cd.y;DP.set(bp.x-dx*3.8+dz*0.9,Math.max(1.2,bp.y+1.3),bp.z-dz*3.8-dx*0.9);DL.set(bp.x+dx*3,Math.max(0.5,bp.y*0.6),bp.z+dz*3);}   // 跟在球後面
+       const k=1-Math.exp(-dt*(CALM.on?3:6));T.cp.lerp(DP,k);T.cl.lerp(DL,k);
+       T.ck+=((out?0:1)-T.ck)*Math.min(1,dt*(out?2.2:(CALM.on?2.5:5)));
+       if(T.ck>0.005){const q0=camera.quaternion.clone();camera.position.lerp(T.cp,T.ck);camera.lookAt(T.cl);camera.quaternion.slerpQuaternions(q0,camera.quaternion.clone(),T.ck);}
+       else if(out){T.cm=null;T.ck=0;}}
+     T.bpPrev.copy(bp);}
     if(T.shk>0){T.shk=Math.max(0,T.shk-dt*1.8);if(!CALM.on&&mode==='walk'){camera.position.x+=(Math.random()-0.5)*T.shk*0.4;camera.position.y+=(Math.random()-0.5)*T.shk*0.4;}}};
   // ---- 對手的動作 ----
-  function oPose(dt){const O=OPP,b=O.body;O.root.position.set(O.pos.x,0,O.pos.y);O.root.rotation.y=0;b.position.set(0,0,0);b.rotation.set(0,0,0);
+  function oPose(dt){const O=OPP,b=O.body;let jy=0;if(O.jt!==undefined&&O.jt<0.8){O.jt+=dt;const u=Math.min(1,O.jt/0.8);jy=4*1.4*u*(1-u);if(O.jt<0.4)O.sw={t:0,k:'toss'};else if(!O.sw||O.sw.k==='toss')O.sw={t:0,k:'smash'};}
+    O.root.position.set(O.pos.x,jy,O.pos.y);O.root.rotation.y=0;b.position.set(0,0,0);b.rotation.set(0,0,0);
     O.ph+=dt*(O.mv?11:2);const sw=O.mv?Math.sin(O.ph)*0.7:0;O.legL.rotation.set(sw,0,0);O.legR.rotation.set(-sw,0,0);
     O.armL.rotation.set(-0.4,0,-0.25);O.armR.rotation.set(-0.6,0,0.3);
     if(O.sw){O.sw.t+=dt;const u=Math.min(1,O.sw.t/0.35),e=sm(u);
@@ -4802,7 +4884,7 @@ const camTmp=new V2();let camDistCur=null,camDt=1/60;   // 第三人稱鏡頭的
 function thirdPersonCamera(){
   const tx=player.pos.x,ty=player.y+(LIE.on?0.3:bodyH().cam),tz=player.pos.y;   // 躺床時看著床上的人
   const cp=Math.cos(player.pitch),fx=-Math.sin(player.yaw)*cp,fy=Math.sin(player.pitch),fz=-Math.cos(player.yaw)*cp;
-  const cd=BALLOON.riding?Math.max(comfort.camDist,9):indoors()?Math.min(comfort.camDist,2.4):comfort.camDist;   // 室內鏡頭最遠 2.4 m：穿過門時要拉近的距離比較小，不會一下跳很遠   // 搭熱氣球時鏡頭拉遠一點
+  const cd=BALLOON.riding?comfort.camDist*2.2:indoors()?Math.min(comfort.camDist,2.4):comfort.camDist;   // 室內鏡頭最遠 2.4 m：穿過門時要拉近的距離比較小，不會一下跳很遠   // 搭熱氣球時鏡頭拉遠一點（跟著縮放：鏡頭距離×2.2）
   let dist=cd;
   // 碰到牆會拉近（使用者：房間走路會抖）：原本每 20 cm 一格直接跳 → 改成找到精確距離（2 cm）＋平滑（拉近快、退回慢）
   const blocked=t=>{camTmp.set(tx-fx*t,tz-fz*t);const cy=ty-fy*t+0.35;
