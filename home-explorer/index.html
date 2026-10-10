@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-10.69"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-10.71"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -4156,7 +4156,7 @@ const TN=(()=>{
    導航：前方彎道名稱、方向、距離、建議速度（語音＋畫面）、地上的導航線（綠＝速度 OK、黃／紅＝要減速）、圈速、名次。 */
 const RACE=(()=>{
   const R={on:false,mode:null,st:'idle',v:0,h:0,steer:0,bst:0,gauge:100,drift:0,driftT:0,sk:null,zero:0,cam:0,lap:0,prog:0,lapT:0,best:null,lapTimes:[],raceT:0,y:0,roll:0,pitch:0,yawOff:0,lat:0,i:0,wrongT:0,navT:0,said:{},told:false,cars:[],shk:0,slowK:1,fx:[],ghost:[],hist:[],fin:null};
-  try{const b=+(localStorage.getItem('home-race-best')||localStorage.getItem('home-fuji-best'));if(b>0)R.best=b;}catch(_){}
+  try{const b=+localStorage.getItem('home-race-best2');if(b>0)R.best=b;}catch(_){}
   const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),sm=t=>t*t*(3-2*t),rnd=(a,b)=>a+Math.random()*(b-a),KMH=3.6;
   const $=id=>document.getElementById(id);
   const big=t=>{const el=$('gBig');el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');};
@@ -4225,8 +4225,35 @@ const RACE=(()=>{
   ribbon(()=>[-HW,HW,0.03,0.03],MT.asphalt,8);
   for(const sd of [-1,1])ribbon(()=>sd<0?[-HW+0.35,-HW+0.6,0.036,0.036]:[HW-0.6,HW-0.35,0.036,0.036],MT.line,8);
   for(const sd of [-1,1])ribbon(i=>corner(i)?(sd<0?[-HW-1.3,-HW,0.04,0.04]:[HW,HW+1.3,0.04,0.04]):null,MT.curb,3,false);   // 紅白路緣石
-  // 護欄（廣告牆）：離中心 18.5 m；會穿進別段賽道的地方（髮夾彎內側）不蓋
-  const wallOK=(i,sd)=>{const p=S[i],x=p.x+p.rx*WALL*sd,z=p.z+p.rz*WALL*sd;for(let j=0;j<N;j+=2){const g=Math.min(Math.abs(j-i),N-Math.abs(j-i));if(g<12)continue;if((S[j].x-x)**2+(S[j].z-z)**2<(WALL-0.5)**2)return false;}return true;};
+  // ================= 大漩渦離心力車道（使用者：要大漩渦離心力車道，可以開加速器跑完；2026-10-10 使用者：大漩渦車道要放進比賽場地） =================
+  // 比賽路線：300R 之後分岔（JA）→ 分岔道 → 230 m 直線助跑（往南）→ 螺旋往右盤旋往上 2.5 圈（半徑 34 → 70 m、高 70 m，傾斜 0 → 80°，接近垂直的牆）
+  // → 頂端往北的下坡出口 260 m → 匯入道 → 最後區段（JB）→ 主直線。原本的 Dunlop 減速彎那一小段比賽時不走。傾斜的地方要夠快才貼得住（離心力），太慢會滑下去、掉下來（回到上一個檢查點）。
+  const VX={cx:-130,cz:860,R0:34,R1:70,H:70,turns:2.5,HW:6};
+  const nearIdx=(x,z)=>{let b=0,bd=1e9;for(let i=0;i<N;i++){const d=(S[i].x-x)**2+(S[i].z-z)**2;if(d<bd){bd=d;b=i;}}return b;};
+  const JA=nearIdx(-70,545),JB=nearIdx(-205,545);
+  const VS=(()=>{const raw=[],U=new V3(0,1,0),sm2=t=>t*t*(3-2*t);
+    const bz=(p0,p1,p2,p3,kind,n)=>{for(let k=1;k<=n;k++){const t=k/n,u=1-t,f=(a,b,c,d)=>u*u*u*a+3*u*u*t*b+3*u*t*t*c+t*t*t*d;raw.push({p:new V3(f(p0.x,p1.x,p2.x,p3.x),0,f(p0.z,p1.z,p2.z,p3.z)),bank:0,R:0,kind});}};
+    const A=S[JA],B=S[JB],R0p=new V3(VX.cx+VX.R0,0,640);
+    raw.push({p:new V3(A.x,0,A.z),bank:0,R:0,kind:'c1'});bz(new V3(A.x,0,A.z),new V3(A.x+A.tx*35,0,A.z+A.tz*35),new V3(R0p.x,0,R0p.z-35),R0p,'c1',140);   // 分岔道
+    for(let z=R0p.z+1;z<VX.cz;z+=1)raw.push({p:new V3(R0p.x,0,z),bank:0,R:0,kind:'run'});   // 助跑直線（往南）
+    for(let k=0;k<=3000;k++){const u=k/3000,ph=u*VX.turns*Math.PI*2,r=VX.R0+(VX.R1-VX.R0)*u,y=VX.H*(u-Math.sin(2*Math.PI*u)/(2*Math.PI));   // 螺旋（往右盤旋往上）
+      raw.push({p:new V3(VX.cx+r*Math.cos(ph),y,VX.cz+r*Math.sin(ph)),bank:80*sm2(Math.min(1,u/0.35))*Math.PI/180,R:r,kind:'helix',u});}
+    const e=raw[raw.length-1].p.clone();for(let d=1;d<=260;d+=1){const t=d/260;raw.push({p:new V3(e.x,VX.H*(1-sm2(t)),e.z-d),bank:80*(1-sm2(Math.min(1,d/60)))*Math.PI/180,R:0,kind:'ramp'});}   // 下坡出口（往北）
+    const E2=new V3(e.x,0,e.z-260);bz(E2,new V3(E2.x,0,E2.z-35),new V3(B.x-B.tx*35,0,B.z-B.tz*35),new V3(B.x,0,B.z),'c2',120);   // 匯入道
+    const out=[];let acc=0,next=0;for(let i=0;i<raw.length;i++){if(i)acc+=raw[i].p.distanceTo(raw[i-1].p);if(acc>=next){out.push(Object.assign({},raw[i],{s:acc}));next+=2;}}   // 每 2 m 一點
+    for(let i=0;i<out.length;i++){const a=out[Math.max(0,i-1)].p,b=out[Math.min(out.length-1,i+1)].p,q=out[i];q.t=b.clone().sub(a).normalize();
+      const L=new V3(q.t.z,0,-q.t.x).normalize();q.a=L.multiplyScalar(Math.cos(q.bank)).addScaledVector(U,Math.sin(q.bank));q.a.addScaledVector(q.t,-q.a.dot(q.t)).normalize();
+      q.n=new V3().crossVectors(q.t,q.a).normalize();q.vreq=q.kind==='helix'&&q.bank>0.35?Math.sqrt(9.8*q.R*Math.min(6,Math.tan(q.bank)))*1.22:0;}   // 需要的速度（離心力）
+    out.L=out[out.length-1].s;return out;})();
+  const VN=VS.length;R.VS=VS;const VR0=VS.findIndex(q=>q.kind==='run');
+  const VCK=[VR0];{let lastU=-1;for(let i=VR0;i<VN;i++){const q=VS[i];if(q.kind==='helix'){const h=Math.floor(q.u*VX.turns*2);if(h!==lastU){lastU=h;VCK.push(i);}}if(q.kind==='ramp'&&VS[i-1].kind!=='ramp')VCK.push(i);}}   // 檢查點：助跑起點、每半圈、出口
+  // 比賽路線的距離：起跑線 → JA（SA）→ 大漩渦（LV）→ JB（SB）→ 起跑線；一圈 RL
+  const SA=((JA-I0+N)%N)*DS,SB=((JB-I0+N)%N)*DS,LV=VS.L,RL=SA+LV+(TL-SB);
+  const routeU=i=>{const s=sOf(i);return s<=SA?s:s>=SB?SA+LV+(s-SB):SA;};
+  R.RL=RL;R.JA=JA;R.JB=JB;R.SA=SA;R.SB=SB;
+  const VG=VS.filter((q,k)=>q.p.y<2&&k%3===0),nearVG=(x,z,r)=>VG.some(q=>(q.p.x-x)**2+(q.p.z-z)**2<r*r);   // 地上那幾段（分岔道、助跑、匯入道）：護欄、樹要避開
+  // 護欄（廣告牆）：離中心 18.5 m；會穿進別段賽道的地方（髮夾彎內側）、大漩渦分岔道經過的地方不蓋
+  const wallOK=(i,sd)=>{const p=S[i],x=p.x+p.rx*WALL*sd,z=p.z+p.rz*WALL*sd;if(nearVG(x,z,10))return false;for(let j=0;j<N;j+=2){const g=Math.min(Math.abs(j-i),N-Math.abs(j-i));if(g<12)continue;if((S[j].x-x)**2+(S[j].z-z)**2<(WALL-0.5)**2)return false;}return true;};
   const WOK=[[],[]];for(let i=0;i<N;i++){WOK[0][i]=wallOK(i,-1);WOK[1][i]=wallOK(i,1);}
   for(const [n,sd] of [[0,-1],[1,1]]){ribbon(i=>WOK[n][i]?[WALL*sd,WALL*sd,0,1.1]:null,MT.wall,9,false);ribbon(i=>WOK[n][i]?[WALL*sd+sd*0.05,WALL*sd+sd*0.05,1.1,1.45]:null,MT.rail,9,false);}
   R.WOK=WOK;
@@ -4269,7 +4296,7 @@ const RACE=(()=>{
   {const n=900,crown=new THREE.ConeGeometry(2.6,7,7);crown.translate(0,5.6,0);const trunk=new THREE.CylinderGeometry(0.3,0.4,2.4,6);trunk.translate(0,1.2,0);
    const ic=new THREE.InstancedMesh(crown,std({color:'#ffffff',roughness:0.9}),n),it=new THREE.InstancedMesh(trunk,std({color:'#5a4330',roughness:1}),n),o=new THREE.Object3D(),col=new THREE.Color(),rr=mulberry(1234);let c=0;
    for(let tries=0;tries<6000&&c<n;tries++){const x=-330+rr()*680,z=278+rr()*460;
-     if(x>-160&&x<150&&z<375)continue;if(x>-36&&x<6&&z<300)continue;if(x>-150&&x<420&&z>625)continue;   /* 大漩渦那邊不種樹 */
+     if(x>-160&&x<150&&z<375)continue;if(x>-36&&x<6&&z<300)continue;if(x>-260&&x<-30&&z>590)continue;if(nearVG(x,z,16))continue;   /* 大漩渦、分岔道那邊不種樹 */
      let ok=true;for(let j=0;j<N;j+=3){if((S[j].x-x)**2+(S[j].z-z)**2<(WALL+6)**2){ok=false;break;}}if(!ok)continue;
      const s=0.7+rr()*0.8;o.position.set(x,0,z);o.rotation.set(0,rr()*6,0);o.scale.set(s,s*(0.8+rr()*0.5),s);o.updateMatrix();ic.setMatrixAt(c,o.matrix);it.setMatrixAt(c,o.matrix);col.setHSL(0.27+rr()*0.08,0.45,0.22+rr()*0.12);ic.setColorAt(c,col);c++;}
    ic.count=it.count=c;ic.castShadow=true;G0.add(ic,it);}
@@ -4292,24 +4319,6 @@ const RACE=(()=>{
   const SHADOW_T=(()=>{const [c,g]=cvs(64,128),gr=g.createRadialGradient(32,64,6,32,64,60);gr.addColorStop(0,'rgba(0,0,0,0.6)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,64,128);return new THREE.CanvasTexture(c);})();
   const GLOW=(()=>{const [c,x]=cvs(64,64),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(0.35,'rgba(255,255,255,0.55)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
 
-  // ================= 大漩渦離心力車道（使用者：要大漩渦離心力車道，可以開加速器跑完這段車道，最經典的車道） =================
-  // 賽車場南邊：230 m 直線助跑 → 螺旋車道盤旋往上 2.75 圈（半徑 34 → 70 m、高 70 m），越往上越斜（傾斜 0 → 80°，接近垂直的牆）
-  // → 頂端接 320 m 下坡出口（飛越助跑道上方）→ 終點。傾斜的地方要夠快才貼得住（離心力），太慢會滑下去、掉下來（回到上一個檢查點）。
-  const VX={cx:-60,cz:870,R0:34,R1:70,H:70,turns:2.75,HW:6};
-  const VS=(()=>{const raw=[],U=new V3(0,1,0),sm2=t=>t*t*(3-2*t);
-    for(let z=VX.cz-230;z<VX.cz;z+=1)raw.push({p:new V3(VX.cx+VX.R0,0,z),bank:0,R:0,kind:'run'});   // 助跑直線（往南）
-    for(let k=0;k<=3000;k++){const u=k/3000,ph=u*VX.turns*Math.PI*2,r=VX.R0+(VX.R1-VX.R0)*u,y=VX.H*(u-Math.sin(2*Math.PI*u)/(2*Math.PI));   // 螺旋（往右盤旋往上）
-      raw.push({p:new V3(VX.cx+r*Math.cos(ph),y,VX.cz+r*Math.sin(ph)),bank:80*sm2(Math.min(1,u/0.35))*Math.PI/180,R:r,kind:'helix',u});}
-    const e=raw[raw.length-1].p;for(let d=1;d<=320;d+=1){const t=d/320;raw.push({p:new V3(e.x+d,VX.H*(1-sm2(t)),e.z),bank:80*(1-sm2(Math.min(1,d/70)))*Math.PI/180,R:0,kind:'ramp'});}   // 下坡出口（往東）
-    for(let d=1;d<=130;d+=1)raw.push({p:new V3(e.x+320+d,0,e.z),bank:0,R:0,kind:'end'});
-    // 每 2 m 一點
-    const out=[];let acc=0,next=0;for(let i=0;i<raw.length;i++){if(i)acc+=raw[i].p.distanceTo(raw[i-1].p);if(acc>=next){out.push(Object.assign({},raw[i],{s:acc}));next+=2;}}
-    for(let i=0;i<out.length;i++){const a=out[Math.max(0,i-1)].p,b=out[Math.min(out.length-1,i+1)].p,q=out[i];q.t=b.clone().sub(a).normalize();
-      const L=new V3(q.t.z,0,-q.t.x).normalize();q.a=L.multiplyScalar(Math.cos(q.bank)).addScaledVector(U,Math.sin(q.bank));q.a.addScaledVector(q.t,-q.a.dot(q.t)).normalize();
-      q.n=new V3().crossVectors(q.t,q.a).normalize();q.vreq=q.kind==='helix'&&q.bank>0.35?Math.sqrt(9.8*q.R*Math.min(6,Math.tan(q.bank)))*1.22:0;}   // 需要的速度（離心力）
-    out.L=out[out.length-1].s;return out;})();
-  const VN=VS.length;R.VS=VS;
-  const VCK=[0];{let lastU=-1;for(let i=0;i<VN;i++){const q=VS[i];if(q.kind==='helix'){const h=Math.floor(q.u*VX.turns*2);if(h!==lastU){lastU=h;VCK.push(i);}}if(q.kind==='ramp'&&VS[i-1].kind!=='ramp')VCK.push(i);}}   // 檢查點：起點、每半圈、出口
   {const dark=std({color:'#ffffff',roughness:0.8,emissive:'#ffffff',emissiveIntensity:0.12,map:tex(64,256,(x,w,h)=>{x.fillStyle='#5b6170';x.fillRect(0,0,w,h);x.fillStyle='#6a7080';x.fillRect(0,0,4,h);x.fillRect(w-4,0,4,h);x.strokeStyle='rgba(120,235,255,0.95)';x.lineWidth=6;for(let k=0;k<2;k++){const y0=k*128+30;x.beginPath();x.moveTo(10,y0+40);x.lineTo(32,y0);x.lineTo(54,y0+40);x.stroke();}})}),   // 路面：往前的箭頭
      under=std({color:'#3b414c',roughness:0.6,metalness:0.5}),neonC=new THREE.MeshBasicMaterial({color:'#38e1ff'}),neonM=new THREE.MeshBasicMaterial({color:'#ff4fd8'}),wallM=std({color:'#d9dde3',roughness:0.4,metalness:0.4,side:THREE.DoubleSide});
    const strip=(fn,mat,rep)=>{const pos=[],uv=[],idx=[];for(let i=0;i<VN;i++){const [A,B]=fn(VS[i]);pos.push(A.x,A.y,A.z,B.x,B.y,B.z);uv.push(0,VS[i].s/rep,1,VS[i].s/rep);if(i)idx.push(2*i-2,2*i-1,2*i,2*i-1,2*i+1,2*i);}
@@ -4321,7 +4330,7 @@ const RACE=(()=>{
    strip(q=>[P(q,W,0.05),P(q,W,1.3)],wallM,8);                                    // 外側（高的那邊）護牆
    strip(q=>[P(q,W-0.05,1.15),P(q,W-0.05,1.35)],neonC,8);strip(q=>[P(q,-W,0.06),P(q,-W+0.25,0.07)],neonM,8);strip(q=>[P(q,W-0.25,0.07),P(q,W,0.06)],neonC,8);   // 霓虹燈條
    // 柱子（螺旋、出口下面），走路會擋
-   const pil=[];for(let i=0;i<VN;i+=12){const q=VS[i];if(q.p.y<3||q.kind==='run'||q.kind==='end')continue;if(Math.abs(q.p.x-(VX.cx+VX.R0))<9&&q.p.z<VX.cz+2)continue;pil.push(q);}
+   const pil=[];for(let i=0;i<VN;i+=12){const q=VS[i];if(q.p.y<3||q.kind==='run'||q.kind==='c1'||q.kind==='c2')continue;pil.push(q);}
    const im=new THREE.InstancedMesh(new THREE.CylinderGeometry(0.8,1.0,1,10).translate(0,0.5,0),under,pil.length),o=new THREE.Object3D();
    pil.forEach((q,k)=>{const top=q.p.y-0.6;o.position.set(q.p.x,0,q.p.z);o.scale.set(1,Math.max(0.5,top),1);o.updateMatrix();im.setMatrixAt(k,o.matrix);addCircle(q.p.x,q.p.z,1.0,top);});im.castShadow=true;G0.add(im);
    // 起點拱門「大漩渦」、終點拱門「GOAL」、黑白格線
@@ -4329,24 +4338,24 @@ const RACE=(()=>{
      const [c,x]=cvs(512,96);x.fillStyle=col;x.fillRect(0,0,512,96);x.fillStyle='#fff';x.font=`900 50px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText(text,256,52);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
      const b=new THREE.Mesh(new THREE.BoxGeometry(2*W+4,2.6,0.6),[under,under,under,under,new THREE.MeshBasicMaterial({map:t}),new THREE.MeshBasicMaterial({map:t})]);b.position.y=9.2;g.add(b);
      const ck=new THREE.Mesh(new THREE.PlaneGeometry(2*W,2).rotateX(-Math.PI/2),MT.check);ck.position.y=0.07;g.add(ck);};
-   arch(VS[2],'大漩渦 VORTEX','#7a2bd8');arch(VS[VN-40],'GOAL','#d8262c');}
+   arch(VS[VR0+2],'大漩渦 VORTEX','#7a2bd8');{const ie=VS.findIndex(q=>q.kind==='c2');arch(VS[Math.max(0,ie-3)],'VORTEX EXIT','#d8262c');}}
   R.VCK=VCK;
   // ---- 大漩渦的物理：沿著車道走（s、橫向位置），傾斜的地方速度不夠會往下滑、掉下去 ----
   const VQ=new THREE.Quaternion(),VM=new THREE.Matrix4(),VR=new V3(),VB=new V3(),VP3=new V3();
   function vAt(s){const f=cl(s/2,0,VN-1.001),i=Math.floor(f),u=f-i,a=VS[i],b=VS[i+1];return {i,u,a,b,p:VP3.copy(a.p).lerp(b.p,u)};}
   function vPose(){const car=ME,q=VS[R.vi];const P=q.p.clone().lerp(VS[Math.min(VN-1,R.vi+1)].p,R.vu).addScaledVector(q.a,R.vlat).addScaledVector(q.n,0.05);
     car.root.position.copy(P);VR.crossVectors(q.t,q.n);VB.copy(q.t).negate();VM.makeBasis(VR,q.n,VB);car.root.quaternion.setFromRotationMatrix(VM);R.h=Math.atan2(-q.t.x,-q.t.z);}
-  function vReset(ck){const i=VCK[ck]||0;R.vs=VS[i].s;R.vi=i;R.vu=0;R.vlat=0;R.v=Math.max(VS[i].vreq*1.12,i?30:0);R.vfall=null;R.vck=ck;vPose();}
+  function vReset(ck){const i=VCK[ck]||VR0;R.vs=VS[i].s;R.vi=i;R.vu=0;R.vlat=0;R.v=Math.max(VS[i].vreq*1.12,i>VR0?30:0);R.vfall=null;R.vck=ck;vPose();}
   function vortexStep(dt,thr,brk){const car=ME,top=R.bst===2?150:R.bst===1?114:R.sk&&R.sk.k==='aero'?95:83.3;
     if(R.vfall){const f=R.vfall;f.t+=dt;f.v.y-=9.8*dt;car.root.position.addScaledVector(f.v,dt);car.root.rotateX(dt*2.5);   // 掉下去
-      if(car.root.position.y<0.3||f.t>4){AUDIO.sfx('heavy',car.root.position);AUDIO.sfx('crack',car.root.position);for(let k=0;k<16;k++)puff(car.root.position.clone().setY(0.6),0.6,0.6,0.1,new V3(rnd(-5,5),rnd(2,6),rnd(-5,5)),'#ffd27a');
+      if(car.root.position.y<0.3||f.t>1.5){AUDIO.sfx('heavy',car.root.position);AUDIO.sfx('crack',car.root.position);for(let k=0;k<16;k++)puff(car.root.position.clone().setY(0.6),0.6,0.6,0.1,new V3(rnd(-5,5),rnd(2,6),rnd(-5,5)),'#ffd27a');
         vReset(R.vck);navShow('回到檢查點，這次要保持速度！','warn');}
       sync();return;}
     let acc=0;if(thr>0&&R.v>=-0.5)acc=thr*(R.bst===2?34:R.bst===1?24:R.sk&&R.sk.k==='aero'?20:15)*Math.max(0.15,Math.sqrt(Math.max(0,1-R.v/top)));if(R.v>top)acc=-(R.v-top)*0.8;
     if(brk)acc=R.v>0.5?-32:-6;acc-=0.5+0.0011*R.v*Math.abs(R.v);
     const q=VS[R.vi];acc-=9.8*q.t.y;   // 上坡會慢、下坡會快
     if(R.st!=='drive'&&R.st!=='done'){R.v=0;acc=0;}
-    R.v=Math.max(0,R.v+acc*dt);R.vs+=R.v*dt;if(R.vs>=VS.L-1){R.vs=VS.L-1;R.v*=0.9;}
+    R.v=Math.max(0,R.v+acc*dt);R.vs+=R.v*dt;if(R.vs>=VS.L-1){if(R.inV){leaveV();return;}R.vs=VS.L-1;R.v*=0.9;}
     const A=vAt(R.vs);R.vi=A.i;R.vu=A.u;
     // 方向：往右打＝往低的那邊（內側）；自動駕駛保持在中間
     // 離心力：傾斜的地方速度不夠會往下滑（往內側），這時候往上打方向也沒用
@@ -4358,9 +4367,10 @@ const RACE=(()=>{
     vPose();
     // 檢查點、導航訊息
     for(let k=VCK.length-1;k>R.vck;k--)if(R.vi>=VCK[k]){R.vck=k;break;}
-    const kind=VS[R.vi].kind;if(kind!==R.vkind){R.vkind=kind;if(kind==='helix'){big('大漩渦！');say('進入大漩渦！保持速度，離心力會讓你貼著牆','boost',true);}if(kind==='ramp'){big('出口！');say('出口！往下衝！','boost',true);}if(kind==='end'&&R.st==='drive'){R.st='done';vFinish();}}
+    const kind=VS[R.vi].kind;if(kind!==R.vkind){R.vkind=kind;if(kind==='helix'){big('大漩渦！');say('進入大漩渦！保持速度，離心力會讓你貼著牆','boost',true);}if(kind==='ramp'){big('出口！');say('出口！往下衝！','boost',true);}if(kind==='c2'){if(R.mode==='vortex'&&R.st==='drive'){R.st='done';vFinish();}else if(R.inV)say('回到賽道！','boost');}if(kind==='run'&&R.inV)say('大漩渦助跑，準備加速器！','boost');}
     if(vr>0&&R.vratio<1.08&&R.st==='drive'&&performance.now()-(R.vwarn||0)>2600){R.vwarn=performance.now();say(R.vratio<1?'離心力不足！加速！':'速度快不夠了，加速！','warn');}
     if(R.st==='drive')R.vT+=dt;
+    if(R.inV){const uNow=SA+R.vs;if(R.uPrev!==undefined){let d=uNow-R.uPrev;if(d>RL/2)d-=RL;if(d<-RL/2)d+=RL;R.prog+=d;}R.uPrev=uNow;}
     // 加速器能量
     if(R.bst){R.gauge-=(R.bst===2?28:16)*dt;if(R.manBrk&&R.v>10)R.bst=0;if(R.gauge<=0){R.gauge=0;R.bst=0;navShow('加速器用完了');}}else R.gauge=Math.min(100,R.gauge+7*dt);
     if(R.sk){R.sk.t+=dt;if(R.sk.t>=R.sk.dur)R.sk=null;}
@@ -4374,6 +4384,8 @@ const RACE=(()=>{
     sync();
     if(R.eng){const vv=R.v,gs=top/7,gear=Math.min(6,Math.floor(vv/gs)),rpm=cl(0.3+0.7*(vv-gear*gs)/gs,0,1);R.eng.set(vv<0.5?0.12:rpm,thr,R.bst,R.vratio<1?0.6:0,Math.min(1,vv/120));}
     function sync(){const p=car.root.position;car.sh.visible=false;player.pos.set(p.x,p.z);player.y=0;player.vy=0;player.ground=true;player.vel.set(0,0);player.yaw=R.h;player.climb=false;}}
+  function enterV(){R.inV=true;R.vs=0;R.vi=0;R.vu=0;R.vlat=cl(-R.lat,-VX.HW+1.1,VX.HW-1.1);R.vck=0;R.vkind=null;R.vfall=null;R.y=0;R.roll=0;R.pitch=0;R.yawOff=0;R.lift=null;if(R.sk&&(R.sk.k==='lift'||R.sk.k==='mirage'))R.sk=null;ME.body.position.set(0,0,0);ME.body.rotation.set(0,0,0);}
+  function leaveV(){const B=S[JB],p=ME.root.position,lat=cl(-R.vlat,-HW+1,HW-1);R.inV=false;p.set(B.x+B.rx*lat,0,B.z+B.rz*lat);R.h=Math.atan2(-B.tx,-B.tz);ME.root.rotation.set(0,R.h,0);ME.sh.visible=true;R.i=JB;R.lat=lat;R.sPrevJ=sOf(JB);R.vfall=null;}
   function vFinish(){const t=R.vT,nb=R.vbest==null||t<R.vbest;if(nb){R.vbest=t;try{localStorage.setItem('home-vortex-best',t);}catch(_){}}AUDIO.sfx(nb?'bigcheer':'cheer');big(nb?'🌀 新紀錄！':'🌀 完成！');say(`大漩渦完成，時間 ${t.toFixed(2)} 秒${nb?'，新紀錄！':''}`,'boost',true);
     setTimeout(()=>{if(!R.on||R.mode!=='vortex')return;panel.querySelector('.res').innerHTML=`<b>🌀 大漩渦完成</b><br>時間 ${fmtT(t)}　最快 ${fmtT(R.vbest)}${R.vfalls?`　掉下去 ${R.vfalls} 次`:''}`;panel.hidden=false;},2200);}
   try{const b=+localStorage.getItem('home-vortex-best');if(b>0)R.vbest=b;}catch(_){}
@@ -4460,7 +4472,10 @@ const RACE=(()=>{
   // ---- 特效：光點（火花、氣流） ----
   const FXA=[];
   function puff(p,life,s0,s1,v,col){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,color:col}));m.position.copy(p);m.scale.setScalar(s0);scene.add(m);FXA.push({m,t:0,life,s0,s1,v:v?v.clone():null});}
-  function fxTick(dt){for(const f of FXA){f.t+=dt;const k=Math.min(1,f.t/f.life);if(f.v){f.m.position.addScaledVector(f.v,dt);f.v.y-=4*dt;}f.m.scale.setScalar(f.s0+(f.s1-f.s0)*k);f.m.material.opacity=1-k;if(k>=1){scene.remove(f.m);f.m.material.dispose();f.dead=true;}}for(let i=FXA.length-1;i>=0;i--)if(FXA[i].dead)FXA.splice(i,1);}
+  // 白色氣流（懸空轉向）：一般混色、不發光
+  const CLOUD=(()=>{const [c,x]=cvs(128,128);for(let k=0;k<14;k++){const cx=64+rnd(-26,26),cy=64+rnd(-26,26),r=rnd(18,40),g=x.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,'rgba(255,255,255,0.55)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128);}return new THREE.CanvasTexture(c);})();   // 雲霧（很多個柔軟的圓疊起來）
+  function mist(p,life,s0,s1,v,o=0.5){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:CLOUD,rotation:Math.random()*6.28,transparent:true,depthWrite:false,color:'#eef4fb',opacity:o}));m.position.copy(p);m.scale.setScalar(s0);scene.add(m);FXA.push({m,t:0,life,s0,s1,v:v?v.clone():null,o,ng:true});}
+  function fxTick(dt){for(const f of FXA){f.t+=dt;const k=Math.min(1,f.t/f.life);if(f.v){f.m.position.addScaledVector(f.v,dt);if(!f.ng)f.v.y-=4*dt;else f.v.multiplyScalar(Math.max(0,1-dt*1.5));}f.m.scale.setScalar(f.s0+(f.s1-f.s0)*k);f.m.material.opacity=(f.o||1)*(1-k);if(k>=1){scene.remove(f.m);f.m.material.dispose();f.dead=true;}}for(let i=FXA.length-1;i>=0;i--)if(FXA[i].dead)FXA.splice(i,1);}
   // 導航線：前方 130 m 的中心線（綠＝速度 OK、黃＝快要太快、紅＝要煞車；零之領域＝金色）
   const NAVN=66,navPos=new Float32Array((NAVN+1)*2*3),navCol=new Float32Array((NAVN+1)*2*3);
   const navG=new THREE.BufferGeometry();navG.setAttribute('position',new THREE.BufferAttribute(navPos,3));navG.setAttribute('color',new THREE.BufferAttribute(navCol,3));
@@ -4472,10 +4487,10 @@ const RACE=(()=>{
   const mapG=mapC.getContext('2d');let mapBg=null;
   function drawMapBg(){const w=mapC.width=mapC.clientWidth*2||220,h=mapC.height=mapC.clientHeight*2||160,vx=R.mode==='vortex';mapBg_mode=vx;if(vx){const pts=VS.map(q=>q.p);let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const p of pts){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);z0=Math.min(z0,p.z);z1=Math.max(z1,p.z);}
       const sc=Math.min((w-24)/(x1-x0),(h-24)/(z1-z0)),ox=(w-(x1-x0)*sc)/2-x0*sc,oz=(h-(z1-z0)*sc)/2-z0*sc;R.mapT={sc,ox,oz};const [c,g]=cvs(w,h);g.strokeStyle='#b07dff';g.lineWidth=2.5;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p.x*sc+ox,p.z*sc+oz):g.moveTo(p.x*sc+ox,p.z*sc+oz));g.stroke();mapBg=c;return;}
-    let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const p of S){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);z0=Math.min(z0,p.z);z1=Math.max(z1,p.z);}
+    let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const p of [...S,...VS.map(q=>q.p)]){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);z0=Math.min(z0,p.z);z1=Math.max(z1,p.z);}
     const sc=Math.min((w-24)/(x1-x0),(h-24)/(z1-z0)),ox=(w-(x1-x0)*sc)/2-x0*sc,oz=(h-(z1-z0)*sc)/2-z0*sc;R.mapT={sc,ox,oz};
     const [c,g]=cvs(w,h);g.lineJoin='round';g.strokeStyle='rgba(56,225,255,0.35)';g.lineWidth=9;g.beginPath();S.forEach((p,i)=>i?g.lineTo(p.x*sc+ox,p.z*sc+oz):g.moveTo(p.x*sc+ox,p.z*sc+oz));g.closePath();g.stroke();
-    g.strokeStyle='#38e1ff';g.lineWidth=2.5;g.stroke();const p=S[I0];g.strokeStyle='#fff';g.lineWidth=3;g.beginPath();g.moveTo((p.x+p.rx*9)*sc+ox,(p.z+p.rz*9)*sc+oz);g.lineTo((p.x-p.rx*9)*sc+ox,(p.z-p.rz*9)*sc+oz);g.stroke();mapBg=c;}
+    g.strokeStyle='#38e1ff';g.lineWidth=2.5;g.stroke();g.strokeStyle='#b07dff';g.lineWidth=2.5;g.beginPath();VS.forEach((q,i)=>i?g.lineTo(q.p.x*sc+ox,q.p.z*sc+oz):g.moveTo(q.p.x*sc+ox,q.p.z*sc+oz));g.stroke();const p=S[I0];g.strokeStyle='#fff';g.lineWidth=3;g.beginPath();g.moveTo((p.x+p.rx*9)*sc+ox,(p.z+p.rz*9)*sc+oz);g.lineTo((p.x-p.rx*9)*sc+ox,(p.z-p.rz*9)*sc+oz);g.stroke();mapBg=c;}
   let mapBg_mode=false;
   function drawMap(){if(!mapBg||mapBg.width!==mapC.width||mapBg_mode!==(R.mode==='vortex'))drawMapBg();const g=mapG,T=R.mapT;g.clearRect(0,0,mapC.width,mapC.height);g.drawImage(mapBg,0,0);
     const dot=(x,z,col,r)=>{g.fillStyle=col;g.beginPath();g.arc(x*T.sc+T.ox,z*T.sc+T.oz,r,0,7);g.fill();};
@@ -4495,12 +4510,13 @@ const RACE=(()=>{
   function hudDraw(){const kmh=Math.round(Math.abs(R.v)*KMH);
     const pos=R.mode==='race'?`<span>名次</span><b>${R.place||'-'}/${AIS.length+1}</b>`:'';
     const lap=R.mode==='race'?`<span>圈</span><b>${Math.min(3,R.lap+1)}/3</b>`:`<span>圈速</span><b>${fmtT(R.lapT)}</b>`;
-    $('rcSpd').textContent=kmh;$('rcInfo').innerHTML=R.mode==='vortex'?`<span>離心力</span><b style="color:${R.vratio>=1.08||R.vratio>8?'#7dff9a':R.vratio>=1?'#ffe14a':'#ff6a6a'}">${R.vratio>8?'—':Math.round(R.vratio*100)+'%'}</b><span>時間</span><b>${fmtT(R.vT)}</b><span>最快</span><b>${fmtT(R.vbest)}</b>`:`${lap}${pos}<span>最快</span><b>${fmtT(R.best)}</b>`;
+    const cf=`<span>離心力</span><b style="color:${R.vratio>=1.08||R.vratio>8?'#7dff9a':R.vratio>=1?'#ffe14a':'#ff6a6a'}">${R.vratio>8?'—':Math.round(R.vratio*100)+'%'}</b>`;
+    $('rcSpd').textContent=kmh;$('rcInfo').innerHTML=R.inV&&R.mode!=='vortex'?`${cf}${lap}${pos}`:R.mode==='vortex'?`<span>離心力</span><b style="color:${R.vratio>=1.08||R.vratio>8?'#7dff9a':R.vratio>=1?'#ffe14a':'#ff6a6a'}">${R.vratio>8?'—':Math.round(R.vratio*100)+'%'}</b><span>時間</span><b>${fmtT(R.vT)}</b><span>最快</span><b>${fmtT(R.vbest)}</b>`:`${lap}${pos}<span>最快</span><b>${fmtT(R.best)}</b>`;
     const g=$('rcGauge');g.style.width=R.gauge.toFixed(0)+'%';g.className=R.bst===2?'s2':R.bst===1?'s1':R.gauge>=20?'ok':'';
     $('rcStage').textContent=R.bst===2?'螺旋加速':R.bst===1?'BOOST':R.gauge>=20?'加速器 OK':'充電中';}
   // ================= 開始／結束 =================
   R.near=()=>!R.on&&started&&mode==='walk'&&!GAME.on&&!BALLOON.riding&&player.y<1.5&&ME.root.position.distanceTo(new V3(player.pos.x,0,player.pos.y))<6;
-  R.atGate=()=>!R.on&&started&&mode==='walk'&&!GAME.on&&player.y<1.5&&Math.hypot(player.pos.x-VS[0].p.x,player.pos.y-VS[0].p.z)<10;
+  R.atGate=()=>!R.on&&started&&mode==='walk'&&!GAME.on&&player.y<1.5&&Math.hypot(player.pos.x-VS[VR0].p.x,player.pos.y-VS[VR0].p.z)<10;
   R.label=()=>R.on?'下車':R.near()?'坐進賽車':R.atGate()?'坐進賽車：大漩渦挑戰':null;
   R.toggle=()=>{if(R.on)R.stop();else if(R.near())R.start();else if(R.atGate()){R.start();R.pick('vortex');}};
   let fovSave=60;
@@ -4512,19 +4528,19 @@ const RACE=(()=>{
     say('導航系統啟動。選擇比賽或自由練習',null,true);};
   R.stop=()=>{if(!R.on)return;R.on=false;R.st='idle';document.body.classList.remove('rc','rcz');hud.hidden=btns.hidden=navEl.hidden=mapC.hidden=panel.hidden=lightsEl.hidden=true;navMesh.visible=false;
     if(R.eng){R.eng.stop();R.eng=null;}for(const f of ME.flames)f.f.visible=false;for(const g of R.ghost)g.w.visible=false;linesEl.style.opacity=0;
-    camera.fov=fovSave;camera.updateProjectionMatrix();R.slowK=1;if(window.speechSynthesis)speechSynthesis.cancel();
-    if(R.mode==='vortex'){R.vfall=null;vReset(0);R.v=0;ME.sh.visible=true;}
+    camera.fov=fovSave;camera.updateProjectionMatrix();camera.up.set(0,1,0);R.camUp=null;R.slowK=1;if(window.speechSynthesis)speechSynthesis.cancel();
+    if(R.mode==='vortex'||R.inV){R.inV=false;R.vfall=null;vReset(0);R.v=0;ME.sh.visible=true;}R.lift=null;
     const p=ME.root.position,rx=Math.cos(R.h),rz=-Math.sin(R.h);player.pos.set(p.x-rx*2.6,p.z-rz*2.6);player.y=0;player.vy=0;player.vel.set(0,0);player.yaw=R.h;player.pitch=-0.15;
     ME.body.position.set(0,0,0);ME.body.rotation.set(0,0,0);
     if(R.mode==='race')for(const a of AIS){a.car.root.visible=false;if(a.ghosts)for(const g of a.ghosts)g.w.visible=false;}R.mode=null;avatar.root.visible=true;};
   // 選模式：比賽（3 圈、5 台車、倒數燈）／自由練習
   R.pick=m=>{if(!R.on)return;panel.hidden=true;R.mode=m;R.sPrev=undefined;R.lastN=0;panel.querySelector('.res').innerHTML='';R.lap=0;R.lapT=0;R.raceT=0;R.lapTimes=[];R.fin=null;R.said={};R.gauge=100;R.bst=0;R.v=0;R.sk=null;R.zero=0;
-    R.vfall=null;ME.sh.visible=true;if(m==='race'){const slots=[0,1,3,4];AIS.forEach((a,k)=>{const sl=slots[k];a.s=I0*DS-10-sl*8;a.lat=a.tlat=(sl%2?1:-1)*3.2;a.v=0;a.prog=a.s-I0*DS;a.lap=0;a.fin=null;a.bst=0;a.gauge=100;a.sk=null;a.lastC=null;a.car.root.visible=true;placeCar(a.car,a.s,a.lat);});
+    R.vfall=null;R.inV=false;R.lift=null;R.uPrev=undefined;R.sPrevJ=undefined;ME.sh.visible=true;if(m==='race'){const slots=[0,1,3,4];AIS.forEach((a,k)=>{const sl=slots[k];a.s=I0*DS-10-sl*8;a.lat=a.tlat=(sl%2?1:-1)*3.2;a.v=0;a.prog=a.s-I0*DS;a.lap=0;a.fin=null;a.bst=0;a.gauge=100;a.sk=null;a.lastC=null;a.inV=false;a.car.root.visible=true;placeCar(a.car,a.s,a.lat);});
       placeCar(ME,I0*DS-10-2*8,-3.2);R.h=ME.root.rotation.y;R.prog=-(10+16);R.st='count';R.cd=0;lightsEl.hidden=false;for(const l of LIGHTS)l.color.set('#3a0d0d');
       say('比賽三圈。看紅燈，燈全部熄滅就出發',null,true);}
     else if(m==='vortex'){for(const a of AIS)a.car.root.visible=false;R.vT=0;R.vfalls=0;R.vkind=null;vReset(0);R.st='count';R.cd=0;lightsEl.hidden=false;R.camP=null;
       say(R.auto?'大漩渦挑戰。自動駕駛會幫你開，速度不夠就開加速器':'大漩渦挑戰。一路油門到底，速度不夠就開加速器',null,true);}
-    else{for(const a of AIS)a.car.root.visible=false;if(ME.root.position.y>0.3||Math.abs(ME.root.rotation.x)+Math.abs(ME.root.rotation.z)>0.01||ME.root.position.z>620)placeCar(ME,PARK.s,PARK.lat);const q=near(ME.root.position.x,ME.root.position.z);R.prog=((q.i-I0+N)%N)*DS;R.st='drive';R.lapValid=false;
+    else{for(const a of AIS)a.car.root.visible=false;if(ME.root.position.y>0.3||Math.abs(ME.root.rotation.x)+Math.abs(ME.root.rotation.z)>0.01||ME.root.position.z>620)placeCar(ME,PARK.s,PARK.lat);const q=near(ME.root.position.x,ME.root.position.z);R.prog=routeU(q.i);R.st='drive';R.lapValid=false;
       say(R.auto?'自由練習，自動駕駛中。按加速器和技能就好':`自由練習。${isTouch?'搖桿左右轉彎，往下拉煞車':'W 油門、A D 轉彎'}，加速器按兩次是兩段加速`,null,true);}
     R.i=-1;};
   // ================= 按鍵 =================
@@ -4540,7 +4556,8 @@ const RACE=(()=>{
     const can=Math.abs(R.v)>12;
     if((k==='lift'||k==='mirage')&&R.mode==='vortex'){navShow('大漩渦裡不能用這招，用加速器！','warn');return;}
     if(k==='aero'){R.sk={k,t:0,dur:2.6};AUDIO.sfx('whoosh');AUDIO.sfx('chime');say('空力模式，加速過彎！','boost');big('加速過彎！');return;}
-    if(k==='lift'){if(!can){navShow('速度太慢，沒辦法懸空轉向','warn');return;}const ld=liftDir();R.sk={k,t:0,dur:1.0,dir:ld};AUDIO.sfx('takeoff');AUDIO.sfx('whoosh');say('懸空轉向！','boost');big('懸空轉向！');R.shk=0.25;return;}
+    if(k==='lift'){if(!can){navShow('速度太慢，沒辦法懸空轉向','warn');return;}if(R.lift)return;if(!liftPlan()){navShow('前面就是分岔點，等一下再用','warn');return;}AUDIO.sfx('takeoff');AUDIO.sfx('whoosh');say('懸空轉向！','boost');big('懸空轉向！');
+      const p=ME.root.position;for(let k2=0;k2<14;k2++){const a=k2/14*Math.PI*2;mist(new V3(p.x+Math.cos(a)*1.4,0.4,p.z+Math.sin(a)*1.4),0.9,1.2,4,new V3(Math.cos(a)*5,1.5,Math.sin(a)*5),0.55);}return;}
     if(k==='mirage'){if(!can){navShow('速度太慢','warn');return;}R.sk={k,t:0,dur:1.4,dir:liftDir()};R.hist.length=0;AUDIO.sfx('whoosh');AUDIO.sfx('combo');say('幻影過彎！','boost');big('幻影過彎！');return;}
     if(k==='zero'){if(R.zero>0)return;R.zero=6;document.body.classList.add('rcz');AUDIO.sfx('chime');AUDIO.sfx('heavy');say('進入零之領域','zero',true);big('零之領域');return;}};
   R.key=(e,down)=>{const m={KeyP:'auto',Space:'boost',KeyJ:'boost',Digit1:'aero',Digit2:'lift',Digit3:'mirage',Digit4:'zero',KeyC:'cam',KeyR:'reset',KeyV:'voice'}[e.code];
@@ -4554,6 +4571,15 @@ const RACE=(()=>{
     b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('touchend',up,{passive:false});b.addEventListener('touchcancel',up,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('mouseup',up);b.addEventListener('mouseleave',up);}
   for(const b of panel.querySelectorAll('button'))b.addEventListener('click',e=>{e.stopPropagation();const m=b.dataset.m;if(m==='exit')R.stop();else R.pick(m);syncActBtn();});
   // 懸空轉向／幻影過彎往哪邊：有在轉方向就照方向，沒有就看前方 40 m 的彎
+  // 懸空轉向（照網路上的影片：車子用空力整台跳起來、車身往彎內側壓斜，從空中飛越彎道內側、落在出彎的地方，底下捲起白色氣流）
+  // 落點：前方最近的彎的出口後 10 m（28～90 m）；路線是二次貝茲曲線（一開始沿著車頭方向，最後對準落點的賽道方向）；不會飛過大漩渦的分岔點
+  function liftPlan(){const p=ME.root.position,q=near(p.x,p.z,R.i),sN=sOf(q.i),route=R.mode==='race'||R.mode==='free';let best=null,bd=1e9;
+    for(const c of CORNERS){if(route&&c.s0>SA&&c.s0<SB)continue;let d=c.s0-sN;if(d<-30)d+=TL;if(d>=-30&&d<bd){bd=d;best=c;}}
+    let ahead=best&&bd<95?((best.s1-sN+TL)%TL)+10:40;ahead=cl(ahead,28,90);if(route&&sN<SA&&sN+ahead>SA-6)ahead=SA-6-sN;if(ahead<15)return false;
+    at(I0*DS+sN+ahead,tmpB);const P0=p.clone(),P1=new V3(tmpB.x,0,tmpB.z),fw=new V3(-Math.sin(R.h),0,-Math.cos(R.h)),dch=P0.distanceTo(P1);
+    const C=P0.clone().addScaledVector(fw,dch*0.5),h1=Math.atan2(-tmpB.tx,-tmpB.tz);let dh=h1-R.h;dh=Math.atan2(Math.sin(dh),Math.cos(dh));
+    const T=cl(dch/Math.max(Math.abs(R.v),22),0.7,2.2);R.lift={P0,C,P1,T,t:0,h1,dir:dh<0?1:-1,hm:cl(2+dch*0.045,2.6,6)};R.sk={k:'lift',t:0,dur:T+0.05,dir:R.lift.dir};return true;}
+  function liftLand(){const p=ME.root.position;AUDIO.sfx('thud',p);AUDIO.sfx('heavy',p);navShow('落地！','boost');for(let k=0;k<12;k++)mist(new V3(p.x+rnd(-2,2),0.3,p.z+rnd(-2,2)),0.8,1,3.5,new V3(rnd(-4,4),rnd(0.5,2),rnd(-4,4)),0.5);for(let k=0;k<10;k++)puff(new V3(p.x+rnd(-1,1),0.3,p.z+rnd(-1,1)),0.4,0.35,0.05,new V3(rnd(-5,5),rnd(1,4),rnd(-5,5)),'#ffe9a8');}
   function liftDir(){if(Math.abs(R.steer)>0.2)return Math.sign(R.steer);at(sOf(R.i<0?I0:R.i)+I0*DS+40,tmpB);return tmpB.k>=0?1:-1;}
   function ring(stage){const p=ME.root.position;for(let k=0;k<(stage===2?18:10);k++){const a=k/(stage===2?18:10)*Math.PI*2;puff(new V3(p.x+Math.cos(a)*1.5,0.6,p.z+Math.sin(a)*1.5),0.5,0.6,0.1,new V3(Math.cos(a)*6,1.5,Math.sin(a)*6),stage===2?'#9fd8ff':'#ffd27a');}}
   function respawn(){const q=near(ME.root.position.x,ME.root.position.z,R.i);const p=S[q.i];ME.root.position.set(p.x,0,p.z);R.h=Math.atan2(-p.tx,-p.tz);R.v=0;R.bst=0;R.sk=null;R.i=q.i;navShow('回到賽道');}
@@ -4581,10 +4607,10 @@ const RACE=(()=>{
       if(tUI&&joy.id!==null){st=cl(joy.x*1.25,-1,1);brk=jy>0.4?1:0;thr=brk?0:1;}   // 手機：自動油門、搖桿往下拉＝煞車
       else{thr=(keys.KeyW||keys.ArrowUp)?1:0;brk=(keys.KeyS||keys.ArrowDown)?1:0;st=((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0);if(tUI&&joy.id===null)thr=R.st==='drive'?1:0;}
       R.manBrk=brk;
-      if(R.auto&&R.st==='drive'){const ap=R.mode==='vortex'?{st:cl(R.vlat*0.35,-1,1),thr:1,brk:0}:autoPilot();if(Math.abs(st)<0.15)st=ap.st;if(!brk){thr=ap.thr;brk=ap.brk;}}   // 自動駕駛：車子自己轉彎、控速；推搖桿／按 A D、S 就照你的
+      if(R.auto&&R.st==='drive'){const ap=R.mode==='vortex'||R.inV?{st:cl(R.vlat*0.35,-1,1),thr:1,brk:0}:autoPilot();if(Math.abs(st)<0.15)st=ap.st;if(!brk){thr=ap.thr;brk=ap.brk;}}   // 自動駕駛：車子自己轉彎、控速；推搖桿／按 A D、S 就照你的
       if(R.st==='done'){thr=0.4;brk=0;}}
     R.steer+=(st-R.steer)*Math.min(1,dt*(Math.abs(st)>Math.abs(R.steer)?6:9));
-    if(R.mode==='vortex'){vortexStep(dt,thr,brk);return;}   // 大漩渦：沿著 3D 車道走
+    if(R.mode==='vortex'||R.inV){vortexStep(dt,thr,brk);return;}   // 大漩渦（挑戰、或比賽路線經過）：沿著 3D 車道走
     const driftOn=(R.driftKey||R.driftBtn)&&Math.abs(R.v)>14&&R.st==='drive';
     // 速度上限：一般 300、加速器第一段 410、第二段（螺旋加速）540 km/h
     const sk=R.sk&&R.sk.k,top=R.bst===2?150:R.bst===1?114:sk==='aero'?95:83.3;
@@ -4596,21 +4622,26 @@ const RACE=(()=>{
     // 抓地力：一般 40 m/s²；甩尾 ×1.6、加速過彎 ×2.2、零之領域 ×1.5；懸空轉向／幻影過彎＝不會滑出去
     const grip=40*(driftOn?1.6:1)*(sk==='aero'?2.2:1)*(R.zero>0?1.5:1);
     let curv=R.steer/(5.5+Math.abs(R.v)*0.2);   // 方向盤打到底的轉彎曲率（越快越小）
-    if(sk==='lift'||sk==='mirage'){   // 自動對準前方的彎（有在轉方向就照你的）
+    if(sk==='mirage'){   // 自動對準前方的彎（有在轉方向就照你的）
       const q=near(p.x,p.z,R.i);at(sOf(q.i)+I0*DS+Math.max(18,R.v*0.45),tmpB);const want=Math.atan2(-(tmpB.x-p.x),-(tmpB.z-p.z));let dh=want-R.h;dh=Math.atan2(Math.sin(dh),Math.cos(dh));
       const auto=cl(dh*3.4,-3.2,3.2);const yr=Math.abs(R.steer)>0.25?-R.steer*2.4:auto;curv=-yr/Math.max(6,Math.abs(R.v));}
     else{const need=curv*curv*R.v*R.v;if(need>grip*Math.abs(curv)&&Math.abs(R.v)>1){const lim=grip/(R.v*R.v);const over=Math.abs(curv)-lim;curv=Math.sign(curv)*lim;acc-=Math.min(18,over*R.v*R.v*0.5);R.slide=Math.min(1,over*R.v*R.v/grip);}else R.slide=0;}
     R.v+=acc*dt;if(R.st!=='drive'&&R.st!=='done')R.v=0;R.v=Math.max(-12,R.v);
-    R.h-=curv*R.v*dt;   // 右轉（steer>0）＝yaw 變小
-    fwd.set(-Math.sin(R.h),0,-Math.cos(R.h));p.addScaledVector(fwd,R.v*dt);
+    if(R.lift){const L=R.lift;L.t+=dt;const u=Math.min(1,L.t/L.T),w=1-u;   // 懸空轉向：沿著飛行路線（抄彎道內側）
+      p.set(w*w*L.P0.x+2*w*u*L.C.x+u*u*L.P1.x,0,w*w*L.P0.z+2*w*u*L.C.z+u*u*L.P1.z);
+      const dx=2*w*(L.C.x-L.P0.x)+2*u*(L.P1.x-L.C.x),dz=2*w*(L.C.z-L.P0.z)+2*u*(L.P1.z-L.C.z);let hh=Math.atan2(-dx,-dz);if(u>0.7){let d2=L.h1-hh;d2=Math.atan2(Math.sin(d2),Math.cos(d2));hh+=d2*(u-0.7)/0.3;}R.h=hh;
+      fwd.set(-Math.sin(R.h),0,-Math.cos(R.h));R.v=Math.max(R.v,20);if(u>=1){R.lift=null;R.sk=null;liftLand();}}
+    else{R.h-=curv*R.v*dt;   // 右轉（steer>0）＝yaw 變小
+      fwd.set(-Math.sin(R.h),0,-Math.cos(R.h));p.addScaledVector(fwd,R.v*dt);}
     // 賽道：草地／碎石會慢下來，撞到護欄彈回來
     const q=near(p.x,p.z,R.i);R.i=q.i;R.lat=q.lat;const P0=S[q.i];
     const off=Math.abs(q.lat)>HW+0.6;if(off&&!(sk==='lift')){R.v-=Math.sign(R.v)*Math.min(Math.abs(R.v),(Math.abs(R.v)>25?22:6)*dt);R.offT=(R.offT||0)+dt;}else R.offT=0;
-    const lim=WALL-1.3;if(Math.abs(q.lat)>lim){const sd=Math.sign(q.lat);p.x-=P0.rx*(Math.abs(q.lat)-lim)*sd;p.z-=P0.rz*(Math.abs(q.lat)-lim)*sd;
+    const lim=WALL-1.3;if(Math.abs(q.lat)>lim&&!R.lift){const sd=Math.sign(q.lat);p.x-=P0.rx*(Math.abs(q.lat)-lim)*sd;p.z-=P0.rz*(Math.abs(q.lat)-lim)*sd;
       const th=Math.atan2(-P0.tx,-P0.tz)+(Math.cos(R.h-Math.atan2(-P0.tx,-P0.tz))<0?Math.PI:0);let dh=th-R.h;dh=Math.atan2(Math.sin(dh),Math.cos(dh));
       if(Math.abs(R.v)>6){R.v*=0.62;R.h+=dh*0.6;R.shk=0.5;AUDIO.sfx('heavy',p);AUDIO.sfx('crack',p);for(let k=0;k<12;k++)puff(new V3(p.x+P0.rx*sd*1.1,0.5,p.z+P0.rz*sd*1.1),0.5,0.4,0.05,new V3(rnd(-4,4),rnd(1,4),rnd(-4,4)),'#ffd27a');if(performance.now()-(R.wallSay||0)>5000){R.wallSay=performance.now();say('撞到護欄了，小心','warn');}}else R.h+=dh*0.2;}
     // 進度、圈數
-    const sNow=sOf(q.i);if(R.sPrev!==undefined){let d=sNow-R.sPrev;if(d>TL/2)d-=TL;if(d<-TL/2)d+=TL;R.prog+=d;}R.sPrev=sNow;
+    if(R.mode==='race'||R.mode==='free'){const uNow=routeU(q.i);if(R.uPrev!==undefined){let d=uNow-R.uPrev;if(d>RL/2)d-=RL;if(d<-RL/2)d+=RL;R.prog+=d;}R.uPrev=uNow;   // 比賽路線的進度（含大漩渦）
+      const sN=sOf(q.i);if(R.sPrevJ!==undefined&&R.sPrevJ<SA&&sN>=SA&&sN-R.sPrevJ<40&&!R.lift)enterV();R.sPrevJ=sN;}   // 過了分岔點：進大漩渦
     // 逆向
     if(fwd.x*P0.tx+fwd.z*P0.tz<-0.3&&R.v>8){R.wrongT+=dt;if(R.wrongT>1.5&&performance.now()-(R.wrongSay||0)>5000){R.wrongSay=performance.now();say('方向錯了！請迴轉','warn');}}else R.wrongT=0;
     // 加速器：第一段每秒用 16%、第二段 28%；沒在用每秒充 7%
@@ -4624,12 +4655,13 @@ const RACE=(()=>{
     if(R.zero>0){R.zero-=dt/Math.max(0.3,R.slowK);if(R.zero<=0){R.zero=0;document.body.classList.remove('rcz');navShow('離開零之領域');}}
     // 車身姿態：甩尾斜一邊、懸空轉向側立起來、加速時車頭抬一點
     let ty=0,troll=0,tyaw=0,tpitch=0;
-    if(sk2==='lift'){const u=R.sk.t/R.sk.dur,e=Math.sin(Math.PI*Math.min(1,u*1.15));ty=1.3*e;troll=-R.sk.dir*1.05*e;tyaw=-R.sk.dir*0.25*e;}
+    if(sk2==='lift'){}
     else if(sk2==='mirage'){const e=Math.sin(Math.PI*R.sk.t/R.sk.dur);tyaw=-R.sk.dir*0.75*e;troll=R.sk.dir*0.06*e;}
     else if(driftOn)tyaw=-R.drift*0.42;
     else tyaw=-R.steer*0.06*(R.slide||0)*4;
     tpitch=-(acc>0?0.012:acc<-12?-0.02:0)*(R.bst?2:1);troll+=-R.steer*Math.min(1,Math.abs(R.v)/60)*0.04;
     const kk=1-Math.exp(-dt*10);R.y+=(ty-R.y)*kk;R.roll+=(troll-R.roll)*kk;R.yawOff+=(tyaw-R.yawOff)*Math.min(1,dt*7);R.pitch+=(tpitch-R.pitch)*kk;
+    if(R.lift){const L=R.lift,u=Math.min(1,L.t/L.T);R.y=L.hm*4*u*(1-u);R.roll+=(-L.dir*0.75*Math.sin(Math.PI*u)-R.roll)*Math.min(1,dt*8);R.pitch=0.22*Math.sin(Math.PI*u)*Math.cos(Math.PI*u);R.yawOff*=0.9;}   // 飛起來：車身往彎內側壓斜、起飛車頭上揚、落地前往下
     car.root.rotation.y=R.h;car.body.position.y=R.y;car.body.rotation.set(R.pitch,R.yawOff,R.roll,'YXZ');
     for(const w of car.wheels)w.rotation.z-=R.v*dt/0.36;for(const sp of car.steers)sp.rotation.y=R.steer*0.42;
     // 空力模式（加速過彎、懸空轉向、加速器第二段）：尾翼翹起、側板打開
@@ -4642,7 +4674,7 @@ const RACE=(()=>{
     R.fxT=(R.fxT||0)-dt;if(R.fxT<=0){R.fxT=0.025;
       const back=tmpV.copy(fwd).multiplyScalar(-2.1).add(p);
       if(driftOn||(R.slide>0.3)){const c=R.driftT>2.4?'#c77dff':R.driftT>1.6?'#ff9a3a':R.driftT>0.8?'#5ad1ff':'#ffe9a8';for(const sd of [-1,1])puff(new V3(back.x+Math.cos(R.h)*sd*1.0,0.25,back.z-Math.sin(R.h)*sd*1.0),0.35,0.35,0.05,new V3(rnd(-1,1),rnd(1,2.5),rnd(-1,1)),c);}
-      if(sk2==='lift'){for(let k=0;k<2;k++)puff(new V3(p.x+rnd(-1,1),0.3+R.y*0.5,p.z+rnd(-1,1)),0.4,0.6,0.1,new V3(-fwd.x*6,1,-fwd.z*6),'#7fd8ff');}
+      if(R.lift){for(let k=0;k<3;k++)mist(new V3(p.x+rnd(-1.5,1.5),Math.max(0.3,R.y-0.6),p.z+rnd(-1.5,1.5)),1.3,1.6,7,new V3(-fwd.x*5+rnd(-1.5,1.5),rnd(-1,0.6),-fwd.z*5+rnd(-1.5,1.5)),0.65);mist(new V3(p.x+rnd(-2,2),0.4,p.z+rnd(-2,2)),1.2,2,6,new V3(rnd(-2,2),0.6,rnd(-2,2)),0.5);for(const sd of [-1,1])puff(new V3(p.x+Math.cos(R.h)*sd*1.2,R.y+1.2,p.z-Math.sin(R.h)*sd*1.2),0.35,0.25,0.05,null,'#bfefff');}
       if(R.bst===2){const a=performance.now()/60;for(const sd of [-1,1]){const n=tmpV.copy(fwd).multiplyScalar(-3.2).add(p);puff(new V3(n.x+Math.cos(a)*0.6*sd,0.6+Math.sin(a)*0.6,n.z+Math.sin(a)*0.6*sd),0.45,0.5,0.1,null,'#bfefff');}}
       if(sk2==='aero'){for(const sd of [-1,1]){const n=tmpV.copy(fwd).multiplyScalar(-2.2).add(p);puff(new V3(n.x+Math.cos(R.h)*sd*1.15,1.3,n.z-Math.sin(R.h)*sd*1.15),0.4,0.25,0.05,null,'#9fe6ff');}}
       if(off&&Math.abs(R.v)>8)puff(new V3(back.x,0.3,back.z),0.6,0.8,1.6,new V3(0,1,0),'#c8b58c');}
@@ -4661,14 +4693,20 @@ const RACE=(()=>{
   // 鏡頭（使用者：開賽車會頭暈、不舒服）→ 穩定追車：視野固定 60°、不晃、不切招式鏡頭、地平線保持水平、高度不跟著車子跳；
   // 鏡頭方向跟著「平滑過的車頭方向」轉，而且每秒最多轉 1.6 rad（甩尾、懸空轉向、幻影過彎時車子轉很快，鏡頭不會跟著甩）；位置幾乎貼著車（不會一前一後拉扯）
   R.camera=dt=>{const p=ME.root.position;
-    if(R.mode==='vortex'&&!R.vfall){const q=VS[R.vi||0],c=R.cam===1?1.5:1;CP0.copy(p).addScaledVector(q.t,-7.5*c).addScaledVector(q.n,1.6*c);CP0.y+=1.4*c;CL.copy(p).addScaledVector(q.t,12).addScaledVector(q.n,0.6);
-      if(R.cam===2){CP0.copy(p).addScaledVector(q.t,0.3).addScaledVector(q.n,0.95);CL.copy(p).addScaledVector(q.t,25).addScaledVector(q.n,0.8);}
-      if(!R.camP)R.camP=CP0.clone();R.camP.lerp(CP0,1-Math.exp(-dt*(R.cam===2?60:10)));camera.position.copy(R.camP);camera.lookAt(CL);if(Math.abs(camera.fov-60)>0.01){camera.fov=60;camera.updateProjectionMatrix();}R.camH=R.h;return;}
-    if(R.mode==='vortex'&&R.vfall){camera.lookAt(p);return;}
+    // 大漩渦（挑戰或比賽經過）（使用者：在大漩渦車道看不到前方）：鏡頭沿著車道放在車子後面、高於路面，看著前方 22 m 車道上的點（彎過去的路也看得到）；
+    // 畫面跟著車道傾斜約七成（路面像地板、不像牆；防暈模式 35%、駕駛艙 100%）。傾斜角度在漩渦裡是穩定的，不會一直晃
+    if((R.mode==='vortex'||R.inV)&&!R.vfall){const vi=R.vi||0,q=VS[vi],far=R.cam===1,ck=R.cam===2,qb=VS[Math.max(0,vi-(far?6:4))],qa=VS[Math.min(VN-1,vi+(ck?14:11))];
+      if(ck){CP0.copy(p).addScaledVector(q.t,0.3).addScaledVector(q.n,0.95);CL.copy(qa.p).addScaledVector(qa.a,R.vlat).addScaledVector(qa.n,0.8);}
+      else{CP0.copy(qb.p).addScaledVector(qb.a,R.vlat*0.6).addScaledVector(qb.n,far?4.2:2.8);CL.copy(qa.p).addScaledVector(qa.a,R.vlat*0.5).addScaledVector(qa.n,1.0);}
+      const k=ck?1:CALM.on?0.35:0.7,UP=new V3(0,1,0).lerp(q.n,k).normalize();if(!R.camUp)R.camUp=new V3(0,1,0);R.camUp.lerp(UP,Math.min(1,dt*4)).normalize();
+      if(!R.camP)R.camP=CP0.clone();R.camP.lerp(CP0,1-Math.exp(-dt*(ck?60:12)));camera.position.copy(R.camP);camera.up.copy(R.camUp);camera.lookAt(CL);
+      if(Math.abs(camera.fov-60)>0.01){camera.fov=60;camera.updateProjectionMatrix();}R.camH=R.h;return;}
+    if((R.mode==='vortex'||R.inV)&&R.vfall){camera.lookAt(p);return;}
+    if(R.camUp){R.camUp.lerp(new V3(0,1,0),Math.min(1,dt*4)).normalize();camera.up.copy(R.camUp);if(R.camUp.y>0.999){camera.up.set(0,1,0);R.camUp=null;}}   // 出了大漩渦：畫面慢慢轉回水平
     if(!R.camP)R.camH=R.h;{let dh=R.h-R.camH;dh=Math.atan2(Math.sin(dh),Math.cos(dh));R.camH+=cl(dh*Math.min(1,dt*3.2),-1.6*dt,1.6*dt);}
     const fx=-Math.sin(R.camH),fz=-Math.cos(R.camH);
     if(R.cam===2){CP0.set(p.x+fx*0.25,0.95,p.z+fz*0.25);CL.set(p.x+fx*25,0.8,p.z+fz*25);}   // 駕駛艙（不跟著車身傾斜）
-    else{const dist=[7.2,11][R.cam],ht=[2.6,4.2][R.cam];CP0.set(p.x-fx*dist,ht,p.z-fz*dist);CL.set(p.x+fx*16,1.0,p.z+fz*16);}
+    else{const dist=[7.2,11][R.cam],ht=[2.6,4.2][R.cam];CP0.set(p.x-fx*dist,ht+R.y*0.7,p.z-fz*dist);CL.set(p.x+fx*16,1.0+R.y*0.8,p.z+fz*16);}
     if(!R.camP)R.camP=CP0.clone();
     R.camP.lerp(CP0,1-Math.exp(-dt*(R.cam===2?60:14)));
     camera.position.copy(R.camP);camera.lookAt(CL);R.shk=0;
@@ -4683,7 +4721,19 @@ const RACE=(()=>{
     if(d<80&&R.st==='drive'&&performance.now()-(a.sayT||0)>2500){a.sayT=performance.now();navShow(`${a.def.name}：${t}`,'warn');}}
   function aiGhosts(a){if(a.ghosts)return a.ghosts;const mat=new THREE.MeshBasicMaterial({color:a.def.acc,transparent:true,opacity:0.3,blending:THREE.AdditiveBlending,depthWrite:false});
     a.ghosts=[0,1].map(()=>{const g=a.car.P.clone(true);g.traverse(o=>{if(o.isMesh)o.material=mat;if(o.isSprite)o.visible=false;});const w=new THREE.Group(),bd=new THREE.Group();w.add(bd);bd.add(g);w.visible=false;scene.add(w);return {w,bd};});a.gmat=mat;a.hist=[];return a.ghosts;}
-  function aiStep(a,dt){const s=a.s,i=Math.floor(((s%TL)+TL)%TL/DS)%N,car=a.car;
+  // 對手在大漩渦裡：沿著 3D 車道跑（不會掉下去），助跑時會開加速器
+  function aiStepV(a,dt){const car=a.car,q0=VS[Math.min(VN-1,Math.floor(a.vs/2))];
+    if(!a.bst&&q0.kind==='run'&&a.gauge>45&&Math.random()<dt*a.agg*0.8){a.bst=1;aiSay(a,'加速器！','takeoff');}else if(a.bst===1&&a.v>70&&a.gauge>30&&Math.random()<dt*a.agg*3){a.bst=2;aiSay(a,'第二段・螺旋加速！','heavy');}
+    if(a.bst){a.gauge-=(a.bst===2?28:16)*dt;if(a.gauge<=0){a.gauge=0;a.bst=0;}}else a.gauge=Math.min(100,a.gauge+7*dt);
+    const top=(a.bst===2?135:a.bst===1?100:76)*a.skill;a.v+=cl(top-a.v,-26*dt,(a.bst===2?32:a.bst===1?22:14)*dt)-9.8*q0.t.y*dt;a.v=Math.max(a.v,q0.vreq*1.05,15);
+    a.vs+=a.v*dt;a.prog+=a.v*dt;a.vlat+=cl(a.base*2-a.vlat,-2*dt,2*dt);
+    if(a.vs>=VS.L-1){a.inV=false;a.s=JB*DS+(a.vs-(VS.L-1));a.lat=-a.vlat;car.root.rotation.set(0,0,0);car.sh.visible=true;return;}
+    const f=cl(a.vs/2,0,VN-1.001),i=Math.floor(f),u=f-i,q=VS[i],P=q.p.clone().lerp(VS[i+1].p,u).addScaledVector(q.a,a.vlat).addScaledVector(q.n,0.05);
+    car.root.position.copy(P);VR.crossVectors(q.t,q.n);VB.copy(q.t).negate();VM.makeBasis(VR,q.n,VB);car.root.quaternion.setFromRotationMatrix(VM);
+    car.body.position.y=0;car.body.rotation.set(0,0,0);car.sh.visible=false;for(const w of car.wheels)w.rotation.z-=a.v*dt/0.36;a.y=0;a.roll=0;a.yo=0;a.sk=null;
+    for(const fl of car.flames){const on=a.bst>0;fl.f.visible=on;if(on){const kf=a.bst===2?1.25:0.8;fl.f.scale.set(kf,a.bst===2?1.35:1,a.bst===2?1.35:1);fl.fm.color.set(a.bst===2?'#6fcfff':'#ff9a3a');}fl.gl.scale.setScalar(on?(a.bst===2?2.2:1.2):0.01);}
+    if(a.ghosts)for(const g of a.ghosts)g.w.visible=false;}
+  function aiStep(a,dt){if(a.inV){aiStepV(a,dt);return;}const s=a.s,i=Math.floor(((s%TL)+TL)%TL/DS)%N,car=a.car;
     if(a.y===undefined||!isFinite(a.y)){a.y=0;a.roll=0;a.yo=0;}if(a.gauge===undefined)a.gauge=100;
     const sA=((a.s-I0*DS)%TL+TL)%TL,lap=Math.floor(a.prog/TL);
     // 彎道前 25～45 m 決定要不要用技能（每個彎只決定一次）
@@ -4703,11 +4753,12 @@ const RACE=(()=>{
     for(const o of others){const ds=o.s-(a.prog+I0*DS);if(ds>0&&ds<16&&Math.abs(o.lat-a.lat)<2.6){tl=o.lat>0?o.lat-3.4:o.lat+3.4;if(Math.abs(tl)>HW-1.4){tl=cl(tl,-HW+1.4,HW-1.4);if(ds<8)vt=Math.min(vt,o.v+1);}}}
     a.tlat=cl(tl,-HW+1.4,HW-1.4);a.lat+=cl(a.tlat-a.lat,-3.2*dt,3.2*dt);
     const dv=vt-a.v;a.v+=cl(dv,-26*dt,(a.bst===2?32:a.bst===1?22:sk==='aero'?18:14)*dt);a.s+=a.v*dt;a.prog+=a.v*dt;
+    {const m1=((a.s%TL)+TL)%TL,m0=m1-a.v*dt;if(R.mode==='race'&&m0<JA*DS&&m1>=JA*DS){a.inV=true;a.vs=m1-JA*DS;a.vlat=cl(-a.lat,-4,4);a.sk=null;return;}}   // 過了分岔點：進大漩渦
     at(a.s,tmpA);const hd=Math.atan2(-tmpA.tx,-tmpA.tz)-cl(a.tlat-a.lat,-1,1)*0.05;car.root.position.set(tmpA.x+tmpA.rx*a.lat,0,tmpA.z+tmpA.rz*a.lat);car.root.rotation.y=hd;
     for(const w of car.wheels)w.rotation.z-=a.v*dt/0.36;for(const sp of car.steers)sp.rotation.y=cl(tmpA.k*40,-0.4,0.4);
     // 車身姿態：懸空轉向側立、幻影過彎／甩尾斜一邊（跟你的車一樣）
     let ty=0,troll=cl(tmpA.k*a.v*a.v*0.0006,-0.05,0.05),tyo=0;
-    if(sk==='lift'){const e=Math.sin(Math.PI*Math.min(1,a.sk.t/a.sk.dur*1.15));ty=1.3*e;troll=-a.sk.dir*1.05*e;tyo=-a.sk.dir*0.25*e;}
+    if(sk==='lift'){const u=Math.min(1,a.sk.t/a.sk.dur),e=Math.sin(Math.PI*u);ty=3.2*4*u*(1-u);troll=-a.sk.dir*0.75*e;tyo=0;}
     else if(sk==='mirage'){tyo=-a.sk.dir*0.75*Math.sin(Math.PI*a.sk.t/a.sk.dur);}
     else if(sk==='drift')tyo=-a.sk.dir*0.42;
     const kk=1-Math.exp(-dt*10);a.y+=(ty-a.y)*kk;a.roll+=(troll-a.roll)*kk;a.yo+=(tyo-a.yo)*Math.min(1,dt*7);
@@ -4719,7 +4770,7 @@ const RACE=(()=>{
     // 特效：只在你附近（120 m 內）才做
     const pp0=ME.root.position;if(Math.hypot(car.root.position.x-pp0.x,car.root.position.z-pp0.z)<120){a.fxT=(a.fxT||0)-dt;if(a.fxT<=0){a.fxT=0.04;const p=car.root.position,fx=-Math.sin(hd),fz=-Math.cos(hd);
         if(sk==='drift'){const c=a.sk.t>1.2?'#ff9a3a':a.sk.t>0.6?'#5ad1ff':'#ffe9a8';for(const sd of [-1,1])puff(new V3(p.x-fx*2.1+Math.cos(hd)*sd,0.25,p.z-fz*2.1-Math.sin(hd)*sd),0.35,0.35,0.05,new V3(rnd(-1,1),rnd(1,2.5),rnd(-1,1)),c);}
-        if(sk==='lift')puff(new V3(p.x+rnd(-1,1),0.3+a.y*0.5,p.z+rnd(-1,1)),0.4,0.6,0.1,new V3(-fx*6,1,-fz*6),'#7fd8ff');
+        if(sk==='lift')mist(new V3(p.x+rnd(-1.3,1.3),Math.max(0.3,a.y-0.5),p.z+rnd(-1.3,1.3)),1.0,1.2,4.5,new V3(-fx*5,0.3,-fz*5),0.42);
         if(sk==='aero')for(const sd of [-1,1])puff(new V3(p.x-fx*2.2+Math.cos(hd)*sd*1.15,1.3,p.z-fz*2.2-Math.sin(hd)*sd*1.15),0.4,0.25,0.05,null,'#9fe6ff');
         if(a.bst===2)puff(new V3(p.x-fx*3.2,0.6,p.z-fz*3.2),0.45,0.5,0.1,null,'#bfefff');}
       // 幻影過彎的殘影（第一次用到才建）
@@ -4728,7 +4779,7 @@ const RACE=(()=>{
         if(sk==='mirage')a.gmat.opacity=0.32*Math.sin(Math.PI*a.sk.t/a.sk.dur);}}
     else if(a.ghosts)for(const g of a.ghosts)g.w.visible=false;
     // 跟你相撞：互相推開、後面那台減速
-    const pp=ME.root.position,dx=car.root.position.x-pp.x,dz=car.root.position.z-pp.z;if(dx*dx+dz*dz<36){const along=dx*(-Math.sin(R.h))+dz*(-Math.cos(R.h)),side=dx*Math.cos(R.h)+dz*(-Math.sin(R.h));
+    const pp=ME.root.position,dx=car.root.position.x-pp.x,dz=car.root.position.z-pp.z;if(dx*dx+dz*dz<36&&!R.lift&&!R.inV){const along=dx*(-Math.sin(R.h))+dz*(-Math.cos(R.h)),side=dx*Math.cos(R.h)+dz*(-Math.sin(R.h));
       if(Math.abs(along)<4.6&&Math.abs(side)<2.1){const push=(2.1-Math.abs(side))*Math.sign(side||1);pp.x-=Math.cos(R.h)*push*0.6;pp.z+=Math.sin(R.h)*push*0.6;
         if(along>0&&R.v>a.v){R.v=a.v-1;a.v+=2;}else if(along<0&&a.v>R.v){a.v=R.v-1;R.v+=2;}
         a.lat+=Math.sign(a.lat-R.lat||1)*(2.1-Math.abs(side))*0.4;
@@ -4751,30 +4802,33 @@ const RACE=(()=>{
     if(R.mode==='race'&&(R.st==='drive'||R.st==='done'))for(const a of AIS)aiStep(a,dt);
     // 圈數、計時
     if(R.mode!=='vortex'&&(R.st==='drive'||R.st==='done')){R.lapT+=dt;if(R.mode==='race')R.raceT+=dt;
-      const lap=Math.floor(R.prog/TL);
-      if(R.mode==='free'){if(lap>R.lap){if(R.lapValid){const t=R.lapT;R.lapTimes.push(t);const nb=R.best==null||t<R.best;if(nb){R.best=t;try{localStorage.setItem('home-race-best',t);}catch(_){}}say(`圈速 ${t.toFixed(2)} 秒${nb?'，新紀錄！':''}`,nb?'boost':null,true);if(nb)AUDIO.sfx('cheer');}R.lapT=0;R.lapValid=true;}if(lap<R.lap)R.lapValid=false;R.lap=lap;}
-      else if(R.st==='drive'){if(lap>R.lap&&lap>=1){R.lapTimes.push(R.lapT);const t=R.lapT;if(R.best==null||t<R.best){R.best=t;try{localStorage.setItem('home-race-best',t);}catch(_){}}R.lapT=0;
+      const lap=Math.floor(R.prog/RL);
+      if(R.mode==='free'){if(lap>R.lap){if(R.lapValid){const t=R.lapT;R.lapTimes.push(t);const nb=R.best==null||t<R.best;if(nb){R.best=t;try{localStorage.setItem('home-race-best2',t);}catch(_){}}say(`圈速 ${t.toFixed(2)} 秒${nb?'，新紀錄！':''}`,nb?'boost':null,true);if(nb)AUDIO.sfx('cheer');}R.lapT=0;R.lapValid=true;}if(lap<R.lap)R.lapValid=false;R.lap=lap;}
+      else if(R.st==='drive'){if(lap>R.lap&&lap>=1){R.lapTimes.push(R.lapT);const t=R.lapT;if(R.best==null||t<R.best){R.best=t;try{localStorage.setItem('home-race-best2',t);}catch(_){}}R.lapT=0;
           if(lap>=3){R.st='done';R.fin={t:R.raceT,place:R.place};finish();}else say(lap===2?`最後一圈！目前第 ${R.place} 名`:`第 ${lap+1} 圈，圈速 ${t.toFixed(2)} 秒，目前第 ${R.place} 名`,null,true);}
         if(lap>R.lap)R.lap=lap;}
       if(R.mode==='race'){const all=[{me:true,p:R.prog},...AIS.map(a=>({p:a.prog}))].sort((x,y)=>y.p-x.p);const pl=all.findIndex(x=>x.me)+1;
         if(R.place&&pl<R.place&&R.st==='drive'){navShow(`超車！第 ${pl} 名`,'boost');AUDIO.sfx('combo');}if(R.place&&pl>R.place&&R.st==='drive')navShow(`被超車了，第 ${pl} 名`,'warn');R.place=pl;}}
     // 導航：前方彎道（220 m 內）
-    if(R.st==='drive'&&R.mode!=='vortex'){R.navT-=dt;if(R.navT<=0){R.navT=0.25;const sNow=sOf(R.i<0?I0:R.i);let best=null,bd=1e9;for(const c of CORNERS){let d=c.s0-sNow;if(d<-20)d+=TL;if(d>-20&&d<bd){bd=d;best=c;}}
+    if(R.st==='drive'&&R.mode!=='vortex'&&!R.inV){R.navT-=dt;if(R.navT<=0){R.navT=0.25;const sNow=sOf(R.i<0?I0:R.i);if(SA-sNow>0&&SA-sNow<160&&!R.said['vx'+Math.floor(R.prog/RL)]){R.said['vx'+Math.floor(R.prog/RL)]=1;say('前方分岔，進入大漩渦！準備加速器','boost');}let best=null,bd=1e9;for(const c of CORNERS){if(c.s0>SA&&c.s0<SB)continue;let d=c.s0-sNow;if(d<-20)d+=TL;if(d>-20&&d<bd){bd=d;best=c;}}
         if(best){const key=best.name+'@'+Math.floor(R.prog/TL),vk=Math.round(best.v*KMH/5)*5,arrow=best.dir==='R'?'↱ 右彎':best.dir==='L'?'↰ 左彎':'⇄ S 彎';
           if(bd<230&&bd>40&&!R.said[key]){R.said[key]=1;say(`前方 ${best.name}，${arrow.slice(2)}，建議 ${vk} km/h`);}
           else if(bd<95&&bd>0&&R.v>best.v*1.18&&!R.said[key+'b']){R.said[key+'b']=1;say('減速！','warn');AUDIO.sfx('beep');}
           if(navMsgT<=0)navEl.innerHTML=`<b>NAVI</b> ${bd>0?`${best.name} <span class="ar">${arrow}</span> ${Math.round(bd)} m　建議 ${vk}`:`${best.name}　${arrow}`}`;}
         if(R.gauge>=99&&R.bst===0&&Math.abs(S[R.i<0?I0:R.i].k)<1/400&&!R.said['bst'+Math.floor(R.prog/TL)]&&R.v>30){R.said['bst'+Math.floor(R.prog/TL)]=1;say('直線，加速器可以使用','boost');}}}
     navMsgT-=dt;if(navMsgT<=0&&navEl.className!=='panel')navEl.className='panel';
-    // 導航線
-    if(R.mode==='vortex'){const vNow=R.v;for(let k=0;k<=NAVN;k++){const q=VS[Math.min(VN-1,(R.vi||0)+3+k)],a=k*2*3,w=0.6;for(const [o,sd] of [[a,-1],[a+3,1]]){navPos[o]=q.p.x+q.a.x*sd*w+q.n.x*0.09;navPos[o+1]=q.p.y+q.a.y*sd*w+q.n.y*0.09;navPos[o+2]=q.p.z+q.a.z*sd*w+q.n.z*0.09;}
-        const r=q.vreq>0?vNow/q.vreq:9,fade=1-k/NAVN;let c0,c1,c2;if(r>=1.08){c0=0.2;c1=1;c2=0.45;}else if(r>=1){c0=1;c1=0.85;c2=0.1;}else{c0=1;c1=0.2;c2=0.15;}for(const o of [a,a+3]){navCol[o]=c0*fade;navCol[o+1]=c1*fade;navCol[o+2]=c2*fade;}}
-      navG.attributes.position.needsUpdate=true;navG.attributes.color.needsUpdate=true;}
-    else{const i0=R.i<0?I0:R.i,vNow=Math.abs(R.v),zero=R.zero>0;for(let k=0;k<=NAVN;k++){const i=(i0+3+k)%N,p=S[i],w=zero?0.9:0.55,a=k*2*3;
-        navPos[a]=p.x-p.rx*w;navPos[a+1]=0.07;navPos[a+2]=p.z-p.rz*w;navPos[a+3]=p.x+p.rx*w;navPos[a+4]=0.07;navPos[a+5]=p.z+p.rz*w;
-        const need=VP[i],r=vNow/Math.max(1,need),fade=1-k/NAVN;let c0,c1,c2;if(zero){c0=1;c1=0.82;c2=0.3;}else if(r<1.02){c0=0.2;c1=1;c2=0.45;}else if(r<1.2){c0=1;c1=0.85;c2=0.1;}else{c0=1;c1=0.2;c2=0.15;}
-        for(const o of [a,a+3]){navCol[o]=c0*fade;navCol[o+1]=c1*fade;navCol[o+2]=c2*fade;}}
-      navG.attributes.position.needsUpdate=true;navG.attributes.color.needsUpdate=true;}
+    // 導航線（綠＝速度 OK、黃／紅＝太快；大漩渦裡：綠＝離心力夠、紅＝不夠；快到分岔點會接上大漩渦）
+    {const vNow=Math.abs(R.v),zero=R.zero>0,route=R.mode==='race'||R.mode==='free',inVS=R.mode==='vortex'||R.inV,base=inVS?(R.vi||0):(R.i<0?I0:R.i),s0=inVS?0:sOf(base);
+     for(let k=0;k<=NAVN;k++){let px,py,pz,ax,ay,az,nx,ny,nz,need,vi=-1;const a=k*2*3,w=zero?0.9:0.55;
+       if(inVS)vi=Math.min(VN-1,base+3+k);else if(route&&s0<=SA&&s0+(3+k)*DS>SA)vi=Math.min(VN-1,Math.floor((s0+(3+k)*DS-SA)/2));
+       if(vi>=0){const q=VS[vi];px=q.p.x;py=q.p.y;pz=q.p.z;ax=q.a.x;ay=q.a.y;az=q.a.z;nx=q.n.x;ny=q.n.y;nz=q.n.z;need=q.vreq>0?-q.vreq:VP[JA];}
+       else{const q=S[(base+3+k)%N];px=q.x;py=0;pz=q.z;ax=-q.rx;ay=0;az=-q.rz;nx=0;ny=1;nz=0;need=VP[(base+3+k)%N];}
+       for(const [o,sd] of [[a,-1],[a+3,1]]){navPos[o]=px+ax*sd*w+nx*0.08;navPos[o+1]=py+ay*sd*w+ny*0.08;navPos[o+2]=pz+az*sd*w+nz*0.08;}
+       const fade=1-k/NAVN;let c0,c1,c2;
+       if(need<0){const r=vNow/-need;if(r>=1.08){c0=0.2;c1=1;c2=0.45;}else if(r>=1){c0=1;c1=0.85;c2=0.1;}else{c0=1;c1=0.2;c2=0.15;}}
+       else{const r=vNow/Math.max(1,need);if(zero){c0=1;c1=0.82;c2=0.3;}else if(r<1.02){c0=0.2;c1=1;c2=0.45;}else if(r<1.2){c0=1;c1=0.85;c2=0.1;}else{c0=1;c1=0.2;c2=0.15;}}
+       for(const o of [a,a+3]){navCol[o]=c0*fade;navCol[o+1]=c1*fade;navCol[o+2]=c2*fade;}}
+     navG.attributes.position.needsUpdate=true;navG.attributes.color.needsUpdate=true;}
     R.hudT=(R.hudT||0)-dt;if(R.hudT<=0){R.hudT=0.1;hudDraw();drawMap();}};
   function finish(){const pl=R.place,t=R.raceT;say(pl===1?'第一名！優勝！做得好':`完賽，第 ${pl} 名`,'boost',true);AUDIO.sfx(pl===1?'bigcheer':'cheer');big(pl===1?'🏆 優勝！':`完賽 第 ${pl} 名`);
     setTimeout(()=>{if(!R.on)return;panel.querySelector('.res').innerHTML=`<b>${pl===1?'🏆 優勝！':`第 ${pl} 名`}</b><br>總時間 ${fmtT(t)}　最快圈 ${fmtT(Math.min(...R.lapTimes))}`;panel.hidden=false;},2500);}
@@ -5732,7 +5786,7 @@ const SPOTS=[
   {name:'服裝店',x:44,z:102.5,yaw:0},
   {name:'網球場',x:83,z:101.5,yaw:0},
   {name:'賽車場',x:-54,z:322.6,yaw:Math.PI},
-  {name:'大漩渦',x:-30,z:648,yaw:Math.PI},   // 大漩渦起點拱門前（面向漩渦）   // 站在賽車旁邊（面向車）   // 門口、面向店
+  {name:'大漩渦',x:-100,z:636,yaw:Math.PI},   // 大漩渦起點拱門前（面向漩渦）   // 站在賽車旁邊（面向車）   // 門口、面向店
   {name:'超級彈跳床',x:-5.2,z:-4.6,yaw:0},   // 房子西邊的空地，面向彈跳床   // 球車旁、面向球場   // 大跳台起跳區、面向東
   {name:'大圓環',x:-16,z:80,yaw:Math.PI},   // 直排輪架旁邊、面向入口   // 傳送到熱氣球現在停的地方（可能降落在別處）
   {name:'全家便利商店',x:(STORE.dx0+STORE.dx1)/2,z:10.8,yaw:Math.PI},
