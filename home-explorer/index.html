@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-10.62"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-10.69"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -244,6 +244,42 @@
   #tnHud .k{display:none}
   #tnHud #tnAura{color:#ffd84a;font-weight:800;margin-left:6px}
   #tnHud .k{color:var(--ink-2);font-size:11px;margin-top:3px;white-space:normal}
+  /* ---- 賽車場（導航 HUD、技能按鈕、倒數燈） ---- */
+  #rcHud[hidden],#rcNav[hidden],#rcMap[hidden],#rcLights[hidden],#rcPanel[hidden],#rcBtns[hidden]{display:none!important}
+  #rcHud{position:fixed;left:50%;top:calc(12px + var(--sat));transform:translateX(-50%);z-index:12;display:flex;align-items:center;gap:7px;padding:4px 12px;font-size:12px;white-space:nowrap;background:rgba(8,14,22,.55);border-color:rgba(56,225,255,.35);color:#dff8ff}
+  #rcHud .navi{color:#38e1ff;font-weight:900;letter-spacing:1px;font-size:11px}
+  #rcSpd{font-size:22px;font-weight:900;min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+  #rcHud .gw{position:relative;width:110px;height:10px;border-radius:5px;background:rgba(255,255,255,.15);overflow:hidden}
+  #rcGauge{position:absolute;left:0;top:0;bottom:0;background:#6b7a88}
+  #rcGauge.ok{background:#38e1ff}#rcGauge.s1{background:linear-gradient(90deg,#ffb347,#ffe08a)}#rcGauge.s2{background:linear-gradient(90deg,#7fd8ff,#ffffff,#7fd8ff)}
+  #rcHud .gw em{position:absolute;left:20%;top:0;bottom:0;width:2px;background:rgba(255,255,255,.6)}
+  #rcStage{min-width:58px}#rcInfo b{font-size:14px;margin:0 6px 0 2px;font-variant-numeric:tabular-nums}
+  #rcNav{position:fixed;left:calc(12px + var(--sal));top:calc(58px + var(--sat));z-index:12;padding:5px 10px;font-size:13px;background:rgba(8,14,22,.5);border-color:rgba(56,225,255,.35);color:#e6fbff;max-width:min(62vw,520px)}
+  #rcNav b{color:#38e1ff;font-size:11px;margin-right:6px;letter-spacing:1px}#rcNav .ar{color:#ffe14a;font-weight:800}
+  #rcNav.warn{border-color:#ff4a4a;color:#ffd0d0;background:rgba(80,10,10,.55)}#rcNav.boost{border-color:#7fd8ff;color:#fff;background:rgba(20,60,110,.6)}#rcNav.zero{border-color:#ffe08a;color:#fff6d0;background:rgba(80,64,10,.55)}
+  #rcMap{position:fixed;right:calc(12px + var(--sar));top:calc(64px + var(--sat));width:220px;height:150px;z-index:11;background:rgba(8,14,22,.45);border:1px solid rgba(56,225,255,.3);border-radius:10px}
+  body.rc #minimap,body.rc #jumpBtn,body.rc #hint,body.rc #place{display:none!important}
+  #rcLights{position:fixed;left:50%;top:22%;transform:translateX(-50%);z-index:14;display:flex;gap:12px;padding:10px 16px;background:rgba(10,10,12,.75);border-radius:14px}
+  #rcLights i{width:34px;height:34px;border-radius:50%;background:#3a0d0d;box-shadow:inset 0 0 6px #000}#rcLights i.on{background:#ff2020;box-shadow:0 0 18px 4px rgba(255,40,40,.8)}
+  #rcPanel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:20;padding:14px 16px;width:min(420px,92vw);display:flex;flex-direction:column;gap:8px;text-align:center}
+  #rcPanel h3{margin:0;font-size:16px}#rcPanel button{padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);font-size:15px;font-weight:700;color:inherit}
+  #rcPanel button[data-m=race]{background:linear-gradient(90deg,#1f4fb8,#3b8fe8);color:#fff}#rcPanel button[data-m=vortex]{background:linear-gradient(90deg,#5a1fb8,#c64fe0);color:#fff}#rcPanel .res:empty{display:none}#rcPanel .res b{font-size:20px}#rcPanel .note{font-size:11px;opacity:.75;margin:0;text-align:left}
+  #rcLines{position:fixed;inset:0;pointer-events:none;z-index:4;opacity:0;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,0) 0deg,rgba(255,255,255,0) 4deg,rgba(255,255,255,.5) 4.4deg,rgba(255,255,255,0) 4.8deg);-webkit-mask-image:radial-gradient(ellipse at center,transparent 40%,#000 78%);mask-image:radial-gradient(ellipse at center,transparent 40%,#000 78%)}
+  #rcZero{position:fixed;inset:0;pointer-events:none;z-index:4;opacity:0;transition:opacity .5s;background:radial-gradient(ellipse at center,rgba(255,240,200,0) 45%,rgba(255,215,120,.32) 80%,rgba(255,240,200,.55) 100%)}
+  body.rcz #rcZero{opacity:1}
+  #rcBtns{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:8px;z-index:11}
+  #rcBtns button{width:66px;height:66px;border-radius:50%;border:2px solid rgba(56,225,255,.55);background:rgba(10,20,32,.62);color:#fff;font-size:13px;font-weight:800;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+  #rcBtns button small{font-size:10px;opacity:.7;margin-top:2px}
+  #rcBtns button[data-k=boost]{background:radial-gradient(circle,#ffb347,#d8262c);border-color:#ffe08a}#rcBtns button[data-k=drift]{background:rgba(120,60,200,.7)}#rcBtns button[data-k=aero]{background:rgba(40,120,220,.75)}
+  #rcBtns button[data-k=lift]{background:rgba(30,170,200,.75)}#rcBtns button[data-k=mirage]{background:rgba(110,200,255,.55)}#rcBtns button[data-k=zero]{background:rgba(220,180,60,.75)}
+  #rcBtns button[data-k=auto]{background:rgba(60,70,80,.75)}#rcBtns button[data-k=auto].on{background:rgba(40,190,120,.85);border-color:#b8ffd8;box-shadow:0 0 12px rgba(80,255,160,.6)}#rcBtns button.hit{transform:scale(.88)}#rcBtns button.off{opacity:.45}
+  body.rc #act{left:auto;right:calc(12px + var(--sar));transform:none;bottom:calc(100px + var(--sab))}
+  body.touch #rcBtns{left:auto;right:calc(10px + var(--sar));bottom:calc(12px + var(--sab));transform:none;display:grid;grid-template-columns:repeat(3,58px);gap:7px}
+  body.touch #rcBtns button{width:58px;height:58px;font-size:12px}body.touch #rcBtns button small{display:none}
+  body.touch #rcHud{top:calc(64px + var(--sat));font-size:11px;gap:4px;padding:3px 8px;max-width:calc(100vw - 16px)}body.touch #rcHud .gw{width:56px}body.touch #rcSpd{font-size:18px;min-width:34px}body.touch #rcHud .navi,body.touch #rcStage{display:none}body.touch #rcInfo b{font-size:12px;margin:0 4px 0 1px}
+  body.touch #rcNav{top:calc(104px + var(--sat));font-size:12px;max-width:calc(100vw - 170px)}body.touch #rcMap{width:130px;height:90px;top:calc(104px + var(--sat))}
+  body.touch.rc #act{bottom:calc(277px + var(--sab))}
+  @media (max-height:520px){body.touch #rcBtns{grid-template-columns:repeat(5,48px);gap:5px}body.touch #rcBtns button{width:48px;height:48px;font-size:11px}body.touch #rcHud{top:calc(8px + var(--sat))}body.touch #rcNav,body.touch #rcMap{top:calc(46px + var(--sat))}body.touch.rc #act{bottom:calc(120px + var(--sab))}}
   #tnHud[hidden],#tnBtns[hidden]{display:none!important}
   #tnBtns{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:8px;z-index:11}
   #tnBtns button{width:70px;height:70px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(18,24,30,.6);color:#fff;font-size:14px;font-weight:800;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
@@ -391,8 +427,13 @@
 <div id="ftBar" class="panel" hidden><div id="ftInfo">罰球大賽</div><div class="bar"><div class="z" id="ftZone"></div><div class="z2" id="ftPerf"></div><div class="m" id="ftMark"></div></div><div class="k">按「投籃」（J）讓指針停在綠色就會進，正中間黃色＝空心</div></div>
 <div id="bbBtns" hidden><button data-k="trick">花式<small>T</small></button><button data-k="shoot">投籃<small>J</small></button><button data-k="dunk">灌籃<small>U</small></button><button data-k="oop">接力<small>O</small></button></div>
 <div id="tnHud" class="panel" hidden><b id="tnScore">你 0 : 0 對手</b><span id="tnPts">0-0</span><span id="tnAura"></span>
-  <div class="k">WASD 跑位（Shift 衝刺）、黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J 擊球，同時按住 A／D＝打左右邊線、W＝打深、S＝放短。1 外旋發球　2 零式削球　3 燕回閃　4 波動球　5 迴旋蛇　6 破滅的輪舞曲　7 天衣無縫　8 手塚領域　9 跳躍扣殺　R 白鯨　T 唐懷瑟　Y 冰之世界　U 武士驅動球　I 雷　O 手塚幻象　P 夢　F 放下球拍</div></div>
-<div id="tnBtns" hidden><button data-k="hit">擊球<small>J</small></button><button class="p1" data-k="twist">外旋<br>發球<small>1</small></button><button class="p1" data-k="zero">零式<br>削球<small>2</small></button><button class="p1" data-k="tsubame">燕回閃<small>3</small></button><button class="p1" data-k="hadou">波動球<small>4</small></button><button class="p1" data-k="snake">迴旋蛇<small>5</small></button><button class="p1" data-k="rondo">輪舞曲<small>6</small></button><button class="p1" data-k="aura">天衣<br>無縫<small>7</small></button><button class="p1" data-k="zone">手塚<br>領域<small>8</small></button><button class="p1" data-k="jack">跳躍<br>扣殺<small>9</small></button><button class="p2" data-k="hakugei">白鯨<small>R</small></button><button class="p2" data-k="tann">唐懷瑟<small>T</small></button><button class="p2" data-k="ice">冰之<br>世界<small>Y</small></button><button class="p2" data-k="samurai">武士<br>驅動<small>U</small></button><button class="p2" data-k="rai">雷<small>I</small></button><button class="p2" data-k="phantom">手塚<br>幻象<small>O</small></button><button class="p2" data-k="yips">夢<small>P</small></button><button class="p2" data-k="mario">必殺球<small>G</small></button><button data-k="page" id="tnPage">更多<br>招式</button></div>
+  <div class="k">WASD 跑位（Shift 衝刺）、黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J 擊球，同時按住 A／D＝打左右邊線、W＝打深、S＝放短。1 彈臉發球（落地往對手臉上彈）　2 回滾小球（網前落地往回滾）　3 貼地滑球（落地不彈、貼地滑）　4 重砲球（連人帶拍轟飛）　5 大轉彎球（繞過網柱彎進來）　6 打飛球拍（跳殺打掉球拍再殺一次）　7 金光模式（12 秒球又快又刁）　8 吸球模式（10 秒球都飛到你身邊）　9 跳躍扣殺　R 回風吊球（高球落地被風吹回網前）　T 不彈殺球（落地不彈）　Y 冰凍死角（冰住對手、打死角）　U 分身球（打到網子切成兩半）　I 閃電快球　O 出界魔法（10 秒對手的球常出界）　P 定身術（6 秒對手不能動）　G 彩虹必殺球（打碎對手球拍）　F 放下球拍</div></div>
+<div id="tnBtns" hidden><button data-k="hit">擊球<small>J</small></button><button class="p1" data-k="twist">彈臉<br>發球<small>1</small></button><button class="p1" data-k="zero">回滾<br>小球<small>2</small></button><button class="p1" data-k="tsubame">貼地<br>滑球<small>3</small></button><button class="p1" data-k="hadou">重砲球<small>4</small></button><button class="p1" data-k="snake">大轉<br>彎球<small>5</small></button><button class="p1" data-k="rondo">打飛<br>球拍<small>6</small></button><button class="p1" data-k="aura">金光<br>模式<small>7</small></button><button class="p1" data-k="zone">吸球<br>模式<small>8</small></button><button class="p1" data-k="jack">跳躍<br>扣殺<small>9</small></button><button class="p2" data-k="hakugei">回風<br>吊球<small>R</small></button><button class="p2" data-k="tann">不彈<br>殺球<small>T</small></button><button class="p2" data-k="ice">冰凍<br>死角<small>Y</small></button><button class="p2" data-k="samurai">分身球<small>U</small></button><button class="p2" data-k="rai">閃電<br>快球<small>I</small></button><button class="p2" data-k="phantom">出界<br>魔法<small>O</small></button><button class="p2" data-k="yips">定身術<small>P</small></button><button class="p2" data-k="mario">彩虹<br>必殺<small>G</small></button><button data-k="page" id="tnPage">更多<br>招式</button></div>
+<div id="rcHud" class="panel" hidden><span class="navi">NAVI</span><b id="rcSpd">0</b><span>km/h</span><span class="gw"><i id="rcGauge"></i><em></em></span><span id="rcStage">加速器 OK</span><span id="rcInfo"></span></div>
+<div id="rcNav" class="panel" hidden></div><canvas id="rcMap" hidden></canvas><div id="rcLights" hidden></div><div id="rcLines"></div><div id="rcZero"></div>
+<div id="rcPanel" class="panel" hidden><h3>賽車場・我的賽車</h3><div class="res"></div><button data-m="race">🏁 比賽（3 圈・5 台車）</button><button data-m="free">⏱ 自由練習（計圈速）</button><button data-m="vortex">🌀 大漩渦挑戰（離心力車道）</button><button data-m="exit">下車</button>
+<p class="note">電腦：W 油門、S 煞車、A D 轉彎、空白鍵＝加速器（再按一次＝第二段螺旋加速）、Shift 按住甩尾（放開＝閃電甩尾加速）、1 加速過彎、2 懸空轉向、3 幻影過彎、4 零之領域、C 視角、V 語音、R 回賽道、F 下車、<b>P 自動駕駛</b><br>手機：自動油門，搖桿左右轉彎、往下拉煞車<br><b>自動駕駛（綠色「自動」按鈕，預設開）</b>：車子自己轉彎、控速、遇到車會換線，你只要按加速器和過彎技能超車；推搖桿／按方向、煞車就照你的</p></div>
+<div id="rcBtns" hidden><button data-k="auto">自動<small>P</small></button><button data-k="boost">加速器<small>空白</small></button><button data-k="drift">甩尾<small>Shift</small></button><button data-k="aero">加速<br>過彎<small>1</small></button><button data-k="lift">懸空<br>轉向<small>2</small></button><button data-k="mirage">幻影<br>過彎<small>3</small></button><button data-k="zero">零之<br>領域<small>4</small></button><button data-k="cam">視角<small>C</small></button><button data-k="voice">語音<small>V</small></button><button data-k="reset">回賽道<small>R</small></button></div>
 <div id="skBtns" hidden><button data-k="boost">飆速<small>Shift</small></button><button data-k="drift">甩尾<small>X</small></button><button data-k="back">倒溜<small>B</small></button><button data-k="trick">花式<small>T</small></button></div>
 <div id="gOver" class="panel" hidden><h2>被殭屍抓到了！</h2><div id="gOverMsg"></div><div><button id="gRetry">再玩一次</button><button id="gExit">離開</button></div></div>
 <div id="gFlash"></div>
@@ -446,7 +487,7 @@ const ROADS = [
   {name:'大馬路', x0:-20, x1:-12, z0:60, z1:84.5},
   {name:'圓環大道', x0:9.5, x1:260, z0:106, z1:114},
   {name:'西邊大路', x0:-220, x1:-41.5, z0:106, z1:114},
-  {name:'南邊大路', x0:-20, x1:-12, z0:135.5, z1:280},
+  {name:'南邊大路', x0:-20, x1:-12, z0:135.5, z1:300},   /* 走到底是賽車場入口 */
   {name:'東邊大路', x0:96, x1:104, z0:LANE_Z0, z1:106},
   {name:'門前巷子', x0:96, x1:104, z0:LANE_Z0, z1:LANE_Z1},
 ];
@@ -468,7 +509,7 @@ const SURR = [
 const GRASS = {x0:-11, x1:26, z0:11.4, z1:34};
 // 全家便利商店：巷子對面的空地上，門口正對我家大門（門 x 4.1～5.9）
 const STORE = {x0:-1, x1:11, z0:12.6, z1:20.6, h:4.2, dx0:4.1, dx1:5.9};
-const BOUND = {x0:-220, x1:260, z0:-60, z1:280};   // 擴大地圖：往西、東、南都可以走／溜（大圓環、新道路；2026-10-09 圓環那邊再擴大＋籃球場）
+const BOUND = {x0:-330, x1:430, z0:-60, z1:960};   /* 2026-10-10 往南擴大：賽車場 */   // 擴大地圖：往西、東、南都可以走／溜（大圓環、新道路；2026-10-09 圓環那邊再擴大＋籃球場）
 const BOUND_CORE = {x0:-48, x1:96, z0:-60, z1:68};   // 原本的範圍：水泥地面只鋪到這附近，外面是綠地
 const RING = {cx:-16, cz:110, r0:15, r1:26};   // 大圓環：中心、安全島半徑、外緣半徑
 // 運動場（使用者要求：想溜直排輪）：巷子對面空地再往南，田徑場跑道中心 (14, 49)
@@ -1880,11 +1921,11 @@ function nearCab(){if(!started||mode!=='walk')return null;const px=player.pos.x,
     const sc=d*(1.45-face);if(sc<bs){best=u;bd=d;bs=sc;}}   /* 越正對著越優先：斜前方比較近的抽屜不要搶走正前方的衣櫃 */
   return best?{u:best,d:bd}:null;}
 // 衣櫃／抽屜／屋頂蓋子和窗簾：取比較近的那個
-function currentAct(){if(TN.on){const k=TN.label();return k?{tn:k}:null;}if(BB.on){const k=BB.label();return k?{bb:k}:null;}const tn=TN.label();if(tn)return {tn};if(SKATE.on){const k=SKATE.act();return k?{sk:k}:null;}const bb=BB.label();if(bb)return {bb};const mq=SHOP.near&&SHOP.near();if(mq)return {mq};const sk=SKATE.act();if(sk)return {sk};const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
+function currentAct(){{const rc=RACE.label();if(rc)return {rc};}if(TN.on){const k=TN.label();return k?{tn:k}:null;}if(BB.on){const k=BB.label();return k?{bb:k}:null;}const tn=TN.label();if(tn)return {tn};if(SKATE.on){const k=SKATE.act();return k?{sk:k}:null;}const bb=BB.label();if(bb)return {bb};const mq=SHOP.near&&SHOP.near();if(mq)return {mq};const sk=SKATE.act();if(sk)return {sk};const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
 function syncActBtn(){const a=currentAct();actCur=a;
-  const html=!a?'':a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${CHAR_OUTFITS.f.length+CHAR_OUTFITS.m.length} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
+  const html=!a?'':a.rc?`<kbd>F</kbd>${a.rc}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${CHAR_OUTFITS.f.length+CHAR_OUTFITS.m.length} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
   if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
-function toggleAct(){const a=currentAct();if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
+function toggleAct(){const a=currentAct();if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
 actBtn.addEventListener('click',e=>{e.stopPropagation();toggleAct();});
 actBtn.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleAct();},{passive:false});
 document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)c.target=0;syncActBtn();AUDIO.sfx('swish');};
@@ -3623,9 +3664,9 @@ const BB=(()=>{
 /* ---------------- 網球（使用者：弄個網球場，我想要很酷的技巧打球，類似網球王子那堆技能） ----------------
    在網球場按 F 拿球拍 → 跟對手一分一分打（網球計分：0、15、30、40、Deuce、Advantage，搶下一局換發球）。
    會自動跑位、球到身邊自動回擊（一般球）；按技能＝下一球用那招（球已經在身邊就馬上打），按了馬上有效、沒有冷卻：
-   外旋發球（落地後往對手臉上彈）、零式削球（落地往回滾到網前）、燕回閃（落地不彈、貼地滑過去）、波動球（連拍帶人轟飛）、
-   迴旋蛇（繞過網柱外面再彎進場內）、破滅的輪舞曲（跳殺打掉對手球拍、球飄回來再殺第二擊）、天衣無縫（12 秒金光：每一球都又快又刁）、
-   手塚領域（10 秒：對手打過來的球全部回到你身邊）、跳躍扣殺（跳起來殺，球砸地彈飛出場）。
+   彈臉發球（落地後往對手臉上彈）、回滾小球（落地往回滾到網前）、貼地滑球（落地不彈、貼地滑過去）、重砲球（連拍帶人轟飛）、
+   大轉彎球（繞過網柱外面再彎進場內）、打飛球拍連殺（跳殺打掉對手球拍、球飄回來再殺第二擊）、金光模式（12 秒金光：每一球都又快又刁）、
+   吸球模式（10 秒：對手打過來的球全部回到你身邊）、跳躍扣殺（跳起來殺，球砸地彈飛出場）。
    使用者：「我想自己打，不要自動跑位自動回擊」→ 自己跑（搖桿／WASD），黃圈標出對手的球會落在哪；球到身邊（擊球鈕變綠）才按得到，
    按早一點點會等球過來（0.4 秒內），太早／太晚就揮空。擊球時按住左右＝打那邊的邊線、往前＝打深、往後＝放短。招式也是球到身邊按才會用。
    球場南北向：你在南邊（z 大）、對手在北邊。人物模型的 armR（拿拍的手）在你面向北時是在西邊（-x），對手面向南時在東邊（+x）。 */
@@ -3639,7 +3680,7 @@ const TN=(()=>{
   // ---- 特效：光點、光環 ----
   const GLOW=(()=>{const [c,x]=cvs(64,64),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(0.35,'rgba(255,255,255,0.55)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
   const FX=[];
-  const rainbow=(o=0)=>new THREE.Color().setHSL(((performance.now()/500+o)%1+1)%1,1,0.6);   // 必殺球的彩虹色；col 傳 'rainbow' 就隨機一個顏色
+  const rainbow=(o=0)=>new THREE.Color().setHSL(((performance.now()/500+o)%1+1)%1,1,0.6);   // 彩虹必殺球的彩虹色；col 傳 'rainbow' 就隨機一個顏色
   function puff(p,life,s0,s1,v,col){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,color:col==='rainbow'?rainbow(Math.random()):col}));m.position.copy(p);m.scale.setScalar(s0);scene.add(m);FX.push({m,t:0,life,s0,s1,v:v?v.clone():null});}
   function burst(p,n,col,spd=4){for(let i=0;i<n;i++){const v=new V3(Math.random()-0.5,Math.random()*0.9,Math.random()-0.5).normalize().multiplyScalar(spd*(0.4+Math.random()*0.8));puff(p,0.45+Math.random()*0.4,0.25,0,v,col);}}
   function ring(p,col,life,s1,flat=true){const g=new THREE.RingGeometry(0.3,0.5,48);if(flat)g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col==='rainbow'?rainbow(Math.random()):col,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
@@ -3662,12 +3703,12 @@ const TN=(()=>{
   // 球拍碎掉的碎片（有重力、會在地上彈一下）
   function shards(p,col,n=12){for(let i=0;i<n;i++){const geo=new THREE.BoxGeometry(rnd(0.03,0.08),rnd(0.015,0.04),rnd(0.06,0.17)),m=new THREE.Mesh(geo,std({color:i%3?col:'#e8e8e8',roughness:0.35,metalness:0.4,transparent:true}));m.position.copy(p);scene.add(m);
       FX.push({m,t:0,life:rnd(1.3,1.8),s0:1,s1:0.8,v:new V3(rnd(-3.5,3.5),rnd(2.5,6.5),rnd(-3.5,3.5)),g:9.8,w:new V3(rnd(-16,16),rnd(-16,16),rnd(-16,16)),geo});}}
-  // 你的球拍被打掉（對手的輪舞曲）／打碎（對手的必殺球）；下一分恢復
+  // 你的球拍被打掉（對手的打飛球拍連殺）／打碎（對手的彩虹必殺球）；下一分恢復
   function pRacketOff(shatter){const wp=new V3();prk.getWorldPosition(wp);shake(0.6);AUDIO.sfx('heavy');
     if(shatter){prk.visible=false;shards(wp,'#d94a3a',14);AUDIO.sfx('shatter');burst(wp,30,'rainbow',5);ring(wp,'rainbow',0.6,7,false);}
     else{scene.attach(prk);T.prkOff={v:new V3(rnd(-2,2),6,rnd(2,4)),w:new V3(rnd(8,14),rnd(4,9),rnd(6,12))};AUDIO.sfx('rim');burst(wp,24,'#c78bff',4);}}
   function prkHome(){T.prkOff=null;prk.visible=true;prk.position.set(0,-0.058,0);prk.rotation.set(0,0,0);}
-  // 你的腳被冰住（對手的冰之世界）
+  // 你的腳被冰住（對手的冰凍死角）
   const pIce=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.5,0.95,10),new THREE.MeshStandardMaterial({color:'#cff6ff',transparent:true,opacity:0.7,roughness:0.1,metalness:0.2,emissive:'#4fb8ff',emissiveIntensity:0.35}));pIce.visible=false;scene.add(pIce);
   // ---- 對手（白衣綠褲、綠色帽子）----
   const OPP=(()=>{const O={root:new THREE.Group(),body:new THREE.Group(),pos:new V2(C.cx,C.cz-HL-0.6),tgt:new V2(C.cx,C.cz-HL-0.6),ph:0,react:null,rt:0,sw:null,ret:true,fly:null};
@@ -3711,10 +3752,10 @@ const TN=(()=>{
     return {x:TP.x,z:TP.z,t:5};}
   function landPt(){TP.copy(bp);TV.copy(bv);for(let i=0;i<300;i++){TV.y-=GR/60;TP.addScaledVector(TV,1/60);if(TP.y<R)return new V2(TP.x,TP.z);}return null;}
   const courtPt=(side,deep)=>new V3(C.cx+rnd(-SX+0.6,SX-0.6),R,side==='o'?C.cz-HL+rnd(1.0,deep?2.2:5.5):C.cz+HL-rnd(1.0,deep?2.2:5.5));
-  // ---- 招式被破解（使用者：放了技能對方都接不住，少了一些樂趣）：每招有機率被對手看穿，對手衝過去喊出破解、回一記強力反擊球；天衣無縫時機率剩 4 成 ----
+  // ---- 招式被破解（使用者：放了技能對方都接不住，少了一些樂趣）：每招有機率被對手看穿，對手衝過去喊出破解、回一記強力反擊球；金光模式時機率剩 4 成 ----
   const CNT={twist:0.7,zero:0.7,tsubame:0.7,hadou:0.7,snake:0.7,jack:0.7,hakugei:0.7,tann:0.7,ice:0.7,rai:0.7,rondo:0.7,samurai:0.7,mario:0.7};   // 使用者：7 成機率對手都要打得回來，才有對打的感覺
-  const CNAME={twist:'外旋球被破解了！',zero:'看穿零式了！',tsubame:'燕回閃被破解！',hadou:'波動球・回擊！！',snake:'早就看穿蛇球了！',jack:'羆落！',hakugei:'看穿白鯨了！',tann:'唐懷瑟被破解！',ice:'冰被打碎了！',rai:'雷・接住了！',rondo:'球拍沒掉！反擊！',samurai:'看穿武士驅動球了！',mario:'完美格擋！反擊！！'};
-  const willCounter=k=>T.yips<=0&&Math.random()<(CNT[k]||0)*(T.aura>0?0.4:1);   // 夢（滅五感）時對手不會破解
+  const CNAME={twist:'彈臉球被破解了！',zero:'看穿回滾小球了！',tsubame:'貼地滑球被破解！',hadou:'重砲球・回擊！！',snake:'早就看穿大轉彎球了！',jack:'高球反擊！',hakugei:'看穿回風吊球了！',tann:'不彈殺球被破解！',ice:'冰被打碎了！',rai:'閃電快球被接住了！',rondo:'球拍沒掉！反擊！',samurai:'看穿分身球了！',mario:'完美格擋！反擊！！'};
+  const willCounter=k=>T.yips<=0&&Math.random()<(CNT[k]||0)*(T.aura>0?0.4:1);   // 定身術時對手不會破解
   // ---- 你擊球 ----
   T.pHitCount=0;
   function pHit(skill){const broke=B.hitter==='o'&&ONAME[B.tag],otag=B.tag;if(broke){T.broke=(T.broke||0)+1;AUDIO.sfx('combo');ring(bp.clone(),'#ffffff',0.45,5,false);burst(bp.clone(),18,'#ffffff',3);}
@@ -3722,33 +3763,33 @@ const TN=(()=>{
     const local=(bp.x<player.pos.x);T.sw={k:local?'fore':'back',t:0};   // 球在西邊（拿拍那邊）＝正拍
     let Q,Tf,ret=Math.random()<(aura?0.3:0.84);OPP.ret=true;
     switch(skill){
-      case 'twist':Q=new V3(C.cx+rnd(-1.5,1.5),R,C.cz-HL+2.4);Tf=0.85;B.tag='twist';ret=false;B.trail='#bfe9ff';big('外旋球！');T.sw.k='smash';break;
-      case 'zero':Q=new V3(cl(bp.x,C.cx-SX+0.9,C.cx+SX-0.9),R,C.cz-1.4);Tf=1.0;B.tag='zero';ret=false;B.trail='#ff9b3a';big('零式削球！');T.sw.k='zero';slow(0.45,0.35);break;
-      case 'tsubame':Q=new V3(C.cx+rnd(-2.5,2.5),R,C.cz-5.2);Tf=0.62;B.tag='tsubame';ret=false;B.trail='#7fd6ff';big('燕回閃！');T.sw.k='tsubame';break;
-      case 'hadou':Q=new V3(OPP.pos.x,R,OPP.pos.y+1.2);Tf=0.5;B.tag='hadou';ret=false;B.trail='#ff4a2a';big('波動球！！');T.sw.k='hadou';slow(0.5,0.22);shake(0.5);AUDIO.sfx('heavy');
+      case 'twist':Q=new V3(C.cx+rnd(-1.5,1.5),R,C.cz-HL+2.4);Tf=0.85;B.tag='twist';ret=false;B.trail='#bfe9ff';big('彈臉球！');T.sw.k='smash';break;
+      case 'zero':Q=new V3(cl(bp.x,C.cx-SX+0.9,C.cx+SX-0.9),R,C.cz-1.4);Tf=1.0;B.tag='zero';ret=false;B.trail='#ff9b3a';big('回滾小球！');T.sw.k='zero';slow(0.45,0.35);break;
+      case 'tsubame':Q=new V3(C.cx+rnd(-2.5,2.5),R,C.cz-5.2);Tf=0.62;B.tag='tsubame';ret=false;B.trail='#7fd6ff';big('貼地滑球！');T.sw.k='tsubame';break;
+      case 'hadou':Q=new V3(OPP.pos.x,R,OPP.pos.y+1.2);Tf=0.5;B.tag='hadou';ret=false;B.trail='#ff4a2a';big('重砲球！！');T.sw.k='hadou';slow(0.5,0.22);shake(0.5);AUDIO.sfx('heavy');
         ring(bp.clone(),'#ff7a3a',0.55,7,false);ring(bp.clone(),'#ffffff',0.4,4,false);burst(bp.clone(),26,'#ff6a2a',5);break;
-      case 'hakugei':Q=new V3(C.cx+rnd(-2,2),R,C.cz-HL+0.9);Tf=2.7;B.tag='hakugei';ret=false;B.trail='#eaf6ff';big('白鯨！');T.sw.k='zero';break;   // 不二：高高的吊球，落地被風吹回網前
-      case 'tann':Q=new V3(C.cx+rnd(-2.5,2.5),R,C.cz-rnd(4,7));Tf=0.75;B.tag='tann';ret=false;B.trail='#ffd27a';big('唐懷瑟！');T.sw.k='smash';break;   // 跡部：落地不彈、貼地滑
-      case 'ice':{const sd=OPP.pos.x>C.cx?-1:1;Q=new V3(C.cx+sd*(SX-0.45),R,C.cz-HL+1.2);Tf=0.85;B.tag='ice';ret=false;B.trail='#bff4ff';big('冰之世界！');T.sw.k='fore';icePillars();OPP.react='frozen';OPP.rt=0;AUDIO.sfx('shatter');break;}   // 跡部：冰柱、打死角、對手被冰住
+      case 'hakugei':Q=new V3(C.cx+rnd(-2,2),R,C.cz-HL+0.9);Tf=2.7;B.tag='hakugei';ret=false;B.trail='#eaf6ff';big('回風吊球！');T.sw.k='zero';break;   // 不二：高高的吊球，落地被風吹回網前
+      case 'tann':Q=new V3(C.cx+rnd(-2.5,2.5),R,C.cz-rnd(4,7));Tf=0.75;B.tag='tann';ret=false;B.trail='#ffd27a';big('不彈殺球！');T.sw.k='smash';break;   // 跡部：落地不彈、貼地滑
+      case 'ice':{const sd=OPP.pos.x>C.cx?-1:1;Q=new V3(C.cx+sd*(SX-0.45),R,C.cz-HL+1.2);Tf=0.85;B.tag='ice';ret=false;B.trail='#bff4ff';big('冰凍死角！');T.sw.k='fore';icePillars();OPP.react='frozen';OPP.rt=0;AUDIO.sfx('shatter');break;}   // 跡部：冰柱、打死角、對手被冰住
       case 'samurai':samuraiShot();return;
-      case 'rai':{const sd=OPP.pos.x>C.cx?-1:1;Q=new V3(C.cx+sd*(SX-0.6),R,C.cz-HL+rnd(1.5,3));Tf=0.34;B.tag='rai';ret=false;B.trail='#fff26a';big('風林火山・雷！！');T.sw.k='hadou';flashW();bolt(bp.clone(),Q.clone().setY(0.4),'#fff7a0');AUDIO.sfx('heavy');shake(0.4);break;}   // 真田：閃電般的球
+      case 'rai':{const sd=OPP.pos.x>C.cx?-1:1;Q=new V3(C.cx+sd*(SX-0.6),R,C.cz-HL+rnd(1.5,3));Tf=0.34;B.tag='rai';ret=false;B.trail='#fff26a';big('閃電快球！！');T.sw.k='hadou';flashW();bolt(bp.clone(),Q.clone().setY(0.4),'#fff7a0');AUDIO.sfx('heavy');shake(0.4);break;}   // 真田：閃電般的球
       case 'snake':snakeShot();return;
       case 'rondo':startRondo();return;
       case 'jack':startJack();return;
       case 'mario':startMario();return;
-      default:{if(broke)big(otag==='omario'?'擋下必殺球！！':'破解！'+broke+'！');const ai=T.in;Q=courtPt('o',aura||ai.f>0.3);   // 擊球時按住左右＝邊線、往前＝深、往後＝短
+      default:{if(broke)big(otag==='omario'?'擋下彩虹必殺球！！':'破解！'+broke+'！');const ai=T.in;Q=courtPt('o',aura||ai.f>0.3);   // 擊球時按住左右＝邊線、往前＝深、往後＝短
         if(ai.s>0.3)Q.x=C.cx+SX-0.55;else if(ai.s<-0.3)Q.x=C.cx-SX+0.55;else if(aura)Q.x=Math.random()<0.5?C.cx-SX+0.5:C.cx+SX-0.5;if(ai.f<-0.3)Q.z=C.cz-rnd(2.8,4.2);
         if(Math.abs(ai.s)>0.3&&!aura)ret=Math.random()<0.68;Tf=aura?0.72:rnd(1.0,1.2);
         const ob=T.obuff&&T.obuff.k;   /* 對手開了 buff */
-        if(ob==='zone'){Q=new V3(cl(OPP.pos.x+0.5,C.cx-SX+0.3,C.cx+SX-0.3),R,cl(OPP.pos.y+3.0,C.cz-HL+0.3,C.cz-1.2));Tf=1.3;ret=true;B.trail='#6fe3ff';}   /* 對手的手塚領域：你的球都飛到他身邊 */
-        else if(ob==='phantom'&&Math.random()<0.5){const sd=Math.random()<0.5?-1:1;Q=Math.random()<0.55?new V3(C.cx+sd*(SX+1.4),R,C.cz-rnd(3,9)):new V3(C.cx+rnd(-2.5,2.5),R,C.cz-HL-1.8);Tf=1.25;ret=false;B.trail='#7d8cff';}   /* 對手的手塚幻象：你的球自己飛出界 */
+        if(ob==='zone'){Q=new V3(cl(OPP.pos.x+0.5,C.cx-SX+0.3,C.cx+SX-0.3),R,cl(OPP.pos.y+3.0,C.cz-HL+0.3,C.cz-1.2));Tf=1.3;ret=true;B.trail='#6fe3ff';}   /* 對手的吸球模式：你的球都飛到他身邊 */
+        else if(ob==='phantom'&&Math.random()<0.5){const sd=Math.random()<0.5?-1:1;Q=Math.random()<0.55?new V3(C.cx+sd*(SX+1.4),R,C.cz-rnd(3,9)):new V3(C.cx+rnd(-2.5,2.5),R,C.cz-HL-1.8);Tf=1.25;ret=false;B.trail='#7d8cff';}   /* 對手的出界魔法：你的球自己飛出界 */
         else if(ob==='aura')ret=Math.random()<(aura?0.6:0.95);}}
-    if(B.tag&&willCounter(B.tag)){B.counter=true;ret=true;OPP.boost=2.4;if(OPP.react==='frozen'){OPP.react=null;burst(new V3(OPP.pos.x,1,OPP.pos.y),24,'#dff8ff',4);}}   // 被看穿：對手衝刺過去（冰之世界：把冰打碎）
+    if(B.tag&&willCounter(B.tag)){B.counter=true;ret=true;OPP.boost=2.4;if(OPP.react==='frozen'){OPP.react=null;burst(new V3(OPP.pos.x,1,OPP.pos.y),24,'#dff8ff',4);}}   // 被看穿：對手衝刺過去（冰凍死角：把冰打碎）
     if(T.yips>0){ret=false;OPP.ret=false;}   // 夢：對手失去五感，動不了
     launch(Q,Tf,skill==='tsubame'?1.0:1.2);OPP.ret=ret;
     const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);if(!ret){OPP.tgt.lerp(OPP.pos,skill==='zero'?0.15:0.5);}
     if(skill==='zero'||skill==='tsubame'||skill==='twist')AUDIO.sfx('whoosh');}
-  // ---- 新招式的特效：冰柱、閃電、白光、武士驅動球 ----
+  // ---- 新招式的特效：冰柱、閃電、白光、分身球 ----
   const iceMat=new THREE.MeshStandardMaterial({color:'#cff6ff',transparent:true,opacity:0.78,roughness:0.1,metalness:0.2,emissive:'#4fb8ff',emissiveIntensity:0.35});
   const iceBlock=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.5,0.95,10),iceMat);iceBlock.position.y=0.47;iceBlock.visible=false;OPP.root.add(iceBlock);   // 對手腳被冰住
   function icePillars(c=OPP.pos,mine=false){for(let i=0;i<12;i++){const a=i/12*Math.PI*2+rnd(-0.2,0.2),r=rnd(2.0,3.6),h=rnd(1.2,2.8),m=new THREE.Mesh(new THREE.ConeGeometry(rnd(0.2,0.35),h,6),iceMat);m.geometry.translate(0,h/2,0);
@@ -3757,9 +3798,9 @@ const TN=(()=>{
   function bolt(a,b,col){const pts=[];for(let i=0;i<=12;i++){const p_=a.clone().lerp(b,i/12);if(i>0&&i<12){p_.x+=rnd(-0.6,0.6);p_.y+=rnd(-0.5,0.5);}pts.push(p_);}
     const g=new THREE.BufferGeometry().setFromPoints(pts),m=new THREE.Line(g,new THREE.LineBasicMaterial({color:col,transparent:true,opacity:1,blending:THREE.AdditiveBlending,depthWrite:false}));scene.add(m);FX.push({m,t:0,life:0.45,geo:g,fade:true});}
   function flashW(){const fl=document.getElementById('gFlash');if(fl&&!CALM.on){fl.style.boxShadow='inset 0 0 320px rgba(255,255,220,.95)';setTimeout(()=>{fl.style.boxShadow='';},150);}}
-  // 武士驅動球（越前）：球打到網帶上被切成兩半，兩半各自飛進對手場地的兩個角落
+  // 分身球（越前）：球打到網帶上被切成兩半，兩半各自飛進對手場地的兩個角落
   const halfGeo=new THREE.SphereGeometry(R,16,8,0,Math.PI*2,0,Math.PI/2);
-  function samuraiShot(){B.mode='sam';B.tag='samurai';B.trail='#ff5a5a';OPP.ret=false;B.counter=false;big('武士驅動球！');T.sw.k='fore';AUDIO.sfx('whoosh');T.sam={t:0,p0:bp.clone(),p1:new V3(cl(bp.x,C.cx-SX+1,C.cx+SX-1),1.0,C.cz),halves:null,done:false};B.counter=willCounter('samurai');if(B.counter){OPP.ret=true;OPP.boost=2.4;OPP.tgt.set(T.sam.p1.x-0.55,C.cz-2.2);}}
+  function samuraiShot(){B.mode='sam';B.tag='samurai';B.trail='#ff5a5a';OPP.ret=false;B.counter=false;big('分身球！');T.sw.k='fore';AUDIO.sfx('whoosh');T.sam={t:0,p0:bp.clone(),p1:new V3(cl(bp.x,C.cx-SX+1,C.cx+SX-1),1.0,C.cz),halves:null,done:false};B.counter=willCounter('samurai');if(B.counter){OPP.ret=true;OPP.boost=2.4;OPP.tgt.set(T.sam.p1.x-0.55,C.cz-2.2);}}
   function samTick(dt){const q=T.sam;if(!q)return;q.t+=dt;
     if(!q.halves){const u=Math.min(1,q.t/0.42);bp.lerpVectors(q.p0,q.p1,u);bp.y+=Math.sin(Math.PI*u)*0.9;
       if(u>=1&&B.counter){bp.set(q.p1.x,1.0,C.cz-R-0.05);bv.set(0,2.2,-3.2);B.mode='phys';B.hitter='p';B.bounces=0;B.net=false;AUDIO.sfx('tnet',bp);T.sam=null;return;}   // 被看穿：沒切開，滾過網帶
@@ -3770,20 +3811,20 @@ const TN=(()=>{
         if(h.m.position.y<R){h.m.position.y=R;h.land=true;AUDIO.sfx('tbounce',bp);ring(new V3(h.m.position.x,0.06,h.m.position.z),'#ff5a5a',0.5,5);}}
       if(!q.done&&q.halves.every(h=>h.land)){q.done=true;point('p',TAGWIN.samurai);}}}
   function samClear(){const q=T.sam;if(q&&q.halves)for(const h of q.halves)scene.remove(h.m);T.sam=null;ball.visible=T.on;}
-  // 迴旋蛇：往場外繞過網柱外面，再彎回場內的角落（三次貝茲曲線，不照物理）
+  // 大轉彎球：往場外繞過網柱外面，再彎回場內的角落（三次貝茲曲線，不照物理）
   function snakeShot(){const sd=bp.x<C.cx?-1:1,Q=new V3(C.cx+sd*(SX-0.45),R,C.cz-HL+2.2);
     B.mode='path';B.tag='snake';B.trail='#58e07a';B.path={p:[bp.clone(),new V3(C.cx+sd*9.2,1.7,C.cz+4),new V3(C.cx+sd*9.2,1.5,C.cz-4),Q],T:1.35,t:0};
-    big('迴旋蛇！');T.sw.k='snake';OPP.ret=false;OPP.tgt.set(C.cx-sd*2.2,OPP.pos.y);AUDIO.sfx('whoosh');
+    big('大轉彎球！');T.sw.k='snake';OPP.ret=false;OPP.tgt.set(C.cx-sd*2.2,OPP.pos.y);AUDIO.sfx('whoosh');
     B.counter=willCounter('snake');if(B.counter){OPP.ret=true;OPP.boost=2.0;OPP.tgt.set(Q.x-0.55,Q.z-0.6);}}   // 被看穿：對手先跑到角落等
   const bez=(q,t,out)=>{const u=1-t;return out.set(u*u*u*q[0].x+3*u*u*t*q[1].x+3*u*t*t*q[2].x+t*t*t*q[3].x,u*u*u*q[0].y+3*u*u*t*q[1].y+3*u*t*t*q[2].y+t*t*t*q[3].y,u*u*u*q[0].z+3*u*u*t*q[1].z+3*u*t*t*q[2].z+t*t*t*q[3].z);};
   // 跳躍扣殺：跳起來（0.8 秒）在最高點往下殺 → 球砸在對手前面、往上彈飛出場
   function startJack(){T.jump={t:0,y0:player.y,h:1.6,launched:false};B.mode='jack';B.tag='jack';B.trail='#ff8a2a';OPP.ret=false;B.counter=willCounter('jack');big('跳躍扣殺！');AUDIO.sfx('takeoff');T.sw={k:'smashW',t:0};slow(0.55,0.35);
     ring(new V3(player.pos.x,player.y+0.05,player.pos.y),'#ff8a2a',0.5,5);burst(new V3(player.pos.x,player.y+0.2,player.pos.y),14,'#e8dcc0',2.5);}
-  // 必殺球（瑪利歐網球 Switch／Aces 的大絕招）：跳很高、星星＋彩虹光環、慢動作，最高點把彩虹球直直轟向對手；沒擋住＝對手球拍碎掉 KO
-  function startMario(){T.jump={t:0,y0:player.y,h:2.4,dur:1.0,launched:false};B.mode='mario';B.tag='mario';B.trail='rainbow';OPP.ret=false;B.counter=willCounter('mario');big('必殺球！！');AUDIO.sfx('takeoff');AUDIO.sfx('chime');T.sw={k:'smashW',t:0};slow(0.6,0.45);
+  // 彩虹必殺球（瑪利歐網球 Switch／Aces 的大絕招）：跳很高、星星＋彩虹光環、慢動作，最高點把彩虹球直直轟向對手；沒擋住＝對手球拍碎掉 KO
+  function startMario(){T.jump={t:0,y0:player.y,h:2.4,dur:1.0,launched:false};B.mode='mario';B.tag='mario';B.trail='rainbow';OPP.ret=false;B.counter=willCounter('mario');big('彩虹必殺球！！');AUDIO.sfx('takeoff');AUDIO.sfx('chime');T.sw={k:'smashW',t:0};slow(0.6,0.45);
     const g=new V3(player.pos.x,player.y+0.05,player.pos.y);for(let i=0;i<3;i++)ring(g,'rainbow',0.6+i*0.15,6+i*3);burst(g.clone().setY(player.y+1),30,'rainbow',4);}
-  // 破滅的輪舞曲：跳起來殺球打掉對手球拍 → 球飄回你頭上 → 再跳起來殺第二擊
-  function startRondo(){T.seq={t:0,ph:0,y0:player.y,a0:bp.clone()};B.mode='seq';B.tag='rondo';B.trail='#c78bff';OPP.ret=false;B.counter=willCounter('rondo');big('破滅的輪舞曲！');slow(0.7,0.3);AUDIO.sfx('takeoff');
+  // 打飛球拍連殺：跳起來殺球打掉對手球拍 → 球飄回你頭上 → 再跳起來殺第二擊
+  function startRondo(){T.seq={t:0,ph:0,y0:player.y,a0:bp.clone()};B.mode='seq';B.tag='rondo';B.trail='#c78bff';OPP.ret=false;B.counter=willCounter('rondo');big('打飛球拍連殺！');slow(0.7,0.3);AUDIO.sfx('takeoff');
     ring(new V3(player.pos.x,player.y+0.05,player.pos.y),'#c78bff',0.6,6);T.sw={k:'smashW',t:0};}
   const RH=new V3();
   function seqTick(dt){const q=T.seq,t=(q.t+=dt);
@@ -3804,21 +3845,21 @@ const TN=(()=>{
   function oHit(){const ctr=B.counter&&B.hitter==='p'?B.tag:null;
     AUDIO.sfx('pock',bp);B.hitter='o';B.bounces=0;B.tag=null;B.counter=false;OPP.boost=1;B.net=false;B.roll=false;B.rollT=0;B.mode='phys';B.trail=null;B.markAfter=false;B.knocked=false;B.hold=null;OPP.sw={t:0,k:bp.x>OPP.pos.x?'fore':'back'};
     if(ctr){big(CNAME[ctr]||'被破解了！');slow(0.7,0.4);AUDIO.sfx('heavy');ring(bp.clone(),'#ff3a5a',0.5,6,false);burst(bp.clone(),22,'#ff5a7a',4);B.tag='ocounter';B.trail='#ff3a5a';   // 破解：強力反擊球
-      let Q,Tt;if(ctr==='jack'){Q=new V3(cl(player.pos.x,C.cx-SX+0.4,C.cx+SX-0.4),R,C.cz+HL-0.5);Tt=2.1;B.trail='#9ad0ff';}   // 羆落：高高吊到你後面底線
-      else if(ctr==='hadou'){Q=new V3(cl(player.pos.x,C.cx-SX+0.4,C.cx+SX-0.4),R,cl(player.pos.y-1.6,C.cz+2,C.cz+HL-0.3));Tt=1.05;shake(0.4);B.trail='#ff4a2a';}   // 波動球回擊：直直轟回來
+      let Q,Tt;if(ctr==='jack'){Q=new V3(cl(player.pos.x,C.cx-SX+0.4,C.cx+SX-0.4),R,C.cz+HL-0.5);Tt=2.1;B.trail='#9ad0ff';}   // 高球反擊：高高吊到你後面底線
+      else if(ctr==='hadou'){Q=new V3(cl(player.pos.x,C.cx-SX+0.4,C.cx+SX-0.4),R,cl(player.pos.y-1.6,C.cz+2,C.cz+HL-0.3));Tt=1.05;shake(0.4);B.trail='#ff4a2a';}   // 重砲球回擊：直直轟回來
       else if(ctr==='mario'){Q=new V3(cl(player.pos.x,C.cx-SX+0.4,C.cx+SX-0.4),R,cl(player.pos.y-2.0,C.cz+2,C.cz+HL-0.3));Tt=1.25;B.trail='rainbow';}   /* 完美格擋：彩虹球打回你面前 */
       else{Q=new V3(player.pos.x<C.cx?C.cx+SX-1.4:C.cx-SX+1.4,R,C.cz+HL-rnd(2.5,3.8));Tt=1.6;}   // 打到你另一邊（使用者：反擊要給時間反應、跑過去佔位置 → 1.0 → 1.6 秒、不打到最邊角）
       launch(Q,Tt,1.2);T.land=landPt();OPP.home();return;}
-    if(T.phantom>0&&Math.random()<0.7){const sd=Math.random()<0.5?-1:1,Q=Math.random()<0.55?new V3(C.cx+sd*(SX+1.4),R,C.cz+rnd(3,9)):new V3(C.cx+rnd(-2.5,2.5),R,C.cz+HL+1.8);   // 手塚幻象：對手的球自己飛出界
+    if(T.phantom>0&&Math.random()<0.7){const sd=Math.random()<0.5?-1:1,Q=Math.random()<0.55?new V3(C.cx+sd*(SX+1.4),R,C.cz+rnd(3,9)):new V3(C.cx+rnd(-2.5,2.5),R,C.cz+HL+1.8);   // 出界魔法：對手的球自己飛出界
       launch(Q,1.25,1.2);T.land=landPt();B.trail='#7d8cff';OPP.home();return;}
     if(T.zone<=0&&Math.random()<0.25){oSpecial(OPOOL[Math.floor(Math.random()*OPOOL.length)]);return;}   // 使用者：雙方都可以隨機開招式對打；全部招式對手都會用
-    const oa=T.zone<=0&&T.obuff&&T.obuff.k==='aura';   /* 對手的天衣無縫：一般球又快又打邊角 */
-    const Q=T.zone>0?new V3(cl(player.pos.x+0.5,C.cx-SX+0.3,C.cx+SX-0.3),R,cl(player.pos.y-3.0,C.cz+1.2,C.cz+HL-0.3)):courtPt('p',oa);   // 手塚領域：球都回到你身邊（落在你前面 3 m）
+    const oa=T.zone<=0&&T.obuff&&T.obuff.k==='aura';   /* 對手的金光模式：一般球又快又打邊角 */
+    const Q=T.zone>0?new V3(cl(player.pos.x+0.5,C.cx-SX+0.3,C.cx+SX-0.3),R,cl(player.pos.y-3.0,C.cz+1.2,C.cz+HL-0.3)):courtPt('p',oa);   // 吸球模式：球都回到你身邊（落在你前面 3 m）
     if(oa){Q.x=player.pos.x<C.cx?C.cx+SX-0.6:C.cx-SX+0.6;B.trail='#ffd84a';}
     launch(Q,T.zone>0?1.35:oa?rnd(0.95,1.1):rnd(1.25,1.5));T.land=landPt();OPP.home();
     if(T.zone>0){puff(bp.clone(),0.5,0.4,0.05,null,'#6fe3ff');B.trail='#6fe3ff';}}
   // ---- 對手出招（使用者：雙方都可以隨機開招式對打）：對手正常回球時 1/4 機率出招；你打得回去＝「破解！」 ----
-  const ONAME={orai:'風林火山・雷',otann:'唐懷瑟',ozero:'零式削球',otsubame:'燕回閃',ohadou:'波動球',osnake:'迴旋蛇',otwist:'外旋球',ojack:'跳躍扣殺',ohakugei:'白鯨',oice:'冰之世界',osamurai:'武士驅動球',orondo:'破滅的輪舞曲',omario:'必殺球'};
+  const ONAME={orai:'閃電快球',otann:'不彈殺球',ozero:'回滾小球',otsubame:'貼地滑球',ohadou:'重砲球',osnake:'大轉彎球',otwist:'彈臉球',ojack:'跳躍扣殺',ohakugei:'回風吊球',oice:'冰凍死角',osamurai:'分身球',orondo:'打飛球拍連殺',omario:'彩虹必殺球'};
   const OCOL={orai:'#fff26a',otann:'#ffd27a',ozero:'#ff9b3a',otsubame:'#7fd6ff',ohadou:'#ff4a2a',osnake:'#58e07a',otwist:'#bfe9ff',ojack:'#ff8a2a',ohakugei:'#eaf6ff',oice:'#bff4ff',osamurai:'#ff5a5a',orondo:'#c78bff',omario:'rainbow'};
   const OPOOL=['ozero','otsubame','ohadou','osnake','otwist','ojack','orai','otann','ohakugei','oice','osamurai','orondo','omario'];
   function oSpecial(k){B.tag=k;B.trail=OCOL[k];big('對手：'+ONAME[k]+'！');AUDIO.sfx('whoosh');ring(bp.clone(),OCOL[k],0.45,4,false);burst(bp.clone(),14,OCOL[k],3);OPP.home();
@@ -3838,13 +3879,13 @@ const TN=(()=>{
         AUDIO.sfx('takeoff');if(mo){AUDIO.sfx('chime');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);for(let i=0;i<3;i++)ring(g,'rainbow',0.6+i*0.15,6+i*3);}return;}
       case 'ojack':OPP.jt=0;OPP.jd=0.8;OPP.jh=1.4;slow(0.4,0.35);launch(new V3(cl(player.pos.x+rnd(-1,1),C.cx-SX+0.6,C.cx+SX-0.6),R,cl(player.pos.y-3.2,C.cz+3,C.cz+HL-1)),0.48,1.25);shake(0.35);AUDIO.sfx('slam');break;}   // 跳起來殺，球砸地彈到你後面
     T.land=landPt();}
-  // 對手的輪舞曲／必殺球：跳到最高點往你身上殺；你及時擊球＝破解，沒打到＝球拍被打掉／打碎
+  // 對手的打飛球拍連殺／彩虹必殺球：跳到最高點往你身上殺；你及時擊球＝破解，沒打到＝球拍被打掉／打碎
   function oFire(k){B.mode='phys';B.hold=null;B.knocked=false;OPP.sw={t:0,k:'smash'};AUDIO.sfx('pock',bp);AUDIO.sfx('slam');
     const Q=new V3(cl(player.pos.x+rnd(-0.25,0.25),C.cx-SX+0.3,C.cx+SX-0.3),R,cl(player.pos.y+1.2,C.cz+2,C.cz+HL-0.3));launch(Q,0.6,1.25);
     if(k==='omario'){slow(0.6,0.3);shake(0.6);flashW();AUDIO.sfx('heavy');ring(bp.clone(),'rainbow',0.6,8,false);ring(bp.clone(),'#ffffff',0.45,5,false);burst(bp.clone(),34,'rainbow',6);}
     else{slow(0.45,0.35);shake(0.45);ring(bp.clone(),'#c78bff',0.5,6,false);burst(bp.clone(),22,'#c78bff',5);}
     T.land=landPt();}
-  // 對手的武士驅動球：打到網帶切成兩半，一半是真的球（照物理飛到你這邊，打得回去），另一半是假的（飛到另一個角落）
+  // 對手的分身球：打到網帶切成兩半，一半是真的球（照物理飛到你這邊，打得回去），另一半是假的（飛到另一個角落）
   function osamTick(dt){const q=T.osam;if(!q)return;q.t+=dt;
     if(!q.split){if(B.mode!=='osam')return;const u=Math.min(1,q.t/0.42);bp.lerpVectors(q.p0,q.p1,u);bp.y+=Math.sin(Math.PI*u)*0.9;
       if(u>=1){q.split=true;AUDIO.sfx('tnet',bp);AUDIO.sfx('shatter');big('球被切成兩半了！');slow(0.6,0.35);burst(bp.clone(),26,'#ffd0d0',4);ring(bp.clone(),'#ff5a5a',0.5,5,false);
@@ -3879,7 +3920,7 @@ const TN=(()=>{
     if(B.bounces===0&&!B.net&&side===recv){if(!inC){point(B.hitter==='p'?'o':'p','出界！');return;}B.bounces=1;if(B.hitter==='p')firstBounce();else oFirstBounce();return;}
     if(B.bounces===0&&side!==recv){point(recv,B.net?'掛網…':'');return;}
     point(B.hitter,B.tag?TAGWIN[B.tag]||'':'');}
-  const TAGWIN={hakugei:'白鯨得分！',tann:'唐懷瑟得分！',ice:'冰之世界得分！',samurai:'武士驅動球得分！',rai:'風林火山・雷得分！',orai:'對手的雷…',otann:'對手的唐懷瑟…',ocounter:'被反擊了…',ozero:'對手的零式削球…',otsubame:'對手的燕回閃…',ohadou:'對手的波動球…',osnake:'對手的迴旋蛇…',otwist:'對手的外旋球…',ojack:'對手的跳躍扣殺…',jack:'跳躍扣殺得分！',twist:'外旋球得分！',zero:'零式削球得分！',tsubame:'燕回閃得分！',hadou:'波動球得分！',snake:'迴旋蛇得分！',rondo:'破滅的輪舞曲！',mario:'必殺球得分！',ohakugei:'對手的白鯨…',oice:'對手的冰之世界…',osamurai:'對手的武士驅動球…',orondo:'對手的破滅的輪舞曲…',omario:'對手的必殺球…'};
+  const TAGWIN={hakugei:'回風吊球得分！',tann:'不彈殺球得分！',ice:'冰凍死角得分！',samurai:'分身球得分！',rai:'閃電快球得分！',orai:'對手的雷…',otann:'對手的不彈殺球…',ocounter:'被反擊了…',ozero:'對手的回滾小球…',otsubame:'對手的貼地滑球…',ohadou:'對手的重砲球…',osnake:'對手的大轉彎球…',otwist:'對手的彈臉球…',ojack:'對手的跳躍扣殺…',jack:'跳躍扣殺得分！',twist:'彈臉球得分！',zero:'回滾小球得分！',tsubame:'貼地滑球得分！',hadou:'重砲球得分！',snake:'大轉彎球得分！',rondo:'打飛球拍連殺！',mario:'彩虹必殺球得分！',ohakugei:'對手的回風吊球…',oice:'對手的冰凍死角…',osamurai:'對手的分身球…',orondo:'對手的打飛球拍連殺…',omario:'對手的彩虹必殺球…'};
   // 你的球在對手那邊第一次落地：各招的效果
   function firstBounce(){const g=new V3(bp.x,0.06,bp.z);
     if(B.counter){ring(g,'#ff3a5a',0.4,3);return;}   // 被看穿了：正常彈起來讓對手打
@@ -3899,7 +3940,7 @@ const TN=(()=>{
   const NUM=['0','15','30','40'];
   function scoreText(){const a=T.sc.p,b=T.sc.o;if(a>=3&&b>=3)return a===b?'Deuce':a>b?'Advantage 你':'Advantage 對手';return `${NUM[a]}-${NUM[b]}`;}
   function draw(){const el=document.getElementById('tnScore');if(el)el.textContent=`你 ${T.gm.p} : ${T.gm.o} 對手`;const e2=document.getElementById('tnPts');if(e2)e2.textContent=scoreText()+(T.server==='p'?'　你發球':'　對手發球');
-    const e3=document.getElementById('tnAura');if(e3)e3.textContent=[T.aura>0?`天衣無縫 ${Math.ceil(T.aura)} 秒`:'',T.zone>0?`手塚領域 ${Math.ceil(T.zone)} 秒`:'',T.phantom>0?`手塚幻象 ${Math.ceil(T.phantom)} 秒`:'',T.yips>0?`夢 ${Math.ceil(T.yips)} 秒`:'',T.obuff?`對手：${OBN[T.obuff.k]} ${Math.ceil(T.obuff.t)} 秒`:'',T.frozen>0?'腳被冰住！':''].filter(Boolean).join('　');
+    const e3=document.getElementById('tnAura');if(e3)e3.textContent=[T.aura>0?`金光模式 ${Math.ceil(T.aura)} 秒`:'',T.zone>0?`吸球模式 ${Math.ceil(T.zone)} 秒`:'',T.phantom>0?`出界魔法 ${Math.ceil(T.phantom)} 秒`:'',T.yips>0?`定身術 ${Math.ceil(T.yips)} 秒`:'',T.obuff?`對手：${OBN[T.obuff.k]} ${Math.ceil(T.obuff.t)} 秒`:'',T.frozen>0?'腳被冰住！':''].filter(Boolean).join('　');
     const c=TN_SCORE.cv;if(!c)return;const g=c.getContext('2d');g.fillStyle='#0b0d10';g.fillRect(0,0,512,256);g.textAlign='center';g.textBaseline='middle';
     g.fillStyle='#9aa4ad';g.font=`700 30px ${FONT}`;g.fillText('你',128,40);g.fillText('對手',384,40);g.fillStyle='#ffcf3a';g.font=`900 96px ${FONT}`;g.fillText(String(T.gm.p),128,120);g.fillText(String(T.gm.o),384,120);
     g.fillStyle='#e9eef2';g.font=`800 40px ${FONT}`;g.fillText(scoreText(),256,214);TN_SCORE.tex.needsUpdate=true;}
@@ -3910,8 +3951,8 @@ const TN=(()=>{
   // ---- 每一分開始：站位、發球 ----
   function restoreRacket(){if(OPP.fly){OPP.fly=null;}OPP.racket.visible=true;if(OPP.racket.parent!==OPP.armR){OPP.armR.add(OPP.racket);}OPP.racket.position.set(0,-0.6,0);OPP.racket.rotation.set(0,0,0);}
   function flyRacket(v){OPP.root.updateMatrixWorld(true);scene.attach(OPP.racket);OPP.fly={v,w:new V3(rnd(8,14),rnd(4,9),rnd(6,12))};}
-  // 對手的 buff（每一分開始時 15% 機率開一個）：天衣無縫 12 秒、手塚領域 10 秒、手塚幻象 10 秒、夢 3 秒（你動不了，來回中才倒數）
-  const OBN={aura:'天衣無縫',zone:'手塚領域',phantom:'手塚幻象',yips:'夢・滅五感'},OBD={aura:12,zone:10,phantom:10,yips:3},OBC={aura:'#ffd84a',zone:'#6fe3ff',phantom:'#7d8cff',yips:'#a050d0'};
+  // 對手的 buff（每一分開始時 15% 機率開一個）：金光模式 12 秒、吸球模式 10 秒、出界魔法 10 秒、定身術 3 秒（你動不了，來回中才倒數）
+  const OBN={aura:'金光模式',zone:'吸球模式',phantom:'出界魔法',yips:'定身術'},OBD={aura:12,zone:10,phantom:10,yips:3},OBC={aura:'#ffd84a',zone:'#6fe3ff',phantom:'#7d8cff',yips:'#a050d0'};
   function oBuff(k){T.obuff={k,t:OBD[k]};big('對手：'+OBN[k]+'！');AUDIO.sfx('chime');AUDIO.sfx(k==='aura'?'fire':k==='yips'?'heavy':'whoosh');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);ring(g,OBC[k],0.9,11);ring(g.clone().setY(1),'#ffffff',0.6,5,false);burst(g.clone().setY(1),26,OBC[k],4);
     if(k==='yips')ring(new V3(player.pos.x,player.y+0.05,player.pos.y),OBC.yips,1.0,9);draw();}
   function setupPoint(){samClear();osamClear();prkHome();T.frozen=0;pIce.visible=false;B.hold=null;B.markAfter=false;B.knocked=false;OPP.jd=OPP.jh=undefined;T.buf=null;T.land=null;T.knock=0;OPP.jt=undefined;B.counter=false;OPP.boost=1;B.dead=false;B.net=false;B.roll=false;B.rollT=0;B.bounces=0;B.tag=null;B.trail=null;B.hitter=null;B.mode='held';T.seq=null;T.q=null;markQ();restoreRacket();OPP.react=T.yips>0?'dazed':null;OPP.sw=null;T.sw=null;
@@ -3924,11 +3965,11 @@ const TN=(()=>{
   function doServe(){const deuce=(T.sc.p+T.sc.o)%2===0;T.st='rally';B.mode='phys';B.bounces=0;B.net=false;B.roll=false;B.rollT=0;AUDIO.sfx('pock',bp);
     if(T.server==='p'){B.hitter='p';const tw=T.serveKind==='twist',tn=T.serveKind==='tann';T.sw={k:'smash',t:0};B.trail=tw?'#bfe9ff':tn?'#ffd27a':T.aura>0?'#ffd84a':null;
       const Q=new V3(deuce?C.cx-rnd(0.6,SX-0.5):C.cx+rnd(0.6,SX-0.5),R,C.cz-rnd(tw?4.6:2.5,5.6));launch(Q,tw?0.85:tn?0.7:0.62,1.15);
-      if(tw){B.tag='twist';OPP.ret=false;B.counter=willCounter('twist');if(B.counter){OPP.ret=true;OPP.boost=2.0;}big('外旋發球！');AUDIO.sfx('whoosh');ring(bp.clone(),'#bfe9ff',0.45,4,false);}else if(tn){B.tag='tann';OPP.ret=false;B.counter=willCounter('tann');if(B.counter){OPP.ret=true;OPP.boost=2.0;}big('唐懷瑟發球！');AUDIO.sfx('whoosh');}else OPP.ret=Math.random()<(T.aura>0?0.3:0.75);
+      if(tw){B.tag='twist';OPP.ret=false;B.counter=willCounter('twist');if(B.counter){OPP.ret=true;OPP.boost=2.0;}big('彈臉發球！');AUDIO.sfx('whoosh');ring(bp.clone(),'#bfe9ff',0.45,4,false);}else if(tn){B.tag='tann';OPP.ret=false;B.counter=willCounter('tann');if(B.counter){OPP.ret=true;OPP.boost=2.0;}big('不彈殺球發球！');AUDIO.sfx('whoosh');}else OPP.ret=Math.random()<(T.aura>0?0.3:0.75);
       const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);if(!OPP.ret)OPP.tgt.lerp(OPP.pos,0.5);}
     else{B.hitter='o';OPP.sw={t:0,k:'smash'};const Q=new V3(deuce?C.cx+rnd(0.6,SX-0.5):C.cx-rnd(0.6,SX-0.5),R,C.cz+rnd(2.5,5.6));launch(Q,0.95,1.15);T.land=landPt();}}
   // ---- 開始／結束 ----
-  T.near=()=>started&&mode==='walk'&&!GAME.on&&!SKATE.on&&!LIE.on&&!BALLOON.riding&&!BB.on&&player.y<1.2&&inR(player.pos.x,player.pos.y,P);
+  T.near=()=>started&&mode==='walk'&&!RACE.on&&!GAME.on&&!SKATE.on&&!LIE.on&&!BALLOON.riding&&!BB.on&&player.y<1.2&&inR(player.pos.x,player.pos.y,P);
   T.label=()=>T.on?'放下球拍':T.near()?'拿球拍打網球':null;
   T.toggle=()=>{if(T.on)T.stop();else if(T.near())T.start();};
   let camSave=null;
@@ -3936,7 +3977,7 @@ const TN=(()=>{
     OPP.root.visible=true;ball.visible=true;shadow.visible=true;hud.hidden=false;btns.hidden=false;document.body.classList.add('tn');
     if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}camSave=comfort.camDist;comfort.camDist=Math.max(comfort.camDist,6.2);player.yaw=0;player.pitch=-0.2;
     setupPoint();AUDIO.sfx('chime');
-    if(!T.told){T.told=true;toast(isTouch?'網球：自己跑（搖桿），黃圈＝球會落地的地方；球到身邊「擊球」變綠就按（同時推搖桿左右＝打邊線）。招式也是球到身邊按。先按「擊球」發球':'網球：WASD 跑位，黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J，同時按住 A／D＝打邊線。1～9、R T Y U I O P、G 必殺球 也是球到身邊按；F 放下球拍');}};
+    if(!T.told){T.told=true;toast(isTouch?'網球：自己跑（搖桿），黃圈＝球會落地的地方；球到身邊「擊球」變綠就按（同時推搖桿左右＝打邊線）。招式也是球到身邊按。先按「擊球」發球':'網球：WASD 跑位，黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J，同時按住 A／D＝打邊線。1～9、R T Y U I O P、G 彩虹必殺球 也是球到身邊按；F 放下球拍');}};
   T.stop=()=>{if(!T.on)return;T.on=false;document.body.classList.remove('tnp2');T.phantom=0;T.yips=0;T.obuff=null;T.frozen=0;pIce.visible=false;osamClear();prkHome();OPP.root.visible=false;ball.visible=false;shadow.visible=false;hud.hidden=true;btns.hidden=true;document.body.classList.remove('tn');restoreRacket();
     if(prk.parent)prk.parent.remove(prk);if(camSave!==null){comfort.camDist=camSave;camSave=null;}T.cm=null;T.ck=0;T.seq=null;T.aura=0;T.zone=0;T.jump=null;T.slow=0;mark.visible=false;
     const A=avatar;A.body.rotation.set(0,0,0);A.body.position.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);A.zeroJoints();};
@@ -3948,11 +3989,11 @@ const TN=(()=>{
   function canHit(){return T.st==='rally'&&B.mode==='phys'&&B.hitter==='o'&&!B.dead&&bp.z>C.cz&&Math.hypot(bp.x-player.pos.x,bp.z-player.pos.y)<1.6&&bp.y>0.08&&bp.y<2.6;}
   function soon(){if(T.st!=='rally'||B.mode!=='phys'||B.hitter!=='o'||B.dead)return false;const dx=bp.x-player.pos.x,dz=bp.z-player.pos.y,d=Math.hypot(dx,dz),closing=-(dx*bv.x+dz*bv.z)/Math.max(d,0.01);return closing>0&&d<1.6+closing*0.4;}   // 0.4 秒內會到
   T.press=k=>{if(!T.on)return;
-    if(k==='aura'){if(T.aura>0)return;T.aura=12;big('天衣無縫！');AUDIO.sfx('fire');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#ffd84a',0.8,10);ring(g.clone().setY(player.y+1),'#ffffff',0.6,5,false);burst(g.clone().setY(player.y+1),30,'#ffd84a',4);markQ();draw();return;}
+    if(k==='aura'){if(T.aura>0)return;T.aura=12;big('金光模式！');AUDIO.sfx('fire');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#ffd84a',0.8,10);ring(g.clone().setY(player.y+1),'#ffffff',0.6,5,false);burst(g.clone().setY(player.y+1),30,'#ffd84a',4);markQ();draw();return;}
     if(k==='page'){const on=document.body.classList.toggle('tnp2');document.getElementById('tnPage').innerHTML=on?'前一頁':'更多<br>招式';return;}
-    if(k==='phantom'){if(T.phantom>0)return;T.phantom=10;big('手塚幻象！');AUDIO.sfx('whoosh');AUDIO.sfx('chime');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#7d8cff',0.9,12);markQ();draw();return;}   // 手塚：10 秒對手的球大多出界
-    if(k==='yips'){if(T.yips>0)return;T.yips=6;big('夢・滅五感！');AUDIO.sfx('heavy');AUDIO.sfx('chime');OPP.react='dazed';OPP.rt=0;ring(new V3(OPP.pos.x,0.05,OPP.pos.y),'#a050d0',1.0,10);markQ();draw();return;}   // 幸村：6 秒對手失去五感、動不了
-    if(k==='zone'){if(T.zone>0)return;T.zone=10;big('手塚領域！');AUDIO.sfx('whoosh');AUDIO.sfx('chime');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#6fe3ff',0.9,12);ring(g.clone().setY(player.y+1),'#ffffff',0.6,6,false);markQ();draw();return;}
+    if(k==='phantom'){if(T.phantom>0)return;T.phantom=10;big('出界魔法！');AUDIO.sfx('whoosh');AUDIO.sfx('chime');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#7d8cff',0.9,12);markQ();draw();return;}   // 出界魔法：10 秒對手的球大多出界
+    if(k==='yips'){if(T.yips>0)return;T.yips=6;big('定身術！');AUDIO.sfx('heavy');AUDIO.sfx('chime');OPP.react='dazed';OPP.rt=0;ring(new V3(OPP.pos.x,0.05,OPP.pos.y),'#a050d0',1.0,10);markQ();draw();return;}   // 幸村：6 秒對手失去五感、動不了
+    if(k==='zone'){if(T.zone>0)return;T.zone=10;big('吸球模式！');AUDIO.sfx('whoosh');AUDIO.sfx('chime');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#6fe3ff',0.9,12);ring(g.clone().setY(player.y+1),'#ffffff',0.6,6,false);markQ();draw();return;}
     if(T.st==='serve'&&T.server==='p'){serve(k==='twist'?'twist':k==='tann'?'tann':'normal');return;}
     if(T.jump||T.seq||T.st!=='rally')return;
     const sk=k==='hit'?'normal':k;
@@ -3978,22 +4019,22 @@ const TN=(()=>{
   // ---- 每格 ----
   T.tick=dt=>{fxTick(dt);if(!T.on)return;
     if(T.aura>0){T.aura-=dt;T.auraFx-=dt;if(T.auraFx<=0){T.auraFx=0.05;puff(new V3(player.pos.x+rnd(-0.4,0.4),player.y+rnd(0.1,1.8),player.pos.y+rnd(-0.4,0.4)),0.6,0.3,0.05,new V3(0,1.2,0),'#ffd84a');}
-      if(T.aura<=0){T.aura=0;markQ();toast('天衣無縫結束');}draw();}
+      if(T.aura<=0){T.aura=0;markQ();toast('金光模式結束');}draw();}
     // 發球
     if(T.st==='serve'){T.serveT+=dt;const sv=T.server==='p'?null:OPP;
       if(T.server==='o'&&T.serveT>1.3&&T.tossT<0){T.tossT=0;T.serveKind='normal';OPP.sw={t:0,k:'toss'};}
       if(T.tossT>=0){T.tossT+=dt;const u=Math.min(1,T.tossT/0.55),h=2.95;const bx=T.server==='p'?player.pos.x-0.2:OPP.pos.x+0.2,bz=T.server==='p'?player.pos.y-0.35:OPP.pos.y+0.35,by=(T.server==='p'?player.y:0)+1.3+(h-1.3)*Math.sin(Math.PI/2*u);
         bp.set(bx,by,bz);if(T.server==='p'&&!T.sw)T.sw={k:'toss',t:0};if(u>=1)doServe();}
       else{const bx=T.server==='p'?player.pos.x-0.25:OPP.pos.x+0.25,bz=T.server==='p'?player.pos.y-0.2:OPP.pos.y+0.2;bp.set(bx,1.0+(T.server==='p'?player.y:0)+Math.abs(Math.sin(T.serveT*5))*-0.0,bz);}}   // 拿在手上
-    else if(B.mode==='phys'){phys(dt);if(B.roll&&!B.dead&&B.hitter&&B.bounces===1){B.rollT=(B.rollT||0)+dt;if(B.rollT>(B.tag==='ozero'?1.7:B.tag==='otsubame'||B.tag==='otann'?1.1:B.tag==='zero'?1.1:0.7))point(B.hitter,TAGWIN[B.tag]||'');}}   /* 零式、燕回閃：落地後在地上滾＝第二次落地 */
+    else if(B.mode==='phys'){phys(dt);if(B.roll&&!B.dead&&B.hitter&&B.bounces===1){B.rollT=(B.rollT||0)+dt;if(B.rollT>(B.tag==='ozero'?1.7:B.tag==='otsubame'||B.tag==='otann'?1.1:B.tag==='zero'?1.1:0.7))point(B.hitter,TAGWIN[B.tag]||'');}}   /* 回滾小球、貼地滑球：落地後在地上滾＝第二次落地 */
     else if(B.mode==='path'){const q=B.path;q.t+=dt/q.T;if(q.t<1)bez(q.p,q.t,bp);else{bp.copy(q.p[3]);const d=q.p[3].clone().sub(q.p[2]).multiplyScalar(3/q.T*0.6);bv.set(d.x,3.0,d.z);B.mode='phys';B.hitter=q.by||'p';B.bounces=1;B.net=false;
         ring(new V3(bp.x,0.06,bp.z),'#58e07a',0.6,6);burst(bp.clone(),16,'#58e07a',3);AUDIO.sfx('tbounce',bp);if(!B.counter&&B.hitter==='p'){OPP.react='late';OPP.rt=0;}}}
-    else if(B.mode==='seq'||B.mode==='sam'){}   // 輪舞曲：在 T.step 裡算；武士驅動球：samTick
+    else if(B.mode==='seq'||B.mode==='sam'){}   // 打飛球拍連殺：在 T.step 裡算；分身球：samTick
     else if(B.mode==='jack'){const j=T.jump;bp.set(player.pos.x-0.25,player.y+2.3,player.pos.y-0.2);   // 跳躍扣殺：球在頭上，跳到最高點往下殺
       if(!j||j.t>=0.36){if(j)j.launched=true;T.sw={k:'smash',t:0};AUDIO.sfx('pock',bp);AUDIO.sfx('slam');shake(0.45);B.mode='phys';B.hitter='p';B.bounces=0;B.net=false;B.roll=false;B.rollT=0;
         launch(new V3(cl(OPP.pos.x+rnd(-1,1),C.cx-SX+0.6,C.cx+SX-0.6),R,cl(OPP.pos.y+3.2,C.cz-HL+1,C.cz-3)),0.5,1.25);ring(bp.clone(),'#ff8a2a',0.45,6,false);burst(bp.clone(),20,'#ffb060',5);OPP.tgt.copy(OPP.pos);
         if(B.counter){OPP.ret=true;OPP.boost=2.2;const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);}}}
-    else if(B.mode==='mario'){const j=T.jump;bp.set(player.pos.x-0.25,player.y+2.3,player.pos.y-0.2);   // 必殺球：跳到最高點（0.5 秒）把彩虹球轟向對手
+    else if(B.mode==='mario'){const j=T.jump;bp.set(player.pos.x-0.25,player.y+2.3,player.pos.y-0.2);   // 彩虹必殺球：跳到最高點（0.5 秒）把彩虹球轟向對手
       if(Math.random()<dt*40){const a=Math.random()*Math.PI*2,r=rnd(0.5,1.2);puff(new V3(player.pos.x+Math.cos(a)*r,player.y+rnd(0.2,2.6),player.pos.y+Math.sin(a)*r),0.6,0.35,0.05,new V3(0,1.5,0),Math.random()<0.4?'#ffffff':'rainbow');}
       if(!j||j.t>=0.5){if(j)j.launched=true;T.sw={k:'smash',t:0};AUDIO.sfx('pock',bp);AUDIO.sfx('slam');AUDIO.sfx('heavy');shake(0.6);flashW();slow(0.55,0.3);B.mode='phys';B.hitter='p';B.bounces=0;B.net=false;B.roll=false;B.rollT=0;
         launch(new V3(cl(OPP.pos.x,C.cx-SX+0.5,C.cx+SX-0.5),R,cl(OPP.pos.y+1.0,C.cz-HL+0.5,C.cz-2)),0.45,1.25);ring(bp.clone(),'rainbow',0.6,8,false);ring(bp.clone(),'#ffffff',0.45,5,false);burst(bp.clone(),36,'rainbow',6);OPP.tgt.copy(OPP.pos);
@@ -4001,7 +4042,7 @@ const TN=(()=>{
     else if(B.mode==='ohold'){const h=B.hold;h.t+=dt;bp.set(OPP.pos.x+0.2,OPP.root.position.y+2.5,OPP.pos.y+0.2);   // 對手跳起來、球在頭上
       if(h.k==='omario'&&Math.random()<dt*40){const a=Math.random()*Math.PI*2,r=rnd(0.5,1.2);puff(new V3(OPP.pos.x+Math.cos(a)*r,OPP.root.position.y+rnd(0.2,2.6),OPP.pos.y+Math.sin(a)*r),0.6,0.35,0.05,new V3(0,1.5,0),Math.random()<0.4?'#ffffff':'rainbow');}
       if(h.t>=h.dur)oFire(h.k);}
-    if(B.tag==='ohadou'&&B.hitter==='o'&&!B.dead&&!B.knocked&&Math.hypot(bp.x-player.pos.x,bp.z-player.pos.y)<0.55&&bp.y<2.2){B.knocked=true;T.knock=0.4;shake(0.5);big('被轟退了！');AUDIO.sfx('heavy');burst(bp.clone(),20,'#ff6a2a',4);}   // 對手的波動球沒接到：被轟得往後退
+    if(B.tag==='ohadou'&&B.hitter==='o'&&!B.dead&&!B.knocked&&Math.hypot(bp.x-player.pos.x,bp.z-player.pos.y)<0.55&&bp.y<2.2){B.knocked=true;T.knock=0.4;shake(0.5);big('被轟退了！');AUDIO.sfx('heavy');burst(bp.clone(),20,'#ff6a2a',4);}   // 對手的重砲球沒接到：被轟得往後退
     // 你擊球：按早一點點會等球過來；擊球鈕變綠＝現在打得到
     if(T.buf){T.buf.t-=dt;if(canHit()){const k=T.buf.k;T.buf=null;pHit(k);}else if(T.buf.t<=0)T.buf=null;}
     {const r=canHit();if(r!==T.ready){T.ready=r;const hb=btns.querySelector('[data-k=hit]');if(hb)hb.classList.toggle('ready',r);}}
@@ -4015,16 +4056,16 @@ const TN=(()=>{
         else puff(new V3(OPP.pos.x+rnd(-0.5,0.5),OPP.root.position.y+rnd(0.1,1.8),OPP.pos.y+rnd(-0.5,0.5)),0.6,0.3,0.05,new V3(0,1.2,0),c);}
       const sc=Math.ceil(ob.t);if(sc!==T.obS){T.obS=sc;draw();}if(ob.t<=0){T.obuff=null;toast('對手的'+OBN[ob.k]+'結束');draw();}}
     if(T.prkOff){const f=T.prkOff;if(prk.position.y>0.06){f.v.y-=GR*dt;prk.position.addScaledVector(f.v,dt);prk.rotation.x+=f.w.x*dt;prk.rotation.y+=f.w.y*dt;prk.rotation.z+=f.w.z*dt;}else{prk.position.y=0.06;prk.rotation.set(Math.PI/2,0,prk.rotation.z);}}
-    if(T.phantom>0){T.phantom-=dt;if(Math.random()<dt*20)puff(new V3(player.pos.x+rnd(-1,1),player.y+rnd(0,2),player.pos.y+rnd(-1,1)),0.9,0.5,0.1,new V3(0,0.4,0),'#5a68d8');if(T.phantom<=0){T.phantom=0;markQ();toast('手塚幻象結束');}draw();}
-    if(T.yips>0){T.yips-=dt;if(Math.random()<dt*25)puff(new V3(OPP.pos.x+rnd(-0.6,0.6),rnd(0.2,2),OPP.pos.y+rnd(-0.6,0.6)),0.8,0.45,0.1,new V3(0,0.5,0),'#a050d0');if(T.yips<=0){T.yips=0;if(OPP.react==='dazed')OPP.react=null;markQ();toast('夢結束');}draw();}
+    if(T.phantom>0){T.phantom-=dt;if(Math.random()<dt*20)puff(new V3(player.pos.x+rnd(-1,1),player.y+rnd(0,2),player.pos.y+rnd(-1,1)),0.9,0.5,0.1,new V3(0,0.4,0),'#5a68d8');if(T.phantom<=0){T.phantom=0;markQ();toast('出界魔法結束');}draw();}
+    if(T.yips>0){T.yips-=dt;if(Math.random()<dt*25)puff(new V3(OPP.pos.x+rnd(-0.6,0.6),rnd(0.2,2),OPP.pos.y+rnd(-0.6,0.6)),0.8,0.45,0.1,new V3(0,0.5,0),'#a050d0');if(T.yips<=0){T.yips=0;if(OPP.react==='dazed')OPP.react=null;markQ();toast('定身術結束');}draw();}
     if(T.zone>0){T.zone-=dt;T.zoneFx-=dt;if(T.zoneFx<=0){T.zoneFx=0.035;const a=performance.now()/1000*5;for(const o of [0,2.1,4.2])puff(new V3(player.pos.x+Math.cos(a+o)*1.5,player.y+0.2+Math.random()*1.6,player.pos.y+Math.sin(a+o)*1.5),0.55,0.3,0.05,new V3(-Math.sin(a+o)*2.2,0.4,Math.cos(a+o)*2.2),'#6fe3ff');}
-      if(T.zone<=0){T.zone=0;markQ();toast('手塚領域結束');}draw();}
+      if(T.zone<=0){T.zone=0;markQ();toast('吸球模式結束');}draw();}
     {const on=T.land&&B.hitter==='o'&&(B.bounces===0||B.markAfter)&&!B.dead&&T.st==='rally';mark.visible=!!on;if(on){mark.position.set(T.land.x,0.035,T.land.y);mark.scale.setScalar(1+0.15*Math.sin(performance.now()/90));}}
     // 對手：跑位、回擊、各招的反應
     {const O=OPP;O.rt+=dt;const busy=O.react==='blown'||O.react==='lunge'||O.react==='frozen'||O.react==='dazed'||T.yips>0;
       if(!busy&&!(T.st==='serve'&&T.server==='o')){const spd=O.ret?6.6*(O.boost||1):3.2,dx=O.tgt.x-O.pos.x,dz=O.tgt.y-O.pos.y,l=Math.hypot(dx,dz);O.mv=l>0.06;if(O.mv){const u=Math.min(spd*dt,l);O.pos.x+=dx/l*u;O.pos.y+=dz/l*u;}}else O.mv=false;
-      if(O.react==='lunge'&&O.rt<0.7){O.pos.y=Math.min(C.cz-0.9,O.pos.y+dt*6.5);O.mv=true;}   // 零式：衝到網前也來不及
-      if(O.react==='blown'&&O.rt<0.6){O.pos.y-=dt*5*(1-O.rt/0.6);}   // 波動球：被轟到往後滑
+      if(O.react==='lunge'&&O.rt<0.7){O.pos.y=Math.min(C.cz-0.9,O.pos.y+dt*6.5);O.mv=true;}   // 回滾小球：衝到網前也來不及
+      if(O.react==='blown'&&O.rt<0.6){O.pos.y-=dt*5*(1-O.rt/0.6);}   // 重砲球：被轟到往後滑
       O.pos.x=cl(O.pos.x,P.x0+0.5,P.x1-0.5);O.pos.y=cl(O.pos.y,P.z0+0.5,C.cz-0.6);
       if(T.st==='rally'&&B.mode==='phys'&&B.hitter==='p'&&!B.dead&&B.bounces===1){const d=Math.hypot(bp.x-(O.pos.x+0.5),bp.z-O.pos.y);
         if(O.ret&&d<1.15&&bp.y<2.5)oHit();
@@ -4041,8 +4082,8 @@ const TN=(()=>{
     T.fxT-=dt;if(T.fxT<=0&&(ball.visible||(T.osam&&T.osam.real&&T.osam.real.visible))){T.fxT=0.02;if(B.trail&&!B.dead&&B.mode!=='held'){const rb=B.trail==='rainbow';puff(bp.clone(),rb?0.5:0.35,rb?0.5:0.32,0.05,null,rb?rainbow():B.trail);}}
     shadow.position.set(bp.x,0.03,bp.z);shadow.scale.setScalar(1.8+bp.y*0.3);shadow.material.opacity=Math.max(0.15,1-bp.y*0.2);
     ball.rotation.x+=dt*bv.length()*2;
-    // 招式運鏡（使用者：打出招式時鏡頭要跟著網球過去，像波動球打爆對方要看得到效果）：
-    // 一般招式＝鏡頭跟在球後面飛過去 → 球到對手那邊（落地／對手反應）就換到對手側前方的特寫；迴旋蛇＝從你後面高處看整條彎過網柱的球路；輪舞曲＝側面轉播視角。這一分結束後滑回來
+    // 招式運鏡（使用者：打出招式時鏡頭要跟著網球過去，像重砲球打爆對方要看得到效果）：
+    // 一般招式＝鏡頭跟在球後面飛過去 → 球到對手那邊（落地／對手反應）就換到對手側前方的特寫；大轉彎球＝從你後面高處看整條彎過網柱的球路；打飛球拍連殺＝側面轉播視角。這一分結束後滑回來
     {const isTag=B.tag&&B.hitter==='p'&&T.st==='rally'&&mode==='walk';
      if(isTag&&!T.cm){T.cm={tag:B.tag,t:0};T.cp.copy(camera.position);T.cl.copy(bp);T.cd.set(0,-1);}
      const cm=T.cm;
@@ -4106,6 +4147,640 @@ const TN=(()=>{
   draw();
   return T;})();
 
+/* ---------------- 賽車場（使用者要求：賽車場＋旁邊富士山造景、未來感方程式賽車、自己開、過彎技能、兩段加速器、導航；2026-10-10 使用者要求畫面上不要用特定作品、特定賽車場的名字） ----------------
+   場地：南邊大路往南走到底（z 280 以南）。順時針、約 1.5 km：北邊 400 m 主直線（看台在北側、維修區＋塔台在南側）
+     → 一號髮夾彎 → 二號彎 → 南髮夾彎 → 長左彎 → 高速左彎 → 減速彎 → S 彎區段 → 最終彎 → 回主直線。富士山在南邊遠方（不受霧影響）。
+   我的賽車：白色車身＋深藍色下半、長尖鼻、藍綠色座艙罩、雙層大尾翼、紅色加速噴嘴、六輪（前 2 後 4）金色輪框、紅色 1 號。對手 4 台（紫、紅、銀、粉紅）。
+   技能：加速器兩段（第一段 Boost、再按一次第二段螺旋加速）、甩尾（按住，放開＝閃電甩尾加速）、加速過彎（空力模式：抓地力加倍＋加速）、
+     懸空轉向（車身側立懸空、急轉不掉速）、幻影過彎（殘影甩尾、全速過彎）、零之領域（慢動作、導航線變金色）。
+   導航：前方彎道名稱、方向、距離、建議速度（語音＋畫面）、地上的導航線（綠＝速度 OK、黃／紅＝要減速）、圈速、名次。 */
+const RACE=(()=>{
+  const R={on:false,mode:null,st:'idle',v:0,h:0,steer:0,bst:0,gauge:100,drift:0,driftT:0,sk:null,zero:0,cam:0,lap:0,prog:0,lapT:0,best:null,lapTimes:[],raceT:0,y:0,roll:0,pitch:0,yawOff:0,lat:0,i:0,wrongT:0,navT:0,said:{},told:false,cars:[],shk:0,slowK:1,fx:[],ghost:[],hist:[],fin:null};
+  try{const b=+(localStorage.getItem('home-race-best')||localStorage.getItem('home-fuji-best'));if(b>0)R.best=b;}catch(_){}
+  const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),sm=t=>t*t*(3-2*t),rnd=(a,b)=>a+Math.random()*(b-a),KMH=3.6;
+  const $=id=>document.getElementById(id);
+  const big=t=>{const el=$('gBig');el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');};
+  // ---- 賽道中心線：控制點 → Catmull-Rom → 每 2 m 一點 ----
+  const CP=[[-160,330],[-60,330],[60,330],[180,330],[222,331],[246,337],[259,352],[257,371],[242,382],[220,385],[196,387],[180,396],[174,414],[174,450],[175,500],[174,535],[168,560],[150,574],[128,572],[114,556],[112,520],[110,480],[104,455],[88,440],[64,438],[20,450],[-20,475],[-50,510],[-70,545],[-78,560],[-96,574],[-116,574],[-134,584],[-156,590],[-180,585],[-200,566],[-205,538],[-196,510],[-208,484],[-222,460],[-224,430],[-216,404],[-212,372],[-205,350],[-192,336],[-178,331]];
+  const HW=7.5,RUN=11,WALL=HW+RUN;
+  const S=(()=>{const raw=[],n0=CP.length;for(let i=0;i<n0;i++){const p0=CP[(i-1+n0)%n0],p1=CP[i],p2=CP[(i+1)%n0],p3=CP[(i+2)%n0];for(let k=0;k<20;k++){const t=k/20,t2=t*t,t3=t2*t,f=j=>0.5*((2*p1[j])+(-p0[j]+p2[j])*t+(2*p0[j]-5*p1[j]+4*p2[j]-p3[j])*t2+(-p0[j]+3*p1[j]-3*p2[j]+p3[j])*t3);raw.push([f(0),f(1)]);}}
+    let L=0;const cum=[0];for(let i=1;i<=raw.length;i++){const a=raw[i-1],b=raw[i%raw.length];L+=Math.hypot(b[0]-a[0],b[1]-a[1]);cum.push(L);}
+    const n=Math.round(L/2),out=[];let j=0;for(let i=0;i<n;i++){const s=i*L/n;while(cum[j+1]<s)j++;const a=raw[j],b=raw[(j+1)%raw.length],u=(s-cum[j])/(cum[j+1]-cum[j]);out.push({x:a[0]+(b[0]-a[0])*u,z:a[1]+(b[1]-a[1])*u});}
+    out.L=L;return out;})();
+  const N=S.length,TL=S.L,DS=TL/N;
+  for(let i=0;i<N;i++){const a=S[(i-1+N)%N],b=S[(i+1)%N],l=Math.hypot(b.x-a.x,b.z-a.z);S[i].tx=(b.x-a.x)/l;S[i].tz=(b.z-a.z)/l;S[i].rx=-S[i].tz;S[i].rz=S[i].tx;}   // 切線、右手邊
+  {const k0=[];for(let i=0;i<N;i++){const a=S[(i-5+N)%N],b=S[(i+5)%N];k0.push(Math.asin(cl(a.tx*b.tz-a.tz*b.tx,-1,1))/(10*DS));}   // 曲率（正＝右彎）
+   for(let i=0;i<N;i++){let s=0;for(let d=-3;d<=3;d++)s+=k0[(i+d+N)%N];S[i].k=s/7;}}
+  // 起跑線：主直線中段（x≈-40）
+  let I0=0;{let bd=1e9;for(let i=0;i<N;i++){const d=Math.hypot(S[i].x+40,S[i].z-330);if(d<bd){bd=d;I0=i;}}}
+  const sOf=i=>((i-I0+N)%N)*DS;   // 從起跑線算起的距離
+  // 速度表：彎道最高速（抓地力 G）、往前看要煞車、出彎慢慢加速
+  function profile(G,vmax,dec,acc){const v=S.map(p=>Math.min(vmax,Math.sqrt(G/Math.max(1e-4,Math.abs(p.k)))));
+    for(let rep=0;rep<2;rep++){for(let i=N-1;i>=0;i--){const nx=v[(i+1)%N];v[i]=Math.min(v[i],Math.sqrt(nx*nx+2*dec*DS));}for(let i=0;i<N;i++){const pv=v[(i-1+N)%N];v[i]=Math.min(v[i],Math.sqrt(pv*pv+2*acc*DS));}}return v;}
+  const VP=profile(40,150,30,99),VAI=profile(38,88,24,14);   // VP：導航建議速度（你）；VAI：對手
+  // 彎道清單（導航用）：每個彎的頂點位置 → 往前後延伸到曲率變小；方向看曲率正負（兩邊都有＝S 彎）
+  const CORNERS=[['一號髮夾彎',257,362],['二號彎',180,397],['南髮夾彎',150,574],['長左彎',95,445],['高速左彎',-25,478],['減速彎',-110,572],['S 彎區段',-202,515],['最終彎',-205,350]].map(([name,x,z])=>{
+    let ap=0,bd=1e9;for(let i=0;i<N;i++){const d=(S[i].x-x)**2+(S[i].z-z)**2;if(d<bd){bd=d;ap=i;}}
+    let a=ap,b=ap;while(Math.abs(S[(a-1+N)%N].k)>1/170&&(ap-a)<60)a--;while(Math.abs(S[(b+1)%N].k)>1/170&&(b-ap)<60)b++;
+    let vr=1e9,kp=0,kn=0,km=0;for(let i=a;i<=b;i++){const j=(i+N)%N;vr=Math.min(vr,VP[j]);if(S[j].k>1/110)kp++;if(S[j].k<-1/110)kn++;km=Math.max(km,Math.abs(S[j].k));}
+    return {name,s0:((a-I0+N*2)%N)*DS,s1:((b-I0+N*2)%N)*DS,ap,dir:kp>3&&kn>3?'S':S[ap].k>0?'R':'L',r:1/km,v:vr};});
+  // 最近的中心線點：hint 附近找（找不到就全部找）
+  function near(x,z,hint){let bi=0,bd=1e18;const scan=(a,b)=>{for(let k=a;k<=b;k++){const i=(k+N*4)%N,d=(S[i].x-x)**2+(S[i].z-z)**2;if(d<bd){bd=d;bi=i;}}};
+    if(hint===undefined||hint<0)scan(0,N-1);else{scan(hint-45,hint+45);if(bd>40*40)scan(0,N-1);}
+    const p=S[bi],lat=(x-p.x)*p.rx+(z-p.z)*p.rz,along=(x-p.x)*p.tx+(z-p.z)*p.tz;return {i:bi,lat,along};}
+  function at(s,out){s=((s%TL)+TL)%TL;const f=s/DS,i=Math.floor(f)%N,j=(i+1)%N,u=f-Math.floor(f),a=S[i],b=S[j];out.x=a.x+(b.x-a.x)*u;out.z=a.z+(b.z-a.z)*u;out.tx=a.tx+(b.tx-a.tx)*u;out.tz=a.tz+(b.tz-a.tz)*u;const l=Math.hypot(out.tx,out.tz);out.tx/=l;out.tz/=l;out.rx=-out.tz;out.rz=out.tx;out.k=a.k+(b.k-a.k)*u;out.i=i;return out;}
+  const tmpA={},tmpB={};
+  R.S=S;R.N=N;R.TL=TL;R.I0=I0;R.CORNERS=CORNERS;R.VP=VP;R.nearS=near;
+
+  // ================= 場景 =================
+  const G0=new THREE.Group();scene.add(G0);
+  const tex=(w,h,draw,rep)=>{const [c,x]=cvs(w,h);draw(x,w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;if(rep)t.repeat.set(rep[0],rep[1]);return t;};
+  const speck=(x,w,h,base,n,cols)=>{x.fillStyle=base;x.fillRect(0,0,w,h);for(let i=0;i<n;i++){x.fillStyle=cols[i%cols.length];x.fillRect(Math.random()*w,Math.random()*h,1+Math.random()*2,1+Math.random()*2);}};
+  const asphaltT=tex(256,256,(x,w,h)=>speck(x,w,h,'#4b4e53',5000,['#3d4045','#5a5d62','#45484d','#62656a']));
+  const MT={
+    asphalt:std({map:asphaltT,roughness:0.92}),
+    line:std({color:'#f4f4f0',roughness:0.7}),
+    curb:std({map:tex(32,64,(x,w,h)=>{x.fillStyle='#d8262c';x.fillRect(0,0,w,h/2);x.fillStyle='#f6f6f2';x.fillRect(0,h/2,w,h/2);}),roughness:0.6}),
+    grass:std({map:tex(128,128,(x,w,h)=>speck(x,w,h,'#5d8a3c',2500,['#4f7a33','#6a9a46','#57833a'])),roughness:1}),
+    gravel:std({map:tex(128,128,(x,w,h)=>speck(x,w,h,'#c8b58c',3000,['#b3a07a','#d8c8a2','#a8956f'])),roughness:1}),
+    wall:std({map:tex(512,64,(x,w,h)=>{const ads=[['#1f4fb8','#ffffff','SPEED'],['#f6f6f2','#d8262c','RACING'],['#d8262c','#ffffff','TURBO'],['#111418','#f2c94c','GRAND PRIX'],['#f6f6f2','#1f4fb8','賽車場'],['#3a1f5c','#ff4fa3','BOOST']];
+      ads.forEach((a,k)=>{const x0=k*w/ads.length;x.fillStyle=a[0];x.fillRect(x0,0,w/ads.length,h);x.fillStyle=a[1];x.font=`900 ${a[2].length>8?18:26}px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText(a[2],x0+w/ads.length/2,h/2+1);});}),roughness:0.6,side:THREE.DoubleSide}),
+    rail:std({color:'#c9ced4',roughness:0.35,metalness:0.6}),
+    concrete:std({color:'#b9b6ad',roughness:0.95}),
+    white:std({color:'#f2f2ee',roughness:0.6}),
+    dark:std({color:'#24282e',roughness:0.6}),
+    glass:std({color:'#5f8fb0',roughness:0.15,metalness:0.4}),
+    check:std({map:tex(64,64,(x,w,h)=>{for(let i=0;i<8;i++)for(let j=0;j<8;j++){x.fillStyle=(i+j)%2?'#111':'#f5f5f5';x.fillRect(i*8,j*8,8,8);}}),roughness:0.7}),
+  };
+  // 沿賽道的帶子：fn(i) → [內側偏移, 外側偏移, 高度0, 高度1] 或 null（這段不要）；v 沿著賽道、u 沿寬度
+  function ribbon(fn,mat,rep=8,uvAcross=true){const pos=[],uv=[],idx=[];let prev=-1;
+    for(let k=0;k<=N;k++){const i=k%N,q=fn(i);if(!q){prev=-1;continue;}const p=S[i],[o0,o1,y0,y1]=q,v=k*DS/rep,base=pos.length/3;
+      pos.push(p.x+p.rx*o0,y0,p.z+p.rz*o0,p.x+p.rx*o1,y1,p.z+p.rz*o1);uv.push(uvAcross?o0/rep:0,v,uvAcross?o1/rep:1,v);
+      if(prev>=0)idx.push(prev,prev+1,base,prev+1,base+1,base);prev=base;}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
+    const m=new THREE.Mesh(g,mat);m.receiveShadow=true;G0.add(m);return m;}
+  const corner=i=>Math.abs(S[i].k)>1/130;
+  ribbon(()=>[-WALL,WALL,0.018,0.018],MT.grass,6);
+  ribbon(i=>corner(i)?(S[i].k>0?[-WALL+0.5,-HW-1.3,0.024,0.024]:[HW+1.3,WALL-0.5,0.024,0.024]):null,MT.gravel,6);   // 彎道外側的碎石緩衝區
+  ribbon(()=>[-HW,HW,0.03,0.03],MT.asphalt,8);
+  for(const sd of [-1,1])ribbon(()=>sd<0?[-HW+0.35,-HW+0.6,0.036,0.036]:[HW-0.6,HW-0.35,0.036,0.036],MT.line,8);
+  for(const sd of [-1,1])ribbon(i=>corner(i)?(sd<0?[-HW-1.3,-HW,0.04,0.04]:[HW,HW+1.3,0.04,0.04]):null,MT.curb,3,false);   // 紅白路緣石
+  // 護欄（廣告牆）：離中心 18.5 m；會穿進別段賽道的地方（髮夾彎內側）不蓋
+  const wallOK=(i,sd)=>{const p=S[i],x=p.x+p.rx*WALL*sd,z=p.z+p.rz*WALL*sd;for(let j=0;j<N;j+=2){const g=Math.min(Math.abs(j-i),N-Math.abs(j-i));if(g<12)continue;if((S[j].x-x)**2+(S[j].z-z)**2<(WALL-0.5)**2)return false;}return true;};
+  const WOK=[[],[]];for(let i=0;i<N;i++){WOK[0][i]=wallOK(i,-1);WOK[1][i]=wallOK(i,1);}
+  for(const [n,sd] of [[0,-1],[1,1]]){ribbon(i=>WOK[n][i]?[WALL*sd,WALL*sd,0,1.1]:null,MT.wall,9,false);ribbon(i=>WOK[n][i]?[WALL*sd+sd*0.05,WALL*sd+sd*0.05,1.1,1.45]:null,MT.rail,9,false);}
+  R.WOK=WOK;
+  // 起跑線（黑白格）＋排位格線
+  {const p=S[I0],g=new THREE.PlaneGeometry(2*HW,2.4);g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,MT.check);m.position.set(p.x,0.045,p.z);m.rotation.y=Math.atan2(p.tx,p.tz);G0.add(m);MT.check.map.repeat.set(7.5,1.2);
+   for(let k=0;k<6;k++){at(I0*DS-10-k*8,tmpA);const sd=k%2?1:-1;for(const [w,d] of [[2.6,0.25]]){const q=new THREE.Mesh(new THREE.PlaneGeometry(w,d).rotateX(-Math.PI/2),MT.line);q.position.set(tmpA.x+tmpA.rx*3.2*sd,0.042,tmpA.z+tmpA.rz*3.2*sd);q.rotation.y=Math.atan2(tmpA.tx,tmpA.tz);G0.add(q);}}}
+  // 起跑門架：兩邊柱子、橫樑上 5 顆紅燈（倒數時一起亮）
+  const LIGHTS=[];
+  {const p=S[I0],ry=Math.atan2(p.tx,p.tz),g=new THREE.Group();g.position.set(p.x,0,p.z);g.rotation.y=ry;G0.add(g);
+   for(const sd of [-1,1]){const c=new THREE.Mesh(new THREE.BoxGeometry(0.6,7.6,0.6),MT.dark);c.position.set(sd*(HW+1.6),3.8,0);g.add(c);}
+   const beam=new THREE.Mesh(new THREE.BoxGeometry(2*HW+3.8,1.1,0.8),MT.dark);beam.position.set(0,7.3,0);g.add(beam);
+   {const [c,x]=cvs(512,64);x.fillStyle='#111418';x.fillRect(0,0,512,64);x.fillStyle='#ffffff';x.font=`900 34px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText('START / FINISH',256,34);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+    for(const sd of [-1,1]){const pl=new THREE.Mesh(new THREE.PlaneGeometry(2*HW+3.6,0.95),new THREE.MeshBasicMaterial({map:t}));pl.position.set(0,7.3,sd*0.41);if(sd<0)pl.rotation.y=Math.PI;g.add(pl);}}
+   for(let k=0;k<5;k++){const m=new THREE.Mesh(new THREE.CircleGeometry(0.34,20),new THREE.MeshBasicMaterial({color:'#3a0d0d'}));m.position.set(-3.2+k*1.6,6.2,0.42);g.add(m);const m2=m.clone();m2.material=m.material;m2.position.z=-0.42;m2.rotation.y=Math.PI;g.add(m2);LIGHTS.push(m.material);
+     const hood=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.9,0.95),MT.dark);hood.position.set(-3.2+k*1.6,6.2,0);g.add(hood);}}
+  // 看台（主直線北側，中間留入口）：階梯座位＋觀眾（彩色點點貼圖）＋屋頂
+  const crowdT=tex(256,64,(x,w,h)=>{x.fillStyle='#5a6270';x.fillRect(0,0,w,h);const cs=['#f2f2f2','#d8262c','#1f4fb8','#f2c94c','#2a2a2a','#ff7eb6','#3fbf6a','#ff9a3a'];for(let i=0;i<900;i++){x.fillStyle=cs[i%cs.length];x.beginPath();x.arc(Math.random()*w,Math.random()*h,1.6+Math.random()*1.2,0,7);x.fill();}},[6,1]);
+  const crowdM=std({map:crowdT,roughness:0.9});
+  for(const [x0,x1] of [[-150,-38],[2,140]]){const zf=306,step=3.4;
+    for(let t=0;t<7;t++){const y=0.9+t*1.15,z1=zf-t*step,z0=z1-step;const g=new THREE.BoxGeometry(x1-x0,y,step);g.translate((x0+x1)/2,y/2,(z0+z1)/2);G0.add(new THREE.Mesh(g,MT.concrete));
+      const f=new THREE.PlaneGeometry(x1-x0,1.15);f.translate((x0+x1)/2,y-0.575+0.02,z1+0.01);const fm=new THREE.Mesh(f,crowdM);G0.add(fm);
+      const top=new THREE.PlaneGeometry(x1-x0,step-0.6).rotateX(-Math.PI/2);top.translate((x0+x1)/2,y+0.01,(z0+z1)/2+0.3);G0.add(new THREE.Mesh(top,crowdM));}
+    const back=zf-7*step;const roof=new THREE.Mesh(new THREE.BoxGeometry(x1-x0+2,0.35,7*step+4),MT.white);roof.position.set((x0+x1)/2,13.2,(back+zf)/2+1);roof.rotation.x=-0.06;roof.castShadow=true;G0.add(roof);
+    for(let x=x0;x<=x1;x+=16){const c=new THREE.Mesh(new THREE.BoxGeometry(0.5,13,0.5),MT.rail);c.position.set(x,6.5,back+0.5);G0.add(c);}
+    addBox(x0,x1,back,zf,9);}
+  // 入口拱門（南邊大路接過來）
+  {const g=new THREE.Group();G0.add(g);for(const x of [-30,-2]){const c=new THREE.Mesh(new THREE.BoxGeometry(1.2,9,1.2),MT.white);c.position.set(x,4.5,298);g.add(c);addBox(x-0.6,x+0.6,297.4,298.6,9);}
+   const [c,x]=cvs(512,96);x.fillStyle='#d8262c';x.fillRect(0,0,512,96);x.fillStyle='#fff';x.font=`900 46px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText('賽車場 SPEEDWAY',256,50);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+   const b=new THREE.Mesh(new THREE.BoxGeometry(30,3.2,0.8),[MT.white,MT.white,MT.white,MT.white,new THREE.MeshBasicMaterial({map:t}),new THREE.MeshBasicMaterial({map:t})]);b.position.set(-16,9.4,298);g.add(b);}
+  // 維修區建築＋塔台（主直線南側）
+  {const x0=-150,x1=110,z0=352,z1=368;const b=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,8,z1-z0),MT.white);b.position.set((x0+x1)/2,4,(z0+z1)/2);b.castShadow=true;G0.add(b);addBox(x0,x1,z0,z1,8);
+   const doors=tex(512,64,(x,w,h)=>{for(let k=0;k<8;k++){x.fillStyle=k%2?'#2b3038':'#323843';x.fillRect(k*64+4,8,56,56);x.fillStyle='#d8262c';x.fillRect(k*64+4,0,56,8);x.fillStyle='#fff';x.font=`800 14px ${FONT}`;x.textAlign='center';x.fillText(String(k+1),k*64+32,7);}},[(x1-x0)/64,1]);
+   const f=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0,6),std({map:doors,roughness:0.7}));f.position.set((x0+x1)/2,3,z0-0.02);f.rotation.y=Math.PI;G0.add(f);
+   const gl=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,1.4,0.2),MT.glass);gl.position.set((x0+x1)/2,7,z0-0.1);G0.add(gl);
+   const tw=new THREE.Mesh(new THREE.BoxGeometry(14,22,12),MT.white);tw.position.set(-40,11,358);tw.castShadow=true;G0.add(tw);addBox(-47,-33,352,364,22);
+   const tg=new THREE.Mesh(new THREE.BoxGeometry(14.4,4,12.4),MT.glass);tg.position.set(-40,19,358);G0.add(tg);
+   const [c,x]=cvs(512,128);x.fillStyle='#0b0d10';x.fillRect(0,0,512,128);x.fillStyle='#38e1ff';x.font=`900 56px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText('RACING',256,48);x.fillStyle='#fff';x.font=`700 26px ${FONT}`;x.fillText('SPEEDWAY',256,100);
+   const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const sc=new THREE.Mesh(new THREE.PlaneGeometry(13,3.3),new THREE.MeshBasicMaterial({map:t}));sc.position.set(-40,14,351.9);sc.rotation.y=Math.PI;G0.add(sc);}
+  // 樹林（一個 InstancedMesh 樹冠＋一個樹幹）：離賽道 25 m 以外、不擋看台／建築
+  {const n=900,crown=new THREE.ConeGeometry(2.6,7,7);crown.translate(0,5.6,0);const trunk=new THREE.CylinderGeometry(0.3,0.4,2.4,6);trunk.translate(0,1.2,0);
+   const ic=new THREE.InstancedMesh(crown,std({color:'#ffffff',roughness:0.9}),n),it=new THREE.InstancedMesh(trunk,std({color:'#5a4330',roughness:1}),n),o=new THREE.Object3D(),col=new THREE.Color(),rr=mulberry(1234);let c=0;
+   for(let tries=0;tries<6000&&c<n;tries++){const x=-330+rr()*680,z=278+rr()*460;
+     if(x>-160&&x<150&&z<375)continue;if(x>-36&&x<6&&z<300)continue;if(x>-150&&x<420&&z>625)continue;   /* 大漩渦那邊不種樹 */
+     let ok=true;for(let j=0;j<N;j+=3){if((S[j].x-x)**2+(S[j].z-z)**2<(WALL+6)**2){ok=false;break;}}if(!ok)continue;
+     const s=0.7+rr()*0.8;o.position.set(x,0,z);o.rotation.set(0,rr()*6,0);o.scale.set(s,s*(0.8+rr()*0.5),s);o.updateMatrix();ic.setMatrixAt(c,o.matrix);it.setMatrixAt(c,o.matrix);col.setHSL(0.27+rr()*0.08,0.45,0.22+rr()*0.12);ic.setColorAt(c,col);c++;}
+   ic.count=it.count=c;ic.castShadow=true;G0.add(ic,it);}
+  // ---- 富士山：南邊遠方（不受霧影響），雪頂、山谷紋路、山腳偏藍綠；再加幾座遠山 ----
+  const FUJI=(()=>{const H=820,RB=1500,RT=70,cx=-300,cz=2450,SEG=180,RG=40,pos=[],col=[],idx=[];
+    const nz=a=>Math.sin(a*7)*0.5+Math.sin(a*13+1.3)*0.3+Math.sin(a*29+2.1)*0.2;
+    const L=new V3(0.55,0.6,-0.58).normalize(),c=new THREE.Color(),cSnow=new THREE.Color('#f3f6fb'),cRock=new THREE.Color('#5b6c84'),cBase=new THREE.Color('#3f5a52'),haze=new THREE.Color('#b9c8d6');
+    for(let j=0;j<=RG;j++){const u=j/RG,r=RT+(RB-RT)*u;for(let i=0;i<=SEG;i++){const a=i/SEG*Math.PI*2,gul=Math.sin(a*36)*Math.sin(a*11+0.7);let y=H*Math.pow(1-u,1.55)*(1-0.035*gul*(1-u));if(j===0)y-=14;
+        pos.push(cx+Math.cos(a)*r,y,cz+Math.sin(a)*r);const snowLine=0.6+0.07*nz(a)+0.04*gul;const hh=y/H;
+        if(hh>snowLine+0.05)c.copy(cSnow);else if(hh>snowLine-0.03)c.copy(cRock).lerp(cSnow,cl((hh-snowLine+0.03)/0.08,0,1)*(0.5+0.5*Math.max(0,gul)));else c.copy(cBase).lerp(cRock,cl(hh/0.45,0,1));
+        col.push(c.r,c.g,c.b);}}
+    for(let j=0;j<RG;j++)for(let i=0;i<SEG;i++){const a=j*(SEG+1)+i,b=a+1,d=a+SEG+1,e=d+1;idx.push(a,d,b,b,d,e);}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();
+    const nr=g.attributes.normal,cc=new THREE.Float32BufferAttribute(col,3);for(let k=0;k<nr.count;k++){const sh=0.62+0.48*Math.max(0,nr.getX(k)*L.x+nr.getY(k)*L.y+nr.getZ(k)*L.z);c.setRGB(cc.getX(k)*sh,cc.getY(k)*sh,cc.getZ(k)*sh).lerp(haze,0.32);cc.setXYZ(k,c.r,c.g,c.b);}
+    g.setAttribute('color',cc);const mat=new THREE.MeshBasicMaterial({vertexColors:true,fog:false});const m=new THREE.Mesh(g,mat);scene.add(m);
+    const hills=[];for(const [hx,hz,hr,hh,hc] of [[-1500,1900,900,210,'#7f93a8'],[900,2100,1000,260,'#8597ab'],[-900,1500,700,150,'#6f8a7e'],[500,1500,650,130,'#6c8676'],[1500,1300,700,180,'#8a9bb0'],[-1700,1100,600,140,'#7a8f9a']]){
+      const hg=new THREE.ConeGeometry(hr,hh,48,4);hg.translate(hx,hh/2,hz);const hm=new THREE.Mesh(hg,new THREE.MeshBasicMaterial({color:hc,fog:false}));scene.add(hm);hills.push(hm);}
+    return {m,mat,hills};})();
+  // 地上的影子（陰影圖只照我家附近，所以賽車用一片模糊的影子）
+  const SHADOW_T=(()=>{const [c,g]=cvs(64,128),gr=g.createRadialGradient(32,64,6,32,64,60);gr.addColorStop(0,'rgba(0,0,0,0.6)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,64,128);return new THREE.CanvasTexture(c);})();
+  const GLOW=(()=>{const [c,x]=cvs(64,64),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(0.35,'rgba(255,255,255,0.55)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
+
+  // ================= 大漩渦離心力車道（使用者：要大漩渦離心力車道，可以開加速器跑完這段車道，最經典的車道） =================
+  // 賽車場南邊：230 m 直線助跑 → 螺旋車道盤旋往上 2.75 圈（半徑 34 → 70 m、高 70 m），越往上越斜（傾斜 0 → 80°，接近垂直的牆）
+  // → 頂端接 320 m 下坡出口（飛越助跑道上方）→ 終點。傾斜的地方要夠快才貼得住（離心力），太慢會滑下去、掉下來（回到上一個檢查點）。
+  const VX={cx:-60,cz:870,R0:34,R1:70,H:70,turns:2.75,HW:6};
+  const VS=(()=>{const raw=[],U=new V3(0,1,0),sm2=t=>t*t*(3-2*t);
+    for(let z=VX.cz-230;z<VX.cz;z+=1)raw.push({p:new V3(VX.cx+VX.R0,0,z),bank:0,R:0,kind:'run'});   // 助跑直線（往南）
+    for(let k=0;k<=3000;k++){const u=k/3000,ph=u*VX.turns*Math.PI*2,r=VX.R0+(VX.R1-VX.R0)*u,y=VX.H*(u-Math.sin(2*Math.PI*u)/(2*Math.PI));   // 螺旋（往右盤旋往上）
+      raw.push({p:new V3(VX.cx+r*Math.cos(ph),y,VX.cz+r*Math.sin(ph)),bank:80*sm2(Math.min(1,u/0.35))*Math.PI/180,R:r,kind:'helix',u});}
+    const e=raw[raw.length-1].p;for(let d=1;d<=320;d+=1){const t=d/320;raw.push({p:new V3(e.x+d,VX.H*(1-sm2(t)),e.z),bank:80*(1-sm2(Math.min(1,d/70)))*Math.PI/180,R:0,kind:'ramp'});}   // 下坡出口（往東）
+    for(let d=1;d<=130;d+=1)raw.push({p:new V3(e.x+320+d,0,e.z),bank:0,R:0,kind:'end'});
+    // 每 2 m 一點
+    const out=[];let acc=0,next=0;for(let i=0;i<raw.length;i++){if(i)acc+=raw[i].p.distanceTo(raw[i-1].p);if(acc>=next){out.push(Object.assign({},raw[i],{s:acc}));next+=2;}}
+    for(let i=0;i<out.length;i++){const a=out[Math.max(0,i-1)].p,b=out[Math.min(out.length-1,i+1)].p,q=out[i];q.t=b.clone().sub(a).normalize();
+      const L=new V3(q.t.z,0,-q.t.x).normalize();q.a=L.multiplyScalar(Math.cos(q.bank)).addScaledVector(U,Math.sin(q.bank));q.a.addScaledVector(q.t,-q.a.dot(q.t)).normalize();
+      q.n=new V3().crossVectors(q.t,q.a).normalize();q.vreq=q.kind==='helix'&&q.bank>0.35?Math.sqrt(9.8*q.R*Math.min(6,Math.tan(q.bank)))*1.22:0;}   // 需要的速度（離心力）
+    out.L=out[out.length-1].s;return out;})();
+  const VN=VS.length;R.VS=VS;
+  const VCK=[0];{let lastU=-1;for(let i=0;i<VN;i++){const q=VS[i];if(q.kind==='helix'){const h=Math.floor(q.u*VX.turns*2);if(h!==lastU){lastU=h;VCK.push(i);}}if(q.kind==='ramp'&&VS[i-1].kind!=='ramp')VCK.push(i);}}   // 檢查點：起點、每半圈、出口
+  {const dark=std({color:'#ffffff',roughness:0.8,emissive:'#ffffff',emissiveIntensity:0.12,map:tex(64,256,(x,w,h)=>{x.fillStyle='#5b6170';x.fillRect(0,0,w,h);x.fillStyle='#6a7080';x.fillRect(0,0,4,h);x.fillRect(w-4,0,4,h);x.strokeStyle='rgba(120,235,255,0.95)';x.lineWidth=6;for(let k=0;k<2;k++){const y0=k*128+30;x.beginPath();x.moveTo(10,y0+40);x.lineTo(32,y0);x.lineTo(54,y0+40);x.stroke();}})}),   // 路面：往前的箭頭
+     under=std({color:'#3b414c',roughness:0.6,metalness:0.5}),neonC=new THREE.MeshBasicMaterial({color:'#38e1ff'}),neonM=new THREE.MeshBasicMaterial({color:'#ff4fd8'}),wallM=std({color:'#d9dde3',roughness:0.4,metalness:0.4,side:THREE.DoubleSide});
+   const strip=(fn,mat,rep)=>{const pos=[],uv=[],idx=[];for(let i=0;i<VN;i++){const [A,B]=fn(VS[i]);pos.push(A.x,A.y,A.z,B.x,B.y,B.z);uv.push(0,VS[i].s/rep,1,VS[i].s/rep);if(i)idx.push(2*i-2,2*i-1,2*i,2*i-1,2*i+1,2*i);}
+     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,mat);m.receiveShadow=true;G0.add(m);return m;};
+   const W=VX.HW,P=(q,lat,up)=>q.p.clone().addScaledVector(q.a,lat).addScaledVector(q.n,up);
+   strip(q=>[P(q,W,0.05),P(q,-W,0.05)],dark,8);                                   // 路面
+   strip(q=>[P(q,-W,-0.5),P(q,W,-0.5)],under,8);                                  // 底面
+   for(const sd of [-1,1])strip(q=>[P(q,sd*W,-0.5),P(q,sd*W,0.05)],under,8);      // 側面
+   strip(q=>[P(q,W,0.05),P(q,W,1.3)],wallM,8);                                    // 外側（高的那邊）護牆
+   strip(q=>[P(q,W-0.05,1.15),P(q,W-0.05,1.35)],neonC,8);strip(q=>[P(q,-W,0.06),P(q,-W+0.25,0.07)],neonM,8);strip(q=>[P(q,W-0.25,0.07),P(q,W,0.06)],neonC,8);   // 霓虹燈條
+   // 柱子（螺旋、出口下面），走路會擋
+   const pil=[];for(let i=0;i<VN;i+=12){const q=VS[i];if(q.p.y<3||q.kind==='run'||q.kind==='end')continue;if(Math.abs(q.p.x-(VX.cx+VX.R0))<9&&q.p.z<VX.cz+2)continue;pil.push(q);}
+   const im=new THREE.InstancedMesh(new THREE.CylinderGeometry(0.8,1.0,1,10).translate(0,0.5,0),under,pil.length),o=new THREE.Object3D();
+   pil.forEach((q,k)=>{const top=q.p.y-0.6;o.position.set(q.p.x,0,q.p.z);o.scale.set(1,Math.max(0.5,top),1);o.updateMatrix();im.setMatrixAt(k,o.matrix);addCircle(q.p.x,q.p.z,1.0,top);});im.castShadow=true;G0.add(im);
+   // 起點拱門「大漩渦」、終點拱門「GOAL」、黑白格線
+   const arch=(q,text,col)=>{const g=new THREE.Group();g.position.copy(q.p);g.rotation.y=Math.atan2(q.t.x,q.t.z);G0.add(g);for(const sd of [-1,1]){const c=new THREE.Mesh(new THREE.BoxGeometry(1,9,1),under);c.position.set(sd*(W+1.2),4.5,0);g.add(c);addCircle(q.p.x+q.a.x*sd*(W+1.2),q.p.z+q.a.z*sd*(W+1.2),0.7);}
+     const [c,x]=cvs(512,96);x.fillStyle=col;x.fillRect(0,0,512,96);x.fillStyle='#fff';x.font=`900 50px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText(text,256,52);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+     const b=new THREE.Mesh(new THREE.BoxGeometry(2*W+4,2.6,0.6),[under,under,under,under,new THREE.MeshBasicMaterial({map:t}),new THREE.MeshBasicMaterial({map:t})]);b.position.y=9.2;g.add(b);
+     const ck=new THREE.Mesh(new THREE.PlaneGeometry(2*W,2).rotateX(-Math.PI/2),MT.check);ck.position.y=0.07;g.add(ck);};
+   arch(VS[2],'大漩渦 VORTEX','#7a2bd8');arch(VS[VN-40],'GOAL','#d8262c');}
+  R.VCK=VCK;
+  // ---- 大漩渦的物理：沿著車道走（s、橫向位置），傾斜的地方速度不夠會往下滑、掉下去 ----
+  const VQ=new THREE.Quaternion(),VM=new THREE.Matrix4(),VR=new V3(),VB=new V3(),VP3=new V3();
+  function vAt(s){const f=cl(s/2,0,VN-1.001),i=Math.floor(f),u=f-i,a=VS[i],b=VS[i+1];return {i,u,a,b,p:VP3.copy(a.p).lerp(b.p,u)};}
+  function vPose(){const car=ME,q=VS[R.vi];const P=q.p.clone().lerp(VS[Math.min(VN-1,R.vi+1)].p,R.vu).addScaledVector(q.a,R.vlat).addScaledVector(q.n,0.05);
+    car.root.position.copy(P);VR.crossVectors(q.t,q.n);VB.copy(q.t).negate();VM.makeBasis(VR,q.n,VB);car.root.quaternion.setFromRotationMatrix(VM);R.h=Math.atan2(-q.t.x,-q.t.z);}
+  function vReset(ck){const i=VCK[ck]||0;R.vs=VS[i].s;R.vi=i;R.vu=0;R.vlat=0;R.v=Math.max(VS[i].vreq*1.12,i?30:0);R.vfall=null;R.vck=ck;vPose();}
+  function vortexStep(dt,thr,brk){const car=ME,top=R.bst===2?150:R.bst===1?114:R.sk&&R.sk.k==='aero'?95:83.3;
+    if(R.vfall){const f=R.vfall;f.t+=dt;f.v.y-=9.8*dt;car.root.position.addScaledVector(f.v,dt);car.root.rotateX(dt*2.5);   // 掉下去
+      if(car.root.position.y<0.3||f.t>4){AUDIO.sfx('heavy',car.root.position);AUDIO.sfx('crack',car.root.position);for(let k=0;k<16;k++)puff(car.root.position.clone().setY(0.6),0.6,0.6,0.1,new V3(rnd(-5,5),rnd(2,6),rnd(-5,5)),'#ffd27a');
+        vReset(R.vck);navShow('回到檢查點，這次要保持速度！','warn');}
+      sync();return;}
+    let acc=0;if(thr>0&&R.v>=-0.5)acc=thr*(R.bst===2?34:R.bst===1?24:R.sk&&R.sk.k==='aero'?20:15)*Math.max(0.15,Math.sqrt(Math.max(0,1-R.v/top)));if(R.v>top)acc=-(R.v-top)*0.8;
+    if(brk)acc=R.v>0.5?-32:-6;acc-=0.5+0.0011*R.v*Math.abs(R.v);
+    const q=VS[R.vi];acc-=9.8*q.t.y;   // 上坡會慢、下坡會快
+    if(R.st!=='drive'&&R.st!=='done'){R.v=0;acc=0;}
+    R.v=Math.max(0,R.v+acc*dt);R.vs+=R.v*dt;if(R.vs>=VS.L-1){R.vs=VS.L-1;R.v*=0.9;}
+    const A=vAt(R.vs);R.vi=A.i;R.vu=A.u;
+    // 方向：往右打＝往低的那邊（內側）；自動駕駛保持在中間
+    // 離心力：傾斜的地方速度不夠會往下滑（往內側），這時候往上打方向也沒用
+    const vr=VS[R.vi].vreq;R.vratio=vr>0?R.v/vr:9;
+    {let dl=-R.steer*Math.min(1,R.v/20)*9*dt;if(dl>0&&vr>0&&R.v<vr)dl=0;R.vlat+=dl;}
+    if(vr>0&&R.v<vr)R.vlat-=(1-R.v/vr)*32*dt;
+    const W=VX.HW-1.1;if(R.vlat>W){R.vlat=W;if(R.v>20){R.v-=6*dt;if(Math.random()<0.3)puff(car.root.position.clone(),0.3,0.3,0.05,new V3(rnd(-2,2),rnd(1,3),rnd(-2,2)),'#ffe9a8');}}
+    if(R.vlat<-W){if(VS[R.vi].bank>0.5&&R.st==='drive'){const tv=VS[R.vi].t.clone().multiplyScalar(R.v*0.6).addScaledVector(VS[R.vi].n,3);R.vfall={t:0,v:tv};R.vfalls=(R.vfalls||0)+1;say('離心力不夠，掉下去了！','warn',true);AUDIO.sfx('whoosh');return;}R.vlat=-W;}
+    vPose();
+    // 檢查點、導航訊息
+    for(let k=VCK.length-1;k>R.vck;k--)if(R.vi>=VCK[k]){R.vck=k;break;}
+    const kind=VS[R.vi].kind;if(kind!==R.vkind){R.vkind=kind;if(kind==='helix'){big('大漩渦！');say('進入大漩渦！保持速度，離心力會讓你貼著牆','boost',true);}if(kind==='ramp'){big('出口！');say('出口！往下衝！','boost',true);}if(kind==='end'&&R.st==='drive'){R.st='done';vFinish();}}
+    if(vr>0&&R.vratio<1.08&&R.st==='drive'&&performance.now()-(R.vwarn||0)>2600){R.vwarn=performance.now();say(R.vratio<1?'離心力不足！加速！':'速度快不夠了，加速！','warn');}
+    if(R.st==='drive')R.vT+=dt;
+    // 加速器能量
+    if(R.bst){R.gauge-=(R.bst===2?28:16)*dt;if(R.manBrk&&R.v>10)R.bst=0;if(R.gauge<=0){R.gauge=0;R.bst=0;navShow('加速器用完了');}}else R.gauge=Math.min(100,R.gauge+7*dt);
+    if(R.sk){R.sk.t+=dt;if(R.sk.t>=R.sk.dur)R.sk=null;}
+    if(R.zero>0){R.zero-=dt/Math.max(0.3,R.slowK);if(R.zero<=0){R.zero=0;document.body.classList.remove('rcz');}}
+    car.body.position.y=0;car.body.rotation.set(0,-R.steer*0.12,0);
+    for(const w of car.wheels)w.rotation.z-=R.v*dt/0.36;for(const sp of car.steers)sp.rotation.y=R.steer*0.42;
+    const aeroT=(R.sk&&R.sk.k==='aero')||R.bst===2?1:R.bst===1?0.4:0;car.aero+=(aeroT-car.aero)*Math.min(1,dt*6);car.wing.rotation.z=0.32*car.aero;car.wing.position.y=0.62+0.22*car.aero;for(const fl of car.flaps)fl.pv.rotation.x=fl.sd*0.9*car.aero;
+    for(const fl of car.flames){const on=R.bst>0;fl.f.visible=on;if(on){const k=R.bst===2?1.25:0.8,j=0.8+Math.random()*0.35;fl.f.scale.set(k*j,R.bst===2?1.35:1,R.bst===2?1.35:1);fl.fm.color.set(R.bst===2?(Math.random()<0.6?'#6fcfff':'#d8f6ff'):'#ff9a3a');}
+      fl.gl.scale.setScalar(on?(R.bst===2?2.4:1.3)*(0.85+Math.random()*0.3):0.01);fl.gl.material.color.set(R.bst===2?'#9fe6ff':'#ffb347');}
+    R.fxT=(R.fxT||0)-dt;if(R.fxT<=0&&R.v>30){R.fxT=0.03;const p=car.root.position,t=VS[R.vi].t;if(R.bst===2)puff(p.clone().addScaledVector(t,-3.2).addScaledVector(VS[R.vi].n,0.6),0.45,0.5,0.1,null,'#bfefff');if(R.vratio>1&&VS[R.vi].bank>0.6)puff(p.clone().addScaledVector(t,-2.4).addScaledVector(VS[R.vi].a,-1),0.35,0.4,0.05,null,'#38e1ff');}
+    sync();
+    if(R.eng){const vv=R.v,gs=top/7,gear=Math.min(6,Math.floor(vv/gs)),rpm=cl(0.3+0.7*(vv-gear*gs)/gs,0,1);R.eng.set(vv<0.5?0.12:rpm,thr,R.bst,R.vratio<1?0.6:0,Math.min(1,vv/120));}
+    function sync(){const p=car.root.position;car.sh.visible=false;player.pos.set(p.x,p.z);player.y=0;player.vy=0;player.ground=true;player.vel.set(0,0);player.yaw=R.h;player.climb=false;}}
+  function vFinish(){const t=R.vT,nb=R.vbest==null||t<R.vbest;if(nb){R.vbest=t;try{localStorage.setItem('home-vortex-best',t);}catch(_){}}AUDIO.sfx(nb?'bigcheer':'cheer');big(nb?'🌀 新紀錄！':'🌀 完成！');say(`大漩渦完成，時間 ${t.toFixed(2)} 秒${nb?'，新紀錄！':''}`,'boost',true);
+    setTimeout(()=>{if(!R.on||R.mode!=='vortex')return;panel.querySelector('.res').innerHTML=`<b>🌀 大漩渦完成</b><br>時間 ${fmtT(t)}　最快 ${fmtT(R.vbest)}${R.vfalls?`　掉下去 ${R.vfalls} 次`:''}`;panel.hidden=false;},2200);}
+  try{const b=+localStorage.getItem('home-vortex-best');if(b>0)R.vbest=b;}catch(_){}
+  // ================= 賽車模型 =================
+  function numTex(n,col,bg){const [c,x]=cvs(128,128);if(bg){x.fillStyle=bg;x.beginPath();x.arc(64,64,58,0,7);x.fill();}x.fillStyle=col;x.font=`italic 900 ${n.length>1?78:96}px Arial, ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText(n,64,70);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
+  // 靜態零件合併：每個材質一個網格（一台車約 10 個 draw call）
+  function bake(grp){grp.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(grp.matrixWorld).invert(),map=new Map(),list=[];
+    grp.traverse(o=>{if(o.isMesh&&!o.userData.keep)list.push(o);});
+    for(const o of list){let g=o.geometry.clone();g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv,o.matrixWorld));if(g.index)g=g.toNonIndexed();for(const k of Object.keys(g.attributes))if(k!=='position'&&k!=='normal')g.deleteAttribute(k);if(!g.attributes.normal)g.computeVertexNormals();
+      if(!map.has(o.material))map.set(o.material,[]);map.get(o.material).push(g);o.parent.remove(o);}
+    for(const [mat,arr] of map){const me=new THREE.Mesh(mergeGeometries(arr,false),mat);me.castShadow=true;grp.add(me);}}
+  function makeCar(c){const root=new THREE.Group(),body=new THREE.Group();root.add(body);
+    const P=new THREE.Group();P.rotation.y=Math.PI/2;body.add(P);   // 建模時車頭朝 +x；轉 90° 變成朝 -z（跟 player.yaw 同一個方向）
+    const st=new THREE.Group();P.add(st);   // 會合併的靜態零件
+    const mt=(col,o={})=>std(Object.assign({color:col,roughness:0.32,metalness:0.25},o));
+    const mBody=mt(c.body,{roughness:0.25,metalness:0.35}),mLow=mt(c.low,{roughness:0.3,metalness:0.4}),mAcc=mt(c.acc),mWing=mt(c.wing,{metalness:0.45}),mPod=mt(c.pod,{metalness:0.5,roughness:0.3}),
+      mDark=mt('#16181c',{roughness:0.6}),mGold=mt('#d8b24a',{metalness:0.85,roughness:0.25}),mTire=mt('#141518',{roughness:0.85,metalness:0}),
+      mGlass=std({color:c.glass,roughness:0.05,metalness:0.6,transparent:true,opacity:0.82,emissive:c.glass,emissiveIntensity:0.12});
+    const add=(geo,m,par=st)=>{const me=new THREE.Mesh(geo,m);me.castShadow=true;par.add(me);return me;};
+    const box=(x,y,z,lx,ly,lz,m,par)=>{const g=new THREE.BoxGeometry(lx,ly,lz);g.translate(x,y,z);return add(g,m,par);};
+    const hw=x=>lerpPts([[-2.35,0.6],[-2.05,0.88],[-1.3,0.98],[-0.1,0.96],[0.4,0.62],[1.2,0.46],[2.0,0.28],[2.75,0.1]],x);
+    const top=x=>lerpPts([[-2.35,0.6],[-1.7,0.66],[-0.6,0.64],[0.2,0.6],[0.9,0.52],[1.7,0.38],[2.75,0.2]],x);
+    add(loftGeo(range(-2.35,2.75,44),x=>({y0:0.14,y1:top(x),w0:hw(x)*0.9,w1:hw(x)*0.76,rb:0.06,rt:0.17}),3),mBody);   // 主車身
+    add(loftGeo(range(-2.38,2.78,44),x=>({y0:0.11,y1:0.3,w0:hw(x)*0.93+0.012,w1:hw(x)*0.92+0.012,rb:0.05,rt:0.04}),2),mLow);   // 深色下半
+    add(loftGeo(range(-2.0,1.9,30),x=>({y0:0.34,y1:0.39,w0:hw(x)*0.9+0.008,w1:hw(x)*0.89+0.008,rb:0.01,rt:0.01}),1),mAcc);   // 側面亮色飾條
+    add(loftGeo(range(2.3,2.82,8),x=>({y0:0.12,y1:top(x)+0.01,w0:hw(x)*0.92+0.01,w1:hw(x)*0.78+0.01,rb:0.04,rt:0.08}),2),mLow);   // 鼻尖
+    add(loftGeo(range(-2.1,-0.25,14),x=>({y0:top(x)-0.02,y1:top(x)+0.16-0.1*Math.abs(x+1.2),w0:0.05,w1:0.02,rb:0.01,rt:0.01}),1),mBody);   // 引擎蓋背鰭
+    {const g=new THREE.SphereGeometry(1,24,12,0,Math.PI*2,0,Math.PI/2);g.scale(0.95,0.32,0.4);g.translate(0.55,0.56,0);const me=new THREE.Mesh(g,mGlass);me.userData.keep=true;P.add(me);}   // 座艙罩
+    {const g=new THREE.SphereGeometry(0.15,14,10);g.translate(0.35,0.66,0);add(g,mt(c.helmet||'#f2f2f2'));}   // 安全帽（從座艙罩看得到）
+    // 前翼（兩層）＋端板
+    box(2.42,0.13,0,0.5,0.045,2.15,mWing);{const m=box(0,0,0,0.42,0.04,2.0,mWing);m.position.set(2.2,0.27,0);m.rotation.z=0.18;}
+    for(const sd of [-1,1]){box(2.3,0.22,sd*1.08,0.62,0.3,0.035,mBody);box(2.3,0.12,sd*1.08,0.64,0.07,0.04,mLow);}
+    // 側箱上的導流鰭
+    for(const sd of [-1,1])for(const dx of [-0.95,-0.45]){const m=box(0,0,0,0.38,0.22,0.03,mWing);m.position.set(dx,0.68,sd*0.62);m.rotation.x=sd*0.35;}
+    // 尾翼（會變形：空力模式往上翹）
+    const wing=new THREE.Group();wing.position.set(-1.95,0.62,0);P.add(wing);
+    for(const sd of [-1,1])box(0.05,0.28,sd*0.3,0.16,0.56,0.06,mDark,wing);
+    box(-0.1,0.6,0,0.55,0.05,2.25,mWing,wing);box(-0.28,0.78,0,0.45,0.045,2.25,mWing,wing);
+    for(const sd of [-1,1]){box(-0.2,0.58,sd*1.14,0.85,0.66,0.045,mLow,wing);box(-0.2,0.8,sd*1.143,0.82,0.12,0.04,mAcc,wing);}
+    // 紅色加速噴嘴（左右各一）＋噴出的火焰
+    const flames=[];
+    for(const sd of [-1,1]){const g=new THREE.CylinderGeometry(0.17,0.19,1.0,16);g.rotateZ(Math.PI/2);g.translate(-1.8,0.6,sd*0.8);add(g,mPod);
+      const n=new THREE.CylinderGeometry(0.2,0.15,0.16,16);n.rotateZ(Math.PI/2);n.translate(-2.35,0.6,sd*0.8);add(n,mDark);
+      const fg=new THREE.ConeGeometry(0.16,1.6,14,1,true);fg.rotateZ(Math.PI/2);fg.translate(-0.8,0,0);
+      const fm=new THREE.MeshBasicMaterial({color:'#7fd8ff',transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+      const f=new THREE.Mesh(fg,fm);f.position.set(-2.4,0.6,sd*0.8);f.userData.keep=true;f.visible=false;P.add(f);
+      const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:'#9fe6ff',transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));gl.position.set(-2.45,0.6,sd*0.8);gl.scale.setScalar(0.01);P.add(gl);flames.push({f,fm,gl});}
+    // 側面的空力板（加速過彎、懸空轉向時打開）
+    const flaps=[];for(const sd of [-1,1]){const pv=new THREE.Group();pv.position.set(-0.6,0.42,sd*0.92);P.add(pv);const m=new THREE.Mesh(new THREE.BoxGeometry(1.3,0.32,0.035),mAcc);m.position.set(0,0,sd*0.02);m.castShadow=true;pv.add(m);flaps.push({pv,sd});}
+    // 六個輪子：前 2、後 4（兩排）；金色輪框
+    const wheels=[],steers=[];
+    const wheel=(x,z,front)=>{const pv=new THREE.Group();pv.position.set(x,0.36,z);P.add(pv);const w=new THREE.Group();pv.add(w);
+      const t=new THREE.CylinderGeometry(0.36,0.36,0.36,22);t.rotateX(Math.PI/2);const tm=new THREE.Mesh(t,mTire);tm.castShadow=true;w.add(tm);
+      const r=new THREE.CylinderGeometry(0.25,0.25,0.37,16);r.rotateX(Math.PI/2);w.add(new THREE.Mesh(r,mGold));
+      for(let k=0;k<5;k++){const sp=new THREE.Mesh(new THREE.BoxGeometry(0.42,0.05,0.38),mGold);sp.rotation.z=k*Math.PI/5;w.add(sp);}
+      wheels.push(w);if(front)steers.push(pv);};
+    for(const sd of [-1,1]){wheel(1.6,sd*0.97,true);wheel(-1.0,sd*1.02,false);wheel(-1.72,sd*1.02,false);}
+    for(const sd of [-1,1]){const g=new THREE.CylinderGeometry(0.03,0.03,0.6,6);g.rotateX(Math.PI/2);g.translate(1.6,0.36,sd*0.68);add(g,mDark);}   // 前輪懸吊
+    // 號碼：鼻子上面、兩側
+    {const t=numTex(c.num,c.numCol,c.numBg);const nm=new THREE.MeshBasicMaterial({map:t,transparent:true});
+     const a=new THREE.Mesh(new THREE.PlaneGeometry(0.5,0.5),nm);a.rotation.x=-Math.PI/2;a.rotation.z=-Math.PI/2;a.position.set(1.55,top(1.55)+0.012,0);a.userData.keep=true;P.add(a);
+     for(const sd of [-1,1]){const b=new THREE.Mesh(new THREE.PlaneGeometry(0.42,0.42),nm);b.position.set(-1.25,0.47,sd*(hw(-1.25)*0.9+0.03));if(sd<0)b.rotation.y=Math.PI;b.userData.keep=true;P.add(b);}}
+    bake(st);
+    const sh=new THREE.Mesh(new THREE.PlaneGeometry(2.9,6.2).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:SHADOW_T,transparent:true,depthWrite:false}));sh.position.y=0.05;sh.renderOrder=2;root.add(sh);
+    scene.add(root);return {root,body,P,wing,flaps,flames,wheels,steers,sh,c,aero:0};}
+  const CARS={
+    nu:{body:'#f4f6f8',low:'#173a8a',acc:'#3b8fe8',wing:'#1f4fb8',pod:'#d8262c',glass:'#3fd6c8',num:'1',numCol:'#d8262c',helmet:'#f4f4f4',name:'我的賽車'},
+    ogre:{body:'#2a1f4a',low:'#f2f2f5',acc:'#e0388f',wing:'#2a1f4a',pod:'#e0388f',glass:'#47d1c4',num:'5',numCol:'#3fd16a',helmet:'#2a1f4a',name:'紫色賽車'},
+    ish:{body:'#b3122e',low:'#1b1b1f',acc:'#f2c94c',wing:'#1b1b1f',pod:'#f2c94c',glass:'#6fd0ff',num:'4',numCol:'#f2c94c',helmet:'#b3122e',name:'紅色賽車'},
+    spS:{body:'#c9ced6',low:'#3b3f48',acc:'#7a8cff',wing:'#3b3f48',pod:'#4060ff',glass:'#8fd8ff',num:'9',numCol:'#3b3f48',numBg:'#ffffff',helmet:'#c9ced6',name:'銀色賽車'},
+    spP:{body:'#ff4fa3',low:'#f5f5f5',acc:'#ffffff',wing:'#f5f5f5',pod:'#ff2a7a',glass:'#ffd0ea',num:'10',numCol:'#ff4fa3',numBg:'#ffffff',helmet:'#ff4fa3',name:'粉紅賽車'}};
+  const ME=makeCar(CARS.nu);
+  // 殘影（幻影過彎）：同一台車的形狀、半透明藍色
+  const ghostMat=new THREE.MeshBasicMaterial({color:'#8fe8ff',transparent:true,opacity:0.3,blending:THREE.AdditiveBlending,depthWrite:false});
+  for(let k=0;k<4;k++){const g=ME.P.clone(true);g.traverse(o=>{if(o.isMesh)o.material=ghostMat;if(o.isSprite)o.visible=false;});const w=new THREE.Group(),b=new THREE.Group();w.add(b);b.add(g);w.visible=false;scene.add(w);R.ghost.push({w,b});}
+  // 停車位置：起跑線後面
+  const PARK={s:I0*DS-14,lat:-3.2};
+  function placeCar(car,s,lat){at(s,tmpA);car.root.position.set(tmpA.x+tmpA.rx*lat,0,tmpA.z+tmpA.rz*lat);car.root.rotation.set(0,Math.atan2(-tmpA.tx,-tmpA.tz),0);car.sh.visible=true;}
+  placeCar(ME,PARK.s,PARK.lat);R.h=ME.root.rotation.y;
+  // ---- 對手 ----
+  const AI_DEF=[['ogre',0.92],['ish',0.89],['spS',0.87],['spP',0.85]];   // 實力：紫色那台最強（主直線還會開空力加速）
+  const AIS=AI_DEF.map(([k,sk],n)=>{const car=makeCar(CARS[k]);car.root.visible=false;return {car,def:CARS[k],skill:sk,agg:[0.75,0.6,0.5,0.45][n],base:[-1,1,-0.5,0.5][n],s:0,lat:0,tlat:0,v:0,prog:0,lap:0,bst:0,fin:null,i:0};});
+  R.AIS=AIS;R.ME=ME;
+  // ---- 特效：光點（火花、氣流） ----
+  const FXA=[];
+  function puff(p,life,s0,s1,v,col){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,color:col}));m.position.copy(p);m.scale.setScalar(s0);scene.add(m);FXA.push({m,t:0,life,s0,s1,v:v?v.clone():null});}
+  function fxTick(dt){for(const f of FXA){f.t+=dt;const k=Math.min(1,f.t/f.life);if(f.v){f.m.position.addScaledVector(f.v,dt);f.v.y-=4*dt;}f.m.scale.setScalar(f.s0+(f.s1-f.s0)*k);f.m.material.opacity=1-k;if(k>=1){scene.remove(f.m);f.m.material.dispose();f.dead=true;}}for(let i=FXA.length-1;i>=0;i--)if(FXA[i].dead)FXA.splice(i,1);}
+  // 導航線：前方 130 m 的中心線（綠＝速度 OK、黃＝快要太快、紅＝要煞車；零之領域＝金色）
+  const NAVN=66,navPos=new Float32Array((NAVN+1)*2*3),navCol=new Float32Array((NAVN+1)*2*3);
+  const navG=new THREE.BufferGeometry();navG.setAttribute('position',new THREE.BufferAttribute(navPos,3));navG.setAttribute('color',new THREE.BufferAttribute(navCol,3));
+  {const idx=[];for(let k=0;k<NAVN;k++){const a=k*2;idx.push(a,a+1,a+2,a+1,a+3,a+2);}navG.setIndex(idx);}
+  const navMesh=new THREE.Mesh(navG,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:0.55,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));navMesh.frustumCulled=false;navMesh.visible=false;navMesh.renderOrder=3;scene.add(navMesh);
+
+  // ================= HUD（導航） =================
+  const hud=$('rcHud'),btns=$('rcBtns'),navEl=$('rcNav'),mapC=$('rcMap'),lightsEl=$('rcLights'),panel=$('rcPanel'),linesEl=$('rcLines'),zeroEl=$('rcZero');
+  const mapG=mapC.getContext('2d');let mapBg=null;
+  function drawMapBg(){const w=mapC.width=mapC.clientWidth*2||220,h=mapC.height=mapC.clientHeight*2||160,vx=R.mode==='vortex';mapBg_mode=vx;if(vx){const pts=VS.map(q=>q.p);let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const p of pts){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);z0=Math.min(z0,p.z);z1=Math.max(z1,p.z);}
+      const sc=Math.min((w-24)/(x1-x0),(h-24)/(z1-z0)),ox=(w-(x1-x0)*sc)/2-x0*sc,oz=(h-(z1-z0)*sc)/2-z0*sc;R.mapT={sc,ox,oz};const [c,g]=cvs(w,h);g.strokeStyle='#b07dff';g.lineWidth=2.5;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p.x*sc+ox,p.z*sc+oz):g.moveTo(p.x*sc+ox,p.z*sc+oz));g.stroke();mapBg=c;return;}
+    let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const p of S){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);z0=Math.min(z0,p.z);z1=Math.max(z1,p.z);}
+    const sc=Math.min((w-24)/(x1-x0),(h-24)/(z1-z0)),ox=(w-(x1-x0)*sc)/2-x0*sc,oz=(h-(z1-z0)*sc)/2-z0*sc;R.mapT={sc,ox,oz};
+    const [c,g]=cvs(w,h);g.lineJoin='round';g.strokeStyle='rgba(56,225,255,0.35)';g.lineWidth=9;g.beginPath();S.forEach((p,i)=>i?g.lineTo(p.x*sc+ox,p.z*sc+oz):g.moveTo(p.x*sc+ox,p.z*sc+oz));g.closePath();g.stroke();
+    g.strokeStyle='#38e1ff';g.lineWidth=2.5;g.stroke();const p=S[I0];g.strokeStyle='#fff';g.lineWidth=3;g.beginPath();g.moveTo((p.x+p.rx*9)*sc+ox,(p.z+p.rz*9)*sc+oz);g.lineTo((p.x-p.rx*9)*sc+ox,(p.z-p.rz*9)*sc+oz);g.stroke();mapBg=c;}
+  let mapBg_mode=false;
+  function drawMap(){if(!mapBg||mapBg.width!==mapC.width||mapBg_mode!==(R.mode==='vortex'))drawMapBg();const g=mapG,T=R.mapT;g.clearRect(0,0,mapC.width,mapC.height);g.drawImage(mapBg,0,0);
+    const dot=(x,z,col,r)=>{g.fillStyle=col;g.beginPath();g.arc(x*T.sc+T.ox,z*T.sc+T.oz,r,0,7);g.fill();};
+    if(R.mode==='race')for(const a of AIS)dot(a.car.root.position.x,a.car.root.position.z,a.def.pod,5);
+    const p=ME.root.position;g.strokeStyle='#fff';g.lineWidth=2;dot(p.x,p.z,'#ff3b3b',7);g.beginPath();g.arc(p.x*T.sc+T.ox,p.z*T.sc+T.oz,7,0,7);g.stroke();}
+  let navMsgT=0;
+  function navShow(t,cls){navEl.innerHTML=`<b>NAVI</b> ${t}`;navEl.className='panel'+(cls?' '+cls:'');navMsgT=2.6;}
+  // 導航語音：用瀏覽器的語音合成，可以關（記住 home-navv）
+  try{R.auto=localStorage.getItem('home-race-auto')!=='0';}catch(_){R.auto=true;}
+  const VO={on:true,last:0,voice:null};try{VO.on=(localStorage.getItem('home-navv')||localStorage.getItem('home-asu'))!=='0';}catch(_){}
+  function say(t,cls,force){navShow(t,cls);if(!VO.on||!window.speechSynthesis)return;const now=performance.now();if(!force&&now-VO.last<1800)return;VO.last=now;
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/<[^>]+>/g,'').replace(/km\/h/g,'公里'));u.lang='zh-TW';
+      if(!VO.voice){const vs=speechSynthesis.getVoices();VO.voice=vs.find(v=>/zh[-_]TW/i.test(v.lang))||vs.find(v=>/zh/i.test(v.lang))||null;}if(VO.voice)u.voice=VO.voice;u.rate=1.12;u.pitch=0.8;speechSynthesis.speak(u);}catch(_){}}
+  function syncAuto(){const b=btns.querySelector('[data-k=auto]');if(b){b.classList.toggle('on',R.auto);b.firstChild.textContent=R.auto?'自動':'手動';}}
+  R.voice=on=>{VO.on=on;try{localStorage.setItem('home-navv',on?'1':'0');}catch(_){}if(!on&&window.speechSynthesis)speechSynthesis.cancel();const b=btns.querySelector('[data-k=voice]');if(b)b.classList.toggle('off',!on);};
+  const fmtT=t=>{if(t==null)return '--';const m=Math.floor(t/60),s=t-m*60;return (m?m+':'+(s<10?'0':''):'')+s.toFixed(2);};
+  function hudDraw(){const kmh=Math.round(Math.abs(R.v)*KMH);
+    const pos=R.mode==='race'?`<span>名次</span><b>${R.place||'-'}/${AIS.length+1}</b>`:'';
+    const lap=R.mode==='race'?`<span>圈</span><b>${Math.min(3,R.lap+1)}/3</b>`:`<span>圈速</span><b>${fmtT(R.lapT)}</b>`;
+    $('rcSpd').textContent=kmh;$('rcInfo').innerHTML=R.mode==='vortex'?`<span>離心力</span><b style="color:${R.vratio>=1.08||R.vratio>8?'#7dff9a':R.vratio>=1?'#ffe14a':'#ff6a6a'}">${R.vratio>8?'—':Math.round(R.vratio*100)+'%'}</b><span>時間</span><b>${fmtT(R.vT)}</b><span>最快</span><b>${fmtT(R.vbest)}</b>`:`${lap}${pos}<span>最快</span><b>${fmtT(R.best)}</b>`;
+    const g=$('rcGauge');g.style.width=R.gauge.toFixed(0)+'%';g.className=R.bst===2?'s2':R.bst===1?'s1':R.gauge>=20?'ok':'';
+    $('rcStage').textContent=R.bst===2?'螺旋加速':R.bst===1?'BOOST':R.gauge>=20?'加速器 OK':'充電中';}
+  // ================= 開始／結束 =================
+  R.near=()=>!R.on&&started&&mode==='walk'&&!GAME.on&&!BALLOON.riding&&player.y<1.5&&ME.root.position.distanceTo(new V3(player.pos.x,0,player.pos.y))<6;
+  R.atGate=()=>!R.on&&started&&mode==='walk'&&!GAME.on&&player.y<1.5&&Math.hypot(player.pos.x-VS[0].p.x,player.pos.y-VS[0].p.z)<10;
+  R.label=()=>R.on?'下車':R.near()?'坐進賽車':R.atGate()?'坐進賽車：大漩渦挑戰':null;
+  R.toggle=()=>{if(R.on)R.stop();else if(R.near())R.start();else if(R.atGate()){R.start();R.pick('vortex');}};
+  let fovSave=60;
+  R.start=()=>{if(EMOTE.on)EMOTE.stop(true);if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();if(LIE.on)LIE.stop();if(CLOSET.isOpen)CLOSET.close();
+    R.on=true;R.st='pick';R.mode=null;R.v=0;R.bst=0;R.gauge=100;R.sk=null;R.zero=0;R.drift=0;R.driftT=0;R.h=ME.root.rotation.y;R.i=-1;R.y=0;R.roll=0;R.pitch=0;R.yawOff=0;
+    fovSave=camera.fov;R.camP=null;R.sPrev=undefined;document.body.classList.add('rc');hud.hidden=false;btns.hidden=false;navEl.hidden=false;mapC.hidden=false;panel.hidden=false;navMesh.visible=true;
+    if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}
+    R.eng=AUDIO.engine&&AUDIO.engine();AUDIO.sfx('chime');drawMapBg();syncAuto();R.autoLat=undefined;
+    say('導航系統啟動。選擇比賽或自由練習',null,true);};
+  R.stop=()=>{if(!R.on)return;R.on=false;R.st='idle';document.body.classList.remove('rc','rcz');hud.hidden=btns.hidden=navEl.hidden=mapC.hidden=panel.hidden=lightsEl.hidden=true;navMesh.visible=false;
+    if(R.eng){R.eng.stop();R.eng=null;}for(const f of ME.flames)f.f.visible=false;for(const g of R.ghost)g.w.visible=false;linesEl.style.opacity=0;
+    camera.fov=fovSave;camera.updateProjectionMatrix();R.slowK=1;if(window.speechSynthesis)speechSynthesis.cancel();
+    if(R.mode==='vortex'){R.vfall=null;vReset(0);R.v=0;ME.sh.visible=true;}
+    const p=ME.root.position,rx=Math.cos(R.h),rz=-Math.sin(R.h);player.pos.set(p.x-rx*2.6,p.z-rz*2.6);player.y=0;player.vy=0;player.vel.set(0,0);player.yaw=R.h;player.pitch=-0.15;
+    ME.body.position.set(0,0,0);ME.body.rotation.set(0,0,0);
+    if(R.mode==='race')for(const a of AIS){a.car.root.visible=false;if(a.ghosts)for(const g of a.ghosts)g.w.visible=false;}R.mode=null;avatar.root.visible=true;};
+  // 選模式：比賽（3 圈、5 台車、倒數燈）／自由練習
+  R.pick=m=>{if(!R.on)return;panel.hidden=true;R.mode=m;R.sPrev=undefined;R.lastN=0;panel.querySelector('.res').innerHTML='';R.lap=0;R.lapT=0;R.raceT=0;R.lapTimes=[];R.fin=null;R.said={};R.gauge=100;R.bst=0;R.v=0;R.sk=null;R.zero=0;
+    R.vfall=null;ME.sh.visible=true;if(m==='race'){const slots=[0,1,3,4];AIS.forEach((a,k)=>{const sl=slots[k];a.s=I0*DS-10-sl*8;a.lat=a.tlat=(sl%2?1:-1)*3.2;a.v=0;a.prog=a.s-I0*DS;a.lap=0;a.fin=null;a.bst=0;a.gauge=100;a.sk=null;a.lastC=null;a.car.root.visible=true;placeCar(a.car,a.s,a.lat);});
+      placeCar(ME,I0*DS-10-2*8,-3.2);R.h=ME.root.rotation.y;R.prog=-(10+16);R.st='count';R.cd=0;lightsEl.hidden=false;for(const l of LIGHTS)l.color.set('#3a0d0d');
+      say('比賽三圈。看紅燈，燈全部熄滅就出發',null,true);}
+    else if(m==='vortex'){for(const a of AIS)a.car.root.visible=false;R.vT=0;R.vfalls=0;R.vkind=null;vReset(0);R.st='count';R.cd=0;lightsEl.hidden=false;R.camP=null;
+      say(R.auto?'大漩渦挑戰。自動駕駛會幫你開，速度不夠就開加速器':'大漩渦挑戰。一路油門到底，速度不夠就開加速器',null,true);}
+    else{for(const a of AIS)a.car.root.visible=false;if(ME.root.position.y>0.3||Math.abs(ME.root.rotation.x)+Math.abs(ME.root.rotation.z)>0.01||ME.root.position.z>620)placeCar(ME,PARK.s,PARK.lat);const q=near(ME.root.position.x,ME.root.position.z);R.prog=((q.i-I0+N)%N)*DS;R.st='drive';R.lapValid=false;
+      say(R.auto?'自由練習，自動駕駛中。按加速器和技能就好':`自由練習。${isTouch?'搖桿左右轉彎，往下拉煞車':'W 油門、A D 轉彎'}，加速器按兩次是兩段加速`,null,true);}
+    R.i=-1;};
+  // ================= 按鍵 =================
+  R.press=k=>{if(!R.on)return;
+    if(k==='auto'){R.auto=!R.auto;R.autoLat=undefined;try{localStorage.setItem('home-race-auto',R.auto?'1':'0');}catch(_){}syncAuto();say(R.auto?'自動駕駛開啟，你只要按加速器和技能':'自動駕駛關閉，自己開',R.auto?'boost':null,true);return;}
+    if(k==='voice'){R.voice(!VO.on);toast(VO.on?'導航語音：開':'導航語音：關');return;}
+    if(k==='cam'){R.cam=(R.cam+1)%3;toast(['視角：追車','視角：遠追車（比較不暈）','視角：駕駛艙'][R.cam]);return;}
+    if(k==='reset'){respawn();return;}
+    if(R.st!=='drive')return;
+    if(k==='boost'){if(R.bst===0){if(R.gauge<20){navShow('加速器還在充電','warn');return;}R.bst=1;say('Boost 啟動！','boost');AUDIO.sfx('takeoff');AUDIO.sfx('fire');big('BOOST！');ring(1);}
+      else if(R.bst===1){if(R.gauge<10)return;R.bst=2;say('第二段，螺旋加速！','boost');AUDIO.sfx('heavy');AUDIO.sfx('takeoff');big('螺旋加速！！');R.shk=0.5;ring(2);}
+      else{R.bst=0;navShow('加速器關閉');}return;}
+    const can=Math.abs(R.v)>12;
+    if((k==='lift'||k==='mirage')&&R.mode==='vortex'){navShow('大漩渦裡不能用這招，用加速器！','warn');return;}
+    if(k==='aero'){R.sk={k,t:0,dur:2.6};AUDIO.sfx('whoosh');AUDIO.sfx('chime');say('空力模式，加速過彎！','boost');big('加速過彎！');return;}
+    if(k==='lift'){if(!can){navShow('速度太慢，沒辦法懸空轉向','warn');return;}const ld=liftDir();R.sk={k,t:0,dur:1.0,dir:ld};AUDIO.sfx('takeoff');AUDIO.sfx('whoosh');say('懸空轉向！','boost');big('懸空轉向！');R.shk=0.25;return;}
+    if(k==='mirage'){if(!can){navShow('速度太慢','warn');return;}R.sk={k,t:0,dur:1.4,dir:liftDir()};R.hist.length=0;AUDIO.sfx('whoosh');AUDIO.sfx('combo');say('幻影過彎！','boost');big('幻影過彎！');return;}
+    if(k==='zero'){if(R.zero>0)return;R.zero=6;document.body.classList.add('rcz');AUDIO.sfx('chime');AUDIO.sfx('heavy');say('進入零之領域','zero',true);big('零之領域');return;}};
+  R.key=(e,down)=>{const m={KeyP:'auto',Space:'boost',KeyJ:'boost',Digit1:'aero',Digit2:'lift',Digit3:'mirage',Digit4:'zero',KeyC:'cam',KeyR:'reset',KeyV:'voice'}[e.code];
+    if(e.code==='KeyF'||e.code==='KeyM'||e.code==='KeyN'||e.code==='KeyK')return e.code!=='KeyF'&&e.code!=='KeyM';   // F 下車、M 地圖照原本；N、K 不要
+    if(e.code==='ShiftLeft'||e.code==='ShiftRight'){R.driftKey=down;return true;}
+    if(e.code==='KeyW'||e.code==='KeyS'||e.code==='KeyA'||e.code==='KeyD'||e.code.startsWith('Arrow'))return false;
+    if(!m)return false;if(down&&!e.repeat)R.press(m);if(m==='boost'||m==='cam')e.preventDefault&&e.preventDefault();return true;};
+  for(const b of btns.querySelectorAll('button')){const k=b.dataset.k;b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});
+    const dn=e=>{e.preventDefault();e.stopPropagation();if(k==='drift')R.driftBtn=true;else R.press(k);b.classList.add('hit');};
+    const up=e=>{e.preventDefault();e.stopPropagation();if(k==='drift')R.driftBtn=false;b.classList.remove('hit');};
+    b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('touchend',up,{passive:false});b.addEventListener('touchcancel',up,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('mouseup',up);b.addEventListener('mouseleave',up);}
+  for(const b of panel.querySelectorAll('button'))b.addEventListener('click',e=>{e.stopPropagation();const m=b.dataset.m;if(m==='exit')R.stop();else R.pick(m);syncActBtn();});
+  // 懸空轉向／幻影過彎往哪邊：有在轉方向就照方向，沒有就看前方 40 m 的彎
+  function liftDir(){if(Math.abs(R.steer)>0.2)return Math.sign(R.steer);at(sOf(R.i<0?I0:R.i)+I0*DS+40,tmpB);return tmpB.k>=0?1:-1;}
+  function ring(stage){const p=ME.root.position;for(let k=0;k<(stage===2?18:10);k++){const a=k/(stage===2?18:10)*Math.PI*2;puff(new V3(p.x+Math.cos(a)*1.5,0.6,p.z+Math.sin(a)*1.5),0.5,0.6,0.1,new V3(Math.cos(a)*6,1.5,Math.sin(a)*6),stage===2?'#9fd8ff':'#ffd27a');}}
+  function respawn(){const q=near(ME.root.position.x,ME.root.position.z,R.i);const p=S[q.i];ME.root.position.set(p.x,0,p.z);R.h=Math.atan2(-p.tx,-p.tz);R.v=0;R.bst=0;R.sk=null;R.i=q.i;navShow('回到賽道');}
+  // ---- 自動駕駛（使用者：增加自動駕駛，這樣我能只玩過彎技巧跟開加速器、享受超車的感覺） ----
+  // 速度：前方 400 m 內每個點「從這裡煞得下來」的最高速（技能會讓彎道能跑更快：加速過彎 ×√2.2、零之領域 ×√1.5、甩尾 ×√1.6；懸空轉向、幻影過彎＝不用減速）；
+  // 路線：彎道走內側，前面 30 m 內有車擋住就換到旁邊有空的那一邊（超車），兩邊都擋住才跟在後面；方向盤用「追前方一點」（pure pursuit）
+  function autoPilot(){const p=ME.root.position,i=R.i<0?near(p.x,p.z).i:R.i,v=Math.max(0,R.v),sk=R.sk&&R.sk.k;
+    const boosted=R.bst>0||!!sk||R.zero>0||!!(R.driftKey||R.driftBtn);   /* 沒用加速器／技能：自動駕駛只跑 8～9 成（要靠你按技能才超得過對手） */
+    const top=R.bst===2?150:R.bst===1?114:sk==='aero'?95:83.3*(boosted?1:0.9),gm=Math.sqrt((sk==='aero'?2.2:sk==='lift'||sk==='mirage'?3.2:1)*(R.zero>0?1.5:1)*((R.driftKey||R.driftBtn)?1.6:1))*(boosted?0.97:0.82);
+    let tv=top;for(let k=1;k<200;k++){const vc=VP[(i+k)%N]*gm,lim=Math.sqrt(vc*vc+2*26*k*DS);if(lim<tv)tv=lim;}
+    const kk=S[(i+15)%N].k;let tl=cl(Math.sign(kk)*Math.min(4,Math.abs(kk)*250),-HW+1.6,HW-1.6);
+    if(R.mode==='race'){for(const a of AIS){const ds=a.prog-R.prog;if(ds>-3&&ds<30&&Math.abs(a.lat-R.lat)<2.8){const L=a.lat-3.6,Rr=a.lat+3.6,okL=L>-HW+1.3,okR=Rr<HW-1.3;
+        tl=okL&&okR?(Math.abs(L-R.lat)<Math.abs(Rr-R.lat)?L:Rr):okL?L:okR?Rr:tl;if(!okL&&!okR&&ds<12)tv=Math.min(tv,a.v+0.5);}}}
+    if(R.autoLat===undefined)R.autoLat=R.lat;R.autoLat+=cl(tl-R.autoLat,-4/60,4/60);
+    const Ld=Math.max(12,v*0.5);at(i*DS+Ld,tmpB);const tx=tmpB.x+tmpB.rx*R.autoLat-p.x,tz=tmpB.z+tmpB.rz*R.autoLat-p.z,xr=tx*Math.cos(R.h)-tz*Math.sin(R.h);
+    const curv=2*xr/(tx*tx+tz*tz+1e-6);return {st:cl(curv*(5.5+v*0.2)*1.1,-1,1),thr:v<tv-1?1:0,brk:v>tv+2?1:0};}
+  // ================= 每格：開車 =================
+  const fwd=new V3(),tmpV=new V3();
+  R.step=(dt,f,s)=>{   // 取代走路（主迴圈）；f、s＝搖桿／WASD
+    const car=ME,p=car.root.position;
+    // 輸入
+    let thr=0,brk=0,st=0;
+    if(R.st==='drive'||R.st==='done'){const jy=joy.id!==null?joy.y:0;
+      const tUI=document.body.classList.contains('touch');
+      if(tUI&&joy.id!==null){st=cl(joy.x*1.25,-1,1);brk=jy>0.4?1:0;thr=brk?0:1;}   // 手機：自動油門、搖桿往下拉＝煞車
+      else{thr=(keys.KeyW||keys.ArrowUp)?1:0;brk=(keys.KeyS||keys.ArrowDown)?1:0;st=((keys.KeyD||keys.ArrowRight)?1:0)-((keys.KeyA||keys.ArrowLeft)?1:0);if(tUI&&joy.id===null)thr=R.st==='drive'?1:0;}
+      R.manBrk=brk;
+      if(R.auto&&R.st==='drive'){const ap=R.mode==='vortex'?{st:cl(R.vlat*0.35,-1,1),thr:1,brk:0}:autoPilot();if(Math.abs(st)<0.15)st=ap.st;if(!brk){thr=ap.thr;brk=ap.brk;}}   // 自動駕駛：車子自己轉彎、控速；推搖桿／按 A D、S 就照你的
+      if(R.st==='done'){thr=0.4;brk=0;}}
+    R.steer+=(st-R.steer)*Math.min(1,dt*(Math.abs(st)>Math.abs(R.steer)?6:9));
+    if(R.mode==='vortex'){vortexStep(dt,thr,brk);return;}   // 大漩渦：沿著 3D 車道走
+    const driftOn=(R.driftKey||R.driftBtn)&&Math.abs(R.v)>14&&R.st==='drive';
+    // 速度上限：一般 300、加速器第一段 410、第二段（螺旋加速）540 km/h
+    const sk=R.sk&&R.sk.k,top=R.bst===2?150:R.bst===1?114:sk==='aero'?95:83.3;
+    let acc=0;if(thr>0&&R.v>=-0.5)acc=thr*(R.bst===2?34:R.bst===1?24:sk==='aero'?20:15)*Math.max(0.15,Math.sqrt(Math.max(0,1-R.v/top)));
+    if(R.v>top)acc=-(R.v-top)*0.8;
+    if(brk){acc=R.v>0.5?-32:-8;if(R.v<0.5&&R.v>-12)acc=-6;}
+    acc-=0.5+0.0011*R.v*Math.abs(R.v);if(!thr&&!brk)acc-=Math.sign(R.v)*2;
+    if(driftOn)acc-=6;
+    // 抓地力：一般 40 m/s²；甩尾 ×1.6、加速過彎 ×2.2、零之領域 ×1.5；懸空轉向／幻影過彎＝不會滑出去
+    const grip=40*(driftOn?1.6:1)*(sk==='aero'?2.2:1)*(R.zero>0?1.5:1);
+    let curv=R.steer/(5.5+Math.abs(R.v)*0.2);   // 方向盤打到底的轉彎曲率（越快越小）
+    if(sk==='lift'||sk==='mirage'){   // 自動對準前方的彎（有在轉方向就照你的）
+      const q=near(p.x,p.z,R.i);at(sOf(q.i)+I0*DS+Math.max(18,R.v*0.45),tmpB);const want=Math.atan2(-(tmpB.x-p.x),-(tmpB.z-p.z));let dh=want-R.h;dh=Math.atan2(Math.sin(dh),Math.cos(dh));
+      const auto=cl(dh*3.4,-3.2,3.2);const yr=Math.abs(R.steer)>0.25?-R.steer*2.4:auto;curv=-yr/Math.max(6,Math.abs(R.v));}
+    else{const need=curv*curv*R.v*R.v;if(need>grip*Math.abs(curv)&&Math.abs(R.v)>1){const lim=grip/(R.v*R.v);const over=Math.abs(curv)-lim;curv=Math.sign(curv)*lim;acc-=Math.min(18,over*R.v*R.v*0.5);R.slide=Math.min(1,over*R.v*R.v/grip);}else R.slide=0;}
+    R.v+=acc*dt;if(R.st!=='drive'&&R.st!=='done')R.v=0;R.v=Math.max(-12,R.v);
+    R.h-=curv*R.v*dt;   // 右轉（steer>0）＝yaw 變小
+    fwd.set(-Math.sin(R.h),0,-Math.cos(R.h));p.addScaledVector(fwd,R.v*dt);
+    // 賽道：草地／碎石會慢下來，撞到護欄彈回來
+    const q=near(p.x,p.z,R.i);R.i=q.i;R.lat=q.lat;const P0=S[q.i];
+    const off=Math.abs(q.lat)>HW+0.6;if(off&&!(sk==='lift')){R.v-=Math.sign(R.v)*Math.min(Math.abs(R.v),(Math.abs(R.v)>25?22:6)*dt);R.offT=(R.offT||0)+dt;}else R.offT=0;
+    const lim=WALL-1.3;if(Math.abs(q.lat)>lim){const sd=Math.sign(q.lat);p.x-=P0.rx*(Math.abs(q.lat)-lim)*sd;p.z-=P0.rz*(Math.abs(q.lat)-lim)*sd;
+      const th=Math.atan2(-P0.tx,-P0.tz)+(Math.cos(R.h-Math.atan2(-P0.tx,-P0.tz))<0?Math.PI:0);let dh=th-R.h;dh=Math.atan2(Math.sin(dh),Math.cos(dh));
+      if(Math.abs(R.v)>6){R.v*=0.62;R.h+=dh*0.6;R.shk=0.5;AUDIO.sfx('heavy',p);AUDIO.sfx('crack',p);for(let k=0;k<12;k++)puff(new V3(p.x+P0.rx*sd*1.1,0.5,p.z+P0.rz*sd*1.1),0.5,0.4,0.05,new V3(rnd(-4,4),rnd(1,4),rnd(-4,4)),'#ffd27a');if(performance.now()-(R.wallSay||0)>5000){R.wallSay=performance.now();say('撞到護欄了，小心','warn');}}else R.h+=dh*0.2;}
+    // 進度、圈數
+    const sNow=sOf(q.i);if(R.sPrev!==undefined){let d=sNow-R.sPrev;if(d>TL/2)d-=TL;if(d<-TL/2)d+=TL;R.prog+=d;}R.sPrev=sNow;
+    // 逆向
+    if(fwd.x*P0.tx+fwd.z*P0.tz<-0.3&&R.v>8){R.wrongT+=dt;if(R.wrongT>1.5&&performance.now()-(R.wrongSay||0)>5000){R.wrongSay=performance.now();say('方向錯了！請迴轉','warn');}}else R.wrongT=0;
+    // 加速器：第一段每秒用 16%、第二段 28%；沒在用每秒充 7%
+    if(R.bst){R.gauge-=(R.bst===2?28:16)*dt;if(R.manBrk&&R.v>10)R.bst=0;if(R.gauge<=0){R.gauge=0;R.bst=0;navShow('加速器用完了');}}else R.gauge=Math.min(100,R.gauge+7*dt);
+    // 甩尾：按住累積「閃電甩尾」（藍 0.8 秒 → 橘 1.6 秒 → 紫 2.4 秒），放開的時候加速
+    if(driftOn){R.driftT+=dt;R.drift=Math.sign(R.steer||R.drift||1);}else if(R.driftT>0){const lv=R.driftT>2.4?3:R.driftT>1.6?2:R.driftT>0.8?1:0;
+      if(lv&&R.st==='drive'){R.v=Math.min(Math.max(R.v,0)+[0,8,13,19][lv],top+12);big(['','閃電甩尾！','閃電甩尾！！','超・閃電甩尾！！！'][lv]);AUDIO.sfx('takeoff');R.shk=0.3;navShow('閃電甩尾加速！','boost');R.gauge=Math.min(100,R.gauge+lv*6);}R.driftT=0;R.drift=0;}
+    // 技能計時
+    if(R.sk){R.sk.t+=dt;if(R.sk.t>=R.sk.dur){if(R.sk.k==='lift'){AUDIO.sfx('thud',p);R.shk=0.3;}R.sk=null;}}
+    const sk2=R.sk&&R.sk.k;
+    if(R.zero>0){R.zero-=dt/Math.max(0.3,R.slowK);if(R.zero<=0){R.zero=0;document.body.classList.remove('rcz');navShow('離開零之領域');}}
+    // 車身姿態：甩尾斜一邊、懸空轉向側立起來、加速時車頭抬一點
+    let ty=0,troll=0,tyaw=0,tpitch=0;
+    if(sk2==='lift'){const u=R.sk.t/R.sk.dur,e=Math.sin(Math.PI*Math.min(1,u*1.15));ty=1.3*e;troll=-R.sk.dir*1.05*e;tyaw=-R.sk.dir*0.25*e;}
+    else if(sk2==='mirage'){const e=Math.sin(Math.PI*R.sk.t/R.sk.dur);tyaw=-R.sk.dir*0.75*e;troll=R.sk.dir*0.06*e;}
+    else if(driftOn)tyaw=-R.drift*0.42;
+    else tyaw=-R.steer*0.06*(R.slide||0)*4;
+    tpitch=-(acc>0?0.012:acc<-12?-0.02:0)*(R.bst?2:1);troll+=-R.steer*Math.min(1,Math.abs(R.v)/60)*0.04;
+    const kk=1-Math.exp(-dt*10);R.y+=(ty-R.y)*kk;R.roll+=(troll-R.roll)*kk;R.yawOff+=(tyaw-R.yawOff)*Math.min(1,dt*7);R.pitch+=(tpitch-R.pitch)*kk;
+    car.root.rotation.y=R.h;car.body.position.y=R.y;car.body.rotation.set(R.pitch,R.yawOff,R.roll,'YXZ');
+    for(const w of car.wheels)w.rotation.z-=R.v*dt/0.36;for(const sp of car.steers)sp.rotation.y=R.steer*0.42;
+    // 空力模式（加速過彎、懸空轉向、加速器第二段）：尾翼翹起、側板打開
+    const aeroT=sk2==='aero'||sk2==='lift'||R.bst===2?1:R.bst===1?0.4:0;car.aero+=(aeroT-car.aero)*Math.min(1,dt*6);
+    car.wing.rotation.z=0.32*car.aero;car.wing.position.y=0.62+0.22*car.aero;for(const fl of car.flaps)fl.pv.rotation.x=fl.sd*0.9*car.aero;
+    // 加速器的火焰
+    for(const fl of car.flames){const on=R.bst>0||(R.boostFlash||0)>0;fl.f.visible=on;if(on){const k=R.bst===2?1.25:0.8,j=0.8+Math.random()*0.35;fl.f.scale.set(k*j,R.bst===2?1.35:1,R.bst===2?1.35:1);fl.fm.color.set(R.bst===2?(Math.random()<0.6?'#6fcfff':'#d8f6ff'):'#ff9a3a');fl.fm.opacity=R.bst===2?0.75:0.8;}
+      fl.gl.scale.setScalar(on?(R.bst===2?2.4:1.3)*(0.85+Math.random()*0.3):0.01);fl.gl.material.color.set(R.bst===2?'#9fe6ff':'#ffb347');}
+    // 特效：甩尾火花、懸空轉向的藍色氣流、螺旋加速的光環
+    R.fxT=(R.fxT||0)-dt;if(R.fxT<=0){R.fxT=0.025;
+      const back=tmpV.copy(fwd).multiplyScalar(-2.1).add(p);
+      if(driftOn||(R.slide>0.3)){const c=R.driftT>2.4?'#c77dff':R.driftT>1.6?'#ff9a3a':R.driftT>0.8?'#5ad1ff':'#ffe9a8';for(const sd of [-1,1])puff(new V3(back.x+Math.cos(R.h)*sd*1.0,0.25,back.z-Math.sin(R.h)*sd*1.0),0.35,0.35,0.05,new V3(rnd(-1,1),rnd(1,2.5),rnd(-1,1)),c);}
+      if(sk2==='lift'){for(let k=0;k<2;k++)puff(new V3(p.x+rnd(-1,1),0.3+R.y*0.5,p.z+rnd(-1,1)),0.4,0.6,0.1,new V3(-fwd.x*6,1,-fwd.z*6),'#7fd8ff');}
+      if(R.bst===2){const a=performance.now()/60;for(const sd of [-1,1]){const n=tmpV.copy(fwd).multiplyScalar(-3.2).add(p);puff(new V3(n.x+Math.cos(a)*0.6*sd,0.6+Math.sin(a)*0.6,n.z+Math.sin(a)*0.6*sd),0.45,0.5,0.1,null,'#bfefff');}}
+      if(sk2==='aero'){for(const sd of [-1,1]){const n=tmpV.copy(fwd).multiplyScalar(-2.2).add(p);puff(new V3(n.x+Math.cos(R.h)*sd*1.15,1.3,n.z-Math.sin(R.h)*sd*1.15),0.4,0.25,0.05,null,'#9fe6ff');}}
+      if(off&&Math.abs(R.v)>8)puff(new V3(back.x,0.3,back.z),0.6,0.8,1.6,new V3(0,1,0),'#c8b58c');}
+    // 殘影
+    R.hist.unshift({x:p.x,y:R.y,z:p.z,h:R.h,yo:R.yawOff,r:R.roll});if(R.hist.length>40)R.hist.length=40;
+    R.ghost.forEach((g,k)=>{const on=sk2==='mirage'&&R.hist.length>(k+1)*5;g.w.visible=on;if(on){const hh=R.hist[(k+1)*5];g.w.position.set(hh.x,0,hh.z);g.w.rotation.y=hh.h;g.b.position.y=hh.y;g.b.rotation.set(0,hh.yo,hh.r,'YXZ');}});
+    if(sk2==='mirage')ghostMat.opacity=0.32*Math.sin(Math.PI*R.sk.t/R.sk.dur);
+    // 影子、跟著車的玩家位置
+    car.sh.visible=true;car.sh.position.y=0.05-R.y;car.sh.material.opacity=1/(1+R.y);
+    player.pos.set(p.x,p.z);player.y=0;player.vy=0;player.ground=true;player.vel.set(0,0);player.yaw=R.h;player.climb=false;
+    // 引擎聲：模擬 7 檔
+    if(R.eng){const vv=Math.abs(R.v),gs=top/7,gear=Math.min(6,Math.floor(vv/gs)),rpm=cl(0.3+0.7*(vv-gear*gs)/gs,0,1)*(vv<1?0.4:1)+(vv<1?0:0);R.eng.set(vv<0.5?0.12:rpm,thr,R.bst,Math.max(driftOn?0.7:0,R.slide||0,sk2==='mirage'?0.5:0),Math.min(1,vv/120));}
+  };
+  // ================= 鏡頭 =================
+  const CP0=new V3(),CL=new V3();
+  // 鏡頭（使用者：開賽車會頭暈、不舒服）→ 穩定追車：視野固定 60°、不晃、不切招式鏡頭、地平線保持水平、高度不跟著車子跳；
+  // 鏡頭方向跟著「平滑過的車頭方向」轉，而且每秒最多轉 1.6 rad（甩尾、懸空轉向、幻影過彎時車子轉很快，鏡頭不會跟著甩）；位置幾乎貼著車（不會一前一後拉扯）
+  R.camera=dt=>{const p=ME.root.position;
+    if(R.mode==='vortex'&&!R.vfall){const q=VS[R.vi||0],c=R.cam===1?1.5:1;CP0.copy(p).addScaledVector(q.t,-7.5*c).addScaledVector(q.n,1.6*c);CP0.y+=1.4*c;CL.copy(p).addScaledVector(q.t,12).addScaledVector(q.n,0.6);
+      if(R.cam===2){CP0.copy(p).addScaledVector(q.t,0.3).addScaledVector(q.n,0.95);CL.copy(p).addScaledVector(q.t,25).addScaledVector(q.n,0.8);}
+      if(!R.camP)R.camP=CP0.clone();R.camP.lerp(CP0,1-Math.exp(-dt*(R.cam===2?60:10)));camera.position.copy(R.camP);camera.lookAt(CL);if(Math.abs(camera.fov-60)>0.01){camera.fov=60;camera.updateProjectionMatrix();}R.camH=R.h;return;}
+    if(R.mode==='vortex'&&R.vfall){camera.lookAt(p);return;}
+    if(!R.camP)R.camH=R.h;{let dh=R.h-R.camH;dh=Math.atan2(Math.sin(dh),Math.cos(dh));R.camH+=cl(dh*Math.min(1,dt*3.2),-1.6*dt,1.6*dt);}
+    const fx=-Math.sin(R.camH),fz=-Math.cos(R.camH);
+    if(R.cam===2){CP0.set(p.x+fx*0.25,0.95,p.z+fz*0.25);CL.set(p.x+fx*25,0.8,p.z+fz*25);}   // 駕駛艙（不跟著車身傾斜）
+    else{const dist=[7.2,11][R.cam],ht=[2.6,4.2][R.cam];CP0.set(p.x-fx*dist,ht,p.z-fz*dist);CL.set(p.x+fx*16,1.0,p.z+fz*16);}
+    if(!R.camP)R.camP=CP0.clone();
+    R.camP.lerp(CP0,1-Math.exp(-dt*(R.cam===2?60:14)));
+    camera.position.copy(R.camP);camera.lookAt(CL);R.shk=0;
+    if(Math.abs(camera.fov-60)>0.01){camera.fov=60;camera.updateProjectionMatrix();}
+    linesEl.style.opacity=0;};
+  R.rt=dt=>{const t=R.on&&R.zero>0?0.55:1;R.slowK+=(t-R.slowK)*Math.min(1,dt*4);return R.slowK;};
+  // ================= 對手 AI =================
+  // 對手的技能（使用者：其他賽車也要有加速器、過彎技巧）：兩段加速器（直線開、要煞車前關掉）＋彎道前隨機用加速過彎／懸空轉向／幻影過彎／閃電甩尾；
+  // 速度跟自動駕駛一樣算「從這裡煞得下來」的最高速（技能會讓彎道跑更快）；在你附近 80 m 內發動，導航會報出來
+  const AISK={aero:{n:'加速過彎',dur:2.6,g:2.2},lift:{n:'懸空轉向',dur:1.0,g:3.2},mirage:{n:'幻影過彎',dur:1.4,g:3.2},drift:{n:'閃電甩尾',dur:1.7,g:1.6}};
+  function aiSay(a,t,snd){const p=a.car.root.position,d=Math.hypot(p.x-ME.root.position.x,p.z-ME.root.position.z);if(snd)AUDIO.sfx(snd,p);
+    if(d<80&&R.st==='drive'&&performance.now()-(a.sayT||0)>2500){a.sayT=performance.now();navShow(`${a.def.name}：${t}`,'warn');}}
+  function aiGhosts(a){if(a.ghosts)return a.ghosts;const mat=new THREE.MeshBasicMaterial({color:a.def.acc,transparent:true,opacity:0.3,blending:THREE.AdditiveBlending,depthWrite:false});
+    a.ghosts=[0,1].map(()=>{const g=a.car.P.clone(true);g.traverse(o=>{if(o.isMesh)o.material=mat;if(o.isSprite)o.visible=false;});const w=new THREE.Group(),bd=new THREE.Group();w.add(bd);bd.add(g);w.visible=false;scene.add(w);return {w,bd};});a.gmat=mat;a.hist=[];return a.ghosts;}
+  function aiStep(a,dt){const s=a.s,i=Math.floor(((s%TL)+TL)%TL/DS)%N,car=a.car;
+    if(a.y===undefined||!isFinite(a.y)){a.y=0;a.roll=0;a.yo=0;}if(a.gauge===undefined)a.gauge=100;
+    const sA=((a.s-I0*DS)%TL+TL)%TL,lap=Math.floor(a.prog/TL);
+    // 彎道前 25～45 m 決定要不要用技能（每個彎只決定一次）
+    if(!a.sk&&a.prog>60)for(const c of CORNERS){let dd=c.s0-sA;if(dd<0)dd+=TL;const key=c.name+lap;if(dd>25&&dd<45&&a.lastC!==key){a.lastC=key;if(Math.random()<a.agg){const r=Math.random(),k=r<0.3?'aero':r<0.55?'lift':r<0.8?'mirage':'drift';a.sk={k,t:0,dur:AISK[k].dur,dir:c.dir==='L'?-1:1};aiSay(a,AISK[k].n+'！',k==='lift'?'takeoff':'whoosh');}}}
+    if(a.sk){a.sk.t+=dt;if(a.sk.t>=a.sk.dur){if(a.sk.k==='drift'){a.v+=11;aiSay(a,'閃電甩尾加速！','takeoff');}a.sk=null;}}
+    const sk=a.sk&&a.sk.k;
+    // 加速器：前方 100 m 是直線、能量夠就開；第一段開了一下、速度夠快再開第二段；要煞車就關掉
+    let straight=true;for(let k=0;k<50;k+=2)if(Math.abs(S[(i+k)%N].k)>1/300){straight=false;break;}
+    if(R.st==='drive'&&a.prog>60){if(!a.bst&&straight&&a.gauge>45&&Math.random()<dt*a.agg*1.6){a.bst=1;aiSay(a,'加速器！','takeoff');}
+      else if(a.bst===1&&a.v>70&&a.gauge>30&&Math.random()<dt*a.agg*3){a.bst=2;aiSay(a,'第二段・螺旋加速！','heavy');}}
+    const top=a.bst===2?150:a.bst===1?114:sk==='aero'?95:88,gm=Math.pow(sk?AISK[sk].g:1,0.25);   /* 對手技能的加成比你的小（你的是平方根） */
+    let vt=top;for(let k=1;k<200;k+=2){const vc=VAI[(i+k)%N]*gm*a.skill,lim=Math.sqrt(vc*vc+2*24*k*DS);if(lim<vt)vt=lim;}
+    if(a.bst){a.gauge-=(a.bst===2?28:16)*dt;if(vt<a.v-4||a.gauge<=0){a.bst=0;a.gauge=Math.max(0,a.gauge);}}else a.gauge=Math.min(100,a.gauge+7*dt);
+    // 前面有車（你或其他對手）：換線超車，換不過去就跟著
+    const k=S[i].k;let tl=cl(Math.sign(k)*Math.min(4.5,Math.abs(k)*260),-HW+1.6,HW-1.6)+a.base*0.6;
+    const others=[{s:R.prog+I0*DS,lat:R.lat,v:R.v},...AIS.filter(b=>b!==a).map(b=>({s:b.prog+I0*DS,lat:b.lat,v:b.v}))];
+    for(const o of others){const ds=o.s-(a.prog+I0*DS);if(ds>0&&ds<16&&Math.abs(o.lat-a.lat)<2.6){tl=o.lat>0?o.lat-3.4:o.lat+3.4;if(Math.abs(tl)>HW-1.4){tl=cl(tl,-HW+1.4,HW-1.4);if(ds<8)vt=Math.min(vt,o.v+1);}}}
+    a.tlat=cl(tl,-HW+1.4,HW-1.4);a.lat+=cl(a.tlat-a.lat,-3.2*dt,3.2*dt);
+    const dv=vt-a.v;a.v+=cl(dv,-26*dt,(a.bst===2?32:a.bst===1?22:sk==='aero'?18:14)*dt);a.s+=a.v*dt;a.prog+=a.v*dt;
+    at(a.s,tmpA);const hd=Math.atan2(-tmpA.tx,-tmpA.tz)-cl(a.tlat-a.lat,-1,1)*0.05;car.root.position.set(tmpA.x+tmpA.rx*a.lat,0,tmpA.z+tmpA.rz*a.lat);car.root.rotation.y=hd;
+    for(const w of car.wheels)w.rotation.z-=a.v*dt/0.36;for(const sp of car.steers)sp.rotation.y=cl(tmpA.k*40,-0.4,0.4);
+    // 車身姿態：懸空轉向側立、幻影過彎／甩尾斜一邊（跟你的車一樣）
+    let ty=0,troll=cl(tmpA.k*a.v*a.v*0.0006,-0.05,0.05),tyo=0;
+    if(sk==='lift'){const e=Math.sin(Math.PI*Math.min(1,a.sk.t/a.sk.dur*1.15));ty=1.3*e;troll=-a.sk.dir*1.05*e;tyo=-a.sk.dir*0.25*e;}
+    else if(sk==='mirage'){tyo=-a.sk.dir*0.75*Math.sin(Math.PI*a.sk.t/a.sk.dur);}
+    else if(sk==='drift')tyo=-a.sk.dir*0.42;
+    const kk=1-Math.exp(-dt*10);a.y+=(ty-a.y)*kk;a.roll+=(troll-a.roll)*kk;a.yo+=(tyo-a.yo)*Math.min(1,dt*7);
+    car.body.position.y=a.y;car.body.rotation.set(0,a.yo,a.roll,'YXZ');car.sh.position.y=0.05-a.y;
+    // 加速器火焰（第一段橘、第二段藍白）、空力模式
+    for(const fl of car.flames){const on=a.bst>0;fl.f.visible=on;if(on){const kf=a.bst===2?1.25:0.8,j=0.8+Math.random()*0.35;fl.f.scale.set(kf*j,a.bst===2?1.35:1,a.bst===2?1.35:1);fl.fm.color.set(a.bst===2?(Math.random()<0.6?'#6fcfff':'#d8f6ff'):'#ff9a3a');}
+      fl.gl.scale.setScalar(on?(a.bst===2?2.2:1.2)*(0.85+Math.random()*0.3):0.01);fl.gl.material.color.set(a.bst===2?'#9fe6ff':'#ffb347');}
+    const aeroT=sk==='aero'||sk==='lift'||a.bst===2?1:a.bst===1?0.4:0;car.aero+=(aeroT-car.aero)*Math.min(1,dt*6);car.wing.rotation.z=0.32*car.aero;car.wing.position.y=0.62+0.22*car.aero;for(const fl of car.flaps)fl.pv.rotation.x=fl.sd*0.9*car.aero;
+    // 特效：只在你附近（120 m 內）才做
+    const pp0=ME.root.position;if(Math.hypot(car.root.position.x-pp0.x,car.root.position.z-pp0.z)<120){a.fxT=(a.fxT||0)-dt;if(a.fxT<=0){a.fxT=0.04;const p=car.root.position,fx=-Math.sin(hd),fz=-Math.cos(hd);
+        if(sk==='drift'){const c=a.sk.t>1.2?'#ff9a3a':a.sk.t>0.6?'#5ad1ff':'#ffe9a8';for(const sd of [-1,1])puff(new V3(p.x-fx*2.1+Math.cos(hd)*sd,0.25,p.z-fz*2.1-Math.sin(hd)*sd),0.35,0.35,0.05,new V3(rnd(-1,1),rnd(1,2.5),rnd(-1,1)),c);}
+        if(sk==='lift')puff(new V3(p.x+rnd(-1,1),0.3+a.y*0.5,p.z+rnd(-1,1)),0.4,0.6,0.1,new V3(-fx*6,1,-fz*6),'#7fd8ff');
+        if(sk==='aero')for(const sd of [-1,1])puff(new V3(p.x-fx*2.2+Math.cos(hd)*sd*1.15,1.3,p.z-fz*2.2-Math.sin(hd)*sd*1.15),0.4,0.25,0.05,null,'#9fe6ff');
+        if(a.bst===2)puff(new V3(p.x-fx*3.2,0.6,p.z-fz*3.2),0.45,0.5,0.1,null,'#bfefff');}
+      // 幻影過彎的殘影（第一次用到才建）
+      if(sk==='mirage'||a.ghosts){const G=aiGhosts(a);a.hist.unshift({x:car.root.position.x,z:car.root.position.z,h:hd,y:a.y,yo:a.yo,r:a.roll});if(a.hist.length>16)a.hist.length=16;
+        G.forEach((g,n)=>{const on=sk==='mirage'&&a.hist.length>(n+1)*6;g.w.visible=on;if(on){const hh=a.hist[(n+1)*6];g.w.position.set(hh.x,0,hh.z);g.w.rotation.y=hh.h;g.bd.position.y=hh.y;g.bd.rotation.set(0,hh.yo,hh.r,'YXZ');}});
+        if(sk==='mirage')a.gmat.opacity=0.32*Math.sin(Math.PI*a.sk.t/a.sk.dur);}}
+    else if(a.ghosts)for(const g of a.ghosts)g.w.visible=false;
+    // 跟你相撞：互相推開、後面那台減速
+    const pp=ME.root.position,dx=car.root.position.x-pp.x,dz=car.root.position.z-pp.z;if(dx*dx+dz*dz<36){const along=dx*(-Math.sin(R.h))+dz*(-Math.cos(R.h)),side=dx*Math.cos(R.h)+dz*(-Math.sin(R.h));
+      if(Math.abs(along)<4.6&&Math.abs(side)<2.1){const push=(2.1-Math.abs(side))*Math.sign(side||1);pp.x-=Math.cos(R.h)*push*0.6;pp.z+=Math.sin(R.h)*push*0.6;
+        if(along>0&&R.v>a.v){R.v=a.v-1;a.v+=2;}else if(along<0&&a.v>R.v){a.v=R.v-1;R.v+=2;}
+        a.lat+=Math.sign(a.lat-R.lat||1)*(2.1-Math.abs(side))*0.4;
+        if(performance.now()-(a.hitT||0)>600){a.hitT=performance.now();AUDIO.sfx('thud',car.root.position);AUDIO.sfx('crack',car.root.position);R.shk=0.4;for(let k=0;k<8;k++)puff(new V3((pp.x+car.root.position.x)/2,0.6,(pp.z+car.root.position.z)/2),0.4,0.4,0.05,new V3(rnd(-4,4),rnd(1,3),rnd(-4,4)),'#ffe9a8');}}}
+    // 從旁邊呼嘯而過
+    if(dx*dx+dz*dz<64&&Math.abs(a.v-R.v)>12&&performance.now()-(a.wT||0)>1500){a.wT=performance.now();AUDIO.sfx('whoosh',car.root.position);}}
+  // ================= 每格（主迴圈都會呼叫）：倒數、對手、導航、HUD =================
+  const FOG0=0.004;
+  R.tick=dt=>{fxTick(dt);
+    {const inArea=player.pos.y>270;const d=inArea?0.0011:FOG0;if(Math.abs(scene.fog.density-d)>1e-5)scene.fog.density+=(d-scene.fog.density)*Math.min(1,dt*2);}   // 賽車場：霧淡一點（直線才看得遠、看得到富士山）
+    {const k=cl(sun.intensity/3.2,0.08,1);FUJI.mat.color.setScalar(0.25+0.75*k);}   // 晚上富士山變暗
+    if(R.on&&GAME.on)R.stop();
+    if(!R.on){const p=ME.root.position;if(Math.hypot(p.x-player.pos.x,p.z-player.pos.y)>60){const q=PARK;at(q.s,tmpA);if(Math.hypot(p.x-tmpA.x,p.z-tmpA.z)>5){placeCar(ME,q.s,q.lat);R.h=ME.root.rotation.y;ME.body.position.set(0,0,0);ME.body.rotation.set(0,0,0);}}return;}   // 人走遠了：賽車自己開回起跑線後面停好
+    if(R.st==='count'){R.cd+=dt;const n=Math.min(5,Math.floor(R.cd/0.8));lightsEl.innerHTML=[0,1,2,3,4].map(k=>`<i class="${k<n?'on':''}"></i>`).join('');
+      LIGHTS.forEach((l,k)=>l.color.set(k<n?'#ff2020':'#3a0d0d'));if(n>(R.lastN||0)){R.lastN=n;AUDIO.sfx('beep');}
+      if(R.cd>=4.0+0.4+R.goDelay){R.st='drive';if(R.mode==='vortex')R.vkind='run';R.lastN=0;lightsEl.hidden=true;LIGHTS.forEach(l=>l.color.set('#3a0d0d'));AUDIO.sfx('go');big('GO！！');say('出發！',null,true);}}
+    if(R.st==='count'&&R.goDelay===undefined)R.goDelay=Math.random()*0.8;
+    if(R.st!=='count')R.goDelay=undefined;
+    // 對手
+    if(R.mode==='race'&&(R.st==='drive'||R.st==='done'))for(const a of AIS)aiStep(a,dt);
+    // 圈數、計時
+    if(R.mode!=='vortex'&&(R.st==='drive'||R.st==='done')){R.lapT+=dt;if(R.mode==='race')R.raceT+=dt;
+      const lap=Math.floor(R.prog/TL);
+      if(R.mode==='free'){if(lap>R.lap){if(R.lapValid){const t=R.lapT;R.lapTimes.push(t);const nb=R.best==null||t<R.best;if(nb){R.best=t;try{localStorage.setItem('home-race-best',t);}catch(_){}}say(`圈速 ${t.toFixed(2)} 秒${nb?'，新紀錄！':''}`,nb?'boost':null,true);if(nb)AUDIO.sfx('cheer');}R.lapT=0;R.lapValid=true;}if(lap<R.lap)R.lapValid=false;R.lap=lap;}
+      else if(R.st==='drive'){if(lap>R.lap&&lap>=1){R.lapTimes.push(R.lapT);const t=R.lapT;if(R.best==null||t<R.best){R.best=t;try{localStorage.setItem('home-race-best',t);}catch(_){}}R.lapT=0;
+          if(lap>=3){R.st='done';R.fin={t:R.raceT,place:R.place};finish();}else say(lap===2?`最後一圈！目前第 ${R.place} 名`:`第 ${lap+1} 圈，圈速 ${t.toFixed(2)} 秒，目前第 ${R.place} 名`,null,true);}
+        if(lap>R.lap)R.lap=lap;}
+      if(R.mode==='race'){const all=[{me:true,p:R.prog},...AIS.map(a=>({p:a.prog}))].sort((x,y)=>y.p-x.p);const pl=all.findIndex(x=>x.me)+1;
+        if(R.place&&pl<R.place&&R.st==='drive'){navShow(`超車！第 ${pl} 名`,'boost');AUDIO.sfx('combo');}if(R.place&&pl>R.place&&R.st==='drive')navShow(`被超車了，第 ${pl} 名`,'warn');R.place=pl;}}
+    // 導航：前方彎道（220 m 內）
+    if(R.st==='drive'&&R.mode!=='vortex'){R.navT-=dt;if(R.navT<=0){R.navT=0.25;const sNow=sOf(R.i<0?I0:R.i);let best=null,bd=1e9;for(const c of CORNERS){let d=c.s0-sNow;if(d<-20)d+=TL;if(d>-20&&d<bd){bd=d;best=c;}}
+        if(best){const key=best.name+'@'+Math.floor(R.prog/TL),vk=Math.round(best.v*KMH/5)*5,arrow=best.dir==='R'?'↱ 右彎':best.dir==='L'?'↰ 左彎':'⇄ S 彎';
+          if(bd<230&&bd>40&&!R.said[key]){R.said[key]=1;say(`前方 ${best.name}，${arrow.slice(2)}，建議 ${vk} km/h`);}
+          else if(bd<95&&bd>0&&R.v>best.v*1.18&&!R.said[key+'b']){R.said[key+'b']=1;say('減速！','warn');AUDIO.sfx('beep');}
+          if(navMsgT<=0)navEl.innerHTML=`<b>NAVI</b> ${bd>0?`${best.name} <span class="ar">${arrow}</span> ${Math.round(bd)} m　建議 ${vk}`:`${best.name}　${arrow}`}`;}
+        if(R.gauge>=99&&R.bst===0&&Math.abs(S[R.i<0?I0:R.i].k)<1/400&&!R.said['bst'+Math.floor(R.prog/TL)]&&R.v>30){R.said['bst'+Math.floor(R.prog/TL)]=1;say('直線，加速器可以使用','boost');}}}
+    navMsgT-=dt;if(navMsgT<=0&&navEl.className!=='panel')navEl.className='panel';
+    // 導航線
+    if(R.mode==='vortex'){const vNow=R.v;for(let k=0;k<=NAVN;k++){const q=VS[Math.min(VN-1,(R.vi||0)+3+k)],a=k*2*3,w=0.6;for(const [o,sd] of [[a,-1],[a+3,1]]){navPos[o]=q.p.x+q.a.x*sd*w+q.n.x*0.09;navPos[o+1]=q.p.y+q.a.y*sd*w+q.n.y*0.09;navPos[o+2]=q.p.z+q.a.z*sd*w+q.n.z*0.09;}
+        const r=q.vreq>0?vNow/q.vreq:9,fade=1-k/NAVN;let c0,c1,c2;if(r>=1.08){c0=0.2;c1=1;c2=0.45;}else if(r>=1){c0=1;c1=0.85;c2=0.1;}else{c0=1;c1=0.2;c2=0.15;}for(const o of [a,a+3]){navCol[o]=c0*fade;navCol[o+1]=c1*fade;navCol[o+2]=c2*fade;}}
+      navG.attributes.position.needsUpdate=true;navG.attributes.color.needsUpdate=true;}
+    else{const i0=R.i<0?I0:R.i,vNow=Math.abs(R.v),zero=R.zero>0;for(let k=0;k<=NAVN;k++){const i=(i0+3+k)%N,p=S[i],w=zero?0.9:0.55,a=k*2*3;
+        navPos[a]=p.x-p.rx*w;navPos[a+1]=0.07;navPos[a+2]=p.z-p.rz*w;navPos[a+3]=p.x+p.rx*w;navPos[a+4]=0.07;navPos[a+5]=p.z+p.rz*w;
+        const need=VP[i],r=vNow/Math.max(1,need),fade=1-k/NAVN;let c0,c1,c2;if(zero){c0=1;c1=0.82;c2=0.3;}else if(r<1.02){c0=0.2;c1=1;c2=0.45;}else if(r<1.2){c0=1;c1=0.85;c2=0.1;}else{c0=1;c1=0.2;c2=0.15;}
+        for(const o of [a,a+3]){navCol[o]=c0*fade;navCol[o+1]=c1*fade;navCol[o+2]=c2*fade;}}
+      navG.attributes.position.needsUpdate=true;navG.attributes.color.needsUpdate=true;}
+    R.hudT=(R.hudT||0)-dt;if(R.hudT<=0){R.hudT=0.1;hudDraw();drawMap();}};
+  function finish(){const pl=R.place,t=R.raceT;say(pl===1?'第一名！優勝！做得好':`完賽，第 ${pl} 名`,'boost',true);AUDIO.sfx(pl===1?'bigcheer':'cheer');big(pl===1?'🏆 優勝！':`完賽 第 ${pl} 名`);
+    setTimeout(()=>{if(!R.on)return;panel.querySelector('.res').innerHTML=`<b>${pl===1?'🏆 優勝！':`第 ${pl} 名`}</b><br>總時間 ${fmtT(t)}　最快圈 ${fmtT(Math.min(...R.lapTimes))}`;panel.hidden=false;},2500);}
+  R.pickPanel=()=>{panel.hidden=false;};
+  return R;})();
+
 /* ---------------- 動作（使用者要求：月球漫步、最近很紅的 Bye Bye Bye，順便放一些常見的動作） ----------------
    上方「動作」按鈕（電腦 N 鍵）打開清單，點一個就開始做（會切到第三人稱，人物轉過來面對鏡頭）。
    跳舞類（Bye Bye Bye、牙線舞、騎馬舞、機器人舞、月球漫步、坐下）會一直做，推搖桿／按方向鍵、跳、再點一次就停；其他做完自己停。
@@ -4136,7 +4811,7 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
   for(const it of LIST){const b=document.createElement('button');b.textContent=it.name;b.onclick=e=>{e.stopPropagation();panel.hidden=true;btn.classList.remove('on');E.start(it.k);};panel.appendChild(b);}
   E.toggle=()=>{panel.hidden=!panel.hidden;btn.classList.toggle('on',!panel.hidden);if(!panel.hidden){menu.hidden=true;bMenu.classList.remove('on');}};
   btn.onclick=e=>{e.stopPropagation();if(E.on){E.stop();return;}E.toggle();};
-  E.can=()=>started&&mode==='walk'&&!GAME.on&&!BALLOON.riding&&!player.climb;
+  E.can=()=>started&&mode==='walk'&&!GAME.on&&!BALLOON.riding&&!player.climb&&!RACE.on;
   E.start=k=>{const it=LIST.find(x=>x.k===k);if(!it)return;if(!E.can()){toast(GAME.on?'小遊戲中不能做動作':'現在不能做動作');return;}
     if(E.on)E.stop(true);if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();
     E.on=it;E.t=0;E.cnt=0;player.vel.set(0,0);if(view!=='third'){view='third';syncViewUI();}
@@ -4351,7 +5026,7 @@ function playerFall(dt){
   TRAMP.after(vin);   // 彈跳床
 }
 let jumpHeld=false;   // 手機「跳」按住中（彈跳床：按住就一直用力彈）
-function doJump(){if(!started||mode!=='walk'||TN.on)return;if(EMOTE.on)EMOTE.stop();if(BALLOON.riding){BALLOON.burnPress();return;}if(SKATE.on){SKATE.jump();return;}if(BB.lock())return;if(LIE.on){LIE.stop();syncActBtn();return;}if(player.climb)return;
+function doJump(){if(!started||mode!=='walk'||TN.on||RACE.on)return;if(EMOTE.on)EMOTE.stop();if(BALLOON.riding){BALLOON.burnPress();return;}if(SKATE.on){SKATE.jump();return;}if(BB.lock())return;if(LIE.on){LIE.stop();syncActBtn();return;}if(player.climb)return;
   if(TRAMP.press())return;   // 彈跳床：往下掉時按＝下一下彈更高（不是二段跳）、剛彈起來補按也算
   if(player.ground){player.vy=4.6;player.ground=false;player.jumps=1;}else if(player.jumps<2){player.vy=4.6;player.jumps=2;}}
 const lidShut=()=>HATCH_LID.t<0.95;
@@ -5055,7 +5730,9 @@ const SPOTS=[
   {name:'跳台公園',x:109.5,z:49,yaw:-Math.PI/2},   // 大跳台助跑道的起點、面向東
   {name:'籃球場',x:COURT.cx+2,z:COURT.z0-3.2,yaw:Math.PI},
   {name:'服裝店',x:44,z:102.5,yaw:0},
-  {name:'網球場',x:83,z:101.5,yaw:0},   // 門口、面向店
+  {name:'網球場',x:83,z:101.5,yaw:0},
+  {name:'賽車場',x:-54,z:322.6,yaw:Math.PI},
+  {name:'大漩渦',x:-30,z:648,yaw:Math.PI},   // 大漩渦起點拱門前（面向漩渦）   // 站在賽車旁邊（面向車）   // 門口、面向店
   {name:'超級彈跳床',x:-5.2,z:-4.6,yaw:0},   // 房子西邊的空地，面向彈跳床   // 球車旁、面向球場   // 大跳台起跳區、面向東
   {name:'大圓環',x:-16,z:80,yaw:Math.PI},   // 直排輪架旁邊、面向入口   // 傳送到熱氣球現在停的地方（可能降落在別處）
   {name:'全家便利商店',x:(STORE.dx0+STORE.dx1)/2,z:10.8,yaw:Math.PI},
@@ -5065,6 +5742,7 @@ const SPOTS=[
 const canvas=renderer.domElement;
 addEventListener('keydown',e=>{keys[e.code]=true;if(!started){if(e.code==='Enter'&&!startBtn.disabled)startBtn.click();return;}
   if(GAME.on&&GAME.key(e,true))return;   // 小遊戲的技能鍵
+  if(RACE.on&&RACE.key(e,true))return;   // 賽車：空白鍵加速器、Shift 甩尾、1～4 技能
   if(SKATE.on&&SKATE.key(e,true))return;   // 直排輪：B 倒溜、T 花式
   if(BB.on&&BB.key(e,true))return;   // 籃球：T 花式運球、J 投籃、U 灌籃
   if(TN.on&&TN.key(e,true))return;   // 網球：J 擊球、1～7 招式
@@ -5073,7 +5751,7 @@ addEventListener('keydown',e=>{keys[e.code]=true;if(!started){if(e.code==='Enter
 document.getElementById('jumpBtn').addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();jumpHeld=true;doJump();},{passive:false});
 for(const ev of ['touchend','touchcancel'])document.getElementById('jumpBtn').addEventListener(ev,()=>{jumpHeld=false;});
 document.getElementById('jumpBtn').addEventListener('click',doJump);
-addEventListener('keyup',e=>{keys[e.code]=false;if(GAME.on)GAME.key(e,false);});
+addEventListener('keyup',e=>{keys[e.code]=false;if(GAME.on)GAME.key(e,false);if(RACE.on)RACE.key(e,false);});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
 let dragging=false,lastX=0,lastY=0;
 canvas.addEventListener('mousedown',e=>{if(!started||mode!=='walk')return;dragging=true;lastX=e.clientX;lastY=e.clientY;});
@@ -5233,6 +5911,8 @@ function updatePlace(){
   else if(inR(x,z,FIELD))t=['運動場',SKATE.on?'直排輪':'跑道、跳台、繞樁'];
   else if(inR(x,z,SHOP)){const s=SHOP.near&&SHOP.near();const S=SHOP,row=S.rows.find(r=>z>r.z-1.3&&z<r.z+1.4&&x<52);
     t=['繽紛衣櫥',s?(s.closet?'試衣間・打開衣櫃':`試穿：${CHAR_OUTFITS[s.g][s.o].name}`):x>54.5?(z<S.z0+4.5?'試衣間':'男裝區'):z<S.z0+4.5&&x>29&&x<41?'大鏡子':z>94.5&&x>47.5?'收銀台':row?`女裝區・${row.cat}`:'女裝區'];}
+  else if(z>625&&mode==='walk')t=['大漩渦',RACE.on&&RACE.mode==='vortex'?'離心力車道':RACE.atGate()?(isTouch?'點下方按鈕開始大漩渦挑戰':'按 F 開始大漩渦挑戰'):'離心力車道'];
+  else if(z>276&&x>-335&&x<345&&mode==='walk')t=['賽車場',RACE.on?(RACE.mode==='race'?'比賽中':RACE.mode==='free'?'自由練習':'導航系統啟動'):RACE.near()?(isTouch?'點下方按鈕坐進賽車':'按 F 坐進賽車'):z<309?'看台・入口':'賽道'];
   else if(inR(x,z,TENNIS_PARK))t=['網球場',TN.on?'網球':TN.near()?'按 F 拿球拍':'場邊'];
   else if(inR(x,z,COURT_PARK))t=['圓環籃球場',BB.on?'籃球':inR(x,z,COURT)?'全場 28×15':'場邊'];
   else if(inR(x,z,JUMP_PARK)){const J=JUMPS.find(J=>x>J.x0-8&&x<J.x3+12&&z>J.z0-1.5&&z<J.z1+1.5);t=['跳台公園',J?J.name+(player.y>0.4?`（高 ${player.y.toFixed(1)} m）`:''):JUMPS.some(J=>z>J.z0&&z<J.z1&&x<J.x0)?'助跑道':'大跳台、中跳台'];}
@@ -5398,6 +6078,8 @@ const AUDIO=(()=>{
       case 'clap':for(let i=0;i<3;i++)noise(t+i*0.0055,0.02,1.6/(i+1),o,'bandpass',rp(1300),0,0.9);noise(t,0.008,0.6,o,'highpass',2500);noise(t,0.08,0.3,o,'lowpass',900,0,0,{col:'p'});break;   // 拍手
       case 'boing':tone('sine',rp(110),330,t,0.32,0.45,o,null,{vib:[14,18],glide:0.25});fm(t,rp(220),1.5,1.5,0.35,0.12,o);kick(t,0.6,o,90,50,0.15,0);break;   // 彈跳床「咚～」彈簧
       case 'takeoff':noise(t,0.5,0.55,o,'bandpass',rp(220),1800,1.3,{col:'p',a:0.05});kick(t,0.8,o,90,32,0.35,0.2);break;   // 起跳「轟」
+      case 'beep':tone('square',880,0,t,0.26,0.1,o,['lowpass',3500]);tone('sine',880,0,t,0.3,0.16,o);break;   // 倒數燈「嗶」
+      case 'go':tone('square',1760,0,t,0.55,0.12,o,['lowpass',4500]);tone('sine',1760,0,t,0.7,0.18,o);break;   // 出發
       case 'catch':noise(t,0.03,0.9,o,'bandpass',rp(1500),0,1.2);kick(t,0.7,o,170,90,0.07,0.15);break;   // 接球「啪」
       case 'shatter':glass(t,o,1,20);break;   // 玻璃碎掉
       case 'fire':noise(t,1.0,0.5,o,'bandpass',300,2000,0.8,{col:'p',a:0.1});grains(t,18,0.9,tt=>noise(tt,0.012,rnd(0.1,0.3),o,'highpass',rnd(2000,5000),0,0,{pan:rnd(-0.6,0.6)}));tone('sawtooth',rp(110),330,t,0.8,0.14,o,['lowpass',500,2,2000],{a:0.1});break;}}   // 火焰燃起＋劈啪
@@ -5483,7 +6165,7 @@ const AUDIO=(()=>{
   {const sel=document.getElementById('sfxSel'),btn=document.getElementById('sfxPlay');
    const L=[['pock','網球擊球'],['tbounce','網球落地'],['tnet','網球掛網'],['bounce','籃球運球'],['net','籃球空心'],['rim','打框'],['board','打板'],['slam','灌籃'],['catch','接球'],['cheer','歡呼'],['bigcheer','全場大歡呼'],['clap','拍手'],
      ['hit','打擊'],['heavy','重擊'],['whoosh','揮動「咻」'],['blast','氣功炮'],['beam','超級氣功波'],['boom','爆炸'],['bigboom','全力爆炸'],['palm','如來神掌'],['kick','踢足球'],['slash','光刀揮砍'],['blade','三連斬'],['quake','地裂術'],['morph','變身死亡騎士'],['shatter','玻璃碎'],['carboom','車子爆炸'],['collapse','房子倒塌'],
-     ['groan','殭屍低吼'],['zdie','殭屍倒地'],['hurt','被打到'],['combo','連擊'],['wave','波數開始'],['over','結算'],['fire','手感發燙'],['takeoff','起跳'],['boing','彈跳床'],['chime','叮咚'],['door','自動門'],['click','抽屜'],['swish','窗簾'],['rattle','百葉窗'],['burner','熱氣球噴火'],
+     ['groan','殭屍低吼'],['zdie','殭屍倒地'],['hurt','被打到'],['combo','連擊'],['wave','波數開始'],['over','結算'],['fire','手感發燙'],['takeoff','起跳'],['boing','彈跳床'],['chime','叮咚'],['beep','倒數嗶'],['go','出發'],['door','自動門'],['click','抽屜'],['swish','窗簾'],['rattle','百葉窗'],['burner','熱氣球噴火'],
      ['@beat','跳舞的鼓'],['@music','打怪音樂（4 秒）']];
    for(const [k,n] of L){const op=document.createElement('option');op.value=k;op.textContent=n;sel.appendChild(op);}
    btn.onclick=e=>{e.stopPropagation();init();const k=sel.value;
@@ -5493,6 +6175,17 @@ const AUDIO=(()=>{
     const roll=mk(A.pink,'bandpass',400,0.8),rum=mk(A.brown,'lowpass',120,0.7),skid=mk(A.noise,'bandpass',2600,4);
     return {set(v,drift){const t=c.currentTime;roll.g.gain.setTargetAtTime(Math.min(0.5,v/15*0.5),t,0.08);roll.fl.frequency.setTargetAtTime(300+v*70,t,0.1);rum.g.gain.setTargetAtTime(Math.min(0.5,v/15*0.5),t,0.1);skid.g.gain.setTargetAtTime(drift?0.12:0,t,0.05);},
       stop(){const t=c.currentTime;for(const n of [roll,rum,skid]){n.g.gain.setTargetAtTime(0,t,0.05);n.s.stop(t+0.3);}}};}
+  // 賽車引擎：鋸齒波＋方波（失真）跟著轉速、渦輪的高音、加速器的噴射聲、輪胎摩擦聲、風切聲；set(轉速0～1, 油門, 加速器段數, 滑動0～1, 車速0～1)
+  function engine(){if(!ok())return {set(){},stop(){}};const c=A.ctx,t=c.currentTime,out=c.createGain();out.gain.value=0;out.connect(A.sfx);out.gain.setTargetAtTime(0.9,t,0.2);
+    const sh=sat(out,2.5),lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=900;lp.Q.value=2;lp.connect(sh);
+    const o1=c.createOscillator(),o2=c.createOscillator(),g1=c.createGain(),g2=c.createGain();o1.type='sawtooth';o2.type='square';g1.gain.value=0.14;g2.gain.value=0.08;o1.connect(g1);g1.connect(lp);o2.connect(g2);g2.connect(lp);
+    const wh=c.createOscillator(),wg=c.createGain();wh.type='sine';wg.gain.value=0;wh.connect(wg);wg.connect(out);
+    const mk=(buf,type,f,q)=>{const s=c.createBufferSource();s.buffer=buf;s.loop=true;const fl=c.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const g=c.createGain();g.gain.value=0;s.connect(fl);fl.connect(g);g.connect(out);s.start();return {s,fl,g};};
+    const jet=mk(A.pink,'bandpass',900,0.8),skid=mk(A.noise,'bandpass',2400,3),air=mk(A.pink,'highpass',1200,0.5);for(const o of [o1,o2,wh])o.start();
+    return {set(rpm,thr,bst,slide,spd){const t=c.currentTime,f=55+rpm*170+(bst?30:0);o1.frequency.setTargetAtTime(f,t,0.04);o2.frequency.setTargetAtTime(f*0.5,t,0.04);lp.frequency.setTargetAtTime(500+thr*1800+rpm*1500,t,0.05);
+        g1.gain.setTargetAtTime(0.09+thr*0.1,t,0.05);wh.frequency.setTargetAtTime(1800+rpm*2600+bst*900,t,0.05);wg.gain.setTargetAtTime(0.01+rpm*0.018+bst*0.02,t,0.08);
+        jet.g.gain.setTargetAtTime(bst?0.3+bst*0.2:0,t,0.08);jet.fl.frequency.setTargetAtTime(bst===2?1800:900,t,0.1);skid.g.gain.setTargetAtTime((slide||0)*0.2,t,0.05);air.g.gain.setTargetAtTime((spd||0)*0.06+bst*0.03,t,0.1);},
+      stop(){const t=c.currentTime;out.gain.setTargetAtTime(0,t,0.08);for(const o of [o1,o2,wh,jet.s,skid.s,air.s])o.stop(t+0.5);}};}
   // 測試用：離線算出一個音效（不用真的聽），回傳 {秒數、峰值、RMS}
   async function test(type,secs=4){const O=window.OfflineAudioContext||window.webkitOfflineAudioContext,c=new O(2,44100*secs,44100),save={...A};
     A.ctx=c;A.test=true;makeNoise(c);A.clap=makeClap(c);graph(c,c.destination);
@@ -5503,7 +6196,7 @@ const AUDIO=(()=>{
       else sfx(type);}catch(e){Object.assign(A,save);throw e;}const buf=await c.startRendering();Object.assign(A,save);
     let pk=0,ss=0,last=0;const n=buf.length;for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<n;i++){const v=Math.abs(d[i]);if(!(v<=10))return {type,err:'NaN'};if(v>pk)pk=v;ss+=v*v;if(v>0.003&&i>last)last=i;}}
     return {type,len:+(last/44100).toFixed(2),peak:+pk.toFixed(3),rms:+Math.sqrt(ss/(2*n)).toFixed(4)};}
-  return {sfx,chargeSound,musicStart,musicStop,setTempo,skateLoop,A,test,beat:bpm=>A.beat(bpm)};
+  return {sfx,chargeSound,musicStart,musicStop,setTempo,skateLoop,engine,A,test,beat:bpm=>A.beat(bpm)};
 })();
 
 /* ---------------- 小遊戲：殭屍來襲（選單「小遊戲」開始） ----------------
@@ -6140,7 +6833,7 @@ function step(dt){
     const len=Math.hypot(f,s);if(len>1){f/=len;s/=len;}
     const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),rx=Math.cos(player.yaw),rz=-Math.sin(player.yaw);
     const k=1-Math.exp(-dt*7);
-    if(BALLOON.riding)BALLOON.step(dt,f,s,stage);else if(LIE.on)LIE.step(dt,f,s);else if(SKATE.on)SKATE.step(dt,f,s,running);else if(BB.fly)BB.flyStep(dt);else if(TN.on)TN.step(dt,f,s,running);else{
+    if(RACE.on)RACE.step(dt,f,s);else if(BALLOON.riding)BALLOON.step(dt,f,s,stage);else if(LIE.on)LIE.step(dt,f,s);else if(SKATE.on)SKATE.step(dt,f,s,running);else if(BB.fly)BB.flyStep(dt);else if(TN.on)TN.step(dt,f,s,running);else{
     player.vel.x+=((fx*f+rx*s)*speed-player.vel.x)*k;player.vel.y+=((fz*f+rz*s)*speed-player.vel.y)*k;
     {const mx=player.vel.x*dt,mz=player.vel.y*dt,n=Math.max(1,Math.ceil(Math.hypot(mx,mz)/0.2));for(let i=0;i<n;i++){player.pos.x+=mx/n;player.pos.y+=mz/n;resolve(player.pos,0.3,player.y);}}
     player.pos.x=Math.max(BOUND.x0,Math.min(BOUND.x1,player.pos.x));player.pos.y=Math.max(BOUND.z0,Math.min(BOUND.z1,player.pos.y));
@@ -6171,7 +6864,8 @@ function step(dt){
         if(player.y<FL[4]+0.4)player.pos.y=Math.max(LADDER.z0+0.05,Math.min(LADDER.z1-0.05,player.pos.y));
         if(player.y>=FL[4]+0.8&&v>0)player.pos.y-=1.4*dt;}   // 爬到頂繼續往上推：往北跨到屋頂上
     }else playerFall(dt);}
-    if(view==='third'){avatar.root.visible=true;updateAvatar(dt,stage);camDt=dt;thirdPersonCamera();}
+    if(RACE.on){avatar.root.visible=false;RACE.camera(dt);}   /* 開賽車：鏡頭跟車 */
+    else if(view==='third'){avatar.root.visible=true;updateAvatar(dt,stage);camDt=dt;thirdPersonCamera();}
     else{avatar.root.visible=false;if(BB.on||SHOP.inside())updateAvatar(dt,stage);   /* 第一人稱拿著球：人物藏起來，但球照樣跟著手 */
       camera.position.set(player.pos.x,player.y+bodyH().eye,player.pos.y);camera.rotation.set(player.pitch,player.yaw,0,'YXZ');if(LIE.on)LIE.cam();}
   }else{orbit.update();if(BB.fly)BB.flyStep(dt);else if(!BALLOON.riding&&!LIE.on&&!SKATE.on&&!player.climb)playerFall(dt);avatar.root.visible=true;updateAvatar(dt,0);}   // 空拍：人物站在原地（上下照算：放如來神掌也飛得起來）
@@ -6197,7 +6891,8 @@ function step(dt){
   SKATE.cones(dt);
   BB.tick(dt);
   TN.tick(dt);
-  {let t=0;if(CALM.on&&mode==='walk'&&started){const sp=SKATE.on?SKATE.vel.length():player.vel.length();let dy=player.yaw-CALM.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
+  RACE.tick(dt);
+  {let t=0;if(CALM.on&&mode==='walk'&&started){const sp=RACE.on?Math.abs(RACE.v)*0.05:SKATE.on?SKATE.vel.length():player.vel.length();let dy=player.yaw-CALM.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
      t=Math.min(0.85,sp*0.08+Math.abs(dy)/Math.max(dt,1e-3)*0.22+(player.ground?0:0.2));}   // 防暈：越快、轉越快、在空中，四周越暗
    CALM.yaw=player.yaw;CALM.v+=(t-CALM.v)*Math.min(1,dt*6);if(Math.abs(CALM.v-CALM.last)>0.01||(CALM.v<0.01&&CALM.last)){CALM.last=CALM.v<0.01?0:CALM.v;document.getElementById('calmVig').style.opacity=CALM.last.toFixed(2);}}
   avatar.fxTick(dt);
@@ -6209,7 +6904,7 @@ function loop(){
   if(POWER.save&&frameAcc<1/31)return;   // 省電模式：每秒最多 30 張
   const dt=Math.min(0.05,frameAcc);frameAcc=0;
   fitT-=dt;if(fitT<=0){fitT=0.3;fitView();}
-  if(started){try{step(dt*BB.rt(dt)*TN.rt(dt));}catch(e){if(!loopErr){loopErr=true;console.error(e);}}}   // 灌籃、遠投進球前有慢動作；這一格出錯也照樣畫畫面（不會整個卡住）
+  if(started){try{step(dt*BB.rt(dt)*TN.rt(dt)*RACE.rt(dt));}catch(e){if(!loopErr){loopErr=true;console.error(e);}}}   // 灌籃、遠投進球前有慢動作；這一格出錯也照樣畫畫面（不會整個卡住）
   if(labels.visible){const pf=floorOf(player.y);for(const s of labels.children){const d=camera.position.distanceTo(s.position);let o;
     if(s.userData.room)o=mode==='walk'&&s.userData.floor===pf&&indoors()?THREE.MathUtils.smoothstep(d,1.0,2.0)*(1-THREE.MathUtils.smoothstep(d,5,7.5)):0;
     else o=(mode==='aerial'||s.userData.always)?1:THREE.MathUtils.smoothstep(d,8,18);
@@ -6224,7 +6919,7 @@ syncViewUI();
 loop();
 const startBtn=document.getElementById('start');startBtn.disabled=false;startBtn.textContent='進入';
 startBtn.onclick=()=>{document.getElementById('overlay').style.display='none';started=true;guardBack();hintUntil=performance.now()+9000;syncHint();setTimeout(syncHint,9100);};
-window.__dbg={scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,charCfg:()=>charCfg};
+window.__dbg={scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
