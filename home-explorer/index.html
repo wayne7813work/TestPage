@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-10.58"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-10.61"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -250,7 +250,10 @@
   #tnBtns button small{font-size:10px;opacity:.7;margin-top:2px}
   #tnBtns button[data-k=hit]{background:rgba(220,240,60,.75);color:#2a3000}
   #tnBtns button[data-k=twist]{background:rgba(90,170,230,.65)}#tnBtns button[data-k=zero]{background:rgba(230,130,40,.65)}#tnBtns button[data-k=tsubame]{background:rgba(60,170,220,.65)}
-  #tnBtns button[data-k=hadou]{background:rgba(210,60,40,.7)}#tnBtns button[data-k=snake]{background:rgba(40,160,80,.7)}#tnBtns button[data-k=rondo]{background:rgba(140,80,210,.7)}#tnBtns button[data-k=aura]{background:rgba(220,170,30,.75)}#tnBtns button[data-k=zone]{background:rgba(40,170,190,.7)}#tnBtns button[data-k=jack]{background:rgba(230,100,30,.75)}
+  #tnBtns button[data-k=hadou]{background:rgba(210,60,40,.7)}#tnBtns button[data-k=snake]{background:rgba(40,160,80,.7)}#tnBtns button[data-k=rondo]{background:rgba(140,80,210,.7)}#tnBtns button[data-k=aura]{background:rgba(220,170,30,.75)}
+  body:not(.tnp2) #tnBtns .p2,body.tnp2 #tnBtns .p1{display:none!important}   /* 招式分兩頁：「更多招式」切換 */
+  #tnBtns button[data-k=page]{background:rgba(70,80,90,.8);font-size:12px}#tnBtns button[data-k=hakugei]{background:rgba(150,190,230,.7)}#tnBtns button[data-k=tann]{background:rgba(210,170,60,.75)}#tnBtns button[data-k=ice]{background:rgba(120,210,240,.7)}
+  #tnBtns button[data-k=samurai]{background:rgba(200,50,60,.75)}#tnBtns button[data-k=rai]{background:rgba(240,210,40,.8);color:#3a3000}#tnBtns button[data-k=phantom]{background:rgba(60,70,170,.75)}#tnBtns button[data-k=yips]{background:rgba(120,50,160,.75)}#tnBtns button[data-k=mario]{background:linear-gradient(135deg,rgba(255,80,80,.85),rgba(255,200,60,.85),rgba(80,220,120,.85),rgba(70,150,255,.85),rgba(180,90,255,.85));text-shadow:0 1px 2px #000}#tnBtns button[data-k=zone]{background:rgba(40,170,190,.7)}#tnBtns button[data-k=jack]{background:rgba(230,100,30,.75)}
   #tnBtns button[data-k=hit].ready{background:rgba(70,230,90,.95);box-shadow:0 0 0 3px #fff,0 0 22px 6px rgba(80,255,120,.9);transform:scale(1.1)}
   #tnBtns button.on{box-shadow:0 0 0 3px #fff,0 0 18px 4px rgba(255,230,120,.9);transform:scale(1.06)}
   #tnBtns button.hit{transform:scale(.88)}
@@ -387,8 +390,8 @@
 <div id="ftBar" class="panel" hidden><div id="ftInfo">罰球大賽</div><div class="bar"><div class="z" id="ftZone"></div><div class="z2" id="ftPerf"></div><div class="m" id="ftMark"></div></div><div class="k">按「投籃」（J）讓指針停在綠色就會進，正中間黃色＝空心</div></div>
 <div id="bbBtns" hidden><button data-k="trick">花式<small>T</small></button><button data-k="shoot">投籃<small>J</small></button><button data-k="dunk">灌籃<small>U</small></button><button data-k="oop">接力<small>O</small></button></div>
 <div id="tnHud" class="panel" hidden><b id="tnScore">你 0 : 0 對手</b><span id="tnPts">0-0</span><span id="tnAura"></span>
-  <div class="k">WASD 跑位（Shift 衝刺）、黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J 擊球，同時按住 A／D＝打左右邊線、W＝打深、S＝放短。1 外旋發球　2 零式削球　3 燕回閃　4 波動球　5 迴旋蛇　6 破滅的輪舞曲　7 天衣無縫　8 手塚領域　9 跳躍扣殺　F 放下球拍</div></div>
-<div id="tnBtns" hidden><button data-k="hit">擊球<small>J</small></button><button data-k="twist">外旋<br>發球<small>1</small></button><button data-k="zero">零式<br>削球<small>2</small></button><button data-k="tsubame">燕回閃<small>3</small></button><button data-k="hadou">波動球<small>4</small></button><button data-k="snake">迴旋蛇<small>5</small></button><button data-k="rondo">輪舞曲<small>6</small></button><button data-k="aura">天衣<br>無縫<small>7</small></button><button data-k="zone">手塚<br>領域<small>8</small></button><button data-k="jack">跳躍<br>扣殺<small>9</small></button></div>
+  <div class="k">WASD 跑位（Shift 衝刺）、黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J 擊球，同時按住 A／D＝打左右邊線、W＝打深、S＝放短。1 外旋發球　2 零式削球　3 燕回閃　4 波動球　5 迴旋蛇　6 破滅的輪舞曲　7 天衣無縫　8 手塚領域　9 跳躍扣殺　R 白鯨　T 唐懷瑟　Y 冰之世界　U 武士驅動球　I 雷　O 手塚幻象　P 夢　F 放下球拍</div></div>
+<div id="tnBtns" hidden><button data-k="hit">擊球<small>J</small></button><button class="p1" data-k="twist">外旋<br>發球<small>1</small></button><button class="p1" data-k="zero">零式<br>削球<small>2</small></button><button class="p1" data-k="tsubame">燕回閃<small>3</small></button><button class="p1" data-k="hadou">波動球<small>4</small></button><button class="p1" data-k="snake">迴旋蛇<small>5</small></button><button class="p1" data-k="rondo">輪舞曲<small>6</small></button><button class="p1" data-k="aura">天衣<br>無縫<small>7</small></button><button class="p1" data-k="zone">手塚<br>領域<small>8</small></button><button class="p1" data-k="jack">跳躍<br>扣殺<small>9</small></button><button class="p2" data-k="hakugei">白鯨<small>R</small></button><button class="p2" data-k="tann">唐懷瑟<small>T</small></button><button class="p2" data-k="ice">冰之<br>世界<small>Y</small></button><button class="p2" data-k="samurai">武士<br>驅動<small>U</small></button><button class="p2" data-k="rai">雷<small>I</small></button><button class="p2" data-k="phantom">手塚<br>幻象<small>O</small></button><button class="p2" data-k="yips">夢<small>P</small></button><button class="p2" data-k="mario">必殺球<small>G</small></button><button data-k="page" id="tnPage">更多<br>招式</button></div>
 <div id="skBtns" hidden><button data-k="boost">飆速<small>Shift</small></button><button data-k="drift">甩尾<small>X</small></button><button data-k="back">倒溜<small>B</small></button><button data-k="trick">花式<small>T</small></button></div>
 <div id="gOver" class="panel" hidden><h2>被殭屍抓到了！</h2><div id="gOverMsg"></div><div><button id="gRetry">再玩一次</button><button id="gExit">離開</button></div></div>
 <div id="gFlash"></div>
@@ -3627,7 +3630,7 @@ const BB=(()=>{
    球場南北向：你在南邊（z 大）、對手在北邊。人物模型的 armR（拿拍的手）在你面向北時是在西邊（-x），對手面向南時在東邊（+x）。 */
 const TN=(()=>{
   const C=TENNIS,P=TENNIS_PARK,R=0.1,GR=9.8,HL=C.L/2,SX=C.SW/2,DX=C.W/2;
-  const T={cm:null,ck:0,cp:new V3(),cl:new V3(),cd:new V2(0,-1),bpPrev:new V3(),on:false,st:'idle',q:null,zone:0,zoneFx:0,buf:null,jump:null,in:{f:0,s:0},land:null,sc:{p:0,o:0},gm:{p:0,o:0},server:'p',slow:0,slowK:1,aura:0,shk:0,sw:null,seq:null,ptgt:null,told:false,serveT:0,tossT:-1,pend:null,auraFx:0,fxT:0};
+  const T={phantom:0,yips:0,ice:[],sam:null,cm:null,ck:0,cp:new V3(),cl:new V3(),cd:new V2(0,-1),bpPrev:new V3(),on:false,st:'idle',q:null,zone:0,zoneFx:0,buf:null,jump:null,in:{f:0,s:0},land:null,sc:{p:0,o:0},gm:{p:0,o:0},server:'p',slow:0,slowK:1,aura:0,shk:0,sw:null,seq:null,ptgt:null,told:false,serveT:0,tossT:-1,pend:null,auraFx:0,fxT:0};
   const sm=t=>t*t*(3-2*t),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=(a,b)=>a+Math.random()*(b-a);
   const hud=document.getElementById('tnHud'),btns=document.getElementById('tnBtns');
   const big=t=>{const el=document.getElementById('gBig');el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');};
@@ -3635,12 +3638,14 @@ const TN=(()=>{
   // ---- 特效：光點、光環 ----
   const GLOW=(()=>{const [c,x]=cvs(64,64),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(0.35,'rgba(255,255,255,0.55)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
   const FX=[];
-  function puff(p,life,s0,s1,v,col){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,color:col}));m.position.copy(p);m.scale.setScalar(s0);scene.add(m);FX.push({m,t:0,life,s0,s1,v:v?v.clone():null});}
+  const rainbow=(o=0)=>new THREE.Color().setHSL(((performance.now()/500+o)%1+1)%1,1,0.6);   // 必殺球的彩虹色；col 傳 'rainbow' 就隨機一個顏色
+  function puff(p,life,s0,s1,v,col){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,color:col==='rainbow'?rainbow(Math.random()):col}));m.position.copy(p);m.scale.setScalar(s0);scene.add(m);FX.push({m,t:0,life,s0,s1,v:v?v.clone():null});}
   function burst(p,n,col,spd=4){for(let i=0;i<n;i++){const v=new V3(Math.random()-0.5,Math.random()*0.9,Math.random()-0.5).normalize().multiplyScalar(spd*(0.4+Math.random()*0.8));puff(p,0.45+Math.random()*0.4,0.25,0,v,col);}}
-  function ring(p,col,life,s1,flat=true){const g=new THREE.RingGeometry(0.3,0.5,48);if(flat)g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+  function ring(p,col,life,s1,flat=true){const g=new THREE.RingGeometry(0.3,0.5,48);if(flat)g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col==='rainbow'?rainbow(Math.random()):col,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
     m.position.copy(p);scene.add(m);FX.push({m,t:0,life,geo:g,ring:s1});}
-  function fxTick(dt){for(const f of FX){f.t+=dt;const k=Math.min(1,f.t/f.life);if(f.ring){f.m.scale.setScalar(1+k*f.ring);f.m.material.opacity=0.9*(1-k)*(1-k);}
-      else{if(f.v){f.m.position.addScaledVector(f.v,dt);f.v.y-=2*dt;}f.m.scale.setScalar(f.s0+(f.s1-f.s0)*k);f.m.material.opacity=1-k;}
+  function fxTick(dt){for(const f of FX){f.t+=dt;const k=Math.min(1,f.t/f.life);if(f.ring){f.m.scale.setScalar(1+k*f.ring);f.m.material.opacity=0.9*(1-k)*(1-k);}else if(f.fade){f.m.material.opacity=1-k;}
+      else{if(f.v){f.m.position.addScaledVector(f.v,dt);f.v.y-=(f.g||2)*dt;if(f.g&&f.m.position.y<0.03){f.m.position.y=0.03;f.v.set(f.v.x*0.5,Math.abs(f.v.y)*0.3,f.v.z*0.5);}}
+        if(f.w){f.m.rotation.x+=f.w.x*dt;f.m.rotation.y+=f.w.y*dt;f.m.rotation.z+=f.w.z*dt;}f.m.scale.setScalar(f.s0+(f.s1-f.s0)*k);f.m.material.opacity=f.g?Math.min(1,(1-k)*3):1-k;}
       if(k>=1){scene.remove(f.m);f.m.material.dispose();if(f.geo)f.geo.dispose();f.dead=true;}}for(let i=FX.length-1;i>=0;i--)if(FX[i].dead)FX.splice(i,1);}
   // ---- 球拍：握把沿手的 z 方向（大拇指那邊），拍面在 y-z 平面 ----
   const strTex=(()=>{const [c,x]=cvs(64,64);x.strokeStyle='rgba(245,245,240,0.95)';x.lineWidth=1.5;for(let i=3;i<64;i+=6){x.beginPath();x.moveTo(i,0);x.lineTo(i,64);x.stroke();x.beginPath();x.moveTo(0,i);x.lineTo(64,i);x.stroke();}
@@ -3653,6 +3658,16 @@ const TN=(()=>{
     {const st=new THREE.PlaneGeometry(0.29,0.22);st.rotateY(Math.PI/2);st.translate(0,0,0.43);const m=new THREE.Mesh(st,new THREE.MeshBasicMaterial({map:strTex,transparent:true,alphaTest:0.3,side:THREE.DoubleSide}));g.add(m);}
     return g;}
   const prk=makeRacket('#d94a3a');prk.position.set(0,-0.058,0);
+  // 球拍碎掉的碎片（有重力、會在地上彈一下）
+  function shards(p,col,n=12){for(let i=0;i<n;i++){const geo=new THREE.BoxGeometry(rnd(0.03,0.08),rnd(0.015,0.04),rnd(0.06,0.17)),m=new THREE.Mesh(geo,std({color:i%3?col:'#e8e8e8',roughness:0.35,metalness:0.4,transparent:true}));m.position.copy(p);scene.add(m);
+      FX.push({m,t:0,life:rnd(1.3,1.8),s0:1,s1:0.8,v:new V3(rnd(-3.5,3.5),rnd(2.5,6.5),rnd(-3.5,3.5)),g:9.8,w:new V3(rnd(-16,16),rnd(-16,16),rnd(-16,16)),geo});}}
+  // 你的球拍被打掉（對手的輪舞曲）／打碎（對手的必殺球）；下一分恢復
+  function pRacketOff(shatter){const wp=new V3();prk.getWorldPosition(wp);shake(0.6);AUDIO.sfx('heavy');
+    if(shatter){prk.visible=false;shards(wp,'#d94a3a',14);AUDIO.sfx('shatter');burst(wp,30,'rainbow',5);ring(wp,'rainbow',0.6,7,false);}
+    else{scene.attach(prk);T.prkOff={v:new V3(rnd(-2,2),6,rnd(2,4)),w:new V3(rnd(8,14),rnd(4,9),rnd(6,12))};AUDIO.sfx('rim');burst(wp,24,'#c78bff',4);}}
+  function prkHome(){T.prkOff=null;prk.visible=true;prk.position.set(0,-0.058,0);prk.rotation.set(0,0,0);}
+  // 你的腳被冰住（對手的冰之世界）
+  const pIce=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.5,0.95,10),new THREE.MeshStandardMaterial({color:'#cff6ff',transparent:true,opacity:0.7,roughness:0.1,metalness:0.2,emissive:'#4fb8ff',emissiveIntensity:0.35}));pIce.visible=false;scene.add(pIce);
   // ---- 對手（白衣綠褲、綠色帽子）----
   const OPP=(()=>{const O={root:new THREE.Group(),body:new THREE.Group(),pos:new V2(C.cx,C.cz-HL-0.6),tgt:new V2(C.cx,C.cz-HL-0.6),ph:0,react:null,rt:0,sw:null,ret:true,fly:null};
     const root=O.root,body=O.body;root.add(body);scene.add(root);root.visible=false;
@@ -3696,13 +3711,13 @@ const TN=(()=>{
   function landPt(){TP.copy(bp);TV.copy(bv);for(let i=0;i<300;i++){TV.y-=GR/60;TP.addScaledVector(TV,1/60);if(TP.y<R)return new V2(TP.x,TP.z);}return null;}
   const courtPt=(side,deep)=>new V3(C.cx+rnd(-SX+0.6,SX-0.6),R,side==='o'?C.cz-HL+rnd(1.0,deep?2.2:5.5):C.cz+HL-rnd(1.0,deep?2.2:5.5));
   // ---- 招式被破解（使用者：放了技能對方都接不住，少了一些樂趣）：每招有機率被對手看穿，對手衝過去喊出破解、回一記強力反擊球；天衣無縫時機率剩 4 成 ----
-  const CNT={twist:0.3,zero:0.3,tsubame:0.3,hadou:0.35,snake:0.3,jack:0.35};
-  const CNAME={twist:'外旋球被破解了！',zero:'看穿零式了！',tsubame:'燕回閃被破解！',hadou:'波動球・回擊！！',snake:'早就看穿蛇球了！',jack:'羆落！'};
-  const willCounter=k=>Math.random()<(CNT[k]||0)*(T.aura>0?0.4:1);
+  const CNT={twist:0.7,zero:0.7,tsubame:0.7,hadou:0.7,snake:0.7,jack:0.7,hakugei:0.7,tann:0.7,ice:0.7,rai:0.7,rondo:0.7,samurai:0.7,mario:0.7};   // 使用者：7 成機率對手都要打得回來，才有對打的感覺
+  const CNAME={twist:'外旋球被破解了！',zero:'看穿零式了！',tsubame:'燕回閃被破解！',hadou:'波動球・回擊！！',snake:'早就看穿蛇球了！',jack:'羆落！',hakugei:'看穿白鯨了！',tann:'唐懷瑟被破解！',ice:'冰被打碎了！',rai:'雷・接住了！',rondo:'球拍沒掉！反擊！',samurai:'看穿武士驅動球了！',mario:'完美格擋！反擊！！'};
+  const willCounter=k=>T.yips<=0&&Math.random()<(CNT[k]||0)*(T.aura>0?0.4:1);   // 夢（滅五感）時對手不會破解
   // ---- 你擊球 ----
   T.pHitCount=0;
-  function pHit(skill){const broke=B.hitter==='o'&&ONAME[B.tag];if(broke){T.broke=(T.broke||0)+1;AUDIO.sfx('combo');ring(bp.clone(),'#ffffff',0.45,5,false);burst(bp.clone(),18,'#ffffff',3);}
-    const aura=T.aura>0;T.pHitCount++;AUDIO.sfx('pock');B.hitter='p';B.bounces=0;B.tag=null;B.counter=false;OPP.boost=1;B.net=false;B.roll=false;B.rollT=0;B.mode='phys';B.trail=aura?'#ffd84a':null;
+  function pHit(skill){const broke=B.hitter==='o'&&ONAME[B.tag],otag=B.tag;if(broke){T.broke=(T.broke||0)+1;AUDIO.sfx('combo');ring(bp.clone(),'#ffffff',0.45,5,false);burst(bp.clone(),18,'#ffffff',3);}
+    const aura=T.aura>0;T.pHitCount++;AUDIO.sfx('pock');B.hitter='p';B.bounces=0;B.tag=null;B.counter=false;OPP.boost=1;B.net=false;B.roll=false;B.rollT=0;B.mode='phys';B.markAfter=false;B.trail=aura?'#ffd84a':null;
     const local=(bp.x<player.pos.x);T.sw={k:local?'fore':'back',t:0};   // 球在西邊（拿拍那邊）＝正拍
     let Q,Tf,ret=Math.random()<(aura?0.3:0.84);OPP.ret=true;
     switch(skill){
@@ -3711,16 +3726,49 @@ const TN=(()=>{
       case 'tsubame':Q=new V3(C.cx+rnd(-2.5,2.5),R,C.cz-5.2);Tf=0.62;B.tag='tsubame';ret=false;B.trail='#7fd6ff';big('燕回閃！');T.sw.k='tsubame';break;
       case 'hadou':Q=new V3(OPP.pos.x,R,OPP.pos.y+1.2);Tf=0.5;B.tag='hadou';ret=false;B.trail='#ff4a2a';big('波動球！！');T.sw.k='hadou';slow(0.5,0.22);shake(0.5);AUDIO.sfx('heavy');
         ring(bp.clone(),'#ff7a3a',0.55,7,false);ring(bp.clone(),'#ffffff',0.4,4,false);burst(bp.clone(),26,'#ff6a2a',5);break;
+      case 'hakugei':Q=new V3(C.cx+rnd(-2,2),R,C.cz-HL+0.9);Tf=2.7;B.tag='hakugei';ret=false;B.trail='#eaf6ff';big('白鯨！');T.sw.k='zero';break;   // 不二：高高的吊球，落地被風吹回網前
+      case 'tann':Q=new V3(C.cx+rnd(-2.5,2.5),R,C.cz-rnd(4,7));Tf=0.75;B.tag='tann';ret=false;B.trail='#ffd27a';big('唐懷瑟！');T.sw.k='smash';break;   // 跡部：落地不彈、貼地滑
+      case 'ice':{const sd=OPP.pos.x>C.cx?-1:1;Q=new V3(C.cx+sd*(SX-0.45),R,C.cz-HL+1.2);Tf=0.85;B.tag='ice';ret=false;B.trail='#bff4ff';big('冰之世界！');T.sw.k='fore';icePillars();OPP.react='frozen';OPP.rt=0;AUDIO.sfx('shatter');break;}   // 跡部：冰柱、打死角、對手被冰住
+      case 'samurai':samuraiShot();return;
+      case 'rai':{const sd=OPP.pos.x>C.cx?-1:1;Q=new V3(C.cx+sd*(SX-0.6),R,C.cz-HL+rnd(1.5,3));Tf=0.34;B.tag='rai';ret=false;B.trail='#fff26a';big('風林火山・雷！！');T.sw.k='hadou';flashW();bolt(bp.clone(),Q.clone().setY(0.4),'#fff7a0');AUDIO.sfx('heavy');shake(0.4);break;}   // 真田：閃電般的球
       case 'snake':snakeShot();return;
       case 'rondo':startRondo();return;
       case 'jack':startJack();return;
-      default:{if(broke)big('破解！'+broke+'！');const ai=T.in;Q=courtPt('o',aura||ai.f>0.3);   // 擊球時按住左右＝邊線、往前＝深、往後＝短
+      case 'mario':startMario();return;
+      default:{if(broke)big(otag==='omario'?'擋下必殺球！！':'破解！'+broke+'！');const ai=T.in;Q=courtPt('o',aura||ai.f>0.3);   // 擊球時按住左右＝邊線、往前＝深、往後＝短
         if(ai.s>0.3)Q.x=C.cx+SX-0.55;else if(ai.s<-0.3)Q.x=C.cx-SX+0.55;else if(aura)Q.x=Math.random()<0.5?C.cx-SX+0.5:C.cx+SX-0.5;if(ai.f<-0.3)Q.z=C.cz-rnd(2.8,4.2);
-        if(Math.abs(ai.s)>0.3&&!aura)ret=Math.random()<0.68;Tf=aura?0.72:rnd(1.0,1.2);}}
-    if(B.tag&&willCounter(B.tag)){B.counter=true;ret=true;OPP.boost=2.4;}   // 被看穿：對手衝刺過去
+        if(Math.abs(ai.s)>0.3&&!aura)ret=Math.random()<0.68;Tf=aura?0.72:rnd(1.0,1.2);
+        const ob=T.obuff&&T.obuff.k;   /* 對手開了 buff */
+        if(ob==='zone'){Q=new V3(cl(OPP.pos.x+0.5,C.cx-SX+0.3,C.cx+SX-0.3),R,cl(OPP.pos.y+3.0,C.cz-HL+0.3,C.cz-1.2));Tf=1.3;ret=true;B.trail='#6fe3ff';}   /* 對手的手塚領域：你的球都飛到他身邊 */
+        else if(ob==='phantom'&&Math.random()<0.5){const sd=Math.random()<0.5?-1:1;Q=Math.random()<0.55?new V3(C.cx+sd*(SX+1.4),R,C.cz-rnd(3,9)):new V3(C.cx+rnd(-2.5,2.5),R,C.cz-HL-1.8);Tf=1.25;ret=false;B.trail='#7d8cff';}   /* 對手的手塚幻象：你的球自己飛出界 */
+        else if(ob==='aura')ret=Math.random()<(aura?0.6:0.95);}}
+    if(B.tag&&willCounter(B.tag)){B.counter=true;ret=true;OPP.boost=2.4;if(OPP.react==='frozen'){OPP.react=null;burst(new V3(OPP.pos.x,1,OPP.pos.y),24,'#dff8ff',4);}}   // 被看穿：對手衝刺過去（冰之世界：把冰打碎）
+    if(T.yips>0){ret=false;OPP.ret=false;}   // 夢：對手失去五感，動不了
     launch(Q,Tf,skill==='tsubame'?1.0:1.2);OPP.ret=ret;
     const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);if(!ret){OPP.tgt.lerp(OPP.pos,skill==='zero'?0.15:0.5);}
     if(skill==='zero'||skill==='tsubame'||skill==='twist')AUDIO.sfx('whoosh');}
+  // ---- 新招式的特效：冰柱、閃電、白光、武士驅動球 ----
+  const iceMat=new THREE.MeshStandardMaterial({color:'#cff6ff',transparent:true,opacity:0.78,roughness:0.1,metalness:0.2,emissive:'#4fb8ff',emissiveIntensity:0.35});
+  const iceBlock=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.5,0.95,10),iceMat);iceBlock.position.y=0.47;iceBlock.visible=false;OPP.root.add(iceBlock);   // 對手腳被冰住
+  function icePillars(c=OPP.pos,mine=false){for(let i=0;i<12;i++){const a=i/12*Math.PI*2+rnd(-0.2,0.2),r=rnd(2.0,3.6),h=rnd(1.2,2.8),m=new THREE.Mesh(new THREE.ConeGeometry(rnd(0.2,0.35),h,6),iceMat);m.geometry.translate(0,h/2,0);
+      m.position.set(cl(c.x+Math.cos(a)*r,P.x0+0.5,P.x1-0.5),0,mine?cl(c.y+Math.sin(a)*r,C.cz+0.3,P.z1-0.5):cl(c.y+Math.sin(a)*r,P.z0+0.5,C.cz-0.3));m.scale.set(1,0.01,1);scene.add(m);T.ice.push({m,t:-i*0.03});}}
+  function iceTick(dt){for(const q of T.ice){q.t+=dt;const k=q.t<0?0.01:q.t<0.25?q.t/0.25:q.t>2.6?Math.max(0.01,1-(q.t-2.6)/0.4):1;q.m.scale.y=Math.max(0.01,k);if(q.t>3.05){scene.remove(q.m);q.m.geometry.dispose();q.dead=true;}}T.ice=T.ice.filter(q=>!q.dead);}
+  function bolt(a,b,col){const pts=[];for(let i=0;i<=12;i++){const p_=a.clone().lerp(b,i/12);if(i>0&&i<12){p_.x+=rnd(-0.6,0.6);p_.y+=rnd(-0.5,0.5);}pts.push(p_);}
+    const g=new THREE.BufferGeometry().setFromPoints(pts),m=new THREE.Line(g,new THREE.LineBasicMaterial({color:col,transparent:true,opacity:1,blending:THREE.AdditiveBlending,depthWrite:false}));scene.add(m);FX.push({m,t:0,life:0.45,geo:g,fade:true});}
+  function flashW(){const fl=document.getElementById('gFlash');if(fl&&!CALM.on){fl.style.boxShadow='inset 0 0 320px rgba(255,255,220,.95)';setTimeout(()=>{fl.style.boxShadow='';},150);}}
+  // 武士驅動球（越前）：球打到網帶上被切成兩半，兩半各自飛進對手場地的兩個角落
+  const halfGeo=new THREE.SphereGeometry(R,16,8,0,Math.PI*2,0,Math.PI/2);
+  function samuraiShot(){B.mode='sam';B.tag='samurai';B.trail='#ff5a5a';OPP.ret=false;B.counter=false;big('武士驅動球！');T.sw.k='fore';AUDIO.sfx('whoosh');T.sam={t:0,p0:bp.clone(),p1:new V3(cl(bp.x,C.cx-SX+1,C.cx+SX-1),1.0,C.cz),halves:null,done:false};B.counter=willCounter('samurai');if(B.counter){OPP.ret=true;OPP.boost=2.4;OPP.tgt.set(T.sam.p1.x-0.55,C.cz-2.2);}}
+  function samTick(dt){const q=T.sam;if(!q)return;q.t+=dt;
+    if(!q.halves){const u=Math.min(1,q.t/0.42);bp.lerpVectors(q.p0,q.p1,u);bp.y+=Math.sin(Math.PI*u)*0.9;
+      if(u>=1&&B.counter){bp.set(q.p1.x,1.0,C.cz-R-0.05);bv.set(0,2.2,-3.2);B.mode='phys';B.hitter='p';B.bounces=0;B.net=false;AUDIO.sfx('tnet');T.sam=null;return;}   // 被看穿：沒切開，滾過網帶
+      if(u>=1){ball.visible=false;AUDIO.sfx('tnet');AUDIO.sfx('shatter');big('球被切成兩半了！');slow(0.6,0.3);burst(bp.clone(),26,'#ffd0d0',4);ring(bp.clone(),'#ff5a5a',0.5,5,false);
+        q.halves=[-1,1].map(sd=>{const m=new THREE.Mesh(halfGeo,ball.material);m.position.copy(bp);m.castShadow=true;scene.add(m);const Q=new V3(C.cx+sd*(SX-0.8),R,C.cz-rnd(4,7)),Tt=0.6;
+          return {m,v:new V3((Q.x-bp.x)/Tt,(R-bp.y+0.5*GR*Tt*Tt)/Tt,(Q.z-bp.z)/Tt),w:sd*14,land:false};});OPP.react='late';OPP.rt=0;}}
+    else{for(const h of q.halves){if(h.land)continue;h.v.y-=GR*dt;h.m.position.addScaledVector(h.v,dt);h.m.rotation.z+=h.w*dt;puff(h.m.position.clone(),0.3,0.25,0.04,null,'#ff7a7a');
+        if(h.m.position.y<R){h.m.position.y=R;h.land=true;AUDIO.sfx('tbounce');ring(new V3(h.m.position.x,0.06,h.m.position.z),'#ff5a5a',0.5,5);}}
+      if(!q.done&&q.halves.every(h=>h.land)){q.done=true;point('p',TAGWIN.samurai);}}}
+  function samClear(){const q=T.sam;if(q&&q.halves)for(const h of q.halves)scene.remove(h.m);T.sam=null;ball.visible=T.on;}
   // 迴旋蛇：往場外繞過網柱外面，再彎回場內的角落（三次貝茲曲線，不照物理）
   function snakeShot(){const sd=bp.x<C.cx?-1:1,Q=new V3(C.cx+sd*(SX-0.45),R,C.cz-HL+2.2);
     B.mode='path';B.tag='snake';B.trail='#58e07a';B.path={p:[bp.clone(),new V3(C.cx+sd*9.2,1.7,C.cz+4),new V3(C.cx+sd*9.2,1.5,C.cz-4),Q],T:1.35,t:0};
@@ -3730,8 +3778,11 @@ const TN=(()=>{
   // 跳躍扣殺：跳起來（0.8 秒）在最高點往下殺 → 球砸在對手前面、往上彈飛出場
   function startJack(){T.jump={t:0,y0:player.y,h:1.6,launched:false};B.mode='jack';B.tag='jack';B.trail='#ff8a2a';OPP.ret=false;B.counter=willCounter('jack');big('跳躍扣殺！');AUDIO.sfx('takeoff');T.sw={k:'smashW',t:0};slow(0.55,0.35);
     ring(new V3(player.pos.x,player.y+0.05,player.pos.y),'#ff8a2a',0.5,5);burst(new V3(player.pos.x,player.y+0.2,player.pos.y),14,'#e8dcc0',2.5);}
+  // 必殺球（瑪利歐網球 Switch／Aces 的大絕招）：跳很高、星星＋彩虹光環、慢動作，最高點把彩虹球直直轟向對手；沒擋住＝對手球拍碎掉 KO
+  function startMario(){T.jump={t:0,y0:player.y,h:2.4,dur:1.0,launched:false};B.mode='mario';B.tag='mario';B.trail='rainbow';OPP.ret=false;B.counter=willCounter('mario');big('必殺球！！');AUDIO.sfx('takeoff');AUDIO.sfx('chime');T.sw={k:'smashW',t:0};slow(0.6,0.45);
+    const g=new V3(player.pos.x,player.y+0.05,player.pos.y);for(let i=0;i<3;i++)ring(g,'rainbow',0.6+i*0.15,6+i*3);burst(g.clone().setY(player.y+1),30,'rainbow',4);}
   // 破滅的輪舞曲：跳起來殺球打掉對手球拍 → 球飄回你頭上 → 再跳起來殺第二擊
-  function startRondo(){T.seq={t:0,ph:0,y0:player.y,a0:bp.clone()};B.mode='seq';B.tag='rondo';B.trail='#c78bff';OPP.ret=false;big('破滅的輪舞曲！');slow(0.7,0.3);AUDIO.sfx('takeoff');
+  function startRondo(){T.seq={t:0,ph:0,y0:player.y,a0:bp.clone()};B.mode='seq';B.tag='rondo';B.trail='#c78bff';OPP.ret=false;B.counter=willCounter('rondo');big('破滅的輪舞曲！');slow(0.7,0.3);AUDIO.sfx('takeoff');
     ring(new V3(player.pos.x,player.y+0.05,player.pos.y),'#c78bff',0.6,6);T.sw={k:'smashW',t:0};}
   const RH=new V3();
   function seqTick(dt){const q=T.seq,t=(q.t+=dt);
@@ -3740,7 +3791,8 @@ const TN=(()=>{
     if(t<0.45){bp.set(player.pos.x-0.3,player.y+2.35,player.pos.y-0.3);}   // 球在頭上
     else if(t<0.73){if(q.ph<1){q.ph=1;T.sw={k:'smash',t:0};AUDIO.sfx('pock');AUDIO.sfx('slam');shake(0.4);q.a0.copy(bp);ring(bp.clone(),'#c78bff',0.5,5,false);}
       OPP.racket.getWorldPosition(RH);bp.lerpVectors(q.a0,RH,(t-0.45)/0.28);}
-    else if(t<1.63){if(q.ph<2){q.ph=2;OPP.racket.getWorldPosition(RH);flyRacket(new V3(rnd(-2,2),6,-3));OPP.react='grip';OPP.rt=0;big('球拍飛了！');AUDIO.sfx('rim');burst(RH.clone(),30,'#c78bff',5);slow(0.5,0.3);
+    else if(t<1.63){if(q.ph<2&&B.counter){T.seq=null;B.mode='phys';B.hitter='p';OPP.ret=true;oHit();player.vy=0;return;}   // 被看穿：球拍沒被打掉，直接打回來（你從空中落下）
+      if(q.ph<2){q.ph=2;OPP.racket.getWorldPosition(RH);flyRacket(new V3(rnd(-2,2),6,-3));OPP.react='grip';OPP.rt=0;big('球拍飛了！');AUDIO.sfx('rim');burst(RH.clone(),30,'#c78bff',5);slow(0.5,0.3);
         q.a0.copy(bp);q.apex=new V3(player.pos.x-0.3,4.55,player.pos.y-0.8);}
       const u=(t-0.73)/0.9;bp.lerpVectors(q.a0,q.apex,sm(u));bp.y+=Math.sin(Math.PI*u)*2.2*(1-u);}
     else if(t<1.93){if(q.ph<3){q.ph=3;T.sw={k:'smash',t:0};AUDIO.sfx('pock');AUDIO.sfx('slam');shake(0.6);big('第二擊！！');slow(0.45,0.25);q.a0.copy(bp);
@@ -3749,36 +3801,70 @@ const TN=(()=>{
     else{const d=q.dst.clone().sub(q.a0).normalize();bp.copy(q.dst);bv.set(d.x*12,6,d.z*12);B.mode='phys';B.hitter='p';B.bounces=1;B.net=false;ring(new V3(bp.x,0.06,bp.z),'#c78bff',0.7,9);burst(bp.clone(),24,'#c78bff',5);AUDIO.sfx('slam');T.seq=null;}}
   // ---- 對手擊球 ----
   function oHit(){const ctr=B.counter&&B.hitter==='p'?B.tag:null;
-    AUDIO.sfx('pock');B.hitter='o';B.bounces=0;B.tag=null;B.counter=false;OPP.boost=1;B.net=false;B.roll=false;B.rollT=0;B.mode='phys';B.trail=null;OPP.sw={t:0,k:bp.x>OPP.pos.x?'fore':'back'};
-    if(ctr){big(CNAME[ctr]||'被破解了！');slow(0.45,0.35);AUDIO.sfx('heavy');ring(bp.clone(),'#ff3a5a',0.5,6,false);burst(bp.clone(),22,'#ff5a7a',4);B.tag='ocounter';B.trail='#ff3a5a';   // 破解：強力反擊球
+    AUDIO.sfx('pock');B.hitter='o';B.bounces=0;B.tag=null;B.counter=false;OPP.boost=1;B.net=false;B.roll=false;B.rollT=0;B.mode='phys';B.trail=null;B.markAfter=false;B.knocked=false;B.hold=null;OPP.sw={t:0,k:bp.x>OPP.pos.x?'fore':'back'};
+    if(ctr){big(CNAME[ctr]||'被破解了！');slow(0.7,0.4);AUDIO.sfx('heavy');ring(bp.clone(),'#ff3a5a',0.5,6,false);burst(bp.clone(),22,'#ff5a7a',4);B.tag='ocounter';B.trail='#ff3a5a';   // 破解：強力反擊球
       let Q,Tt;if(ctr==='jack'){Q=new V3(cl(player.pos.x,C.cx-SX+0.4,C.cx+SX-0.4),R,C.cz+HL-0.5);Tt=2.1;B.trail='#9ad0ff';}   // 羆落：高高吊到你後面底線
-      else if(ctr==='hadou'){Q=new V3(cl(player.pos.x,C.cx-SX+0.4,C.cx+SX-0.4),R,cl(player.pos.y-1.6,C.cz+2,C.cz+HL-0.3));Tt=0.62;shake(0.4);B.trail='#ff4a2a';}   // 波動球回擊：直直轟回來
-      else{Q=new V3(player.pos.x<C.cx?C.cx+SX-0.6:C.cx-SX+0.6,R,C.cz+HL-rnd(1.0,2.0));Tt=1.0;}   // 打到你另一邊的角落
+      else if(ctr==='hadou'){Q=new V3(cl(player.pos.x,C.cx-SX+0.4,C.cx+SX-0.4),R,cl(player.pos.y-1.6,C.cz+2,C.cz+HL-0.3));Tt=1.05;shake(0.4);B.trail='#ff4a2a';}   // 波動球回擊：直直轟回來
+      else if(ctr==='mario'){Q=new V3(cl(player.pos.x,C.cx-SX+0.4,C.cx+SX-0.4),R,cl(player.pos.y-2.0,C.cz+2,C.cz+HL-0.3));Tt=1.25;B.trail='rainbow';}   /* 完美格擋：彩虹球打回你面前 */
+      else{Q=new V3(player.pos.x<C.cx?C.cx+SX-1.4:C.cx-SX+1.4,R,C.cz+HL-rnd(2.5,3.8));Tt=1.6;}   // 打到你另一邊（使用者：反擊要給時間反應、跑過去佔位置 → 1.0 → 1.6 秒、不打到最邊角）
       launch(Q,Tt,1.2);T.land=landPt();OPP.home();return;}
-    if(T.zone<=0&&Math.random()<0.25){oSpecial(['ozero','otsubame','ohadou','osnake','otwist','ojack'][Math.floor(Math.random()*6)]);return;}   // 使用者：雙方都可以隨機開招式對打
-    const Q=T.zone>0?new V3(cl(player.pos.x+0.5,C.cx-SX+0.3,C.cx+SX-0.3),R,cl(player.pos.y-3.0,C.cz+1.2,C.cz+HL-0.3)):courtPt('p',false);   // 手塚領域：球都回到你身邊（落在你前面 3 m）
-    launch(Q,T.zone>0?1.35:rnd(1.25,1.5));T.land=landPt();OPP.home();
+    if(T.phantom>0&&Math.random()<0.7){const sd=Math.random()<0.5?-1:1,Q=Math.random()<0.55?new V3(C.cx+sd*(SX+1.4),R,C.cz+rnd(3,9)):new V3(C.cx+rnd(-2.5,2.5),R,C.cz+HL+1.8);   // 手塚幻象：對手的球自己飛出界
+      launch(Q,1.25,1.2);T.land=landPt();B.trail='#7d8cff';OPP.home();return;}
+    if(T.zone<=0&&Math.random()<0.25){oSpecial(OPOOL[Math.floor(Math.random()*OPOOL.length)]);return;}   // 使用者：雙方都可以隨機開招式對打；全部招式對手都會用
+    const oa=T.zone<=0&&T.obuff&&T.obuff.k==='aura';   /* 對手的天衣無縫：一般球又快又打邊角 */
+    const Q=T.zone>0?new V3(cl(player.pos.x+0.5,C.cx-SX+0.3,C.cx+SX-0.3),R,cl(player.pos.y-3.0,C.cz+1.2,C.cz+HL-0.3)):courtPt('p',oa);   // 手塚領域：球都回到你身邊（落在你前面 3 m）
+    if(oa){Q.x=player.pos.x<C.cx?C.cx+SX-0.6:C.cx-SX+0.6;B.trail='#ffd84a';}
+    launch(Q,T.zone>0?1.35:oa?rnd(0.95,1.1):rnd(1.25,1.5));T.land=landPt();OPP.home();
     if(T.zone>0){puff(bp.clone(),0.5,0.4,0.05,null,'#6fe3ff');B.trail='#6fe3ff';}}
   // ---- 對手出招（使用者：雙方都可以隨機開招式對打）：對手正常回球時 1/4 機率出招；你打得回去＝「破解！」 ----
-  const ONAME={ozero:'零式削球',otsubame:'燕回閃',ohadou:'波動球',osnake:'迴旋蛇',otwist:'外旋球',ojack:'跳躍扣殺'};
-  const OCOL={ozero:'#ff9b3a',otsubame:'#7fd6ff',ohadou:'#ff4a2a',osnake:'#58e07a',otwist:'#bfe9ff',ojack:'#ff8a2a'};
+  const ONAME={orai:'風林火山・雷',otann:'唐懷瑟',ozero:'零式削球',otsubame:'燕回閃',ohadou:'波動球',osnake:'迴旋蛇',otwist:'外旋球',ojack:'跳躍扣殺',ohakugei:'白鯨',oice:'冰之世界',osamurai:'武士驅動球',orondo:'破滅的輪舞曲',omario:'必殺球'};
+  const OCOL={orai:'#fff26a',otann:'#ffd27a',ozero:'#ff9b3a',otsubame:'#7fd6ff',ohadou:'#ff4a2a',osnake:'#58e07a',otwist:'#bfe9ff',ojack:'#ff8a2a',ohakugei:'#eaf6ff',oice:'#bff4ff',osamurai:'#ff5a5a',orondo:'#c78bff',omario:'rainbow'};
+  const OPOOL=['ozero','otsubame','ohadou','osnake','otwist','ojack','orai','otann','ohakugei','oice','osamurai','orondo','omario'];
   function oSpecial(k){B.tag=k;B.trail=OCOL[k];big('對手：'+ONAME[k]+'！');AUDIO.sfx('whoosh');ring(bp.clone(),OCOL[k],0.45,4,false);burst(bp.clone(),14,OCOL[k],3);OPP.home();
     const px=cl(player.pos.x,C.cx-SX+0.6,C.cx+SX-0.6);
     switch(k){
       case 'ozero':launch(new V3(cl(player.pos.x+rnd(-1.5,1.5),C.cx-SX+0.8,C.cx+SX-0.8),R,C.cz+1.4),1.0,1.2);break;   // 網前小球，落地往回滾
+      case 'orai':{const Q=new V3(player.pos.x<C.cx?C.cx+SX-0.6:C.cx-SX+0.6,R,C.cz+HL-rnd(1.5,3));launch(Q,0.4,1.2);bolt(bp.clone(),Q.clone().setY(0.4),'#fff7a0');flashW();shake(0.3);AUDIO.sfx('heavy');break;}   // 閃電球打你遠的那邊
+      case 'otann':launch(new V3(C.cx+rnd(-2.5,2.5),R,C.cz+rnd(4,7)),0.75,1.2);break;   // 落地貼地滑
       case 'otsubame':launch(new V3(C.cx+rnd(-2.5,2.5),R,C.cz+5.0),0.62,1.0);break;   // 低平球，落地貼地滑
       case 'ohadou':launch(new V3(px,R,cl(player.pos.y-1.5,C.cz+2,C.cz+HL-0.3)),0.55,1.2);slow(0.4,0.3);shake(0.35);AUDIO.sfx('heavy');ring(bp.clone(),'#ff7a3a',0.5,7,false);B.knocked=false;break;   // 直直轟向你
       case 'osnake':{const sd=player.pos.x<C.cx?1:-1,Q=new V3(C.cx+sd*(SX-0.45),R,C.cz+HL-2.2);B.mode='path';B.path={p:[bp.clone(),new V3(C.cx+sd*9.2,1.7,C.cz-4),new V3(C.cx+sd*9.2,1.5,C.cz+4),Q],T:1.35,t:0,by:'o'};T.land=new V2(Q.x,Q.z);return;}   // 繞過網柱，彎進你離比較遠的角落
       case 'otwist':launch(new V3(C.cx+rnd(-1.5,1.5),R,C.cz+HL-2.4),0.85,1.2);break;   // 落地往你臉上彈
-      case 'ojack':OPP.jt=0;slow(0.4,0.35);launch(new V3(cl(player.pos.x+rnd(-1,1),C.cx-SX+0.6,C.cx+SX-0.6),R,cl(player.pos.y-3.2,C.cz+3,C.cz+HL-1)),0.48,1.25);shake(0.35);AUDIO.sfx('slam');break;}   // 跳起來殺，球砸地彈到你後面
+      case 'ohakugei':launch(new V3(cl(player.pos.x+rnd(-2,2),C.cx-SX+0.8,C.cx+SX-0.8),R,C.cz+HL-0.9),2.7,1.2);break;   // 高高的吊球，落地被風吹回網前
+      case 'oice':{const sd=player.pos.x>C.cx?-1:1;launch(new V3(C.cx+sd*(SX-0.5),R,C.cz+HL-1.6),1.0,1.2);icePillars(player.pos,true);T.frozen=0.6;AUDIO.sfx('shatter');break;}   // 冰柱長在你四周、腳被冰住，打你的死角
+      case 'osamurai':T.osam={t:0,p0:bp.clone(),p1:new V3(cl(bp.x,C.cx-SX+1,C.cx+SX-1),1.0,C.cz),split:false};B.mode='osam';T.land=null;return;   // 打到網帶切成兩半，一半是真的
+      case 'orondo':case 'omario':{const mo=k==='omario';B.mode='ohold';B.hold={t:0,k,dur:mo?0.55:0.4};OPP.jt=0;OPP.jd=mo?1.1:0.8;OPP.jh=mo?2.2:1.6;T.land=null;slow(mo?0.7:0.4,mo?0.4:0.5);   // 對手跳起來，最高點往你身上殺
+        AUDIO.sfx('takeoff');if(mo){AUDIO.sfx('chime');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);for(let i=0;i<3;i++)ring(g,'rainbow',0.6+i*0.15,6+i*3);}return;}
+      case 'ojack':OPP.jt=0;OPP.jd=0.8;OPP.jh=1.4;slow(0.4,0.35);launch(new V3(cl(player.pos.x+rnd(-1,1),C.cx-SX+0.6,C.cx+SX-0.6),R,cl(player.pos.y-3.2,C.cz+3,C.cz+HL-1)),0.48,1.25);shake(0.35);AUDIO.sfx('slam');break;}   // 跳起來殺，球砸地彈到你後面
     T.land=landPt();}
+  // 對手的輪舞曲／必殺球：跳到最高點往你身上殺；你及時擊球＝破解，沒打到＝球拍被打掉／打碎
+  function oFire(k){B.mode='phys';B.hold=null;B.knocked=false;OPP.sw={t:0,k:'smash'};AUDIO.sfx('pock');AUDIO.sfx('slam');
+    const Q=new V3(cl(player.pos.x+rnd(-0.25,0.25),C.cx-SX+0.3,C.cx+SX-0.3),R,cl(player.pos.y+1.2,C.cz+2,C.cz+HL-0.3));launch(Q,0.6,1.25);
+    if(k==='omario'){slow(0.6,0.3);shake(0.6);flashW();AUDIO.sfx('heavy');ring(bp.clone(),'rainbow',0.6,8,false);ring(bp.clone(),'#ffffff',0.45,5,false);burst(bp.clone(),34,'rainbow',6);}
+    else{slow(0.45,0.35);shake(0.45);ring(bp.clone(),'#c78bff',0.5,6,false);burst(bp.clone(),22,'#c78bff',5);}
+    T.land=landPt();}
+  // 對手的武士驅動球：打到網帶切成兩半，一半是真的球（照物理飛到你這邊，打得回去），另一半是假的（飛到另一個角落）
+  function osamTick(dt){const q=T.osam;if(!q)return;q.t+=dt;
+    if(!q.split){if(B.mode!=='osam')return;const u=Math.min(1,q.t/0.42);bp.lerpVectors(q.p0,q.p1,u);bp.y+=Math.sin(Math.PI*u)*0.9;
+      if(u>=1){q.split=true;AUDIO.sfx('tnet');AUDIO.sfx('shatter');big('球被切成兩半了！');slow(0.6,0.35);burst(bp.clone(),26,'#ffd0d0',4);ring(bp.clone(),'#ff5a5a',0.5,5,false);
+        const sd=Math.random()<0.5?-1:1,mk=()=>{const m=new THREE.Mesh(halfGeo,ball.material);m.castShadow=true;m.position.copy(bp);scene.add(m);return m;};
+        q.real=mk();q.fake=mk();const F=new V3(C.cx-sd*(SX-0.9),R,C.cz+rnd(4,7)),Tt=0.7;q.fv=new V3((F.x-bp.x)/Tt,(R-bp.y+0.5*GR*Tt*Tt)/Tt,(F.z-bp.z)/Tt);q.fl=false;
+        bp.set(q.p1.x,1.0,C.cz+0.15);B.mode='phys';launch(new V3(C.cx+sd*(SX-0.9),R,C.cz+rnd(4,7)),0.7,0.9);T.land=landPt();}}
+    else{const f=q.fake;if(!q.fl){q.fv.y-=GR*dt;f.position.addScaledVector(q.fv,dt);f.rotation.z+=14*dt;puff(f.position.clone(),0.3,0.25,0.04,null,'#ff7a7a');
+        if(f.position.y<R){f.position.y=R;q.fl=true;AUDIO.sfx('tbounce');ring(new V3(f.position.x,0.06,f.position.z),'#ff5a5a',0.5,5);}}
+      const rv=B.hitter==='o';q.real.visible=rv&&T.on;ball.visible=!rv&&T.on;if(rv){q.real.position.copy(bp);q.real.rotation.z-=14*dt;}}}
+  function osamClear(){const q=T.osam;if(q){for(const m of [q.real,q.fake])if(m)scene.remove(m);}T.osam=null;ball.visible=T.on;}
   // 對手的招在你這邊第一次落地
   function oFirstBounce(){const g=new V3(bp.x,0.06,bp.z),c=OCOL[B.tag];if(!c)return;ring(g,c,0.5,5);
     switch(B.tag){
       case 'ozero':bv.set(0,0,-1.25);bp.y=R;B.roll=true;break;
+      case 'otann':bv.y=0;bp.y=R;B.roll=true;bv.x*=1.15;bv.z*=1.15;break;
+      case 'orai':burst(bp.clone(),16,'#fff7a0',4);break;
       case 'otsubame':bv.y=0;bp.y=R;B.roll=true;bv.x*=1.1;bv.z*=1.1;break;
       case 'otwist':{const dx=player.pos.x-bp.x,dz=player.pos.y-bp.z;bv.set(dx/0.4,6.6,dz/0.4);B.roll=false;break;}
-      case 'ojack':bv.set(bv.x*0.25,9.0,4.2);B.roll=false;shake(0.4);burst(bp.clone(),24,'#ffb060',5);AUDIO.sfx('heavy');break;}}
+      case 'ojack':bv.set(bv.x*0.25,9.0,4.2);B.roll=false;shake(0.4);burst(bp.clone(),24,'#ffb060',5);AUDIO.sfx('heavy');break;
+      case 'ohakugei':bv.set(bv.x*0.2,5.2,-6.5);B.roll=false;big('被風吹回網前了！');for(let i=0;i<16;i++){const a=i/16*Math.PI*2;puff(bp.clone().add(new V3(Math.cos(a)*0.6,0.3,Math.sin(a)*0.6)),0.8,0.4,0.05,new V3(-Math.sin(a)*2,1.2,Math.cos(a)*2),'#eaf6ff');}T.land=landPt();B.markAfter=true;break;   // 往你這邊的網前吹（黃圈再標一次）
+      case 'oice':burst(bp.clone(),20,'#dff8ff',3);break;}}
   // ---- 物理：重力、落地、球網 ----
   function phys(dt){const n=Math.max(1,Math.ceil(bv.length()*dt/0.05)),h=dt/n;
     for(let i=0;i<n;i++){const z0=bp.z;if(!(B.roll))bv.y-=GR*h;bp.addScaledVector(bv,h);
@@ -3792,22 +3878,27 @@ const TN=(()=>{
     if(B.bounces===0&&!B.net&&side===recv){if(!inC){point(B.hitter==='p'?'o':'p','出界！');return;}B.bounces=1;if(B.hitter==='p')firstBounce();else oFirstBounce();return;}
     if(B.bounces===0&&side!==recv){point(recv,B.net?'掛網…':'');return;}
     point(B.hitter,B.tag?TAGWIN[B.tag]||'':'');}
-  const TAGWIN={ocounter:'被反擊了…',ozero:'對手的零式削球…',otsubame:'對手的燕回閃…',ohadou:'對手的波動球…',osnake:'對手的迴旋蛇…',otwist:'對手的外旋球…',ojack:'對手的跳躍扣殺…',jack:'跳躍扣殺得分！',twist:'外旋球得分！',zero:'零式削球得分！',tsubame:'燕回閃得分！',hadou:'波動球得分！',snake:'迴旋蛇得分！',rondo:'破滅的輪舞曲！'};
+  const TAGWIN={hakugei:'白鯨得分！',tann:'唐懷瑟得分！',ice:'冰之世界得分！',samurai:'武士驅動球得分！',rai:'風林火山・雷得分！',orai:'對手的雷…',otann:'對手的唐懷瑟…',ocounter:'被反擊了…',ozero:'對手的零式削球…',otsubame:'對手的燕回閃…',ohadou:'對手的波動球…',osnake:'對手的迴旋蛇…',otwist:'對手的外旋球…',ojack:'對手的跳躍扣殺…',jack:'跳躍扣殺得分！',twist:'外旋球得分！',zero:'零式削球得分！',tsubame:'燕回閃得分！',hadou:'波動球得分！',snake:'迴旋蛇得分！',rondo:'破滅的輪舞曲！',mario:'必殺球得分！',ohakugei:'對手的白鯨…',oice:'對手的冰之世界…',osamurai:'對手的武士驅動球…',orondo:'對手的破滅的輪舞曲…',omario:'對手的必殺球…'};
   // 你的球在對手那邊第一次落地：各招的效果
   function firstBounce(){const g=new V3(bp.x,0.06,bp.z);
     if(B.counter){ring(g,'#ff3a5a',0.4,3);return;}   // 被看穿了：正常彈起來讓對手打
     switch(B.tag){
+      case 'hakugei':bv.set(bv.x*0.2,5.2,6.5);B.roll=false;big('被風吹回來了！');ring(g,'#eaf6ff',0.7,7);for(let i=0;i<16;i++){const a=i/16*Math.PI*2;puff(bp.clone().add(new V3(Math.cos(a)*0.6,0.3,Math.sin(a)*0.6)),0.8,0.4,0.05,new V3(-Math.sin(a)*2,1.2,Math.cos(a)*2),'#eaf6ff');}OPP.react='late';OPP.rt=0;break;   // 風把球吹回網前
+      case 'tann':bv.y=0;bp.y=R;B.roll=true;bv.x*=1.2;bv.z*=1.2;ring(g,'#ffd27a',0.5,5);big('球不會彈起來！');OPP.react='whiff';OPP.rt=0;break;
+      case 'ice':ring(g,'#bff4ff',0.6,6);burst(bp.clone(),20,'#dff8ff',3);big('死角！');break;
+      case 'rai':ring(g,'#fff26a',0.5,8);burst(bp.clone(),22,'#fff7a0',5);bolt(new V3(bp.x,6,bp.z),bp.clone(),'#fffbd0');flashW();break;
       case 'twist':{const dx=OPP.pos.x-bp.x,dz=OPP.pos.y-bp.z;bv.set(dx/0.33,6.4,dz/0.33);B.roll=false;OPP.react='flinch';OPP.rt=0;ring(g,'#bfe9ff',0.5,6);burst(bp.clone(),14,'#bfe9ff',3);AUDIO.sfx('whoosh');break;}   // 往對手臉上彈
       case 'zero':bv.set(0,0,1.25);bp.y=R;B.roll=true;OPP.react='lunge';OPP.rt=0;slow(0.9,0.4);ring(g,'#ff9b3a',0.6,5);burst(bp.clone(),14,'#ffb060',2);break;   // 落地往回滾到網前
       case 'tsubame':bv.y=0;bp.y=R;B.roll=true;bv.x*=1.15;bv.z*=1.15;ring(g,'#7fd6ff',0.5,5);break;   // 不彈、貼地滑
       case 'hadou':ring(g,'#ff7a3a',0.6,7);burst(bp.clone(),18,'#ff6a2a',4);shake(0.25);break;
+      case 'mario':ring(g,'rainbow',0.6,8);ring(g,'rainbow',0.5,5);burst(bp.clone(),26,'rainbow',5);shake(0.35);break;
       case 'jack':bv.set(bv.x*0.25,13,-5.5);B.roll=false;OPP.react='late';OPP.rt=0;ring(g,'#ff8a2a',0.8,12);ring(g,'#ffffff',0.5,6);burst(bp.clone(),36,'#ffb060',6);shake(0.6);AUDIO.sfx('heavy');big('球彈飛出場！');break;   // 砸地、彈飛
       default:if(!OPP.ret){OPP.react='late';OPP.rt=0;}}}
   // ---- 計分 ----
   const NUM=['0','15','30','40'];
   function scoreText(){const a=T.sc.p,b=T.sc.o;if(a>=3&&b>=3)return a===b?'Deuce':a>b?'Advantage 你':'Advantage 對手';return `${NUM[a]}-${NUM[b]}`;}
   function draw(){const el=document.getElementById('tnScore');if(el)el.textContent=`你 ${T.gm.p} : ${T.gm.o} 對手`;const e2=document.getElementById('tnPts');if(e2)e2.textContent=scoreText()+(T.server==='p'?'　你發球':'　對手發球');
-    const e3=document.getElementById('tnAura');if(e3)e3.textContent=[T.aura>0?`天衣無縫 ${Math.ceil(T.aura)} 秒`:'',T.zone>0?`手塚領域 ${Math.ceil(T.zone)} 秒`:''].filter(Boolean).join('　');
+    const e3=document.getElementById('tnAura');if(e3)e3.textContent=[T.aura>0?`天衣無縫 ${Math.ceil(T.aura)} 秒`:'',T.zone>0?`手塚領域 ${Math.ceil(T.zone)} 秒`:'',T.phantom>0?`手塚幻象 ${Math.ceil(T.phantom)} 秒`:'',T.yips>0?`夢 ${Math.ceil(T.yips)} 秒`:'',T.obuff?`對手：${OBN[T.obuff.k]} ${Math.ceil(T.obuff.t)} 秒`:'',T.frozen>0?'腳被冰住！':''].filter(Boolean).join('　');
     const c=TN_SCORE.cv;if(!c)return;const g=c.getContext('2d');g.fillStyle='#0b0d10';g.fillRect(0,0,512,256);g.textAlign='center';g.textBaseline='middle';
     g.fillStyle='#9aa4ad';g.font=`700 30px ${FONT}`;g.fillText('你',128,40);g.fillText('對手',384,40);g.fillStyle='#ffcf3a';g.font=`900 96px ${FONT}`;g.fillText(String(T.gm.p),128,120);g.fillText(String(T.gm.o),384,120);
     g.fillStyle='#e9eef2';g.font=`800 40px ${FONT}`;g.fillText(scoreText(),256,214);TN_SCORE.tex.needsUpdate=true;}
@@ -3816,18 +3907,23 @@ const TN=(()=>{
     else{msg=(w==='p'?'得分！ ':'失分… ')+scoreText();if(w==='p')AUDIO.sfx('cheer');}
     T.pend={t:0,msg:(why?why+'　':'')+msg};draw();}
   // ---- 每一分開始：站位、發球 ----
-  function restoreRacket(){if(OPP.fly){OPP.fly=null;}if(OPP.racket.parent!==OPP.armR){OPP.armR.add(OPP.racket);}OPP.racket.position.set(0,-0.6,0);OPP.racket.rotation.set(0,0,0);}
+  function restoreRacket(){if(OPP.fly){OPP.fly=null;}OPP.racket.visible=true;if(OPP.racket.parent!==OPP.armR){OPP.armR.add(OPP.racket);}OPP.racket.position.set(0,-0.6,0);OPP.racket.rotation.set(0,0,0);}
   function flyRacket(v){OPP.root.updateMatrixWorld(true);scene.attach(OPP.racket);OPP.fly={v,w:new V3(rnd(8,14),rnd(4,9),rnd(6,12))};}
-  function setupPoint(){T.buf=null;T.land=null;T.knock=0;OPP.jt=undefined;B.counter=false;OPP.boost=1;B.dead=false;B.net=false;B.roll=false;B.rollT=0;B.bounces=0;B.tag=null;B.trail=null;B.hitter=null;B.mode='held';T.seq=null;T.q=null;markQ();restoreRacket();OPP.react=null;OPP.sw=null;T.sw=null;
+  // 對手的 buff（每一分開始時 15% 機率開一個）：天衣無縫 12 秒、手塚領域 10 秒、手塚幻象 10 秒、夢 3 秒（你動不了，來回中才倒數）
+  const OBN={aura:'天衣無縫',zone:'手塚領域',phantom:'手塚幻象',yips:'夢・滅五感'},OBD={aura:12,zone:10,phantom:10,yips:3},OBC={aura:'#ffd84a',zone:'#6fe3ff',phantom:'#7d8cff',yips:'#a050d0'};
+  function oBuff(k){T.obuff={k,t:OBD[k]};big('對手：'+OBN[k]+'！');AUDIO.sfx('chime');AUDIO.sfx(k==='aura'?'fire':k==='yips'?'heavy':'whoosh');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);ring(g,OBC[k],0.9,11);ring(g.clone().setY(1),'#ffffff',0.6,5,false);burst(g.clone().setY(1),26,OBC[k],4);
+    if(k==='yips')ring(new V3(player.pos.x,player.y+0.05,player.pos.y),OBC.yips,1.0,9);draw();}
+  function setupPoint(){samClear();osamClear();prkHome();T.frozen=0;pIce.visible=false;B.hold=null;B.markAfter=false;B.knocked=false;OPP.jd=OPP.jh=undefined;T.buf=null;T.land=null;T.knock=0;OPP.jt=undefined;B.counter=false;OPP.boost=1;B.dead=false;B.net=false;B.roll=false;B.rollT=0;B.bounces=0;B.tag=null;B.trail=null;B.hitter=null;B.mode='held';T.seq=null;T.q=null;markQ();restoreRacket();OPP.react=T.yips>0?'dazed':null;OPP.sw=null;T.sw=null;
     const deuce=(T.sc.p+T.sc.o)%2===0;T.st='serve';T.serveT=0;T.tossT=-1;T.ptgt=null;
     if(T.server==='p'){player.pos.set(C.cx+(deuce?0.8:-0.8),C.cz+HL+0.35);OPP.pos.set(C.cx+(deuce?-2.4:2.4),C.cz-HL-0.7);}
     else{player.pos.set(C.cx+(deuce?2.4:-2.4),C.cz+HL+0.7);OPP.pos.set(C.cx+(deuce?-0.8:0.8),C.cz-HL-0.35);}
-    OPP.tgt.copy(OPP.pos);player.vel.set(0,0);player.y=heightAt(player.pos.x,player.pos.y,0);draw();}
+    OPP.tgt.copy(OPP.pos);player.vel.set(0,0);player.y=heightAt(player.pos.x,player.pos.y,0);
+    if(!T.obuff&&T.yips<=0&&T.on&&Math.random()<0.15)oBuff(['aura','zone','phantom','yips'][Math.floor(Math.random()*4)]);draw();}
   function serve(kind){if(T.st!=='serve'||T.tossT>=0)return;T.tossT=0;T.serveKind=kind;}
   function doServe(){const deuce=(T.sc.p+T.sc.o)%2===0;T.st='rally';B.mode='phys';B.bounces=0;B.net=false;B.roll=false;B.rollT=0;AUDIO.sfx('pock');
-    if(T.server==='p'){B.hitter='p';const tw=T.serveKind==='twist';T.sw={k:'smash',t:0};B.trail=tw?'#bfe9ff':T.aura>0?'#ffd84a':null;
-      const Q=new V3(deuce?C.cx-rnd(0.6,SX-0.5):C.cx+rnd(0.6,SX-0.5),R,C.cz-rnd(tw?4.6:2.5,5.6));launch(Q,tw?0.85:0.62,1.15);
-      if(tw){B.tag='twist';OPP.ret=false;B.counter=willCounter('twist');if(B.counter){OPP.ret=true;OPP.boost=2.0;}big('外旋發球！');AUDIO.sfx('whoosh');ring(bp.clone(),'#bfe9ff',0.45,4,false);}else OPP.ret=Math.random()<(T.aura>0?0.3:0.75);
+    if(T.server==='p'){B.hitter='p';const tw=T.serveKind==='twist',tn=T.serveKind==='tann';T.sw={k:'smash',t:0};B.trail=tw?'#bfe9ff':tn?'#ffd27a':T.aura>0?'#ffd84a':null;
+      const Q=new V3(deuce?C.cx-rnd(0.6,SX-0.5):C.cx+rnd(0.6,SX-0.5),R,C.cz-rnd(tw?4.6:2.5,5.6));launch(Q,tw?0.85:tn?0.7:0.62,1.15);
+      if(tw){B.tag='twist';OPP.ret=false;B.counter=willCounter('twist');if(B.counter){OPP.ret=true;OPP.boost=2.0;}big('外旋發球！');AUDIO.sfx('whoosh');ring(bp.clone(),'#bfe9ff',0.45,4,false);}else if(tn){B.tag='tann';OPP.ret=false;B.counter=willCounter('tann');if(B.counter){OPP.ret=true;OPP.boost=2.0;}big('唐懷瑟發球！');AUDIO.sfx('whoosh');}else OPP.ret=Math.random()<(T.aura>0?0.3:0.75);
       const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);if(!OPP.ret)OPP.tgt.lerp(OPP.pos,0.5);}
     else{B.hitter='o';OPP.sw={t:0,k:'smash'};const Q=new V3(deuce?C.cx+rnd(0.6,SX-0.5):C.cx-rnd(0.6,SX-0.5),R,C.cz+rnd(2.5,5.6));launch(Q,0.95,1.15);T.land=landPt();}}
   // ---- 開始／結束 ----
@@ -3835,30 +3931,34 @@ const TN=(()=>{
   T.label=()=>T.on?'放下球拍':T.near()?'拿球拍打網球':null;
   T.toggle=()=>{if(T.on)T.stop();else if(T.near())T.start();};
   let camSave=null;
-  T.start=()=>{if(EMOTE.on)EMOTE.stop(true);if(CLOSET.isOpen)CLOSET.close();T.on=true;T.sc={p:0,o:0};T.gm={p:0,o:0};T.server='p';T.aura=0;T.zone=0;T.jump=null;T.pHitCount=0;
+  T.start=()=>{if(EMOTE.on)EMOTE.stop(true);if(CLOSET.isOpen)CLOSET.close();T.on=true;T.sc={p:0,o:0};T.gm={p:0,o:0};T.server='p';T.aura=0;T.zone=0;T.jump=null;T.pHitCount=0;T.obuff=null;
     OPP.root.visible=true;ball.visible=true;shadow.visible=true;hud.hidden=false;btns.hidden=false;document.body.classList.add('tn');
     if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}camSave=comfort.camDist;comfort.camDist=Math.max(comfort.camDist,6.2);player.yaw=0;player.pitch=-0.2;
     setupPoint();AUDIO.sfx('chime');
-    if(!T.told){T.told=true;toast(isTouch?'網球：自己跑（搖桿），黃圈＝球會落地的地方；球到身邊「擊球」變綠就按（同時推搖桿左右＝打邊線）。招式也是球到身邊按。先按「擊球」發球':'網球：WASD 跑位，黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J，同時按住 A／D＝打邊線。1～9 招式也是球到身邊按；F 放下球拍');}};
-  T.stop=()=>{if(!T.on)return;T.on=false;OPP.root.visible=false;ball.visible=false;shadow.visible=false;hud.hidden=true;btns.hidden=true;document.body.classList.remove('tn');restoreRacket();
+    if(!T.told){T.told=true;toast(isTouch?'網球：自己跑（搖桿），黃圈＝球會落地的地方；球到身邊「擊球」變綠就按（同時推搖桿左右＝打邊線）。招式也是球到身邊按。先按「擊球」發球':'網球：WASD 跑位，黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J，同時按住 A／D＝打邊線。1～9、R T Y U I O P、G 必殺球 也是球到身邊按；F 放下球拍');}};
+  T.stop=()=>{if(!T.on)return;T.on=false;document.body.classList.remove('tnp2');T.phantom=0;T.yips=0;T.obuff=null;T.frozen=0;pIce.visible=false;osamClear();prkHome();OPP.root.visible=false;ball.visible=false;shadow.visible=false;hud.hidden=true;btns.hidden=true;document.body.classList.remove('tn');restoreRacket();
     if(prk.parent)prk.parent.remove(prk);if(camSave!==null){comfort.camDist=camSave;camSave=null;}T.cm=null;T.ck=0;T.seq=null;T.aura=0;T.zone=0;T.jump=null;T.slow=0;mark.visible=false;
     const A=avatar;A.body.rotation.set(0,0,0);A.body.position.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);A.zeroJoints();};
   T.rt=dt=>{if(T.slow>0){T.slow-=dt;return T.slowK;}return 1;};
+  T.oSpecial=oSpecial;T.oBuff=oBuff;   // 測試用：強制對手出招／開 buff
   // ---- 按鈕：擊球／發球、各招式（排隊＝下一球用；球已經在身邊就馬上打） ----
-  function markQ(){for(const b of btns.querySelectorAll('button'))b.classList.toggle('on',(b.dataset.k==='aura'&&T.aura>0)||(b.dataset.k==='zone'&&T.zone>0));}
+  function markQ(){for(const b of btns.querySelectorAll('button'))b.classList.toggle('on',(b.dataset.k==='aura'&&T.aura>0)||(b.dataset.k==='zone'&&T.zone>0)||(b.dataset.k==='phantom'&&T.phantom>0)||(b.dataset.k==='yips'&&T.yips>0));}
   // 打得到：對手的球在你這邊、離你 1.6 m 內、高度 0.08～2.6（落地前截擊也可以）
   function canHit(){return T.st==='rally'&&B.mode==='phys'&&B.hitter==='o'&&!B.dead&&bp.z>C.cz&&Math.hypot(bp.x-player.pos.x,bp.z-player.pos.y)<1.6&&bp.y>0.08&&bp.y<2.6;}
   function soon(){if(T.st!=='rally'||B.mode!=='phys'||B.hitter!=='o'||B.dead)return false;const dx=bp.x-player.pos.x,dz=bp.z-player.pos.y,d=Math.hypot(dx,dz),closing=-(dx*bv.x+dz*bv.z)/Math.max(d,0.01);return closing>0&&d<1.6+closing*0.4;}   // 0.4 秒內會到
   T.press=k=>{if(!T.on)return;
     if(k==='aura'){if(T.aura>0)return;T.aura=12;big('天衣無縫！');AUDIO.sfx('fire');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#ffd84a',0.8,10);ring(g.clone().setY(player.y+1),'#ffffff',0.6,5,false);burst(g.clone().setY(player.y+1),30,'#ffd84a',4);markQ();draw();return;}
+    if(k==='page'){const on=document.body.classList.toggle('tnp2');document.getElementById('tnPage').innerHTML=on?'前一頁':'更多<br>招式';return;}
+    if(k==='phantom'){if(T.phantom>0)return;T.phantom=10;big('手塚幻象！');AUDIO.sfx('whoosh');AUDIO.sfx('chime');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#7d8cff',0.9,12);markQ();draw();return;}   // 手塚：10 秒對手的球大多出界
+    if(k==='yips'){if(T.yips>0)return;T.yips=6;big('夢・滅五感！');AUDIO.sfx('heavy');AUDIO.sfx('chime');OPP.react='dazed';OPP.rt=0;ring(new V3(OPP.pos.x,0.05,OPP.pos.y),'#a050d0',1.0,10);markQ();draw();return;}   // 幸村：6 秒對手失去五感、動不了
     if(k==='zone'){if(T.zone>0)return;T.zone=10;big('手塚領域！');AUDIO.sfx('whoosh');AUDIO.sfx('chime');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#6fe3ff',0.9,12);ring(g.clone().setY(player.y+1),'#ffffff',0.6,6,false);markQ();draw();return;}
-    if(T.st==='serve'&&T.server==='p'){serve(k==='twist'?'twist':'normal');return;}
+    if(T.st==='serve'&&T.server==='p'){serve(k==='twist'?'twist':k==='tann'?'tann':'normal');return;}
     if(T.jump||T.seq||T.st!=='rally')return;
     const sk=k==='hit'?'normal':k;
     if(canHit()){T.buf=null;pHit(sk);return;}
     if(soon()){T.buf={k:sk,t:0.4};return;}   // 按早一點點：球過來就打
     T.sw={k:bp.x<player.pos.x?'fore':'back',t:0};AUDIO.sfx('whoosh');};   // 太早／太晚：揮空
-  T.key=(e,down)=>{if(!down)return false;const m={KeyJ:'hit',Digit1:'twist',Digit2:'zero',Digit3:'tsubame',Digit4:'hadou',Digit5:'snake',Digit6:'rondo',Digit7:'aura',Digit8:'zone',Digit9:'jack'}[e.code];if(!m)return false;if(!e.repeat)T.press(m);return true;};
+  T.key=(e,down)=>{if(!down)return false;const m={KeyJ:'hit',Digit1:'twist',Digit2:'zero',Digit3:'tsubame',Digit4:'hadou',Digit5:'snake',Digit6:'rondo',Digit7:'aura',Digit8:'zone',Digit9:'jack',KeyR:'hakugei',KeyT:'tann',KeyY:'ice',KeyU:'samurai',KeyI:'rai',KeyO:'phantom',KeyP:'yips',KeyG:'mario'}[e.code];if(!m)return false;if(!e.repeat)T.press(m);return true;};
   for(const b of btns.querySelectorAll('button')){const k=b.dataset.k;b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});
     const dn=e=>{e.preventDefault();e.stopPropagation();T.press(k);b.classList.add('hit');};const up=e=>{e.preventDefault();e.stopPropagation();b.classList.remove('hit');};
     b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('touchend',up,{passive:false});b.addEventListener('touchcancel',up,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('mouseup',up);}
@@ -3866,13 +3966,13 @@ const TN=(()=>{
   T.step=(dt,f,s,running)=>{let dy=0-player.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));player.yaw+=dy*Math.min(1,dt*2.5);   // 鏡頭慢慢轉回朝向對手
     if(T.seq){seqTick(dt);return;}
     T.in.f=f;T.in.s=s;
-    if(T.st==='serve'&&T.server==='p'||T.jump)player.vel.set(0,0);
+    if(T.st==='serve'&&T.server==='p'||T.jump||T.frozen>0||(T.obuff&&T.obuff.k==='yips'&&T.st==='rally'))player.vel.set(0,0);   /* 被冰住、對手的夢：動不了（球到身邊還是可以打） */
     else{const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),rx=Math.cos(player.yaw),rz=-Math.sin(player.yaw),spd=(T.aura>0?8.2:6.0)*(running?1.25:1);   // 自己跑（Shift／搖桿推到底＝衝刺）
       const k=1-Math.exp(-dt*12);player.vel.x+=((fx*f+rx*s)*spd-player.vel.x)*k;player.vel.y+=((fz*f+rz*s)*spd-player.vel.y)*k;}
     if(T.knock>0){T.knock-=dt;player.pos.y+=dt*6*(T.knock/0.4);}
     player.pos.x+=player.vel.x*dt;player.pos.y+=player.vel.y*dt;resolve(player.pos,0.3,player.y);
     player.pos.x=cl(player.pos.x,P.x0+0.5,P.x1-0.5);player.pos.y=cl(player.pos.y,C.cz+0.6,P.z1-0.5);
-    if(T.jump){const j=T.jump;j.t+=dt;const u=Math.min(1,j.t/0.8);player.y=j.y0+4*j.h*u*(1-u);player.vy=0;player.ground=false;if(u>=1){T.jump=null;player.y=j.y0;player.ground=true;}}
+    if(T.jump){const j=T.jump;j.t+=dt;const u=Math.min(1,j.t/(j.dur||0.8));player.y=j.y0+4*j.h*u*(1-u);player.vy=0;player.ground=false;if(u>=1){T.jump=null;player.y=j.y0;player.ground=true;}}
     else playerFall(dt);};
   // ---- 每格 ----
   T.tick=dt=>{fxTick(dt);if(!T.on)return;
@@ -3884,30 +3984,51 @@ const TN=(()=>{
       if(T.tossT>=0){T.tossT+=dt;const u=Math.min(1,T.tossT/0.55),h=2.95;const bx=T.server==='p'?player.pos.x-0.2:OPP.pos.x+0.2,bz=T.server==='p'?player.pos.y-0.35:OPP.pos.y+0.35,by=(T.server==='p'?player.y:0)+1.3+(h-1.3)*Math.sin(Math.PI/2*u);
         bp.set(bx,by,bz);if(T.server==='p'&&!T.sw)T.sw={k:'toss',t:0};if(u>=1)doServe();}
       else{const bx=T.server==='p'?player.pos.x-0.25:OPP.pos.x+0.25,bz=T.server==='p'?player.pos.y-0.2:OPP.pos.y+0.2;bp.set(bx,1.0+(T.server==='p'?player.y:0)+Math.abs(Math.sin(T.serveT*5))*-0.0,bz);}}   // 拿在手上
-    else if(B.mode==='phys'){phys(dt);if(B.roll&&!B.dead&&B.hitter&&B.bounces===1){B.rollT=(B.rollT||0)+dt;if(B.rollT>(B.tag==='ozero'?1.7:B.tag==='otsubame'?1.1:B.tag==='zero'?1.1:0.7))point(B.hitter,TAGWIN[B.tag]||'');}}   /* 零式、燕回閃：落地後在地上滾＝第二次落地 */
+    else if(B.mode==='phys'){phys(dt);if(B.roll&&!B.dead&&B.hitter&&B.bounces===1){B.rollT=(B.rollT||0)+dt;if(B.rollT>(B.tag==='ozero'?1.7:B.tag==='otsubame'||B.tag==='otann'?1.1:B.tag==='zero'?1.1:0.7))point(B.hitter,TAGWIN[B.tag]||'');}}   /* 零式、燕回閃：落地後在地上滾＝第二次落地 */
     else if(B.mode==='path'){const q=B.path;q.t+=dt/q.T;if(q.t<1)bez(q.p,q.t,bp);else{bp.copy(q.p[3]);const d=q.p[3].clone().sub(q.p[2]).multiplyScalar(3/q.T*0.6);bv.set(d.x,3.0,d.z);B.mode='phys';B.hitter=q.by||'p';B.bounces=1;B.net=false;
         ring(new V3(bp.x,0.06,bp.z),'#58e07a',0.6,6);burst(bp.clone(),16,'#58e07a',3);AUDIO.sfx('tbounce');if(!B.counter&&B.hitter==='p'){OPP.react='late';OPP.rt=0;}}}
-    else if(B.mode==='seq'){}   // 輪舞曲：在 T.step 裡算
+    else if(B.mode==='seq'||B.mode==='sam'){}   // 輪舞曲：在 T.step 裡算；武士驅動球：samTick
     else if(B.mode==='jack'){const j=T.jump;bp.set(player.pos.x-0.25,player.y+2.3,player.pos.y-0.2);   // 跳躍扣殺：球在頭上，跳到最高點往下殺
       if(!j||j.t>=0.36){if(j)j.launched=true;T.sw={k:'smash',t:0};AUDIO.sfx('pock');AUDIO.sfx('slam');shake(0.45);B.mode='phys';B.hitter='p';B.bounces=0;B.net=false;B.roll=false;B.rollT=0;
         launch(new V3(cl(OPP.pos.x+rnd(-1,1),C.cx-SX+0.6,C.cx+SX-0.6),R,cl(OPP.pos.y+3.2,C.cz-HL+1,C.cz-3)),0.5,1.25);ring(bp.clone(),'#ff8a2a',0.45,6,false);burst(bp.clone(),20,'#ffb060',5);OPP.tgt.copy(OPP.pos);
         if(B.counter){OPP.ret=true;OPP.boost=2.2;const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);}}}
+    else if(B.mode==='mario'){const j=T.jump;bp.set(player.pos.x-0.25,player.y+2.3,player.pos.y-0.2);   // 必殺球：跳到最高點（0.5 秒）把彩虹球轟向對手
+      if(Math.random()<dt*40){const a=Math.random()*Math.PI*2,r=rnd(0.5,1.2);puff(new V3(player.pos.x+Math.cos(a)*r,player.y+rnd(0.2,2.6),player.pos.y+Math.sin(a)*r),0.6,0.35,0.05,new V3(0,1.5,0),Math.random()<0.4?'#ffffff':'rainbow');}
+      if(!j||j.t>=0.5){if(j)j.launched=true;T.sw={k:'smash',t:0};AUDIO.sfx('pock');AUDIO.sfx('slam');AUDIO.sfx('heavy');shake(0.6);flashW();slow(0.55,0.3);B.mode='phys';B.hitter='p';B.bounces=0;B.net=false;B.roll=false;B.rollT=0;
+        launch(new V3(cl(OPP.pos.x,C.cx-SX+0.5,C.cx+SX-0.5),R,cl(OPP.pos.y+1.0,C.cz-HL+0.5,C.cz-2)),0.45,1.25);ring(bp.clone(),'rainbow',0.6,8,false);ring(bp.clone(),'#ffffff',0.45,5,false);burst(bp.clone(),36,'rainbow',6);OPP.tgt.copy(OPP.pos);
+        if(B.counter){OPP.ret=true;OPP.boost=2.2;const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);}}}
+    else if(B.mode==='ohold'){const h=B.hold;h.t+=dt;bp.set(OPP.pos.x+0.2,OPP.root.position.y+2.5,OPP.pos.y+0.2);   // 對手跳起來、球在頭上
+      if(h.k==='omario'&&Math.random()<dt*40){const a=Math.random()*Math.PI*2,r=rnd(0.5,1.2);puff(new V3(OPP.pos.x+Math.cos(a)*r,OPP.root.position.y+rnd(0.2,2.6),OPP.pos.y+Math.sin(a)*r),0.6,0.35,0.05,new V3(0,1.5,0),Math.random()<0.4?'#ffffff':'rainbow');}
+      if(h.t>=h.dur)oFire(h.k);}
     if(B.tag==='ohadou'&&B.hitter==='o'&&!B.dead&&!B.knocked&&Math.hypot(bp.x-player.pos.x,bp.z-player.pos.y)<0.55&&bp.y<2.2){B.knocked=true;T.knock=0.4;shake(0.5);big('被轟退了！');AUDIO.sfx('heavy');burst(bp.clone(),20,'#ff6a2a',4);}   // 對手的波動球沒接到：被轟得往後退
     // 你擊球：按早一點點會等球過來；擊球鈕變綠＝現在打得到
     if(T.buf){T.buf.t-=dt;if(canHit()){const k=T.buf.k;T.buf=null;pHit(k);}else if(T.buf.t<=0)T.buf=null;}
     {const r=canHit();if(r!==T.ready){T.ready=r;const hb=btns.querySelector('[data-k=hit]');if(hb)hb.classList.toggle('ready',r);}}
+    iceTick(dt);if(B.mode==='sam')samTick(dt);osamTick(dt);
+    if((B.tag==='orondo'||B.tag==='omario')&&B.hitter==='o'&&B.mode==='phys'&&!B.dead&&!B.knocked){const d=Math.hypot(bp.x-player.pos.x,bp.z-player.pos.y);
+      if((d<0.6&&bp.y<2.4)||(bp.z>player.pos.y+0.3&&d<1.0)){B.knocked=true;const mo=B.tag==='omario';pRacketOff(mo);big(mo?'球拍被打碎了！KO…':'球拍被打掉了！');point('o',TAGWIN[B.tag]);}}
+    if(T.frozen>0){T.frozen-=dt;pIce.visible=true;pIce.position.set(player.pos.x,player.y+0.47,player.pos.y);if(T.frozen<=0){T.frozen=0;pIce.visible=false;burst(new V3(player.pos.x,player.y+0.6,player.pos.y),22,'#dff8ff',3);}draw();}
+    if(T.obuff){const ob=T.obuff;if(ob.k!=='yips'||T.st==='rally')ob.t-=dt;
+      if(Math.random()<dt*22){const c=OBC[ob.k];if(ob.k==='yips')puff(new V3(player.pos.x+rnd(-0.6,0.6),player.y+rnd(0.2,2),player.pos.y+rnd(-0.6,0.6)),0.8,0.45,0.1,new V3(0,0.5,0),c);
+        else if(ob.k==='zone'){const a=performance.now()/1000*5+Math.random()*6.3;puff(new V3(OPP.pos.x+Math.cos(a)*1.5,0.2+Math.random()*1.6,OPP.pos.y+Math.sin(a)*1.5),0.55,0.3,0.05,new V3(-Math.sin(a)*2.2,0.4,Math.cos(a)*2.2),c);}
+        else puff(new V3(OPP.pos.x+rnd(-0.5,0.5),OPP.root.position.y+rnd(0.1,1.8),OPP.pos.y+rnd(-0.5,0.5)),0.6,0.3,0.05,new V3(0,1.2,0),c);}
+      const sc=Math.ceil(ob.t);if(sc!==T.obS){T.obS=sc;draw();}if(ob.t<=0){T.obuff=null;toast('對手的'+OBN[ob.k]+'結束');draw();}}
+    if(T.prkOff){const f=T.prkOff;if(prk.position.y>0.06){f.v.y-=GR*dt;prk.position.addScaledVector(f.v,dt);prk.rotation.x+=f.w.x*dt;prk.rotation.y+=f.w.y*dt;prk.rotation.z+=f.w.z*dt;}else{prk.position.y=0.06;prk.rotation.set(Math.PI/2,0,prk.rotation.z);}}
+    if(T.phantom>0){T.phantom-=dt;if(Math.random()<dt*20)puff(new V3(player.pos.x+rnd(-1,1),player.y+rnd(0,2),player.pos.y+rnd(-1,1)),0.9,0.5,0.1,new V3(0,0.4,0),'#5a68d8');if(T.phantom<=0){T.phantom=0;markQ();toast('手塚幻象結束');}draw();}
+    if(T.yips>0){T.yips-=dt;if(Math.random()<dt*25)puff(new V3(OPP.pos.x+rnd(-0.6,0.6),rnd(0.2,2),OPP.pos.y+rnd(-0.6,0.6)),0.8,0.45,0.1,new V3(0,0.5,0),'#a050d0');if(T.yips<=0){T.yips=0;if(OPP.react==='dazed')OPP.react=null;markQ();toast('夢結束');}draw();}
     if(T.zone>0){T.zone-=dt;T.zoneFx-=dt;if(T.zoneFx<=0){T.zoneFx=0.035;const a=performance.now()/1000*5;for(const o of [0,2.1,4.2])puff(new V3(player.pos.x+Math.cos(a+o)*1.5,player.y+0.2+Math.random()*1.6,player.pos.y+Math.sin(a+o)*1.5),0.55,0.3,0.05,new V3(-Math.sin(a+o)*2.2,0.4,Math.cos(a+o)*2.2),'#6fe3ff');}
       if(T.zone<=0){T.zone=0;markQ();toast('手塚領域結束');}draw();}
-    {const on=T.land&&B.hitter==='o'&&B.bounces===0&&!B.dead&&T.st==='rally';mark.visible=!!on;if(on){mark.position.set(T.land.x,0.035,T.land.y);mark.scale.setScalar(1+0.15*Math.sin(performance.now()/90));}}
+    {const on=T.land&&B.hitter==='o'&&(B.bounces===0||B.markAfter)&&!B.dead&&T.st==='rally';mark.visible=!!on;if(on){mark.position.set(T.land.x,0.035,T.land.y);mark.scale.setScalar(1+0.15*Math.sin(performance.now()/90));}}
     // 對手：跑位、回擊、各招的反應
-    {const O=OPP;O.rt+=dt;const busy=O.react==='blown'||O.react==='lunge';
+    {const O=OPP;O.rt+=dt;const busy=O.react==='blown'||O.react==='lunge'||O.react==='frozen'||O.react==='dazed'||T.yips>0;
       if(!busy&&!(T.st==='serve'&&T.server==='o')){const spd=O.ret?6.6*(O.boost||1):3.2,dx=O.tgt.x-O.pos.x,dz=O.tgt.y-O.pos.y,l=Math.hypot(dx,dz);O.mv=l>0.06;if(O.mv){const u=Math.min(spd*dt,l);O.pos.x+=dx/l*u;O.pos.y+=dz/l*u;}}else O.mv=false;
       if(O.react==='lunge'&&O.rt<0.7){O.pos.y=Math.min(C.cz-0.9,O.pos.y+dt*6.5);O.mv=true;}   // 零式：衝到網前也來不及
       if(O.react==='blown'&&O.rt<0.6){O.pos.y-=dt*5*(1-O.rt/0.6);}   // 波動球：被轟到往後滑
       O.pos.x=cl(O.pos.x,P.x0+0.5,P.x1-0.5);O.pos.y=cl(O.pos.y,P.z0+0.5,C.cz-0.6);
       if(T.st==='rally'&&B.mode==='phys'&&B.hitter==='p'&&!B.dead&&B.bounces===1){const d=Math.hypot(bp.x-(O.pos.x+0.5),bp.z-O.pos.y);
         if(O.ret&&d<1.15&&bp.y<2.5)oHit();
-        else if(!O.ret&&d<1.3&&!O.react){O.react=B.tag==='hadou'?'blown':B.tag==='tsubame'?'whiff':'late';O.rt=0;O.sw={t:0,k:'fore'};
+        else if(!O.ret&&d<1.3&&!O.react){O.react=B.tag==='hadou'||B.tag==='mario'?'blown':B.tag==='tsubame'?'whiff':'late';O.rt=0;O.sw={t:0,k:'fore'};
+          if(B.tag==='mario'){O.racket.getWorldPosition(RH);O.racket.visible=false;shards(RH.clone(),'#2e7d5b',14);burst(RH.clone(),34,'rainbow',6);ring(RH.clone(),'rainbow',0.6,8,false);bv.multiplyScalar(0.6);bv.y=Math.max(bv.y,2.5);big('球拍破壞！KO！！');AUDIO.sfx('shatter');AUDIO.sfx('heavy');AUDIO.sfx('slam');shake(0.6);flashW();slow(0.6,0.3);}
           if(B.tag==='hadou'){flyRacket(new V3(rnd(-1.5,1.5),5,-4));bv.multiplyScalar(0.65);bv.y=Math.max(bv.y,2.5);big('連人帶拍轟飛了！');AUDIO.sfx('heavy');AUDIO.sfx('slam');shake(0.5);burst(bp.clone(),26,'#ff6a2a',5);ring(bp.clone(),'#ff7a3a',0.5,7,false);}
           if(B.tag==='tsubame'){big('揮空！');}}}
       if(T.st==='rally'&&B.hitter==='p'&&(B.dead||B.bounces>1)&&O.react!=='blown')O.home();
@@ -3916,7 +4037,7 @@ const TN=(()=>{
     // 這一分結束 → 1.9 秒後下一分
     if(T.pend){T.pend.t+=dt;if(T.pend.t>0.35&&!T.pend.shown){T.pend.shown=true;big(T.pend.msg);}if(T.pend.t>2.1){T.pend=null;setupPoint();}}
     // 球的拖尾、影子
-    T.fxT-=dt;if(T.fxT<=0&&ball.visible){T.fxT=0.02;if(B.trail&&!B.dead&&B.mode!=='held')puff(bp.clone(),0.35,0.32,0.05,null,B.trail);}
+    T.fxT-=dt;if(T.fxT<=0&&(ball.visible||(T.osam&&T.osam.real&&T.osam.real.visible))){T.fxT=0.02;if(B.trail&&!B.dead&&B.mode!=='held'){const rb=B.trail==='rainbow';puff(bp.clone(),rb?0.5:0.35,rb?0.5:0.32,0.05,null,rb?rainbow():B.trail);}}
     shadow.position.set(bp.x,0.03,bp.z);shadow.scale.setScalar(1.8+bp.y*0.3);shadow.material.opacity=Math.max(0.15,1-bp.y*0.2);
     ball.rotation.x+=dt*bv.length()*2;
     // 招式運鏡（使用者：打出招式時鏡頭要跟著網球過去，像波動球打爆對方要看得到效果）：
@@ -3927,18 +4048,18 @@ const TN=(()=>{
      if(cm){cm.t+=dt;const out=T.st==='serve'||!T.on||mode!=='walk'||B.hitter==='o'||(T.pend&&T.pend.t>1.5);cm.out=out;
        const vx=bp.x-T.bpPrev.x,vz=bp.z-T.bpPrev.z,l=Math.hypot(vx,vz);if(l>1e-4&&B.mode!=='held'){T.cd.x+=(vx/l-T.cd.x)*Math.min(1,dt*5);T.cd.y+=(vz/l-T.cd.y)*Math.min(1,dt*5);T.cd.normalize();}
        const DP=TP,DL=TV,O=OPP;
-       if(cm.tag==='snake'){DP.set(C.cx,10,P.z1+2);DL.set(C.cx,0,C.cz-4);}
-       else if(cm.tag==='rondo'){DP.set(C.cx+12.5,5,C.cz+1.5);DL.set(C.cx,1.8,C.cz);}
+       if(cm.tag==='snake'||cm.tag==='hakugei'){DP.set(C.cx,10,P.z1+2);DL.set(C.cx,cm.tag==='hakugei'?3:0,C.cz-4);}
+       else if(cm.tag==='rondo'||cm.tag==='samurai'){DP.set(C.cx+12.5,5,C.cz+1.5);DL.set(C.cx,1.8,C.cz);}
        else if(B.bounces>=1||O.react||B.dead){DP.set(O.pos.x+3.4,1.7,O.pos.y+3.6);DL.set(O.pos.x,0.95,O.pos.y);}   // 對手特寫：看被轟飛、撲空、揮空
        else{const dx=T.cd.x,dz=T.cd.y;DP.set(bp.x-dx*3.8+dz*0.9,Math.max(1.2,bp.y+1.3),bp.z-dz*3.8-dx*0.9);DL.set(bp.x+dx*3,Math.max(0.5,bp.y*0.6),bp.z+dz*3);}   // 跟在球後面
        const k=1-Math.exp(-dt*(CALM.on?3:6));T.cp.lerp(DP,k);T.cl.lerp(DL,k);
-       T.ck+=((out?0:1)-T.ck)*Math.min(1,dt*(out?2.2:(CALM.on?2.5:5)));
+       T.ck+=((out?0:1)-T.ck)*Math.min(1,dt*(out?(B.hitter==='o'&&!B.dead?6:2.2):(CALM.on?2.5:5)));   /* 對手打回來：鏡頭快點回到你身上 */
        if(T.ck>0.005){const q0=camera.quaternion.clone();camera.position.lerp(T.cp,T.ck);camera.lookAt(T.cl);camera.quaternion.slerpQuaternions(q0,camera.quaternion.clone(),T.ck);}
        else if(out){T.cm=null;T.ck=0;}}
      T.bpPrev.copy(bp);}
     if(T.shk>0){T.shk=Math.max(0,T.shk-dt*1.8);if(!CALM.on&&mode==='walk'){camera.position.x+=(Math.random()-0.5)*T.shk*0.4;camera.position.y+=(Math.random()-0.5)*T.shk*0.4;}}};
   // ---- 對手的動作 ----
-  function oPose(dt){const O=OPP,b=O.body;let jy=0;if(O.jt!==undefined&&O.jt<0.8){O.jt+=dt;const u=Math.min(1,O.jt/0.8);jy=4*1.4*u*(1-u);if(O.jt<0.4)O.sw={t:0,k:'toss'};else if(!O.sw||O.sw.k==='toss')O.sw={t:0,k:'smash'};}
+  function oPose(dt){const O=OPP,b=O.body;iceBlock.visible=O.react==='frozen';let jy=0;const jd=O.jd||0.8,jh=O.jh||1.4;if(O.jt!==undefined&&O.jt<jd){O.jt+=dt;const u=Math.min(1,O.jt/jd);jy=4*jh*u*(1-u);if(O.jt<jd/2)O.sw={t:0,k:'toss'};else if(!O.sw||O.sw.k==='toss')O.sw={t:0,k:'smash'};}
     O.root.position.set(O.pos.x,jy,O.pos.y);O.root.rotation.y=0;b.position.set(0,0,0);b.rotation.set(0,0,0);
     O.ph+=dt*(O.mv?11:2);const sw=O.mv?Math.sin(O.ph)*0.7:0;O.legL.rotation.set(sw,0,0);O.legR.rotation.set(-sw,0,0);
     O.armL.rotation.set(-0.4,0,-0.25);O.armR.rotation.set(-0.6,0,0.3);
@@ -3954,6 +4075,8 @@ const TN=(()=>{
       case 'lunge':{const k=Math.min(1,t/0.4);b.rotation.x=0.75*k;b.position.y=-0.35*k;O.armR.rotation.set(-1.6,0,0.2);O.legL.rotation.x=-1.0*k;O.legR.rotation.x=0.8*k;break;}   // 撲向網前
       case 'whiff':{b.rotation.y=Math.PI*2*sm(Math.min(1,t/0.6));break;}   // 揮空轉一圈
       case 'blown':{const k=Math.min(1,t/0.35);b.rotation.x=-1.25*k;b.position.y=-0.55*k;b.position.z=-0.3*k;O.armL.rotation.set(-2.6,0,-0.6);O.armR.rotation.set(-2.6,0,0.6);O.legL.rotation.x=-1.3*k;O.legR.rotation.x=-1.0*k;break;}   // 被轟倒坐地上
+      case 'frozen':{b.rotation.z=Math.sin(t*40)*0.01;O.armR.rotation.set(-1.0,0,0.5);O.armL.rotation.set(-0.8,0,-0.5);O.legL.rotation.x=0.2;O.legR.rotation.x=-0.3;break;}   // 被冰住
+      case 'dazed':{b.rotation.x=0.18;b.rotation.z=Math.sin(t*1.5)*0.08;O.armR.rotation.set(0,0,0.15);O.armL.rotation.set(0,0,-0.15);break;}   // 失去五感：手垂著、搖晃
       case 'grip':{O.armR.rotation.set(-0.8,0,0.3+0.25*Math.sin(t*30)*Math.max(0,1-t));b.rotation.x=-0.15;break;}   // 手被震麻
       case 'late':{b.rotation.y=Math.sin(t*3)*0.25;break;}}}
   // ---- 你的動作（updateAvatar 最後呼叫） ----
@@ -3968,7 +4091,7 @@ const TN=(()=>{
   const SW={fore:['foreW','foreF'],back:['backW','backF'],smash:['smashW','smashF'],zero:['zeroW','zeroF'],tsubame:['tsuW','tsuF'],hadou:['hadW','hadF'],snake:['foreW','snakeF'],toss:['smashW','smashW'],smashW:['ready','smashW']};
   function applyKF(a,k0,k1,e){const L=(x,y)=>x+(y-x)*e;a.chest.rotation.y=L(k0.cy,k1.cy);a.chest.rotation.x=L(k0.cx,k1.cx);a.armR.rotation.set(L(k0.aR[0],k1.aR[0]),0,L(k0.aR[1],k1.aR[1]));a.foreR.rotation.x=L(k0.fR,k1.fR);
     a.armL.rotation.set(L(k0.aL[0],k1.aL[0]),0,L(k0.aL[1],k1.aL[1]));a.foreL.rotation.x=L(k0.fL,k1.fL);const kn=L(k0.kn,k1.kn);a.shinL.rotation.x+=kn;a.shinR.rotation.x+=kn;a.legL.rotation.x-=kn*0.45;a.legR.rotation.x-=kn*0.45;a.body.position.y-=kn*kn*0.07;}
-  T.pose=(a,dt)=>{if(!T.on)return;const H=a.handR;if(H&&prk.parent!==H.g)H.g.add(prk);
+  T.pose=(a,dt)=>{if(!T.on)return;const H=a.handR;if(H&&prk.parent!==H.g&&!T.prkOff)H.g.add(prk);
     a.zeroJoints();a.hand(1,'fist');a.armL.rotation.y=a.armR.rotation.y=0;
     let ty=0;if(!B.dead&&B.hitter==='o'&&bp.z>C.cz)ty=cl(Math.atan2(-(bp.x-player.pos.x),-(bp.z-player.pos.y)),-1.0,1.0);
     let d=ty-a.yaw;d=Math.atan2(Math.sin(d),Math.cos(d));a.yaw+=d*Math.min(1,dt*10);a.root.rotation.y=a.yaw+Math.PI;
