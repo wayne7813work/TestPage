@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-10.77"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-12.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -246,11 +246,30 @@
   #tnHud .k{color:var(--ink-2);font-size:11px;margin-top:3px;white-space:normal}
   /* ---- 賽車場（導航 HUD、技能按鈕、倒數燈） ---- */
   #rcHud[hidden],#rcNav[hidden],#rcMap[hidden],#rcLights[hidden],#rcPanel[hidden],#rcBtns[hidden]{display:none!important}
+  /* 夜市套圈大進擊 */
+  #nmHud{position:fixed;left:calc(12px + var(--sal));top:calc(58px + var(--sat));padding:5px 12px;font-size:12px;z-index:12;background:rgba(18,24,30,.5);border-color:transparent;white-space:nowrap}
+  #nmHud b{font-size:15px;margin:0 3px}body.touch #nmHud{top:calc(110px + var(--sat));font-size:11px}
+  #nmHud[hidden],#nmBtns[hidden],#nmPanel[hidden]{display:none!important}
+  #nmBtns{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:10px;z-index:11}
+  #nmBtns button{width:66px;height:66px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(18,24,30,.6);color:#fff;font-size:14px;font-weight:800;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;position:relative;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+  #nmBtns button small{font-size:10px;opacity:.75}
+  #nmBtns [data-k=big]{background:radial-gradient(circle,#ffe08a,#e8a02a)}#nmBtns [data-k=rapid]{background:radial-gradient(circle,#ff9ac8,#d8266a)}#nmBtns [data-k=gold]{background:radial-gradient(circle,#fff4b0,#d8a000)}
+  #nmBtns [data-k=auto].on{background:rgba(40,190,120,.85);border-color:#b8ffd8}
+  #nmBtns button.cd::after{content:'';position:absolute;inset:0;background:conic-gradient(transparent var(--p),rgba(0,0,0,.6) 0);pointer-events:none}
+  #nmBtns button.act{box-shadow:0 0 14px #ffe08a;border-color:#fff}#nmBtns button.hit{transform:scale(.9)}
+  body.touch #nmBtns{left:auto;right:calc(12px + var(--sar));bottom:calc(16px + var(--sab));transform:none;display:grid;grid-template-columns:repeat(2,58px);gap:8px}
+  body.touch #nmBtns button{width:58px;height:58px;font-size:13px}body.touch #nmBtns button small{display:none}
+  body.nm #jumpBtn,body.nm #skBtns,body.nm #bbBtns{visibility:hidden}body.nm:not(.nmtoss) #act{display:none!important}   /* 跑道：中間的「離開」按鈕擋畫面，右下已經有「離開」 */body.nmtoss #joy,body.nmtoss #nmBtns{visibility:hidden}
+  #nmPanel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:20;padding:14px 16px;width:min(440px,92vw);max-height:88vh;overflow:auto;display:flex;flex-direction:column;gap:8px;text-align:center}
+  #nmPanel h3{margin:0;font-size:17px}#nmPanel .res:empty{display:none}#nmPanel .res{font-size:13px;line-height:1.6}#nmPanel .res b{font-size:19px}
+  #nmPanel .stages{display:flex;flex-direction:column;gap:6px}#nmPanel button{padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);font-size:15px;font-weight:700;color:inherit}
+  #nmPanel .stages button{background:linear-gradient(90deg,#c41e1e,#ff7a3a);color:#fff;display:flex;flex-direction:column;align-items:center}#nmPanel .stages button small{font-size:11px;opacity:.9;font-weight:600}#nmPanel .stages button:disabled{opacity:.45}
+  #nmPanel .note{font-size:11px;opacity:.75;margin:0;text-align:left}
   /* 直排輪改裝 */
   #skModPanel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:21;padding:14px 16px;width:min(400px,92vw);display:flex;flex-direction:column;gap:10px}
   #skModPanel[hidden]{display:none!important}#skModPanel h3{margin:0;font-size:16px;text-align:center}
   #skModPanel .opt{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;cursor:pointer}#skModPanel .opt input{width:20px;height:20px;flex:none;margin-top:1px}
-  #skModPanel .wh{display:flex;align-items:center;gap:8px;font-size:13px}#skModPanel .wh button{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:var(--c);padding:0}#skModPanel .wh button.on{border-color:#fff;box-shadow:0 0 0 2px #ffb454}
+  #skModPanel .wh{display:flex;align-items:center;gap:8px;font-size:13px}#skModPanel .wh button{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:var(--c);padding:0}#skModPanel .wh button[hidden],#skModPanel .opt[hidden]{display:none}#skModPanel .wh button.on{border-color:#fff;box-shadow:0 0 0 2px #ffb454}
   #skModPanel .note{font-size:11px;opacity:.75;margin:0}#skModPanel #smClose{padding:10px;border-radius:10px;border:1px solid var(--line);background:linear-gradient(90deg,#e94f8a,#ff9a3a);color:#fff;font-size:15px;font-weight:800}
   #skHud .gw{position:relative;display:inline-block;width:80px;height:9px;border-radius:5px;background:rgba(255,255,255,.18);overflow:hidden;vertical-align:middle}
   #skJetG{position:absolute;left:0;top:0;bottom:0;background:#38e1ff}#skJetG.s1{background:linear-gradient(90deg,#ffb347,#ffe08a)}#skJetG.s2{background:linear-gradient(90deg,#7fd8ff,#ffffff,#7fd8ff)}#skJetG.low{background:#6b7a88}
@@ -400,6 +419,7 @@
   <button id="gStart">殭屍來襲！開始</button>
   <button id="gFree">自由破壞模式（沒有殭屍）</button>
   <button id="ftStart">罰球大賽（籃球場）</button>
+  <button id="nmMenu">夜市套圈大進擊（3 關）</button>
   <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。開始後畫面下方才會出現技能按鈕，按了馬上往前方放：氣功炮（J）、超級氣功波（L）、旋風腿（U）、如來神掌（I）、足球（O）、按住蓄力氣功彈（H）。視角往上抬就往上打（打飛到空中的殭屍可以接著打）。車子、鄰居的房子、周邊建築、全家都打得壞（我家不會壞），遊戲結束會復原。</p>
   <h3 style="margin-top:14px">舒適設定</h3>
   <label><span>視角轉動靈敏度</span><span id="sensVal">100%</span></label>
@@ -444,10 +464,16 @@
 <div id="rcPanel" class="panel" hidden><h3>賽車場・我的賽車</h3><div class="res"></div><button data-m="race">🏁 比賽（3 圈・5 台車）</button><button data-m="free">⏱ 自由練習（計圈速）</button><button data-m="vortex">🌀 大漩渦挑戰（離心力車道）</button><button data-m="exit">下車</button>
 <p class="note">電腦：W 油門、S 煞車、A D 轉彎、空白鍵＝加速器（再按一次＝第二段螺旋加速）、Shift 按住甩尾（放開＝閃電甩尾加速）、1 加速過彎、2 懸空轉向、3 幻影過彎、4 零之領域、C 視角、V 語音、R 回賽道、F 下車、<b>P 自動駕駛</b><br>手機：自動油門，搖桿左右轉彎、往下拉煞車<br><b>自動駕駛（綠色「自動」按鈕，預設開）</b>：車子自己轉彎、控速、遇到車會換線，你只要按加速器和過彎技能超車；推搖桿／按方向、煞車就照你的</p></div>
 <div id="rcBtns" hidden><button data-k="auto">自動<small>P</small></button><button data-k="boost">加速器<small>空白</small></button><button data-k="drift">甩尾<small>Shift</small></button><button data-k="aero">加速<br>過彎<small>1</small></button><button data-k="lift">懸空<br>轉向<small>2</small></button><button data-k="mirage">幻影<br>過彎<small>3</small></button><button data-k="zero">零之<br>領域<small>4</small></button><button data-k="cam">視角<small>C</small></button><button data-k="voice">語音<small>V</small></button><button data-k="reset">回賽道<small>R</small></button></div>
+<div id="nmHud" class="panel" hidden></div>
+<div id="nmBtns" hidden><button data-k="auto">自動<small>P</small></button><button data-k="big">巨大圈<small>1</small></button><button data-k="rapid">連發圈<small>2</small></button><button data-k="gold">黃金圈<small>3</small></button><button data-k="exit">離開<small>Esc</small></button></div>
+<div id="nmPanel" class="panel" hidden><h3>夜市套圈大進擊</h3><div class="res"></div><div class="stages"></div><p class="prize note"></p>
+  <p class="note">左右推（或手指左右拖）選門：數字大的、×2 的比較好。隊伍會自動丟圈圈套門前的瓶子，套越多門上的數字越大。小心大彈珠、攤車、棉花糖機和紅隊。終點剩幾個人就有幾個圈，往上套獎品塔，套到頂端套住大老闆＝大獎。</p>
+  <button data-x="exit">離開</button></div>
 <div id="skModPanel" class="panel" hidden><h3>直排輪改裝</h3>
   <label class="opt"><input type="checkbox" id="smJet"><span><b>推進器</b>：背上噴射背包＋鞋跟噴嘴，按「推進器」最快 150 km/h</span></label>
   <label class="opt"><input type="checkbox" id="smSup"><span><b>超級加速模式</b>：推進器開著再按一次，最快 400 km/h（要先裝推進器）</span></label>
-  <div class="wh"><span>輪子顏色</span><button data-w="cyan" style="--c:#36c2d8"></button><button data-w="pink" style="--c:#ff5fa2"></button><button data-w="gold" style="--c:#f2c94c"></button><button data-w="lime" style="--c:#9be15d"></button><button data-w="black" style="--c:#2a2d33"></button></div>
+  <div class="wh"><span>輪子顏色</span><button data-w="cyan" style="--c:#36c2d8"></button><button data-w="pink" style="--c:#ff5fa2"></button><button data-w="gold" style="--c:#f2c94c"></button><button data-w="lime" style="--c:#9be15d"></button><button data-w="black" style="--c:#2a2d33"></button><button data-w="rainbow" hidden title="夜市大獎" style="--c:conic-gradient(#ff3b3b,#ffb000,#ffe14a,#3fd36a,#3aa0ff,#9b6bff,#ff3b3b)"></button></div>
+  <label class="opt" hidden><input type="checkbox" id="smRf"><span><b>彩虹火焰</b>（夜市大獎）：推進器噴出彩虹色的火</span></label>
   <p class="note">用法：溜直排輪時按「推進器」（J）開噴射，再按一次＝超級加速，第三次關掉（能量條用完會自己關）。穿著直排輪走到賽車場起跑線，按「直排輪比賽」就能跟賽車比（有自動模式，只要按推進器和技能）。</p>
   <button id="smClose">完成</button></div>
 <div id="skBtns" hidden><button data-k="jet" hidden>推進器<small>J</small></button><button data-k="boost">飆速<small>Shift</small></button><button data-k="drift">甩尾<small>X</small></button><button data-k="back">倒溜<small>B</small></button><button data-k="trick">花式<small>T</small></button></div>
@@ -645,7 +671,8 @@ const CHAR_OUTFITS={
      // 睡衣
      {name:'兔子睡衣',cat:'睡衣',top:'#ffd6e7',sleeve:'long',bottom:'pants',bc:'#ffd6e7',shoe:'#ffffff',extra:'bunnyEars',extra2:'slippers',acc2:'#ffffff',pat:'dots|#ffd6e7|#ffffff',patB:true},
      {name:'熊熊睡衣',cat:'睡衣',top:'#a0704a',sleeve:'long',bottom:'pants',bc:'#a0704a',shoe:'#a0704a',extra:'bearEars',extra2:'slippers',acc2:'#c9946a'},
-     {name:'白色浴袍',cat:'睡衣',top:'#fbfbf6',sleeve:'long',bottom:'kimono',bc:'#fbfbf6',hem:0.4,shoe:'#ffffff',extra:'robe',extra2:'slippers',hair:'bun',stride:0.7}],
+     {name:'白色浴袍',cat:'睡衣',top:'#fbfbf6',sleeve:'long',bottom:'kimono',bc:'#fbfbf6',hem:0.4,shoe:'#ffffff',extra:'robe',extra2:'slippers',hair:'bun',stride:0.7},
+     {name:'夜市浴衣',cat:'夜市大獎',prize:'yukata',top:'#1f2a52',sleeve:'kimono',bottom:'kimono',bc:'#1f2a52',hem:0.1,shoe:'#c9a57a',socks:'#f4efe6',sockTop:0.1,extra:'obi',acc:'#ff6f91',hair:'bun',pat:'fireworks',patB:true,stride:0.45}   /* 夜市大獎（套圈圈攤一次 15 分）：深藍底煙火花紋、粉紅腰帶 */],
   m:[{name:'休閒',top:'#7fb0e0',sleeve:'short',sc:'#7fb0e0',bottom:'pants',bc:'#cdb88f',shoe:'#f5f5f2',extra:'collar'},
      {name:'西裝',top:'#26324d',sleeve:'long',sc:'#26324d',bottom:'pants',bc:'#26324d',shoe:'#1c1c1e',extra:'suit'},
      {name:'運動服',top:'#d83a3a',sleeve:'long',sc:'#d83a3a',bottom:'pants',bc:'#1f1f24',shoe:'#ffffff',extra:'stripes'},
@@ -653,8 +680,11 @@ const CHAR_OUTFITS={
      {name:'睡衣',top:'#a9cbe8',sleeve:'long',bottom:'pants',bc:'#a9cbe8',shoe:'#2f4a6b',extra:'pjM',pat:'pjStripe',patB:true},
      {name:'學生制服',top:'#22344f',sleeve:'long',bottom:'pants',bc:'#2a2f3a',shoe:'#1c1c1e',extra:'blazerM'},
      {name:'浴衣',top:'#2f4a6b',sleeve:'kimono',bottom:'kimono',bc:'#2f4a6b',hem:0.12,shoe:'#c9a57a',extra:'yukata',stride:0.6},
-     {name:'海灘裝',top:'#7ed6a5',sleeve:'short',sc:'#7ed6a5',bottom:'shorts',bc:'#ff8a5b',shoe:'#e0b07a',extra:'beachM'}]};
+     {name:'海灘裝',top:'#7ed6a5',sleeve:'short',sc:'#7ed6a5',bottom:'shorts',bc:'#ff8a5b',shoe:'#e0b07a',extra:'beachM'},
+     {name:'夜市浴衣',prize:'yukata',top:'#1f2a52',sleeve:'kimono',bottom:'kimono',bc:'#1f2a52',hem:0.12,shoe:'#c9a57a',extra:'yukata',pat:'fireworks',patB:true,stride:0.6}]};   // 夜市大獎（套圈圈攤一次 15 分）
 for(const o of CHAR_OUTFITS.m)o.cat='男裝';
+const outfitLocked=o=>!!(o&&o.prize)&&!(typeof NM!=='undefined'&&NM.SAVE.prize[o.prize]);   // 夜市大獎的衣服：贏到之前藏起來
+const outfitCount=g=>CHAR_OUTFITS[g].filter(o=>!outfitLocked(o)).length;
 const CHAR_CATS=['洋裝','裙裝','褲裝','制服','傳統','禮服','角色','睡衣'];   // 衣櫃的分頁（女裝）
 const CHAR_HAIR=[['黑','#1f1a17'],['深棕','#4a2f22'],['棕','#7a4a2a'],['金','#d9b25a'],['粉紅','#e58fb0'],['紅','#b5322f'],['藍紫','#6a6fd8'],['銀白','#d9dde3']];
 // 大型服裝店「繽紛衣櫥」（使用者要求：女生想要換很多衣服）：運動場南邊、圓環大道北側，門口朝南；mirror＝後牆上的大鏡子
@@ -1937,11 +1967,11 @@ function nearCab(){if(!started||mode!=='walk')return null;const px=player.pos.x,
     const sc=d*(1.45-face);if(sc<bs){best=u;bd=d;bs=sc;}}   /* 越正對著越優先：斜前方比較近的抽屜不要搶走正前方的衣櫃 */
   return best?{u:best,d:bd}:null;}
 // 衣櫃／抽屜／屋頂蓋子和窗簾：取比較近的那個
-function currentAct(){{const rc=RACE.label();if(rc)return {rc};}if(TN.on){const k=TN.label();return k?{tn:k}:null;}if(BB.on){const k=BB.label();return k?{bb:k}:null;}const tn=TN.label();if(tn)return {tn};if(SKATE.on){const k=SKATE.act();return k?{sk:k}:null;}const bb=BB.label();if(bb)return {bb};const mq=SHOP.near&&SHOP.near();if(mq)return {mq};const sk=SKATE.act();if(sk)return {sk};const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
+function currentAct(){{const rc=RACE.label();if(rc)return {rc};}{const nm=NM.label();if(nm)return {nm};}if(TN.on){const k=TN.label();return k?{tn:k}:null;}if(BB.on){const k=BB.label();return k?{bb:k}:null;}const tn=TN.label();if(tn)return {tn};if(SKATE.on){const k=SKATE.act();return k?{sk:k}:null;}const bb=BB.label();if(bb)return {bb};const mq=SHOP.near&&SHOP.near();if(mq)return {mq};const sk=SKATE.act();if(sk)return {sk};const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
 function syncActBtn(){const a=currentAct();actCur=a;
-  const html=!a?'':a.rc?`<kbd>F</kbd>${a.rc}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${CHAR_OUTFITS.f.length+CHAR_OUTFITS.m.length} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
+  const html=!a?'':a.rc?`<kbd>F</kbd>${a.rc}`:a.nm?`<kbd>F</kbd>${a.nm}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${outfitCount('f')+outfitCount('m')} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
   if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
-function toggleAct(){const a=currentAct();if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
+function toggleAct(){const a=currentAct();if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
 actBtn.addEventListener('click',e=>{e.stopPropagation();toggleAct();});
 actBtn.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleAct();},{passive:false});
 document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)c.target=0;syncActBtn();AUDIO.sfx('swish');};
@@ -3156,8 +3186,8 @@ const LIE=(()=>{const L={on:false,bed:null,z:0,roll:0,half:0};
   return L;})();
 
 // 直排輪改裝（使用者：直排輪要增加改裝模式，我想要推進器跟超級加速模式）：記在 home-skmod
-const SKMOD=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-skmod')||'{}')||{};}catch(_){}return {jet:!!o.jet,sup:!!o.jet&&!!o.sup,wheel:o.wheel||'cyan'};})();
-SKMOD.save=()=>{try{localStorage.setItem('home-skmod',JSON.stringify({jet:SKMOD.jet,sup:SKMOD.sup,wheel:SKMOD.wheel}));}catch(_){}};
+const SKMOD=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-skmod')||'{}')||{};}catch(_){}return {jet:!!o.jet,sup:!!o.jet&&!!o.sup,wheel:o.wheel||'cyan',rf:!!o.rf};})();
+SKMOD.save=()=>{try{localStorage.setItem('home-skmod',JSON.stringify({jet:SKMOD.jet,sup:SKMOD.sup,wheel:SKMOD.wheel,rf:SKMOD.rf}));}catch(_){}};
 /* ---------------- 直排輪（使用者要求：甩尾、飆速、倒著溜、各種花式） ----------------
    運動場入口的直排輪架按 F 穿上（選單「人物」也能隨時穿上／脫下）。W 加速、S 煞車（停下來再拉＝往後退）、A D 轉彎；
    Shift／搖桿推到底＝飆速；按住 X＝甩尾（放開時甩夠久會加速）；B＝倒溜；T＝花式（地上輪流做 5 種、空中每按一次多轉 360°，落地時還沒轉完會摔倒）；空白鍵／跳＝跳；溜上跳台會飛起來。 */
@@ -3298,12 +3328,13 @@ for(const c of FIELD_CONES){if(c.tip<=0)continue;c.t+=dt;const k=c.t<0.3?c.t/0.3
   return S;})();
 // 改裝面板（選單「人物 → 直排輪改裝」）
 {const P=document.getElementById('skModPanel'),jet=document.getElementById('smJet'),sup=document.getElementById('smSup');
- const sync=()=>{jet.checked=SKMOD.jet;sup.checked=SKMOD.sup;sup.disabled=!SKMOD.jet;for(const b of P.querySelectorAll('[data-w]'))b.classList.toggle('on',b.dataset.w===SKMOD.wheel);if(SKATE.on)SKATE.syncMod();};
+ const sync=()=>{jet.checked=SKMOD.jet;sup.checked=SKMOD.sup;document.getElementById('smRf').checked=SKMOD.rf;NM.applyPrizes();sup.disabled=!SKMOD.jet;for(const b of P.querySelectorAll('[data-w]'))b.classList.toggle('on',b.dataset.w===SKMOD.wheel);if(SKATE.on)SKATE.syncMod();};
  const apply=()=>{SKMOD.save();sync();if(avatar.skates)avatar.dress(charCfg);};
  for(const ev of ['click','mousedown','touchstart','pointerdown'])P.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
  jet.onchange=()=>{SKMOD.jet=jet.checked;if(!SKMOD.jet)SKMOD.sup=false;apply();toast(SKMOD.jet?'裝上推進器：背上噴射背包＋鞋跟噴嘴':'拆掉推進器');};
  sup.onchange=()=>{SKMOD.sup=sup.checked&&SKMOD.jet;apply();toast(SKMOD.sup?'超級加速模式：推進器開著再按一次，最快 400 km/h':'關掉超級加速模式');};
  for(const b of P.querySelectorAll('[data-w]'))b.onclick=()=>{SKMOD.wheel=b.dataset.w;apply();};
+ {const rf=document.getElementById('smRf');rf.onchange=()=>{SKMOD.rf=rf.checked;SKMOD.save();toast(SKMOD.rf?'彩虹火焰：開':'彩虹火焰：關');};}
  document.getElementById('skModBtn').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');sync();P.hidden=false;if(!avatar.skates&&!SKATE.on&&!GAME.on&&!BALLOON.riding&&!LIE.on&&!RACE.on&&mode==='walk')SKATE.start(true);   /* 打開改裝就穿上直排輪，看得到改裝的樣子 */
    if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}};
  document.getElementById('smClose').onclick=()=>{P.hidden=true;};}
@@ -3757,6 +3788,7 @@ const BB=(()=>{
     const up=e=>{e.preventDefault();e.stopPropagation();b.classList.remove('hit');};
     b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('touchend',up,{passive:false});b.addEventListener('touchcancel',up,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('mouseup',up);}
   document.getElementById('ftStart').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');B.ftStart();};
+  document.getElementById('nmMenu').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(98.6,160,-Math.PI/2);setTimeout(()=>NM.pickPanel(),400);};
   draw();
   return B;})();
 
@@ -4959,6 +4991,381 @@ const RACE=(()=>{
   R.pickPanel=()=>{panel.hidden=false;};
   return R;})();
 
+/* ---------------- 夜市套圈大進擊（2026-10-12 使用者：網路上很多「人海跑酷」小遊戲（一隊小人往前跑、把數字打上去、最後打大魔王），規劃一個區域做，結合夜市套圈圈） ----------------
+   場地：圓環大道南邊的夜市街（x 68～292、z 126～194）：入口牌樓、兩排攤位、紅燈籠、燈串；入口廣場有傳統套圈圈攤；跑道盡頭是獎品塔（大老闆坐在頂端）。
+   跑道（站上起點按 F，選關卡）：自動往前跑、左右推（或手指左右拖）選路；隊伍自動丟圈圈套門前的瓶子 → 門上的數字往上加，穿過門就加人（× 門乘倍）；
+   障礙：大彈珠（滾來滾去）、攤車（從旁邊推出來）、棉花糖機手臂（旋轉掃過）、撈金魚池（變慢）；紅隊迎面衝過來（人數互相抵銷）、紅衣攤販丟紅圈把門的數字往下扣；
+   技能：巨大圈（一次套住一整排瓶子）、連發圈（丟得快 3 倍）、黃金圈（必中、一個算 2）；「自動」幫你選比較好的門、閃障礙。
+   終點：剩幾個人＝幾個圈，一個一個往上套獎品塔（×1～×10），套到頂端就套住大老闆＝大獎。大獎：第 1 關彩虹輪子（直排輪）、第 2 關金色籃球、第 3 關彩虹火焰（直排輪推進器）。
+   傳統套圈圈攤：站在白線上按 F，手指（滑鼠）往前滑丟圈圈：滑越長丟越遠、往左右偏就丟左右，10 個圈，套中瓶子 1 分、玩偶 3 分、大獎 10 分。 */
+const NM=(()=>{
+  const N={on:false,st:'idle',AREA:{x0:68,x1:292,z0:126,z1:194},auto:true,stage:0};
+  const LC=160,LW=5,X0=100,XF=262,TX=268;   // 跑道中心 z、半寬；起點、終點（獎品塔前）；獎品塔 x
+  const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),sm=t=>t*t*(3-2*t),rnd=(a,b)=>a+Math.random()*(b-a);
+  const $=id=>document.getElementById(id);
+  const big=t=>{const el=$('gBig');el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');};
+  const SAVE=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-nm')||'{}')||{};}catch(_){}return {stars:o.stars||[0,0,0],best:o.best||[0,0,0],toss:o.toss||0,prize:o.prize||{}};})();
+  const save=()=>{try{localStorage.setItem('home-nm',JSON.stringify(SAVE));}catch(_){}};
+  N.SAVE=SAVE;
+  const G=new THREE.Group();scene.add(G);
+  const mk=(geo,mat,x,y,z,par=G)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);par.add(m);return m;};
+  const basic=c=>new THREE.MeshBasicMaterial({color:c});
+  const T4=new THREE.Matrix4(),TQ=new THREE.Quaternion(),TS=new V3(),TP=new V3(),TC=new THREE.Color(),UPV=new V3(0,1,0);
+  const im=(geo,mat,n)=>{const m=new THREE.InstancedMesh(geo,mat,n);m.count=0;G.add(m);return m;};
+  const put=(m,i,x,y,z,ry=0,sx=1,sy=1,sz=1)=>{TQ.setFromAxisAngle(UPV,ry);T4.compose(TP.set(x,y,z),TQ,TS.set(sx,sy,sz));m.setMatrixAt(i,T4);};
+  function textTex(lines,w,h,bg,fg,font){const [c,g]=cvs(w,h);if(bg){g.fillStyle=bg;g.fillRect(0,0,w,h);}g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';g.font=font;
+    lines.forEach((t,i)=>g.fillText(t,w/2,h*(i+0.5)/lines.length+2));const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
+
+  // ================= 場景：地面、跑道 =================
+  {const A=N.AREA,tx=(()=>{const [c,g]=cvs(128,128);g.fillStyle='#8a7b6c';g.fillRect(0,0,128,128);for(let y=0;y<4;y++)for(let x=0;x<4;x++){g.fillStyle=['#9b8a78','#8f7f6e','#a39280','#857565'][(x+y*3)%4];g.fillRect(x*32+(y%2)*16+1,y*32+1,30,30);}
+      const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set((A.x1-A.x0)/3,(A.z1-A.z0)/3);return t;})();
+   const g=new THREE.PlaneGeometry(A.x1-A.x0,A.z1-A.z0);g.rotateX(-Math.PI/2);const m=mk(g,std({map:tx,roughness:0.95}),(A.x0+A.x1)/2,0.02,(A.z0+A.z1)/2);m.receiveShadow=true;
+   const lg=new THREE.PlaneGeometry(XF+12-X0,2*LW);lg.rotateX(-Math.PI/2);mk(lg,std({color:'#e9e4da',roughness:0.85,emissive:'#6a645a'}),(X0+XF+12)/2,0.03,LC).receiveShadow=true;   // 跑道（淺色，晚上自己亮一點）
+   for(const sd of [-1,1]){const b=new THREE.PlaneGeometry(XF+12-X0,0.35);b.rotateX(-Math.PI/2);mk(b,basic('#d8262c'),(X0+XF+12)/2,0.035,LC+sd*(LW-0.18));}   // 紅色邊線
+   const cg=new THREE.PlaneGeometry(0.12,2*LW-0.8);cg.rotateX(-Math.PI/2);mk(cg,basic('#c9c2b4'),X0+0.5,0.036,LC);}
+  // ================= 攤位（兩排，面向跑道）：櫃台、攤子、遮雨棚、招牌、燈串 =================
+  const FOODS=['臭豆腐','大雞排','珍珠奶茶','烤香腸','蚵仔煎','棉花糖','彈珠台','撈金魚','射氣球','糖葫蘆','滷味','地瓜球','烤玉米','雞蛋糕','鹽酥雞','豆花','刨冰','烤魷魚','車輪餅','大腸包小腸','套圈圈','夾娃娃','冰淇淋','煎餃','炸彈蔥油餅','水煎包','烤肉串','甘蔗汁','檸檬愛玉','章魚燒','烤麻糬','紅豆餅'];
+  const STALLS=[];for(let x=104;x<=250;x+=9.5)for(const sd of [-1,1])STALLS.push({x,sd,name:FOODS[STALLS.length%FOODS.length],col:['#d8262c','#1f8fd8','#f2a23a','#2fae6a','#c64fe0','#ff6f91'][STALLS.length%6]});
+  {const n=STALLS.length,cnt=im(new THREE.BoxGeometry(1,1,1),std({color:'#ffffff',roughness:0.7}),n),body=im(new THREE.BoxGeometry(1,1,1),std({color:'#ffffff',roughness:0.85}),n),roof=im(new THREE.BoxGeometry(1,1,1),std({color:'#ffffff',roughness:0.6}),n);
+   const poles=im(new THREE.CylinderGeometry(0.06,0.06,1,6),std({color:'#9aa1a8',roughness:0.4,metalness:0.5}),n*2);
+   STALLS.forEach((s,i)=>{const zf=LC+s.sd*(LW+0.9),zb=LC+s.sd*(LW+4.8);   // 櫃台在跑道邊、攤子往外
+     put(cnt,i,s.x,0.5,zf+s.sd*0.6,0,7,1,1.2);cnt.setColorAt(i,TC.set('#efe6d6'));
+     put(body,i,s.x,1.4,(zf+zb)/2+s.sd*1.2,0,7.2,2.8,3);body.setColorAt(i,TC.set(s.col).lerp(new THREE.Color('#ffffff'),0.55));
+     put(roof,i,s.x,3.05,(zf+zb)/2,0,7.8,0.14,5.4);roof.setColorAt(i,TC.set(s.col));
+     for(const k of [0,1]){put(poles,i*2+k,s.x+(k?3.6:-3.6),1.5,zf,0,1,3,1);}
+     addBox(s.x-3.6,s.x+3.6,Math.min(zf,zb),Math.max(zf,zb)+(s.sd>0?0:0),2.9);});
+   for(const m of [cnt,body,roof]){m.count=n;m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true;m.castShadow=true;m.receiveShadow=true;}poles.count=n*2;poles.instanceMatrix.needsUpdate=true;
+   // 招牌：所有字畫在一張合併貼圖上（8×4 格），合成一個網格
+   const [c,g]=cvs(1024,512);g.textAlign='center';g.textBaseline='middle';STALLS.forEach((s,i)=>{const cx=(i%8)*128,cy=Math.floor(i/8)%4*128;g.fillStyle=s.col;g.fillRect(cx,cy,128,128);g.fillStyle='#fffbe8';g.font=`900 ${s.name.length>4?20:s.name.length>3?26:32}px ${FONT}`;g.fillText(s.name,cx+64,cy+64);g.strokeStyle='#ffe08a';g.lineWidth=5;g.strokeRect(cx+4,cy+4,120,120);});
+   const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;const pos=[],uv=[],idx=[];
+   STALLS.forEach((s,i)=>{const k=i%32,u0=(k%8)/8,u1=u0+1/8,v1=1-Math.floor(k/8)/4,v0=v1-1/4,z=LC+s.sd*(LW+0.25),x0=s.x-2.4,x1=s.x+2.4,y0=3.15,y1=4.0,b=pos.length/3;
+     if(s.sd>0)pos.push(x1,y0,z,x0,y0,z,x0,y1,z,x1,y1,z);else pos.push(x0,y0,z,x1,y0,z,x1,y1,z,x0,y1,z);uv.push(u0,v0,u1,v0,u1,v1,u0,v1);idx.push(b,b+1,b+2,b,b+2,b+3);});
+   const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));sg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));sg.setIndex(idx);
+   G.add(new THREE.Mesh(sg,new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide,toneMapped:false})));}
+  // 燈籠串：每 12 m 一串橫過跑道；攤位前緣一排小燈泡
+  const LANT=[];
+  {const xs=[];for(let x=106;x<=256;x+=12)xs.push(x);const per=7,lan=im(new THREE.SphereGeometry(0.3,12,8),new THREE.MeshBasicMaterial({color:'#ff3a26',toneMapped:false}),xs.length*per),cap=im(new THREE.CylinderGeometry(0.16,0.16,0.08,8),basic('#e8b43a'),xs.length*per*2);
+   const rope=im(new THREE.CylinderGeometry(0.02,0.02,1,4),basic('#3a2a20'),xs.length);
+   const tall=im(new THREE.CylinderGeometry(0.08,0.1,1,6),std({color:'#5a3a2a',roughness:0.8}),xs.length*2);xs.forEach((x,j)=>{for(const sd of [-1,1])put(tall,j*2+(sd>0?1:0),x,4.75,LC+sd*(LW+4.4),0,1,9.5,1);});tall.count=xs.length*2;tall.instanceMatrix.needsUpdate=true;
+   xs.forEach((x,j)=>{rope.setMatrixAt(j,T4.compose(TP.set(x,9.4,LC),TQ.setFromAxisAngle(new V3(1,0,0),Math.PI/2),TS.set(1,2*LW+9,1)));   /* 燈籠掛高（8 m，比鏡頭高），不擋跑道的視線 */
+     for(let k=0;k<per;k++){const z=LC-LW+0.6+k*(2*LW-1.2)/(per-1),sag=0.5*(1-((k-(per-1)/2)/((per-1)/2))**2),y=9.1-sag,i=j*per+k;put(lan,i,x,y,z,0,1,1.3,1);put(cap,i*2,x,y+0.4,z);put(cap,i*2+1,x,y-0.4,z);LANT.push({i,x,y,z});}});
+   lan.count=xs.length*per;cap.count=lan.count*2;rope.count=xs.length;for(const m of [lan,cap,rope])m.instanceMatrix.needsUpdate=true;N.lan=lan;
+   const bulbs=im(new THREE.SphereGeometry(0.07,6,4),new THREE.MeshBasicMaterial({color:'#ffe9a8',toneMapped:false}),400);let b=0;
+   for(const s of STALLS)for(let k=0;k<9&&b<400;k++)put(bulbs,b++,s.x-3.6+k*0.9,3.0-0.12*Math.sin(Math.PI*k/8),LC+s.sd*(LW+0.25));bulbs.count=b;bulbs.instanceMatrix.needsUpdate=true;}
+  // 入口牌樓（跑道起點前）：兩根紅柱子、橫樑招牌「夜市」＋「套圈大進擊」
+  {const red=std({color:'#c41e1e',roughness:0.5}),gold=std({color:'#e8b43a',roughness:0.35,metalness:0.4});
+   for(const sd of [-1,1]){mk(new THREE.CylinderGeometry(0.35,0.4,6.4,14),red,X0-3,3.2,LC+sd*(LW+0.8));mk(new THREE.CylinderGeometry(0.55,0.55,0.4,14),gold,X0-3,0.2,LC+sd*(LW+0.8));}
+   mk(new THREE.BoxGeometry(1.0,0.5,2*LW+3.4),gold,X0-3,6.3,LC);const sb=mk(new THREE.BoxGeometry(0.4,1.4,2*LW+2),red,X0-3,5.45,LC);
+   const t1=textTex(['夜　市'],512,128,'#c41e1e','#ffe08a',`900 96px ${FONT}`),t2=textTex(['套圈大進擊'],512,96,'#1a1a1a','#ffffff',`900 60px ${FONT}`);
+   for(const sd of [-1,1]){const p=mk(new THREE.PlaneGeometry(2*LW+1.6,1.25),new THREE.MeshBasicMaterial({map:t1,toneMapped:false}),X0-3+sd*0.21,5.45,LC);p.rotation.y=sd*Math.PI/2;
+     const q=mk(new THREE.PlaneGeometry(5.6,1.0),new THREE.MeshBasicMaterial({map:t2,toneMapped:false}),X0-3+sd*0.21,4.1,LC);q.rotation.y=sd*Math.PI/2;}
+   mk(new THREE.BoxGeometry(0.2,1.0,5.8),std({color:'#1a1a1a'}),X0-3,4.1,LC);
+   // 起點站位：地上發光圈
+   const sp=mk(new THREE.RingGeometry(0.9,1.25,40).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#ffd23a',transparent:true,opacity:0.85,toneMapped:false}),X0+0.6,0.045,LC);N.startPad=sp;
+   const st=mk(new THREE.PlaneGeometry(2.6,0.65).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:textTex(['站這裡開始'],256,64,null,'#ffd23a',`900 40px ${FONT}`),transparent:true,toneMapped:false}),X0-1.2,0.046,LC);st.rotation.y=Math.PI/2;}
+  // ================= 獎品塔（終點）：10 層（×1～×10），頂端坐著大老闆 =================
+  const TIERS=[];
+  {const red=std({color:'#c41e1e',roughness:0.5,emissive:'#5a0a0a',emissiveIntensity:1}),gold=std({color:'#e8b43a',roughness:0.35,metalness:0.4,emissive:'#5a4010',emissiveIntensity:1}),peg=std({color:'#fff4d6',roughness:0.4,emissive:'#806a40'});   /* 晚上也看得到（自己發一點光） */
+   for(let k=0;k<10;k++){const r=3.2-k*0.2,y=k*0.95;const m=mk(new THREE.CylinderGeometry(r-0.15,r,0.9,24),(k%2?gold:red).clone(),TX,y+0.45,LC);m.castShadow=true;
+     const px=TX-r+0.45,p=mk(new THREE.CylinderGeometry(0.07,0.09,0.6,10),peg,px,y+1.2,LC);
+     const lab=mk(new THREE.PlaneGeometry(1.1,0.55),new THREE.MeshBasicMaterial({map:textTex([`×${k+1}`],128,64,k%2?'#c41e1e':'#e8b43a','#ffffff',`900 44px ${FONT}`),toneMapped:false}),TX-r-0.02,y+0.45,LC);lab.rotation.y=-Math.PI/2;
+     TIERS.push({k,y:y+0.9,px,mat:m.material,glow:0,base:m.material.emissive.clone()});}
+   addBox(TX-3.3,TX+3.3,LC-3.3,LC+3.3,9.6);
+   // 大老闆：金色長袍、圓臉、紅色瓜皮帽、手拿金元寶
+   const B=new THREE.Group();B.position.set(TX,9.5,LC);B.rotation.y=-Math.PI/2;G.add(B);N.boss=B;
+   const robe=std({color:'#e8b43a',roughness:0.4,metalness:0.3,emissive:'#6a4a10'}),skin=std({color:'#f0c8a0',roughness:0.7,emissive:'#6a4a38'});
+   mk(new THREE.CapsuleGeometry(0.75,0.7,6,16),robe,0,1.0,0,B).scale.set(1.15,1,1);mk(new THREE.SphereGeometry(0.62,20,14),skin,0,2.35,0,B);
+   mk(new THREE.SphereGeometry(0.63,20,10,0,Math.PI*2,0,Math.PI*0.45),red,0,2.42,0,B);mk(new THREE.SphereGeometry(0.1,8,6),red,0,3.02,0,B);
+   for(const x of [-0.2,0.2]){mk(new THREE.SphereGeometry(0.07,8,6),basic('#1a1a1a'),x,2.42,0.56,B);}
+   {const sm2=mk(new THREE.TorusGeometry(0.2,0.04,6,16,Math.PI),basic('#7a2a1a'),0,2.15,0.57,B);sm2.rotation.z=Math.PI;}
+   mk(new THREE.SphereGeometry(0.32,14,8),gold,0,1.25,0.8,B).scale.set(1.5,0.7,1);   // 金元寶
+   const bossLbl=new THREE.Sprite(new THREE.SpriteMaterial({map:textTex(['大老闆'],256,80,'rgba(196,30,30,.9)','#ffe08a',`900 52px ${FONT}`),depthWrite:false}));bossLbl.scale.set(2.4,0.75,1);bossLbl.position.set(0,3.6,0);B.add(bossLbl);
+   const bring=mk(new THREE.TorusGeometry(1.25,0.14,10,40).rotateX(Math.PI/2),new THREE.MeshBasicMaterial({color:'#ffd23a',toneMapped:false}),TX,16,LC);bring.visible=false;N.bossRing=bring;}
+  // ================= 傳統套圈圈攤（入口廣場）：白線站著往南丟，前面是瓶子、中間玩偶、後面大獎 =================
+  const BOOTH={x:83,zl:135,prizes:[]};N.BOOTH=BOOTH;
+  {const B=BOOTH,red=std({color:'#d8262c',roughness:0.6}),wood=std({color:'#a8794f',roughness:0.85});
+   mk(new THREE.BoxGeometry(10,0.06,6.2),std({color:'#2f7d4a',roughness:0.9}),B.x,0.05,138.9);   // 綠色絨布
+   mk(new THREE.BoxGeometry(10.6,3,0.3),wood,B.x,1.5,142.3);addBox(B.x-5.3,B.x+5.3,142.15,142.45,3);   // 後牆
+   for(const sd of [-1,1]){mk(new THREE.BoxGeometry(0.3,3,6.6),wood,B.x+sd*5.3,1.5,139.1);addBox(B.x+sd*5.3-0.15,B.x+sd*5.3+0.15,135.8,142.45,3);}
+   const roof=mk(new THREE.BoxGeometry(11.2,0.16,7.4),red,B.x,3.1,138.9);roof.castShadow=true;
+   const sign=mk(new THREE.PlaneGeometry(6,1.1),new THREE.MeshBasicMaterial({map:textTex(['套圈圈・15 分送浴衣'],512,96,'#d8262c','#fffbe8',`900 50px ${FONT}`),toneMapped:false}),B.x,3.75,135.4);sign.rotation.y=Math.PI;
+   mk(new THREE.BoxGeometry(6,1.2,0.12),red,B.x,3.75,135.5);
+   const ln=mk(new THREE.PlaneGeometry(5,0.12).rotateX(-Math.PI/2),basic('#ffffff'),B.x,0.06,B.zl);
+   mk(new THREE.PlaneGeometry(2.4,0.5).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:textTex(['站這裡丟'],256,64,null,'#ffffff',`900 40px ${FONT}`),transparent:true}),B.x,0.06,B.zl-0.55).rotation.y=Math.PI;
+   mk(new THREE.BoxGeometry(10,0.3,1.4),std({color:'#e9dcc4',roughness:0.8}),B.x,0.2,141.3);   // 後排大獎的台子
+   const glass=std({color:'#3fae8a',roughness:0.15,metalness:0.1,transparent:true,opacity:0.85}),glass2=std({color:'#3a7fc8',roughness:0.15,transparent:true,opacity:0.85});
+   const plushC=['#f7a8c4','#ffd166','#8fd3ff','#b8f2a0','#d9b8ff'];
+   const add=(x,z,y,kind)=>{const g=new THREE.Group();g.position.set(x,y,z);G.add(g);let r,pts;
+     if(kind==='bottle'){const gm=Math.random()<0.5?glass:glass2;mk(new THREE.CylinderGeometry(0.07,0.07,0.3,10),gm,0,0.15,0,g);mk(new THREE.CylinderGeometry(0.03,0.06,0.14,8),gm,0,0.37,0,g);r=0.07;pts=1;}
+     else if(kind==='plush'){const c=std({color:plushC[B.prizes.length%5],roughness:0.95});mk(new THREE.SphereGeometry(0.15,12,8),c,0,0.15,0,g);mk(new THREE.SphereGeometry(0.11,12,8),c,0,0.38,0,g);for(const s of [-1,1])mk(new THREE.SphereGeometry(0.045,8,6),c,s*0.08,0.48,0,g);r=0.13;pts=3;}
+     else{const c=std({color:['#c41e1e','#e8b43a','#7a4fd8'][B.prizes.length%3],roughness:0.5});mk(new THREE.BoxGeometry(0.42,0.42,0.42),c,0,0.21,0,g);mk(new THREE.BoxGeometry(0.44,0.06,0.1),basic('#ffe08a'),0,0.3,0,g);mk(new THREE.BoxGeometry(0.1,0.06,0.44),basic('#ffe08a'),0,0.3,0,g);r=0.2;pts=10;}
+     g.traverse(o=>{if(o.isMesh)o.castShadow=true;});B.prizes.push({g,x,z,y,r,pts,kind,taken:false});};
+   {const bl=new THREE.PointLight('#fff0d0',14,13,1.4);bl.position.set(B.x,2.7,138.4);bl.visible=false;G.add(bl);N.boothLight=bl;}   /* 攤位燈：只有在玩的時候開（點光源很耗電） */
+   for(let i=0;i<7;i++)add(B.x-3.6+i*1.2,137.1,0.08,'bottle');for(let i=0;i<7;i++)add(B.x-3.0+i*1.0,138.2,0.08,'bottle');
+   for(let i=0;i<5;i++)add(B.x-2.8+i*1.4,139.5,0.08,'plush');for(let i=0;i<3;i++)add(B.x-2.4+i*2.4,141.2,0.35,'big');}
+
+  // ================= 共用：圈圈、小人、特效 =================
+  const RING_G=new THREE.TorusGeometry(0.2,0.045,6,16).rotateX(Math.PI/2);
+  const RF=im(RING_G,new THREE.MeshBasicMaterial({color:'#ffffff',toneMapped:false}),160);RF.frustumCulled=false;   // 飛行中
+  const RS=im(RING_G,new THREE.MeshBasicMaterial({color:'#ffffff',toneMapped:false}),320);RS.frustumCulled=false;  // 套在瓶子上／掉在地上
+  for(const m of [RF,RS]){m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.setColorAt(0,TC.set('#ffffff'));}
+  const RCOL={y:'#ffd23a',g:'#ffb000',r:'#ff3b3b',w:'#ff7eb6'};
+  let flying=[],resting=[];
+  const BODY=new THREE.CapsuleGeometry(0.13,0.24,4,8).translate(0,0.27,0),HEAD=new THREE.SphereGeometry(0.13,10,8).translate(0,0.6,0);
+  const skinM=std({color:'#f2c9a0',roughness:0.7,emissive:'#4a3424'});skinM.userData.keep=true;
+  const CB=im(BODY,std({color:'#2f6fe0',roughness:0.6,emissive:'#123a8a'}),150),CH=im(HEAD,skinM,150),EB=im(BODY,std({color:'#e0352f',roughness:0.6,emissive:'#6a1410'}),240),EH=im(HEAD,skinM,240);
+  for(const m of [CB,CH,EB,EH]){m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.frustumCulled=false;}
+  const PUFF=(()=>{const [c,x]=cvs(64,64),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
+  const FX=[];function puff(x,y,z,col,s0=0.5,life=0.5,v){if(FX.length>60)return;const m=new THREE.Sprite(new THREE.SpriteMaterial({map:PUFF,color:col,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));m.position.set(x,y,z);m.scale.setScalar(s0);scene.add(m);FX.push({m,t:0,life,s0,v:v||new V3(rnd(-1,1),rnd(1,2.5),rnd(-1,1))});}
+  function fxTick(dt){for(const f of FX){f.t+=dt;const k=f.t/f.life;f.m.position.addScaledVector(f.v,dt);f.m.material.opacity=Math.max(0,1-k);f.m.scale.setScalar(f.s0*(1+k));if(k>=1){scene.remove(f.m);f.m.material.dispose();f.dead=true;}}for(let i=FX.length-1;i>=0;i--)if(FX[i].dead)FX.splice(i,1);}
+  // 頭上的人數牌
+  function countSprite(col){const [c,g]=cvs(256,96),t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthWrite:false,depthTest:false}));s.scale.set(2.2,0.82,1);s.renderOrder=5;scene.add(s);
+    s.userData={c,g,t,col,last:-1};return s;}
+  function setCount(s,n){if(s.userData.last===n)return;s.userData.last=n;const {g,t,col}=s.userData;g.clearRect(0,0,256,96);g.fillStyle=col;g.beginPath();g.roundRect(18,8,220,80,40);g.fill();g.fillStyle='#fff';g.font=`900 54px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText(String(Math.max(0,Math.round(n))),128,50);t.needsUpdate=true;}
+  const mySign=countSprite('#2f6fe0');mySign.visible=false;
+  // 隊形：向日葵排法（越多人越大圈）
+  const FORM=[];for(let i=0;i<240;i++){const r=0.33*Math.sqrt(i+0.4),a=i*2.39996;FORM.push([r*Math.cos(a),r*Math.sin(a)]);}
+  const radOf=n=>0.33*Math.sqrt(Math.min(n,150)+0.4)+0.15;
+
+  // ================= 關卡 =================
+  // g＝一對門（L、R：op '+' 數字（有瓶子 p 個）、'x' 乘倍）；thr＝紅衣攤販丟紅圈扣那對門；enemy＝紅隊；marble／cart／arm／pool＝障礙
+  const STAGES=[
+    {name:'第 1 關・夜市初體驗',spd:5,n0:10,items:[
+      {t:'g',x:114,L:{op:'+',v:5,p:3},R:{op:'+',v:1,p:3}},{t:'marble',x:128},{t:'g',x:140,L:{op:'x',v:2},R:{op:'+',v:-4,p:3}},
+      {t:'enemy',x:152,n:10,z:0},{t:'g',x:166,L:{op:'+',v:3,p:3},R:{op:'+',v:8,p:3}},{t:'pool',x:178,sd:-1},{t:'g',x:192,L:{op:'+',v:-6,p:3},R:{op:'x',v:2}},
+      {t:'arm',x:206},{t:'g',x:220,L:{op:'+',v:12,p:3},R:{op:'+',v:4,p:3}},{t:'enemy',x:234,n:30,z:0},{t:'g',x:248,L:{op:'x',v:3},R:{op:'+',v:20,p:3}}]},
+    {name:'第 2 關・攤販大亂鬥',spd:5.5,n0:10,items:[
+      {t:'g',x:112,L:{op:'+',v:2,p:3},R:{op:'+',v:6,p:3}},{t:'cart',x:124,sd:1},{t:'g',x:136,L:{op:'x',v:2},R:{op:'+',v:10,p:3}},{t:'thr',x:136,sd:-1},
+      {t:'marble',x:148},{t:'enemy',x:158,n:22,z:-2},{t:'g',x:170,L:{op:'+',v:-8,p:4},R:{op:'+',v:5,p:3}},{t:'thr',x:170,sd:1},{t:'arm',x:183},
+      {t:'g',x:196,L:{op:'x',v:2},R:{op:'+',v:-10,p:4}},{t:'cart',x:208,sd:-1},{t:'pool',x:214,sd:1},{t:'g',x:228,L:{op:'+',v:15,p:4},R:{op:'x',v:2}},{t:'thr',x:228,sd:-1},
+      {t:'enemy',x:242,n:70,z:0},{t:'g',x:252,L:{op:'+',v:25,p:4},R:{op:'+',v:10,p:3}}]},
+    {name:'第 3 關・大老闆的考驗',spd:6,n0:15,items:[
+      {t:'g',x:110,L:{op:'+',v:-3,p:4},R:{op:'+',v:4,p:3}},{t:'thr',x:110,sd:1},{t:'marble',x:120},{t:'marble',x:126},{t:'g',x:136,L:{op:'x',v:2},R:{op:'x',v:3}},{t:'thr',x:136,sd:-1},
+      {t:'enemy',x:146,n:20,z:2},{t:'arm',x:157},{t:'g',x:168,L:{op:'+',v:-12,p:4},R:{op:'+',v:6,p:4}},{t:'thr',x:168,sd:1},{t:'cart',x:180,sd:1},{t:'cart',x:186,sd:-1},
+      {t:'g',x:198,L:{op:'x',v:2},R:{op:'+',v:-15,p:5}},{t:'thr',x:198,sd:1},{t:'enemy',x:210,n:50,z:-2},{t:'pool',x:218,sd:-1},{t:'arm',x:228},
+      {t:'g',x:238,L:{op:'+',v:20,p:4},R:{op:'x',v:3}},{t:'thr',x:238,sd:-1},{t:'enemy',x:250,n:90,z:0}]}];
+  N.STAGES=STAGES;
+  const NEED=[3,5,7,9,11,13,15,17,19,21],CUM=NEED.map((_,k)=>NEED.slice(0,k+1).reduce((a,b)=>a+b,0)),BOSSN=CUM[9]+30;   // 每層要幾個圈（累計 120、套住大老闆 150）
+  const CG=new THREE.Group();scene.add(CG);   // 關卡物件（每次開始重建）
+  let gates=[],pegs=[],obs=[],enemies=[],throwers=[];
+  const PEG_G=new THREE.CylinderGeometry(0.07,0.09,0.5,10).translate(0,0.25,0),NECK_G=new THREE.CylinderGeometry(0.03,0.06,0.16,8).translate(0,0.58,0);
+  function clearCourse(){CG.traverse(o=>{if(o.isMesh||o.isSprite){if(o.geometry&&o.geometry!==PEG_G&&o.geometry!==NECK_G&&o.geometry!==RING_G)o.geometry.dispose();const m=o.material;if(m&&!m.userData.keep){if(m.map&&m.userData.own)m.map.dispose();m.dispose();}}});CG.clear();
+    for(const e of enemies)if(e.sign){scene.remove(e.sign);e.sign.material.map.dispose();e.sign.material.dispose();}
+    gates=[];pegs=[];obs=[];enemies=[];throwers=[];flying=[];resting=[];RF.count=0;RS.count=0;EB.count=EH.count=0;}
+  function drawGate(g){const c=g.ctx,pos=g.op==='x'||g.v>=0;c.clearRect(0,0,256,128);c.fillStyle=g.op==='x'?'#7a4fd8':pos?'#1f8fd8':'#d8262c';c.fillRect(0,0,256,128);c.strokeStyle='#ffffff';c.lineWidth=8;c.strokeRect(4,4,248,120);
+    c.fillStyle='#fff';c.font=`900 76px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(g.op==='x'?`×${g.v}`:(g.v>=0?'+':'')+g.v,128,68);g.tex.needsUpdate=true;
+    g.panel.material.color.set(g.op==='x'?'#9b7bff':pos?'#3aa0ff':'#ff4a4a');}
+  function buildCourse(S){clearCourse();
+    const post=std({color:'#f5f5f2',roughness:0.4}),pegM=std({color:'#3fae8a',roughness:0.2,metalness:0.1}),neckM=std({color:'#2f8f6f',roughness:0.2});
+    const nPeg=S.items.filter(i=>i.t==='g').reduce((a,i)=>a+(i.L.p||0)+(i.R.p||0),0),PB=new THREE.InstancedMesh(PEG_G,pegM,Math.max(1,nPeg)),PN=new THREE.InstancedMesh(NECK_G,neckM,Math.max(1,nPeg));PB.count=PN.count=0;CG.add(PB,PN);
+    for(const it of S.items){
+      if(it.t==='g'){const pair=[];for(const [k,sd] of [['L',-1],['R',1]]){const d=it[k],zc=LC+sd*LW/2,[c,ctx]=cvs(256,128),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
+          const grp=new THREE.Group();grp.position.set(it.x,0,zc);CG.add(grp);
+          for(const s2 of [-1,1])mk(new THREE.BoxGeometry(0.18,2.6,0.18),post,0,1.3,s2*(LW/2-0.15),grp);
+          const panel=mk(new THREE.PlaneGeometry(LW-0.3,1.9),new THREE.MeshBasicMaterial({color:'#3aa0ff',transparent:true,opacity:0.35,side:THREE.DoubleSide,depthWrite:false}),0,0.95,0,grp);panel.rotation.y=Math.PI/2;
+          const sm3=new THREE.MeshBasicMaterial({map:tex,toneMapped:false,side:THREE.DoubleSide});sm3.userData.own=true;const sign=mk(new THREE.PlaneGeometry(LW-0.5,1.05),sm3,0,2.5,0,grp);sign.rotation.y=-Math.PI/2;
+          const g={x:it.x,zc,op:d.op,v:d.v,grp,panel,tex,ctx,used:false,pegs:[],pair};drawGate(g);pair.push(g);gates.push(g);
+          for(let i=0;i<(d.p||0);i++){const z=zc+(i-(d.p-1)/2)*Math.min(1.25,(LW-0.8)/Math.max(1,d.p-1)),x=it.x-4.2,pi=PB.count++;PN.count++;put(PB,pi,x,0.04,z);put(PN,pi,x,0.04,z);const p={x,z,gate:g,n:0,i:pi};g.pegs.push(p);pegs.push(p);}}
+        PB.instanceMatrix.needsUpdate=PN.instanceMatrix.needsUpdate=true;}
+      else if(it.t==='marble'){const tx=textTex([''],64,64,'#ffffff','#fff','10px sans-serif'),c=tx.image.getContext('2d');for(let i=0;i<4;i++){c.fillStyle=['#d8262c','#1f8fd8','#f2c94c','#2fae6a'][i];c.fillRect(0,i*16,64,8);}tx.needsUpdate=true;
+        const m3=std({map:tx,roughness:0.15,metalness:0.2});m3.userData.own=true;const m=mk(new THREE.SphereGeometry(0.9,24,16),m3,it.x,0.9,LC,CG);m.castShadow=true;obs.push({t:'marble',x:it.x,z:LC,r:0.9,m,ph:Math.random()*6,cd:0});}
+      else if(it.t==='cart'){const g=new THREE.Group();CG.add(g);mk(new THREE.BoxGeometry(2.2,1.1,2.6),std({color:'#c8a070',roughness:0.8}),0,0.85,0,g);mk(new THREE.BoxGeometry(2.6,0.12,3.0),std({color:['#d8262c','#1f8fd8'][obs.length%2],roughness:0.6}),0,2.2,0,g);
+        for(const a of [-1,1])mk(new THREE.BoxGeometry(0.08,1.0,0.08),post,a*1.1,1.7,0,g);for(const a of [-0.9,0.9])for(const b of [-1.1,1.1])mk(new THREE.CylinderGeometry(0.28,0.28,0.12,12).rotateX(Math.PI/2),std({color:'#333'}),a,0.28,b,g);
+        g.position.set(it.x,0,LC+it.sd*(LW+2));obs.push({t:'cart',x:it.x,sd:it.sd,g,ph:Math.random()*2,cd:0});}
+      else if(it.t==='arm'){const g=new THREE.Group();g.position.set(it.x,0,LC);CG.add(g);mk(new THREE.CylinderGeometry(0.35,0.5,1.2,14),std({color:'#ff7eb6',roughness:0.5}),0,0.6,0,g);
+        const bar=new THREE.Group();bar.position.y=0.65;g.add(bar);mk(new THREE.BoxGeometry(2*LW-0.6,0.18,0.22),std({color:'#f5f5f2',roughness:0.3,metalness:0.4}),0,0,0,bar);
+        for(const s2 of [-1,1])mk(new THREE.SphereGeometry(0.55,14,10),std({color:'#ffc2e0',roughness:1}),s2*(LW-0.5),0.15,0,bar);obs.push({t:'arm',x:it.x,bar,a:Math.random()*6,cd:0});}
+      else if(it.t==='pool'){const z0=it.sd<0?LC-LW:LC,z1=it.sd<0?LC:LC+LW,g=new THREE.Group();CG.add(g);mk(new THREE.BoxGeometry(8,0.08,LW-0.2).translate(0,0,0),new THREE.MeshBasicMaterial({color:'#3fa9e8',transparent:true,opacity:0.8}),it.x+4,0.06,(z0+z1)/2,g);
+        for(const sd2 of [-1,1])mk(new THREE.BoxGeometry(8.2,0.25,0.15),std({color:'#1f6fb8'}),it.x+4,0.12,(z0+z1)/2+sd2*(LW/2-0.05),g);
+        const fish=[];for(let i=0;i<8;i++){const f=mk(new THREE.BoxGeometry(0.22,0.06,0.1),basic(i%3?'#ff8a2a':'#ff3b3b'),it.x+rnd(0.5,7.5),0.12,rnd(z0+0.4,z1-0.4),g);fish.push({f,a:Math.random()*6,cx:f.position.x,cz:f.position.z});}
+        obs.push({t:'pool',x0:it.x,x1:it.x+8,z0,z1,fish});}
+      else if(it.t==='enemy'){const e={x:it.x,z:LC+(it.z||0),n:it.n,n0:it.n,st:'wait',sign:countSprite('#d8262c'),dmg:0};setCount(e.sign,e.n);enemies.push(e);}
+      else if(it.t==='thr'){const pair=gates.filter(g=>g.x===it.x),g=new THREE.Group();g.position.set(it.x+1.5,0,LC+it.sd*(LW+0.6));CG.add(g);
+        mk(new THREE.CapsuleGeometry(0.22,0.5,4,10),std({color:'#e0352f',roughness:0.6}),0,0.6,0,g);mk(new THREE.SphereGeometry(0.2,12,8),skinM,0,1.18,0,g);mk(new THREE.CylinderGeometry(0.24,0.24,0.1,12),std({color:'#1a1a1a'}),0,1.36,0,g);
+        throwers.push({pair,g,t:rnd(0.5,1.5)});}}}
+
+  // ================= 圈圈（丟出去、落地） =================
+  function launch(from,to,kind,info){if(flying.length>=150)return;const d=Math.hypot(to.x-from.x,to.z-from.z);flying.push({a:from.clone(),b:to.clone(),t:0,T:cl(d/13+0.25,0.35,1.4),h:cl(0.8+d*0.08,0.8,3.5),kind,spin:rnd(8,14),...info});}
+  function rest(x,y,z,kind,life){resting.push({x,y,z,kind,life});if(resting.length>300)resting.shift();}
+  function ringsDraw(){let i=0;for(const r of flying){const u=Math.min(1,r.t/r.T);TP.copy(r.a).lerp(r.b,u);TP.y+=r.h*4*u*(1-u);const s=r.scale||1;
+      T4.compose(TP,TQ.setFromAxisAngle(new V3(1,0,0),Math.sin(r.t*r.spin)*0.5),TS.set(s,s,s));RF.setMatrixAt(i,T4);RF.setColorAt(i,TC.set(RCOL[r.kind]||'#fff'));i++;}
+    RF.count=i;RF.instanceMatrix.needsUpdate=true;if(RF.instanceColor)RF.instanceColor.needsUpdate=true;
+    i=0;for(const r of resting){put(RS,i,r.x,r.y,r.z);RS.setColorAt(i,TC.set(RCOL[r.kind]||'#fff'));i++;}RS.count=i;RS.instanceMatrix.needsUpdate=true;if(RS.instanceColor)RS.instanceColor.needsUpdate=true;}
+  let sndT=0;const soft=s=>{if(sndT<=0){sndT=0.07;AUDIO.sfx(s);}};
+
+  // ================= 跑道：開始／每格 =================
+  N.label=()=>{if(N.on)return N.st==='toss'?'離開套圈圈攤':'離開遊戲';if(!started||mode!=='walk'||GAME.on||RACE.on||player.y>1.2)return null;
+    if(Math.hypot(player.pos.x-(X0+0.6),player.pos.y-LC)<2.2)return '開始夜市套圈大進擊';if(Math.abs(player.pos.x-BOOTH.x)<2.6&&player.pos.y>BOOTH.zl-1.6&&player.pos.y<BOOTH.zl+0.4)return '玩套圈圈（10 個圈）';return null;};
+  N.toggle=()=>{if(N.on){N.stop();return;}if(Math.abs(player.pos.x-BOOTH.x)<2.6&&player.pos.y>BOOTH.zl-1.6&&player.pos.y<BOOTH.zl+0.4)tossStart();else N.pickPanel();};
+  const panel=$('nmPanel'),hud=$('nmHud'),btns=$('nmBtns');
+  N.pickPanel=()=>{const P=panel;P.querySelector('.res').innerHTML='';P.querySelector('.stages').innerHTML=STAGES.map((S,i)=>{const lock=i>0&&!SAVE.stars[i-1];return `<button data-s="${i}" ${lock?'disabled':''}>${S.name}<small>${lock?'🔒 先過前一關':'★'.repeat(SAVE.stars[i])+'☆'.repeat(3-SAVE.stars[i])+(SAVE.best[i]?`　最高 ${SAVE.best[i]} 分`:'')}</small></button>`;}).join('');
+    P.querySelector('.prize').innerHTML=prizeLine();P.hidden=false;for(const b of P.querySelectorAll('[data-s]'))b.onclick=e=>{e.stopPropagation();N.start(+b.dataset.s);};};
+  function prizeLine(){const p=SAVE.prize,it=[['wheel','彩虹輪子（直排輪）',1],['ball','金色籃球',2],['flame','彩虹火焰（推進器）',3]];return '大獎（套住大老闆）：'+it.map(([k,n,s])=>`${p[k]?'✅':'⬜'} 第 ${s} 關 ${n}`).join('　')+`<br>${p.yukata?'✅':'⬜'} 入口的套圈圈攤一次 15 分：夜市浴衣（男女都有）`;}
+  let savedH=null;function night(on){const el=$('time');if(on){const h=+el.value;if(h>6&&h<18.6){savedH=h;el.value=19.6;setTime(19.6);}}else if(savedH!=null){el.value=savedH;setTime(savedH);savedH=null;}}
+  N.start=i=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(RACE.on)RACE.stop();if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
+    const S=STAGES[i];N.stage=i;N.S=S;panel.hidden=true;N.on=true;N.st='count';N.cd=2.4;N.lastCd=4;N.n=S.n0;N.cx=X0+0.5;N.cz=LC;N.v=0;N.hits=0;N.manT=0;N.acc=0;N.fight=null;N.sk={big:0,rapid:0,gold:0};N.cdn={big:0,rapid:0,gold:0};
+    N.fin=null;N.camP=null;buildCourse(S);for(const t of TIERS){t.glow=0;t.mat.emissive.copy(t.base);t.mat.emissiveIntensity=1;}N.bossRing.visible=false;N.boss.position.y=9.5;
+    document.body.classList.add('nm');hud.hidden=false;btns.hidden=false;mySign.visible=true;night(true);syncBtns();
+    if(view!=='third'){view='third';syncViewUI();}player.yaw=-Math.PI/2;AUDIO.sfx('chime');
+    if(!N.told){N.told=true;toast(isTouch?'左右推搖桿（或手指左右拖）選門；隊伍會自動丟圈圈。右下：巨大圈、連發圈、黃金圈、自動':'A D／← → 選門（也可以滑鼠左右拖）；1 巨大圈、2 連發圈、3 黃金圈、P 自動；F 離開');}};
+  N.stop=()=>{if(!N.on)return;const wasToss=N.st==='toss';N.on=false;N.st='idle';if(!wasToss){clearCourse();CB.count=CH.count=0;}document.body.classList.remove('nm','nmtoss');hud.hidden=true;btns.hidden=true;panel.hidden=true;mySign.visible=false;
+    if(wasToss){tossReset();N.boothLight.visible=false;}night(false);avatar.root.visible=true;player.vel.set(0,0);
+    if(!wasToss){player.pos.set(X0-1.5,LC);player.yaw=-Math.PI/2;}};
+  // 技能
+  const SK={big:{n:'巨大圈',cd:8},rapid:{n:'連發圈',cd:10,dur:5},gold:{n:'黃金圈',cd:12,dur:6}};
+  N.press=k=>{if(!N.on||N.st==='toss')return;if(k==='auto'){N.auto=!N.auto;syncBtns();toast(N.auto?'自動：幫你選比較好的門、閃障礙（你推搖桿就照你的）':'自動關閉：自己選路');return;}
+    if(N.st!=='run'||N.cdn[k]>0)return;N.cdn[k]=SK[k].cd;
+    if(k==='big'){const g=nextGate(true)||nextGate(false);if(!g||!g.pegs.length){N.cdn.big=0;toast('前面沒有瓶子可以套');return;}const from=new V3(N.cx,1,N.cz),to=new V3(g.pegs[0].x,0.3,g.zc);launch(from,to,N.sk.gold>0?'g':'y',{big:g,scale:6});big('巨大圈！');AUDIO.sfx('whoosh');}
+    else{N.sk[k]=SK[k].dur;big(SK[k].n+'！');AUDIO.sfx(k==='gold'?'chime':'whoosh');}syncBtns();};
+  function syncBtns(){btns.querySelector('[data-k=auto]').classList.toggle('on',N.auto);}
+  N.key=(e,down)=>{if(!down||e.repeat)return false;const m={Digit1:'big',Digit2:'rapid',Digit3:'gold',KeyP:'auto'}[e.code];if(m){N.press(m);return true;}if(e.code==='Escape'){N.stop();return true;}return false;};
+  for(const b of btns.querySelectorAll('button')){const k=b.dataset.k;const dn=e=>{e.preventDefault();e.stopPropagation();if(k==='exit')N.stop();else N.press(k);b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),150);};
+    b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});}
+  for(const ev of ['click','mousedown','touchstart','pointerdown'])panel.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
+  panel.querySelector('[data-x=exit]').onclick=e=>{e.stopPropagation();panel.hidden=true;if(N.on)N.stop();};
+  // 前面最近的門（same：只看你這一邊）
+  function nextGate(same){let best=null;for(const g of gates){if(g.used||g.x<N.cx+2||g.x>N.cx+26)continue;if(same&&Math.abs(g.zc-N.cz)>LW/2+0.3)continue;if(!best||g.x<best.x||(g.x===best.x&&g.pegs.length>best.pegs.length))best=g;}return best;}
+  const gateRes=(g,n)=>g.op==='x'?n*g.v:n+g.v;
+  // 自動：選比較好的門、閃障礙
+  function autoZ(){const r=radOf(N.n);let tz=N.cz;const near=gates.filter(g=>!g.used&&g.x>N.cx&&g.x<N.cx+30).sort((a,b)=>a.x-b.x);
+    if(near.length){const x=near[0].x,pair=near.filter(g=>g.x===x);let bg=pair[0];for(const g of pair)if(gateRes(g,N.n)>gateRes(bg,N.n))bg=g;tz=bg.zc;}
+    for(const o of obs){if(o.t==='marble'&&o.x>N.cx-1&&o.x<N.cx+9){tz=o.z>LC?LC-LW+r:LC+LW-r;}
+      if(o.t==='cart'&&o.x>N.cx-2&&o.x<N.cx+9)tz=LC-o.sd*(LW-r);if(o.t==='pool'&&N.cx<o.x1&&N.cx>o.x0-8)tz=o.z0<LC?LC+LW/2:LC-LW/2;}
+    return cl(tz,LC-LW+r,LC+LW-r);}
+  // 拖曳（手指／滑鼠）：跑道左右移動；套圈圈攤瞄準
+  let drag=null;
+  renderer.domElement.addEventListener('pointerdown',e=>{if(!N.on)return;drag={x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,id:e.pointerId};if(N.st==='toss')tossAim(0,0);});
+  addEventListener('pointermove',e=>{if(!N.on||!drag||e.pointerId!==drag.id)return;if(N.st==='run'||N.st==='count'){N.cz+=(e.clientX-drag.x)/Math.max(320,innerWidth)*14;N.manT=0.8;drag.x=e.clientX;}else if(N.st==='toss')tossAim(e.clientX-drag.x0,e.clientY-drag.y0);});
+  addEventListener('pointerup',e=>{if(!N.on||!drag||e.pointerId!==drag.id)return;if(N.st==='toss')tossThrow(e.clientX-drag.x0,e.clientY-drag.y0);drag=null;});
+  addEventListener('pointercancel',()=>{drag=null;if(N.st==='toss')tossAimHide();});
+
+  // 隊伍：殺掉碰到障礙的人（回傳殺幾個）
+  const MP=[];for(let i=0;i<150;i++)MP.push({x:0,z:0});
+  function killIn(test,max=999){const shown=Math.min(N.n,150);let k=0;for(let i=0;i<shown&&k<max;i++){const p=MP[i];if(test(p.x,p.z)){k++;puff(p.x,0.5,p.z,'#ffffff',0.4,0.4);}}
+    if(!k)return 0;const real=Math.max(1,Math.round(k*N.n/Math.max(1,shown)));N.n=Math.max(0,N.n-real);soft('pop');return real;}
+  N.step=(dt,f,s)=>{sndT-=dt;if(N.st==='toss'){tossStep(dt);return;}
+    const S=N.S;
+    if(N.st==='count'){N.cd-=dt;const c=Math.ceil(N.cd);if(c!==N.lastCd&&c>0){N.lastCd=c;big(String(c));AUDIO.sfx('beep');}if(N.cd<=0){N.st='run';big('GO！');AUDIO.sfx('go');}}
+    for(const k in N.cdn){N.cdn[k]=Math.max(0,N.cdn[k]-dt);N.sk[k]=Math.max(0,(N.sk[k]||0)-dt);}
+    const r=radOf(N.n);let v=0;
+    if(N.st==='run'){
+      // 左右：搖桿／A D 鍵（推的時候照你的），沒推就交給「自動」
+      if(Math.abs(s)>0.12){N.cz+=s*7*dt;N.manT=0.5;}else if(N.auto&&N.manT<=0){N.cz+=cl(autoZ()-N.cz,-6*dt,6*dt);}N.manT-=dt;
+      v=N.fight?0:S.spd;for(const o of obs)if(o.t==='pool'&&N.cx>o.x0&&N.cx<o.x1&&N.cz>o.z0-0.3&&N.cz<o.z1+0.3){v*=0.5;if(Math.random()<dt*6)puff(N.cx+rnd(-r,r),0.2,N.cz+rnd(-r,r),'#9fdcff',0.3,0.4);}
+      const px=N.cx;N.cx+=v*dt;
+      // 穿過門
+      for(const g of gates){if(g.used||px>=g.x||N.cx<g.x)continue;const mine=g.pair.reduce((b,q)=>Math.abs(q.zc-N.cz)<Math.abs(b.zc-N.cz)?q:b,g.pair[0]);
+        if(g!==mine)continue;const n0=N.n;N.n=Math.max(0,Math.round(gateRes(g,N.n)));for(const q of g.pair){q.used=true;q.fade=1;}
+        const d=N.n-n0;big(g.op==='x'?`×${g.v}！`:d>=0?`+${d}`:`${d}`);AUDIO.sfx(d>=0?'combo':'thud');for(let k=0;k<12;k++)puff(g.x,rnd(0.3,2.2),g.zc+rnd(-2,2),d>=0?'#8fd3ff':'#ff6a6a',0.5,0.6);}
+      // 丟圈圈：人越多丟越快（連發圈 ×3）
+      const rate=Math.min(12,1.4+N.n*0.07)*(N.sk.rapid>0?3:1);N.acc+=rate*dt;
+      while(N.acc>=1){N.acc-=1;const cand=pegs.filter(p=>!p.gate.used&&p.x>N.cx+2.5&&p.x<N.cx+24);if(!cand.length){N.acc=0;break;}
+        const same=cand.filter(p=>Math.abs(p.gate.zc-N.cz)<LW/2+0.4),pool=same.length?same:cand;let mx=1e9;for(const p of pool)mx=Math.min(mx,p.x);const row=pool.filter(p=>p.x<mx+0.1),p=row[Math.floor(Math.random()*row.length)];
+        const m=MP[Math.floor(Math.random()*Math.min(N.n,20,150))]||{x:N.cx,z:N.cz},gold=N.sk.gold>0,hit=gold||Math.random()<0.72;
+        launch(new V3(m.x,0.7,m.z),new V3(p.x+(hit?0:rnd(-0.6,0.6)),0.62,p.z+(hit?0:rnd(-0.6,0.6))),gold?'g':'y',{peg:p,hit});}
+      // 紅衣攤販：丟紅圈扣你的門
+      for(const t of throwers){const live=t.pair.filter(g=>!g.used&&g.pegs.length);if(!live.length||N.cx<t.pair[0].x-34)continue;t.t-=dt;if(t.t<=0){t.t=rnd(0.9,1.8);const g=live[Math.floor(Math.random()*live.length)],p=g.pegs[Math.floor(Math.random()*g.pegs.length)];
+          launch(new V3(t.g.position.x,1.3,t.g.position.z),new V3(p.x,0.62,p.z),'r',{peg:p,hit:Math.random()<0.8,red:true});}}
+      // 障礙
+      for(const o of obs){o.cd=Math.max(0,(o.cd||0)-dt);
+        if(o.t==='marble'){o.z=LC+(LW-0.9)*Math.sin(performance.now()/1000*1.15+o.ph);const pz=o.m.position.z;o.m.position.z=o.z;o.m.rotation.x+=(o.z-pz)/0.9;
+          if(o.cd<=0&&Math.abs(o.x-N.cx)<r+1&&killIn((x,z)=>Math.hypot(x-o.x,z-o.z)<1.05))o.cd=0.2;}
+        else if(o.t==='cart'){o.ph+=dt;const q=(o.ph%3.6)/3.6,k=q<0.3?sm(q/0.3):q<0.6?1:q<0.9?1-sm((q-0.6)/0.3):0,zc=LC+o.sd*(LW+2)-o.sd*(4.2*k);o.g.position.z=zc;
+          if(o.cd<=0&&Math.abs(o.x-N.cx)<r+1.3&&killIn((x,z)=>Math.abs(x-o.x)<1.2&&Math.abs(z-zc)<1.4))o.cd=0.2;}
+        else if(o.t==='arm'){o.a+=1.5*dt;o.bar.rotation.y=o.a;const ux=Math.cos(o.a),uz=-Math.sin(o.a);
+          if(o.cd<=0&&Math.abs(o.x-N.cx)<r+LW&&killIn((x,z)=>{const dx=x-o.x,dz=z-LC,t2=cl(dx*ux+dz*uz,-(LW-0.3),LW-0.3);return Math.hypot(dx-ux*t2,dz-uz*t2)<0.32;},6))o.cd=0.25;}   /* 棉花糖機手臂：一次最多掃到 6 個（原本一次掃掉一半的人） */
+        else if(o.t==='pool')for(const fi of o.fish){fi.a+=dt*2;fi.f.position.x=fi.cx+Math.cos(fi.a)*0.3;fi.f.position.z=fi.cz+Math.sin(fi.a*1.3)*0.2;fi.f.rotation.y=-fi.a;}}
+      // 紅隊：靠近就衝過來，碰到就互相抵銷
+      for(const e of enemies){if(e.n<=0)continue;const re=radOf(e.n);if(e.st==='wait'&&e.x-N.cx<22)e.st='charge';if(e.st==='charge'){e.x-=3.2*dt;e.z+=cl(N.cz-e.z,-1.5*dt,1.5*dt);}
+        if(!N.fight&&e.x-N.cx<r+re-0.2&&Math.abs(e.z-N.cz)<r+re){N.fight=e;e.st='fight';AUDIO.sfx('thud');}}
+      if(N.fight){const e=N.fight;e.dmg+=dt*(16+0.6*Math.min(N.n,e.n));while(e.dmg>=1&&e.n>0&&N.n>0){e.dmg-=1;e.n--;N.n--;}if(Math.random()<dt*20)puff((N.cx+e.x)/2,rnd(0.3,1),(N.cz+e.z)/2+rnd(-1,1),Math.random()<0.5?'#ff6a6a':'#8fd3ff',0.45,0.4);soft('click');
+        if(e.n<=0){N.fight=null;big('擊退紅隊！');AUDIO.sfx('combo');}}
+      if(N.n<=0){N.st='over';N.overT=0;big('全軍覆沒…');AUDIO.sfx('over');setTimeout(()=>{if(N.on&&N.st==='over')result(false);},1600);}
+      if(N.cx>=XF-4&&N.st==='run'){N.cx=XF-4;finishStart();}}
+    else if(N.st==='finish')finishStep(dt);
+    // 圈圈飛行、落地
+    for(const rg of flying){rg.t+=dt;if(rg.t<rg.T)continue;rg.done=true;
+      if(rg.tower){N.fin.landed+=rg.w||1;rest(rg.b.x,rg.b.y-0.18,rg.b.z,rg.kind,99);soft('click');continue;}
+      if(rg.big){for(const p of rg.big.pegs){p.n+=3;rest(p.x,0.1+0.06*Math.min(p.n,6),p.z,rg.kind,99);}rg.big.v+=rg.big.pegs.length*3*(rg.kind==='g'?2:1);drawGate(rg.big);N.hits+=rg.big.pegs.length*3;AUDIO.sfx('combo');for(let k=0;k<16;k++)puff(rg.b.x,0.6,rg.b.z+rnd(-2,2),'#ffe08a',0.6,0.6);continue;}
+      const p=rg.peg;if(rg.hit&&p&&!p.gate.used){p.n++;const g=p.gate;if(rg.red){g.v-=1;}else{g.v+=rg.kind==='g'?2:1;N.hits++;}if(g.op==='x')g.v=Math.max(1,g.v);drawGate(g);rest(p.x,0.1+0.06*Math.min(p.n,6),p.z,rg.kind,99);puff(p.x,0.7,p.z,rg.red?'#ff6a6a':'#ffe08a',0.35,0.35);soft('click');}
+      else rest(rg.b.x,0.05,rg.b.z,rg.kind,1.2);}
+    flying=flying.filter(r=>!r.done);for(const r of resting)r.life-=dt;resting=resting.filter(r=>r.life>0);
+    // 用過的門淡掉
+    for(const g of gates)if(g.fade>0){g.fade-=dt*1.5;g.grp.scale.setScalar(Math.max(0.01,g.fade));if(g.fade<=0)g.grp.visible=false;}
+    // 隊伍、紅隊的位置
+    crowdDraw(dt,v);
+    // 隊長（你的人物）跑在隊伍前面
+    const lead=N.st==='finish'?N.cx+radOf(N.n)+0.7:N.cx+r+0.7;player.pos.set(lead,N.cz);player.y=0;player.vy=0;player.ground=true;player.vel.set(v>0.1?v:0.001,0);player.yaw=-Math.PI/2;
+    hudDraw();};
+  function crowdDraw(dt,v){const shown=Math.min(N.n,150),t=performance.now()/1000;
+    for(let i=0;i<shown;i++){const [fx,fz]=FORM[i],p=MP[i],tx=N.cx+fx,tz=N.cz+fz,k=1-Math.exp(-dt*10);p.x+=(tx-p.x)*k;p.z+=(tz-p.z)*k;if(!isFinite(p.x)){p.x=tx;p.z=tz;}
+      const bob=v>0.1?Math.abs(Math.sin(t*11+i*1.7))*0.08:0;put(CB,i,p.x,bob,p.z,Math.PI/2);put(CH,i,p.x,bob,p.z,Math.PI/2);}
+    CB.count=CH.count=shown;CB.instanceMatrix.needsUpdate=CH.instanceMatrix.needsUpdate=true;
+    let j=0;for(const e of enemies){if(e.n<=0){e.sign.visible=false;continue;}const sh=Math.min(e.n,240-j,80);for(let i=0;i<sh;i++){const [fx,fz]=FORM[i],bob=e.st!=='wait'?Math.abs(Math.sin(t*11+i))*0.08:0;put(EB,j,e.x+fx,bob,e.z+fz,-Math.PI/2);put(EH,j,e.x+fx,bob,e.z+fz,-Math.PI/2);j++;}
+      e.sign.visible=true;e.sign.position.set(e.x,1.6+radOf(e.n)*0.3,e.z);setCount(e.sign,e.n);}
+    EB.count=EH.count=j;EB.instanceMatrix.needsUpdate=EH.instanceMatrix.needsUpdate=true;
+    mySign.position.set(N.cx,1.7+radOf(N.n)*0.3,N.cz);setCount(mySign,N.n);ringsDraw();fxTick(dt);}
+  function hudDraw(){N.hudT=(N.hudT||0)-1/60;if(N.hudT>0)return;N.hudT=0.1;const S=N.S;hud.innerHTML=`<b>夜市套圈</b>　${S.name.split('・')[0]}　<span>👥</span><b>${N.n}</b>　<span>套中</span><b>${N.hits}</b>${N.fin?`　<span>獎品塔</span><b>×${N.fin.lv}</b>`:''}`;
+    for(const k of ['big','rapid','gold']){const b=btns.querySelector(`[data-k=${k}]`),c=N.cdn[k];b.classList.toggle('cd',c>0);b.style.setProperty('--p',c>0?(1-c/SK[k].cd)*100+'%':'100%');b.classList.toggle('act',(N.sk[k]||0)>0);}}
+  // ================= 終點：往上套獎品塔 =================
+  function finishStart(){N.st='finish';N.fin={n0:N.n,thrown:0,landed:0,lv:0,boss:false,acc:0,end:0,k:Math.max(1,Math.ceil(N.n/150)),iv:cl(5/Math.max(1,Math.min(N.n,150)),0.033,0.25)};   /* 人很多時一個圈代表 k 個人（最多丟約 150 個圈、約 5 秒） */big('獎品塔！往上套！');AUDIO.sfx('chime');}
+  function finishStep(dt){const F=N.fin;F.acc+=dt;
+    while(F.acc>=F.iv&&N.n>0){F.acc-=F.iv;const done=F.thrown,w=Math.min(F.k,N.n);F.thrown+=w;N.n-=w;let lv=0;while(lv<10&&done>=CUM[lv])lv++;
+      const m=MP[Math.floor(Math.random()*Math.min(N.n+1,40,150))]||{x:N.cx,z:N.cz};
+      const to=lv<10?new V3(TIERS[lv].px,TIERS[lv].y+0.35,LC):new V3(TX,9.6+rnd(0.2,1.6),LC+rnd(-0.6,0.6));launch(new V3(m.x,0.8,m.z),to,'y',{tower:true,w});}
+    let lv=0;while(lv<10&&F.landed>=CUM[lv])lv++;if(lv>F.lv){for(let k=F.lv;k<lv;k++){TIERS[k].glow=1;}F.lv=lv;big(`×${lv}！`);AUDIO.sfx('combo');}
+    if(!F.boss&&F.landed>=BOSSN){F.boss=true;N.bossRing.visible=true;N.bossRing.position.y=16;big('套住大老闆！！');AUDIO.sfx('bigcheer');}
+    if(F.boss&&N.bossRing.position.y>11.3){N.bossRing.position.y=Math.max(11.3,N.bossRing.position.y-dt*6);if(N.bossRing.position.y<=11.3)for(let k=0;k<30;k++)puff(TX,11,LC,'#ffe08a',0.8,0.9,new V3(rnd(-5,5),rnd(1,6),rnd(-5,5)));}
+    for(const t of TIERS)if(t.glow>0&&t.mat.emissive){t.mat.emissive.set('#ffb000');t.mat.emissiveIntensity=0.45+0.25*Math.sin(performance.now()/150);}
+    if(N.n<=0&&!flying.length){F.end+=dt;if(F.end>(F.boss?2.4:1.2)&&N.st==='finish'){N.st='done';result(true);}}}
+  function result(ok){const F=N.fin||{lv:0,boss:false,n0:0},i=N.stage,stars=!ok?0:F.boss?3:F.lv>=6?2:F.lv>=1?1:0,score=ok?F.lv*100+F.n0*5+(F.boss?2000:0):0;
+    let msg='';if(stars>SAVE.stars[i])SAVE.stars[i]=stars;if(score>SAVE.best[i]){SAVE.best[i]=score;msg='（新紀錄！）';}
+    let prize='';if(F.boss){const k=['wheel','ball','flame'][i];if(!SAVE.prize[k]){SAVE.prize[k]=true;prize=['🎁 得到大獎：彩虹輪子！（選單「人物 → 直排輪改裝」換輪子顏色）','🎁 得到大獎：金色籃球！（籃球場拿球就是金色的）','🎁 得到大獎：彩虹火焰！（直排輪改裝裡打開）'][i];applyPrizes();}}
+    save();for(const t of TIERS){t.mat.emissive.copy(t.base);t.mat.emissiveIntensity=1;}
+    const html=ok?`<b>${F.boss?'🏆 套住大老闆！':stars?'過關！':'沒套上獎品塔'}</b><br>帶了 ${F.n0} 人到終點，套到 ×${F.lv}　${'★'.repeat(stars)}${'☆'.repeat(3-stars)}<br>分數 ${score}${msg}${prize?`<br>${prize}`:''}`:`<b>全軍覆沒…</b><br>再試一次！選比較大的數字、閃開障礙`;
+    N.pickPanel();panel.querySelector('.res').innerHTML=html;if(ok&&stars>=2)AUDIO.sfx('cheer');}
+  // 大獎套用到其他系統
+  function applyPrizes(){const p=SAVE.prize;const wb=document.querySelector('#skModPanel [data-w=rainbow]');if(wb)wb.hidden=!p.wheel;const fr=$('smRf');if(fr)fr.closest('label').hidden=!p.flame;
+    if(p.ball&&BB.ball){const m=BB.ball.material;m.color.set('#ffd25a');m.metalness=0.55;m.roughness=0.32;}}
+  N.applyPrizes=applyPrizes;
+  // 鏡頭：跟在隊伍後上方（不晃）；到終點慢慢拉高看獎品塔
+  const CP=new V3(),CL=new V3();
+  N.camera=dt=>{if(N.st==='toss'){CP.set(BOOTH.x,1.75,BOOTH.zl-1.0);CL.set(BOOTH.x,0.15,139.6);camera.position.copy(CP);camera.lookAt(CL);return;}
+    const fin=N.st==='finish'||N.st==='done';if(fin){CP.set(XF-12,5.2,LC);CL.set(TX-1,5.6,LC);}   /* 比燈籠低，不會被擋住 */else{CP.set(N.cx-9.5,7.2,LC+(N.cz-LC)*0.5);CL.set(N.cx+7,0.4,LC+(N.cz-LC)*0.6);}
+    if(!N.camP){N.camP=CP.clone();N.camL=CL.clone();}const k=1-Math.exp(-dt*(fin?1.6:6));N.camP.lerp(CP,k);N.camL.lerp(CL,k);camera.position.copy(N.camP);camera.lookAt(N.camL);};
+  N.showAvatar=()=>N.st!=='toss';
+
+  // ================= 傳統套圈圈攤 =================
+  const aimM=mk(new THREE.RingGeometry(0.17,0.24,28).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#ffe08a',transparent:true,opacity:0.9,depthTest:false,toneMapped:false}),0,0.12,0);aimM.visible=false;aimM.renderOrder=6;
+  function aimPoint(dx,dy){const H=Math.max(360,innerHeight),W=Math.max(320,innerWidth),dist=cl(-dy/H*12,0.6,8.5),lat=-dx/W*7;   // 往前滑＝往南（+z）；鏡頭朝南，畫面右邊＝-x
+    return {x:cl(BOOTH.x+lat,BOOTH.x-4.8,BOOTH.x+4.8),z:BOOTH.zl+0.4+dist};}
+  function tossAim(dx,dy){if(!N.toss||N.toss.left<=0||N.toss.fly)return;if(Math.hypot(dx,dy)<12){aimM.visible=false;return;}const p=aimPoint(dx,dy);aimM.position.set(p.x,0.14,p.z);aimM.visible=true;}
+  function tossAimHide(){aimM.visible=false;}
+  function tossThrow(dx,dy){aimM.visible=false;const T=N.toss;if(!T||T.left<=0||T.fly||Math.hypot(dx,dy)<25||dy>0)return;const p=aimPoint(dx,dy),e=0.04+0.022*Math.hypot(p.x-BOOTH.x,p.z-BOOTH.zl);   /* 越遠越不準 */
+    T.left--;T.fly={a:new V3(BOOTH.x+0.25,1.35,BOOTH.zl+0.2),b:new V3(p.x+rnd(-e,e),0.12,p.z+rnd(-e,e)),t:0,T:0.55+0.05*Math.hypot(p.x-BOOTH.x,p.z-BOOTH.zl)};AUDIO.sfx('whoosh');tossHud();}
+  function tossStart(){if(GAME.on)return;if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(EMOTE.on)EMOTE.stop(true);N.on=true;N.st='toss';N.toss={left:10,score:0,won:[],fly:null,rings:[]};
+    player.pos.set(BOOTH.x,BOOTH.zl-0.5);player.yaw=Math.PI;player.vel.set(0,0);document.body.classList.add('nm','nmtoss');hud.hidden=false;N.boothLight.visible=true;tossHud();AUDIO.sfx('chime');
+    toast(isTouch?'手指往前滑丟圈圈：滑越長丟越遠、往左右偏就丟左右（放開才丟）':'按住滑鼠往前拖再放開丟圈圈：拖越長丟越遠、往左右偏就丟左右；F／Esc 離開');}
+  function tossHud(){const T=N.toss;hud.innerHTML=`<b>套圈圈</b>　<span>剩</span><b>${T.left}</b><span>個圈</span>　<span>分數</span><b>${T.score}</b>${SAVE.prize.yukata?'':'<span>／15 送浴衣</span>'}${SAVE.toss?`　<span>最高</span><b>${SAVE.toss}</b>`:''}`;}
+  function tossStep(dt){const T=N.toss;if(!T)return;fxTick(dt);
+    if(T.fly){const F=T.fly;F.t+=dt;const u=Math.min(1,F.t/F.T);TP.copy(F.a).lerp(F.b,u);TP.y+=1.3*4*u*(1-u);flying=[{a:TP.clone(),b:TP.clone(),t:0,T:1,h:0,kind:'w',spin:10}];
+      if(u>=1){flying=[];T.fly=null;let best=null;for(const pz of BOOTH.prizes){if(pz.taken)continue;const d=Math.hypot(pz.x-F.b.x,pz.z-F.b.z);if(d<0.2-pz.r*0.35&&(!best||d<best.d))best={pz,d};}
+        if(best){const pz=best.pz;pz.taken=true;T.score+=pz.pts;T.won.push(pz);pz.up=0;resting.push({x:pz.x,y:pz.y+0.05,z:pz.z,kind:'w',life:99,pz});big(`套中！+${pz.pts}`);AUDIO.sfx(pz.pts>=10?'bigcheer':pz.pts>=3?'cheer':'combo');for(let k=0;k<14;k++)puff(pz.x,pz.y+0.4,pz.z,'#ffe08a',0.35,0.5);}
+        else{resting.push({x:F.b.x,y:0.11,z:F.b.z,kind:'w',life:99});AUDIO.sfx('click');}
+        tossHud();if(T.left<=0)setTimeout(tossEnd,900);}}
+    for(const pz of T.won){pz.up=Math.min(1,(pz.up||0)+dt*1.2);pz.g.position.y=pz.y+0.8*sm(pz.up);pz.g.rotation.y+=dt*3;}
+    for(const r of resting)if(r.pz){r.y=r.pz.g.position.y+0.05;r.x=r.pz.x;r.z=r.pz.z;}
+    ringsDraw();player.pos.set(BOOTH.x,BOOTH.zl-0.5);player.vel.set(0,0);}
+  function tossEnd(){const T=N.toss;if(!T||!N.on||N.st!=='toss')return;let rec='';if(T.score>SAVE.toss){SAVE.toss=T.score;rec='（新紀錄！）';save();}
+    if(T.score>=15&&!SAVE.prize.yukata){SAVE.prize.yukata=true;save();setTimeout(()=>{big('🎁 大獎：夜市浴衣！');AUDIO.sfx('bigcheer');toast('得到大獎「夜市浴衣」（男生、女生都有）！選單「人物 → 打開衣櫃」就能換上');if(charMenuRender)charMenuRender();},1600);}   /* 夜市大獎：浴衣 */
+    const names=T.won.map(p=>p.kind==='big'?'大獎':p.kind==='plush'?'小熊':'瓶子');big(`${T.score} 分`);toast(`套圈圈結束：${T.score} 分${rec}${names.length?`，套到 ${names.length} 個（${names.join('、')}）`:'，一個都沒套到，再試一次！'}；按 F 離開，再按一次 F 重玩`);
+    AUDIO.sfx(T.score>=10?'bigcheer':T.score>0?'cheer':'over');tossHud();}
+  function tossReset(){for(const pz of BOOTH.prizes){pz.taken=false;pz.g.position.y=pz.y;pz.g.rotation.y=0;}resting=[];flying=[];RF.count=RS.count=0;aimM.visible=false;N.toss=null;}
+  // 每格（不管有沒有在玩）：燈籠輕輕晃
+  N.tick=dt=>{if(!N.on&&Math.abs(player.pos.x-180)>140)return;const t=performance.now()/1000;N.startPad.material.opacity=0.55+0.35*Math.sin(t*3);};
+  N.inArea=(x,z)=>x>=N.AREA.x0&&x<=N.AREA.x1&&z>=N.AREA.z0&&z<=N.AREA.z1;
+  return N;})();
+
 /* ---------------- 動作（使用者要求：月球漫步、最近很紅的 Bye Bye Bye，順便放一些常見的動作） ----------------
    上方「動作」按鈕（電腦 N 鍵）打開清單，點一個就開始做（會切到第三人稱，人物轉過來面對鏡頭）。
    跳舞類（Bye Bye Bye、牙線舞、騎馬舞、機器人舞、月球漫步、坐下）會一直做，推搖桿／按方向鍵、跳、再點一次就停；其他做完自己停。
@@ -5273,6 +5680,9 @@ const avatar=(()=>{
     if(ty==='qipao'){bg(C(0,'#b5121b'));const fl=C(1,'#f2c94c');
       for(let i=0;i<9;i++){const cx=rnd()*N,cy=rnd()*N,r=10+rnd()*10;x.fillStyle=fl;for(let p=0;p<5;p++){const a=p*Math.PI*2/5;x.beginPath();x.ellipse(cx+Math.cos(a)*r*0.7,cy+Math.sin(a)*r*0.7,r*0.55,r*0.35,a,0,Math.PI*2);x.fill();}
         x.fillStyle='rgba(255,255,255,0.5)';x.beginPath();x.arc(cx,cy,r*0.3,0,Math.PI*2);x.fill();x.strokeStyle=fl;x.globalAlpha=0.7;x.lineWidth=2;x.beginPath();x.arc(cx+r,cy+r,r*0.9,Math.PI,Math.PI*1.6);x.stroke();x.globalAlpha=1;}}
+    else if(ty==='fireworks'){bg(C(0,'#1f2a52'));const cols=['#ff6f91','#ffd23a','#7fe0ff','#ffffff','#b48cff'];   // 夜市浴衣：深藍底、彩色煙火＋小星點
+      for(let i=0;i<7;i++){const cx=rnd()*N,cy=rnd()*N,r=14+rnd()*16,col=cols[i%cols.length];x.strokeStyle=col;x.lineWidth=2.2;x.lineCap='round';for(let a=0;a<16;a++){const t=a/16*Math.PI*2;x.beginPath();x.moveTo(cx+Math.cos(t)*r*0.25,cy+Math.sin(t)*r*0.25);x.lineTo(cx+Math.cos(t)*r,cy+Math.sin(t)*r);x.stroke();x.fillStyle=col;x.beginPath();x.arc(cx+Math.cos(t)*r*1.12,cy+Math.sin(t)*r*1.12,1.6,0,Math.PI*2);x.fill();}}
+      for(let i=0;i<40;i++){x.fillStyle=cols[i%cols.length];x.globalAlpha=0.7;x.beginPath();x.arc(rnd()*N,rnd()*N,1+rnd()*1.2,0,Math.PI*2);x.fill();}x.globalAlpha=1;}
     else if(ty==='sakura'){bg(C(0,'#e8708f'));for(let i=0;i<14;i++)flower(rnd()*N,rnd()*N,7+rnd()*7,i%3?'#ffe3ec':'#ffffff','#f2c94c');}
     else if(ty==='plaid'){bg(C(0,'#2c4a3e'));x.globalAlpha=0.55;x.fillStyle=C(1,'#141e3c');for(let i=0;i<4;i++){x.fillRect(i*64+16,0,28,N);x.fillRect(0,i*64+16,N,28);}
       x.globalAlpha=0.85;x.fillStyle=C(2,'#c82832');for(let i=0;i<4;i++){x.fillRect(i*64+48,0,4,N);x.fillRect(0,i*64+48,N,4);}x.globalAlpha=0.35;x.fillStyle='#ffffff';for(let i=0;i<4;i++){x.fillRect(i*64+2,0,2,N);x.fillRect(0,i*64+2,N,2);}x.globalAlpha=1;}
@@ -5660,7 +6070,7 @@ const avatar=(()=>{
       mesh(new THREE.BoxGeometry(0.02,0.03,0.2),acc,sd*0.066,-0.07,0.05,ft);                                           // 側邊彩條
       mesh(new THREE.BoxGeometry(0.03,0.04,0.33),fr,0,-0.165,0.045,ft);                                                // 輪架
       for(const x of [-0.022,0.022])mesh(new THREE.BoxGeometry(0.007,0.075,0.34),fr,x,-0.19,0.045,ft);
-      for(let k=0;k<4;k++){const w=mesh(new THREE.CylinderGeometry(0.045,0.045,0.026,20),wh,0,-0.22,-0.087+k*0.088,ft);w.rotation.z=Math.PI/2;
+      for(let k=0;k<4;k++){const w=mesh(new THREE.CylinderGeometry(0.045,0.045,0.026,20),SKMOD.wheel==='rainbow'?M(['#ff3b3b','#ffb000','#3fd36a','#3aa0ff'][k],0.45):wh,0,-0.22,-0.087+k*0.088,ft);w.rotation.z=Math.PI/2;
         const hb=mesh(new THREE.CylinderGeometry(0.018,0.018,0.04,10),hub,0,-0.22,-0.087+k*0.088,ft);hb.rotation.z=Math.PI/2;}
       if(sd>0){const br=mesh(new THREE.BoxGeometry(0.05,0.06,0.07),dark,0,-0.2,-0.15,ft);br.rotation.x=-0.5;}             // 右腳煞車塊
       const cf=mesh(new THREE.CylinderGeometry(0.078,0.072,0.19,18),shell,0,-0.27,0.005,sh);                             // 高筒護踝（小腿）
@@ -5675,7 +6085,7 @@ const avatar=(()=>{
       for(const x of [-0.12,0.12])mesh(new THREE.BoxGeometry(0.045,0.018,0.3),pk,x,0.47,-0.05,C);}}   // 肩帶
   // 每格：火焰（1＝推進器橘色、2＝超級加速藍白色、0＝關）
   A.jetTick=(n,dt)=>{for(const j of A.jets){j.g.visible=n>0;if(!n)continue;const k=(n===2?1.7:1)*(0.8+Math.random()*0.4);j.o.scale.set(j.r*(n===2?1.25:1),j.len*k,j.r*(n===2?1.25:1));j.i.scale.set(j.r*0.55,j.len*k*0.6,j.r*0.55);}
-    JM[0].color.set(n===2?(Math.random()<0.6?'#5fc8ff':'#c8f0ff'):'#ff8a2a');};
+    if(SKMOD.rf&&n)JM[0].color.setHSL((performance.now()/900)%1,1,0.6);else JM[0].color.set(n===2?(Math.random()<0.6?'#5fc8ff':'#c8f0ff'):'#ff8a2a');};   /* 彩虹火焰（夜市大獎） */
   // 噴射的煙／光點（推進器開著時）
   A.jetPuff=n=>{for(const j of A.jets){if(j.len<0.4)continue;j.g.updateMatrixWorld(true);const p=j.g.localToWorld(tv.set(0,-j.len*0.9,0));
     const m=new THREE.Sprite(EMBER_MAT||(EMBER_MAT=new THREE.SpriteMaterial({map:FLAME_TEX,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})));m.position.copy(p);m.scale.setScalar(n===2?0.32:0.22);scene.add(m);
@@ -5749,7 +6159,7 @@ let charMenuRender=null;
    if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}};
  const mk=(el,list,isOn,onClick)=>{el.innerHTML='';list.forEach((t,i)=>{const b=document.createElement('button');b.textContent=t;b.classList.toggle('on',isOn(i));b.onclick=()=>onClick(i);el.appendChild(b);});};
  function render(){mk(gEl,['男生','女生'],i=>(i?'f':'m')===charCfg.g,i=>{const g=i?'f':'m';if(g!==charCfg.g){charCfg.g=g;charCfg.o=0;apply();}});
-   oEl.innerHTML='';{const b=document.createElement('button');b.style.gridColumn='1/-1';b.textContent=`打開衣櫃（${CHAR_OUTFITS[charCfg.g].length} 套）・現在：${CHAR_OUTFITS[charCfg.g][charCfg.o].name}`;b.onclick=()=>CLOSET.open();oEl.appendChild(b);}   // 100 套沒辦法一顆顆按鈕：打開衣櫃挑
+   oEl.innerHTML='';{const b=document.createElement('button');b.style.gridColumn='1/-1';b.textContent=`打開衣櫃（${outfitCount(charCfg.g)} 套）・現在：${CHAR_OUTFITS[charCfg.g][charCfg.o].name}`;b.onclick=()=>CLOSET.open();oEl.appendChild(b);}   // 100 套沒辦法一顆顆按鈕：打開衣櫃挑
    mk(hEl,CHAR_HAIR.map(h=>h[0]),i=>i===charCfg.h,i=>{charCfg.h=i;apply();});}
  render();charMenuRender=render;}
 // ---- 服裝店的模特兒：把人物換上每一套衣服、擺個姿勢，複製下來合併成靜態網格（一套衣服一個模特兒）；靠近按 F「試穿」 ----
@@ -5842,18 +6252,18 @@ const CLOSET=(()=>{const C={isOpen:false,tab:'全部'},el=document.getElementByI
     if(document.body.classList.contains('touch')&&r.width>W*0.8)camera.setViewOffset(W,H,0,Math.round(Math.min(r.height,H*0.6)/2),W,H);   // 手機直向：面板在下面 → 人物往上移
     else camera.setViewOffset(W,H,Math.round((W-r.left)/2),0,W,H);}   // 面板在右邊 → 人物往左移
   window.__closetFit=()=>{if(C.isOpen)fit();};
-  function wear(g,o,h){if(EMOTE.on)EMOTE.stop();const same=charCfg.g===g&&charCfg.o===o&&(h===undefined||charCfg.h===h);charCfg.g=g;charCfg.o=o;if(h!==undefined)charCfg.h=h;
+  function wear(g,o,h){if(outfitLocked(CHAR_OUTFITS[g][o]))return;if(EMOTE.on)EMOTE.stop();const same=charCfg.g===g&&charCfg.o===o&&(h===undefined||charCfg.h===h);charCfg.g=g;charCfg.o=o;if(h!==undefined)charCfg.h=h;
     try{localStorage.setItem('home-char',JSON.stringify(charCfg));}catch(_){}avatar.dress(charCfg);if(charMenuRender)charMenuRender();
     if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}avatar.yaw=player.yaw+Math.PI;
     if(!same&&h===undefined){AUDIO.sfx('chime');if(avatar.morph)toast('變身中：變回人類才看得到新衣服');}render();}
   function render(){if(!C.isOpen)return;const g=charCfg.g,list=CHAR_OUTFITS[g];
     nowEl.textContent=`現在：${list[charCfg.o].name}`+(THUMB.n<THUMB.list.length?`　（照片拍攝中 ${THUMB.n}/${THUMB.list.length}）`:'');
-    gEl.innerHTML='';for(const [k,t] of [['f','女生'],['m','男生']]){const b=document.createElement('button');b.textContent=`${t}（${CHAR_OUTFITS[k].length}）`;b.classList.toggle('on',g===k);b.onclick=()=>{if(charCfg.g!==k){C.tab='全部';wear(k,0);cards.scrollTop=0;}};gEl.appendChild(b);}
+    gEl.innerHTML='';for(const [k,t] of [['f','女生'],['m','男生']]){const b=document.createElement('button');b.textContent=`${t}（${outfitCount(k)}）`;b.classList.toggle('on',g===k);b.onclick=()=>{if(charCfg.g!==k){C.tab='全部';wear(k,0);cards.scrollTop=0;}};gEl.appendChild(b);}
     hEl.innerHTML='<small>髮色</small>';CHAR_HAIR.forEach(([n,c],i)=>{const b=document.createElement('button');b.className='sw';b.title=n;b.setAttribute('aria-label','髮色：'+n);b.style.background=c;b.classList.toggle('on',i===charCfg.h);b.onclick=()=>wear(charCfg.g,charCfg.o,i);hEl.appendChild(b);});
     const cats=g==='f'?['全部',...CHAR_CATS]:['全部'];if(!cats.includes(C.tab))C.tab='全部';
-    tabsEl.innerHTML='';for(const c of cats){const n=c==='全部'?list.length:list.filter(o=>o.cat===c).length,b=document.createElement('button');b.textContent=`${c} ${n}`;b.classList.toggle('on',c===C.tab);b.onclick=()=>{C.tab=c;cards.scrollTop=0;render();};tabsEl.appendChild(b);}
+    tabsEl.innerHTML='';for(const c of cats){const n=c==='全部'?list.filter(o=>!outfitLocked(o)).length:list.filter(o=>o.cat===c&&!outfitLocked(o)).length,b=document.createElement('button');b.textContent=`${c} ${n}`;b.classList.toggle('on',c===C.tab);b.onclick=()=>{C.tab=c;cards.scrollTop=0;render();};tabsEl.appendChild(b);}
     cards.innerHTML='';cardEls=[];const want=[];
-    list.forEach((o,i)=>{if(C.tab!=='全部'&&o.cat!==C.tab)return;const b=document.createElement('button'),cv=document.createElement('canvas');cv.width=THUMB.cw;cv.height=THUMB.ch;const sp=document.createElement('span');sp.textContent=o.name;
+    list.forEach((o,i)=>{if(C.tab!=='全部'&&o.cat!==C.tab)return;if(outfitLocked(o))return;const b=document.createElement('button'),cv=document.createElement('canvas');cv.width=THUMB.cw;cv.height=THUMB.ch;const sp=document.createElement('span');sp.textContent=o.name;
       b.append(cv,sp);b.classList.toggle('on',i===charCfg.o);b.onclick=()=>wear(g,i);cards.appendChild(b);const ti=THUMB.idx(g,i);cardEls.push({cv,ti,drawn:false});if(!THUMB.done[ti])want.push(ti);});
     THUMB.prio=want;paint();}
   function paint(){for(const c of cardEls)if(!c.drawn&&THUMB.done[c.ti]){THUMB.draw(c.ti,c.cv.getContext('2d'),c.cv.width,c.cv.height);c.drawn=true;}
@@ -5949,6 +6359,7 @@ const SPOTS=[
   {name:'籃球場',x:COURT.cx+2,z:COURT.z0-3.2,yaw:Math.PI},
   {name:'服裝店',x:44,z:102.5,yaw:0},
   {name:'網球場',x:83,z:101.5,yaw:0},
+  {name:'夜市',x:86,z:150,yaw:-Math.PI/2},   // 夜市入口廣場（套圈圈攤旁邊），面向夜市街
   {name:'賽車場',x:-54,z:322.6,yaw:Math.PI},
   {name:'大漩渦',x:-100,z:636,yaw:Math.PI},   // 大漩渦起點拱門前（面向漩渦）   // 站在賽車旁邊（面向車）   // 門口、面向店
   {name:'超級彈跳床',x:-5.2,z:-4.6,yaw:0},   // 房子西邊的空地，面向彈跳床   // 球車旁、面向球場   // 大跳台起跳區、面向東
@@ -5960,6 +6371,7 @@ const SPOTS=[
 const canvas=renderer.domElement;
 addEventListener('keydown',e=>{keys[e.code]=true;if(!started){if(e.code==='Enter'&&!startBtn.disabled)startBtn.click();return;}
   if(GAME.on&&GAME.key(e,true))return;   // 小遊戲的技能鍵
+  if(NM.on&&NM.key(e,true))return;   // 夜市套圈：1～3 技能、P 自動、Esc 離開
   if(RACE.on&&RACE.key(e,true))return;   // 賽車：空白鍵加速器、Shift 甩尾、1～4 技能
   if(SKATE.on&&SKATE.key(e,true))return;   // 直排輪：B 倒溜、T 花式
   if(BB.on&&BB.key(e,true))return;   // 籃球：T 花式運球、J 投籃、U 灌籃
@@ -6072,6 +6484,7 @@ function drawMinimapBg(){
   for(let i=2;i<=N_UNITS;i++){const [a,b]=w2m(ux(i-1),Z_BACK),[,d]=w2m(0,Z_YARD);g.fillStyle='#8b857b';g.fillRect(a-0.5,b,1,d-b);}
   rect({x0:0,x1:ux(1),z0:Z_BACK,z1:Z_YARD},'#ffb454');
   rect(SHOP,'#f48fb1');{const [a,b]=w2m((SHOP.x0+SHOP.x1)/2,(SHOP.z0+SHOP.z1)/2);g.fillStyle='#fff';g.font=`bold ${Math.max(9,Math.min(13,sc*2.4))}px ${FONT}`;g.textAlign='center';g.fillText('服裝店',a,b);}
+  rect(NM.AREA,'#8a4a3a');{const [a,b]=w2m((NM.AREA.x0+NM.AREA.x1)/2,(NM.AREA.z0+NM.AREA.z1)/2);g.fillStyle='#ffe08a';g.font=`bold ${Math.max(9,Math.min(13,sc*2.4))}px ${FONT}`;g.textAlign='center';g.fillText('夜市',a,b);}
   for(const r of SKATE_RACKS){const [a,b]=w2m(r.x,r.z);g.fillStyle='#e94f8a';g.beginPath();g.arc(a,b,Math.max(3.5,sc*1.4),0,Math.PI*2);g.fill();g.fillStyle='#fff';g.font=`bold ${Math.max(9,Math.min(13,sc*2.4))}px ${FONT}`;g.textAlign='center';g.fillText('直排輪',a,b-Math.max(6,sc*2.2));}   // 小地圖：直排輪架
   g.fillStyle='#3a2300';g.font=`bold ${Math.max(10,Math.min(16,sc*3.2))}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';
   {const [x,y]=w2m(ux(0)+UW/2-0.7,(Z_BACK+Z_YARD)/2);g.fillText('我家',x,y);}
@@ -6131,6 +6544,7 @@ function updatePlace(){
     t=['繽紛衣櫥',s?(s.closet?'試衣間・打開衣櫃':`試穿：${CHAR_OUTFITS[s.g][s.o].name}`):x>54.5?(z<S.z0+4.5?'試衣間':'男裝區'):z<S.z0+4.5&&x>29&&x<41?'大鏡子':z>94.5&&x>47.5?'收銀台':row?`女裝區・${row.cat}`:'女裝區'];}
   else if(z>625&&mode==='walk')t=['大漩渦',RACE.on&&RACE.mode==='vortex'?'離心力車道':RACE.atGate()?(isTouch?'點下方按鈕開始大漩渦挑戰':'按 F 開始大漩渦挑戰'):'離心力車道'];
   else if(z>276&&x>-335&&x<345&&mode==='walk')t=['賽車場',RACE.on?(RACE.mode==='race'?'比賽中':RACE.mode==='free'?'自由練習':'導航系統啟動'):RACE.near()?(isTouch?'點下方按鈕坐進賽車':'按 F 坐進賽車'):z<309?'看台・入口':'賽道'];
+  else if(NM.inArea(x,z)){const l=NM.label();t=['夜市',NM.on?(NM.st==='toss'?'套圈圈攤':'套圈大進擊'):l?(isTouch?'點下方按鈕':'按 F ')+(l.startsWith('玩')?'玩套圈圈':'開始套圈大進擊'):'夜市街'];}
   else if(inR(x,z,TENNIS_PARK))t=['網球場',TN.on?'網球':TN.near()?'按 F 拿球拍':'場邊'];
   else if(inR(x,z,COURT_PARK))t=['圓環籃球場',BB.on?'籃球':inR(x,z,COURT)?'全場 28×15':'場邊'];
   else if(inR(x,z,JUMP_PARK)){const J=JUMPS.find(J=>x>J.x0-8&&x<J.x3+12&&z>J.z0-1.5&&z<J.z1+1.5);t=['跳台公園',J?J.name+(player.y>0.4?`（高 ${player.y.toFixed(1)} m）`:''):JUMPS.some(J=>z>J.z0&&z<J.z1&&x<J.x0)?'助跑道':'大跳台、中跳台'];}
@@ -7051,7 +7465,7 @@ function step(dt){
     const len=Math.hypot(f,s);if(len>1){f/=len;s/=len;}
     const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),rx=Math.cos(player.yaw),rz=-Math.sin(player.yaw);
     const k=1-Math.exp(-dt*7);
-    if(RACE.on)RACE.step(dt,f,s);else if(BALLOON.riding)BALLOON.step(dt,f,s,stage);else if(LIE.on)LIE.step(dt,f,s);else if(SKATE.on)SKATE.step(dt,f,s,running);else if(BB.fly)BB.flyStep(dt);else if(TN.on)TN.step(dt,f,s,running);else{
+    if(NM.on)NM.step(dt,f,s);else if(RACE.on)RACE.step(dt,f,s);else if(BALLOON.riding)BALLOON.step(dt,f,s,stage);else if(LIE.on)LIE.step(dt,f,s);else if(SKATE.on)SKATE.step(dt,f,s,running);else if(BB.fly)BB.flyStep(dt);else if(TN.on)TN.step(dt,f,s,running);else{
     player.vel.x+=((fx*f+rx*s)*speed-player.vel.x)*k;player.vel.y+=((fz*f+rz*s)*speed-player.vel.y)*k;
     {const mx=player.vel.x*dt,mz=player.vel.y*dt,n=Math.max(1,Math.ceil(Math.hypot(mx,mz)/0.2));for(let i=0;i<n;i++){player.pos.x+=mx/n;player.pos.y+=mz/n;resolve(player.pos,0.3,player.y);}}
     player.pos.x=Math.max(BOUND.x0,Math.min(BOUND.x1,player.pos.x));player.pos.y=Math.max(BOUND.z0,Math.min(BOUND.z1,player.pos.y));
@@ -7082,7 +7496,8 @@ function step(dt){
         if(player.y<FL[4]+0.4)player.pos.y=Math.max(LADDER.z0+0.05,Math.min(LADDER.z1-0.05,player.pos.y));
         if(player.y>=FL[4]+0.8&&v>0)player.pos.y-=1.4*dt;}   // 爬到頂繼續往上推：往北跨到屋頂上
     }else playerFall(dt);}
-    if(RACE.on){avatar.root.visible=false;if(RACE.sk8)RACE.skPose(dt);RACE.camera(dt);}   /* 開賽車：鏡頭跟車 */
+    if(NM.on){const sa=NM.showAvatar();avatar.root.visible=sa;if(sa)updateAvatar(dt,1);NM.camera(dt);}   /* 夜市套圈：鏡頭跟著隊伍 */
+    else if(RACE.on){avatar.root.visible=false;if(RACE.sk8)RACE.skPose(dt);RACE.camera(dt);}   /* 開賽車：鏡頭跟車 */
     else if(view==='third'){avatar.root.visible=true;updateAvatar(dt,stage);camDt=dt;thirdPersonCamera();}
     else{avatar.root.visible=false;if(BB.on||SHOP.inside())updateAvatar(dt,stage);   /* 第一人稱拿著球：人物藏起來，但球照樣跟著手 */
       camera.position.set(player.pos.x,player.y+bodyH().eye,player.pos.y);camera.rotation.set(player.pitch,player.yaw,0,'YXZ');if(LIE.on)LIE.cam();}
@@ -7110,6 +7525,7 @@ function step(dt){
   BB.tick(dt);
   TN.tick(dt);
   RACE.tick(dt);
+  NM.tick(dt);
   {let t=0;if(CALM.on&&mode==='walk'&&started){const sp=RACE.on?Math.abs(RACE.v)*0.05:SKATE.on?SKATE.vel.length():player.vel.length();let dy=player.yaw-CALM.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
      t=Math.min(0.85,sp*0.08+Math.abs(dy)/Math.max(dt,1e-3)*0.22+(player.ground?0:0.2));}   // 防暈：越快、轉越快、在空中，四周越暗
    CALM.yaw=player.yaw;CALM.v+=(t-CALM.v)*Math.min(1,dt*6);if(Math.abs(CALM.v-CALM.last)>0.01||(CALM.v<0.01&&CALM.last)){CALM.last=CALM.v<0.01?0:CALM.v;document.getElementById('calmVig').style.opacity=CALM.last.toFixed(2);}}
@@ -7142,7 +7558,8 @@ syncViewUI();
 loop();
 const startBtn=document.getElementById('start');startBtn.disabled=false;startBtn.textContent='進入';
 startBtn.onclick=()=>{document.getElementById('overlay').style.display='none';started=true;guardBack();hintUntil=performance.now()+9000;syncHint();setTimeout(syncHint,9100);};
-window.__dbg={scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+NM.applyPrizes();
+window.__dbg={NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
