@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-12.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-12.3"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -246,6 +246,36 @@
   #tnHud .k{color:var(--ink-2);font-size:11px;margin-top:3px;white-space:normal}
   /* ---- 賽車場（導航 HUD、技能按鈕、倒數燈） ---- */
   #rcHud[hidden],#rcNav[hidden],#rcMap[hidden],#rcLights[hidden],#rcPanel[hidden],#rcBtns[hidden]{display:none!important}
+  /* 機器人擂台 */
+  #rbHud{position:fixed;left:50%;top:calc(58px + var(--sat));transform:translateX(-50%);width:min(520px,62vw);z-index:12;display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;pointer-events:none}
+  #rbHud[hidden],#rbBtns[hidden],#rbSp[hidden],#rbPanel[hidden]{display:none!important}
+  #rbHud .bar{position:relative;height:16px;border-radius:8px;background:rgba(0,0,0,.45);overflow:hidden;border:1px solid rgba(255,255,255,.35)}
+  #rbHud .bar i{position:absolute;top:0;bottom:0;transition:width .15s}#rbHud .bar.me i{left:0;background:linear-gradient(90deg,#38e1ff,#2f6fe0)}#rbHud .bar.op i{right:0;background:linear-gradient(270deg,#ff8a8a,#d8262c)}
+  #rbHud .bar span{position:absolute;top:0;font-size:11px;line-height:15px;font-weight:800;color:#fff;text-shadow:0 1px 2px #000;z-index:1;padding:0 6px}#rbHud .bar.me span{left:0}#rbHud .bar.op span{right:0}
+  #rbHud .tm{font-size:18px;font-weight:900;color:#fff;text-shadow:0 1px 3px #000;min-width:28px;text-align:center}
+  #rbHud .en{grid-column:1;position:relative;height:7px;border-radius:4px;background:rgba(0,0,0,.45);overflow:hidden}#rbHud .en i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#ffe08a,#ff9a3a)}
+  #rbHud .en em{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.55)}#rbHud .en em:nth-of-type(1){left:35%}#rbHud .en em:nth-of-type(2){left:65%}
+  body.touch #rbHud{top:calc(64px + var(--sat))}
+  #rbNote{position:fixed;left:calc(12px + var(--sal));top:calc(100px + var(--sat));z-index:12;font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 3px #000;opacity:0;pointer-events:none}
+  #rbNote.pop{animation:rbn 1.6s ease-out}@keyframes rbn{0%{opacity:0;transform:translateY(6px)}10%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0}}
+  .rbDmg{position:fixed;left:0;top:0;z-index:13;font:900 22px/1 sans-serif;color:#ffd27a;text-shadow:0 2px 4px #000;pointer-events:none}.rbDmg.op{color:#ff8a8a}
+  #rbBtns{position:fixed;right:calc(12px + var(--sar));bottom:calc(14px + var(--sab));display:grid;grid-template-columns:repeat(3,60px);gap:8px;z-index:11}
+  #rbBtns button{width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(18,24,30,.6);color:#fff;font-size:14px;font-weight:800;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+  #rbBtns small{font-size:9px;opacity:.75}body.touch #rbBtns small{display:none}#rbBtns button.hit{transform:scale(.9)}
+  #rbBtns [data-k=jab]{background:radial-gradient(circle,#7fd8ff,#2f6fe0)}#rbBtns [data-k=str]{background:radial-gradient(circle,#ff9a3a,#d8262c)}#rbBtns [data-k=upr]{background:radial-gradient(circle,#ffe08a,#e8a02a)}
+  #rbBtns [data-k=block]{background:radial-gradient(circle,#c9ced4,#4a5058)}#rbBtns [data-k=dodge]{background:radial-gradient(circle,#b8f2a0,#2fae6a)}
+  #rbSp{position:fixed;right:calc(12px + var(--sar));bottom:calc(158px + var(--sab));display:flex;flex-direction:column;gap:6px;z-index:11;align-items:flex-end}
+  #rbSp button{position:relative;overflow:hidden;min-width:104px;padding:6px 10px 8px;border-radius:12px;border:1px solid rgba(255,255,255,.35);background:rgba(18,24,30,.62);color:#fff;font-size:12px;text-align:left;touch-action:none}
+  #rbSp button i{position:absolute;left:0;bottom:0;height:3px;width:var(--w);background:#ffe08a}#rbSp button small{margin-left:6px;opacity:.7;font-size:10px}
+  #rbSp button.ready{background:linear-gradient(90deg,#d8262c,#ff9a3a);border-color:#ffe08a;box-shadow:0 0 10px rgba(255,180,80,.6)}
+  body.touch #rbSp{right:auto;left:50%;transform:translateX(-50%);bottom:calc(10px + var(--sab));flex-direction:row;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 430px);align-items:center}
+  body.touch #rbSp button{min-width:0;padding:6px 8px 8px;font-size:11px}
+  body.rb #jumpBtn,body.rb #act,body.rb #skBtns,body.rb #bbBtns{visibility:hidden}
+  #rbPanel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:20;padding:14px 16px;width:min(440px,92vw);max-height:88vh;overflow:auto;display:flex;flex-direction:column;gap:8px;text-align:center}
+  #rbPanel h3{margin:0;font-size:17px}#rbPanel .res:empty{display:none}#rbPanel .res{font-size:13px;line-height:1.6}#rbPanel .res b{font-size:19px}
+  #rbPanel .stages{display:flex;flex-direction:column;gap:6px}#rbPanel button{padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);font-size:15px;font-weight:700;color:inherit}
+  #rbPanel .stages button{background:linear-gradient(90deg,#1f4fb8,#38b6ff);color:#fff;display:flex;flex-direction:column;align-items:center}#rbPanel .stages button small{font-size:11px;opacity:.9;font-weight:600}#rbPanel .stages button:disabled{opacity:.45}
+  #rbPanel .note{font-size:11px;opacity:.75;margin:0;text-align:left}
   /* 夜市套圈大進擊 */
   #nmHud{position:fixed;left:calc(12px + var(--sal));top:calc(58px + var(--sat));padding:5px 12px;font-size:12px;z-index:12;background:rgba(18,24,30,.5);border-color:transparent;white-space:nowrap}
   #nmHud b{font-size:15px;margin:0 3px}body.touch #nmHud{top:calc(110px + var(--sat));font-size:11px}
@@ -420,6 +450,7 @@
   <button id="gFree">自由破壞模式（沒有殭屍）</button>
   <button id="ftStart">罰球大賽（籃球場）</button>
   <button id="nmMenu">夜市套圈大進擊（3 關）</button>
+  <button id="rbMenu">機器人擂台（5 關）</button>
   <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。開始後畫面下方才會出現技能按鈕，按了馬上往前方放：氣功炮（J）、超級氣功波（L）、旋風腿（U）、如來神掌（I）、足球（O）、按住蓄力氣功彈（H）。視角往上抬就往上打（打飛到空中的殭屍可以接著打）。車子、鄰居的房子、周邊建築、全家都打得壞（我家不會壞），遊戲結束會復原。</p>
   <h3 style="margin-top:14px">舒適設定</h3>
   <label><span>視角轉動靈敏度</span><span id="sensVal">100%</span></label>
@@ -464,6 +495,12 @@
 <div id="rcPanel" class="panel" hidden><h3>賽車場・我的賽車</h3><div class="res"></div><button data-m="race">🏁 比賽（3 圈・5 台車）</button><button data-m="free">⏱ 自由練習（計圈速）</button><button data-m="vortex">🌀 大漩渦挑戰（離心力車道）</button><button data-m="exit">下車</button>
 <p class="note">電腦：W 油門、S 煞車、A D 轉彎、空白鍵＝加速器（再按一次＝第二段螺旋加速）、Shift 按住甩尾（放開＝閃電甩尾加速）、1 加速過彎、2 懸空轉向、3 幻影過彎、4 零之領域、C 視角、V 語音、R 回賽道、F 下車、<b>P 自動駕駛</b><br>手機：自動油門，搖桿左右轉彎、往下拉煞車<br><b>自動駕駛（綠色「自動」按鈕，預設開）</b>：車子自己轉彎、控速、遇到車會換線，你只要按加速器和過彎技能超車；推搖桿／按方向、煞車就照你的</p></div>
 <div id="rcBtns" hidden><button data-k="auto">自動<small>P</small></button><button data-k="boost">加速器<small>空白</small></button><button data-k="drift">甩尾<small>Shift</small></button><button data-k="aero">加速<br>過彎<small>1</small></button><button data-k="lift">懸空<br>轉向<small>2</small></button><button data-k="mirage">幻影<br>過彎<small>3</small></button><button data-k="zero">零之<br>領域<small>4</small></button><button data-k="cam">視角<small>C</small></button><button data-k="voice">語音<small>V</small></button><button data-k="reset">回賽道<small>R</small></button></div>
+<div id="rbHud" hidden></div><div id="rbNote"></div>
+<div id="rbBtns" hidden><button data-k="jab">刺拳<small>J</small></button><button data-k="str">直拳<small>K</small></button><button data-k="upr">上勾<small>U</small></button><button data-k="block">防禦<small>L 按住</small></button><button data-k="dodge">閃避<small>空白</small></button><button data-k="exit">離開<small>Esc</small></button></div>
+<div id="rbSp" hidden></div>
+<div id="rbPanel" class="panel" hidden><h3>機器人擂台</h3><div class="res"></div><div class="stages"></div><p class="prize note"></p>
+  <p class="note">搖桿移動（往前＝靠近對手、左右＝繞著轉）。刺拳快、直拳重、上勾拳把對手打飛；按住防禦擋拳（必殺技擋不太住）、閃避有一瞬間無敵。照順序出拳會變組合技：刺拳→刺拳→直拳、刺拳→直拳→上勾、直拳→上勾…。打中、被打都會累積能量，夠了就按必殺技。</p>
+  <button data-x="exit">離開</button></div>
 <div id="nmHud" class="panel" hidden></div>
 <div id="nmBtns" hidden><button data-k="auto">自動<small>P</small></button><button data-k="big">巨大圈<small>1</small></button><button data-k="rapid">連發圈<small>2</small></button><button data-k="gold">黃金圈<small>3</small></button><button data-k="exit">離開<small>Esc</small></button></div>
 <div id="nmPanel" class="panel" hidden><h3>夜市套圈大進擊</h3><div class="res"></div><div class="stages"></div><p class="prize note"></p>
@@ -1967,11 +2004,11 @@ function nearCab(){if(!started||mode!=='walk')return null;const px=player.pos.x,
     const sc=d*(1.45-face);if(sc<bs){best=u;bd=d;bs=sc;}}   /* 越正對著越優先：斜前方比較近的抽屜不要搶走正前方的衣櫃 */
   return best?{u:best,d:bd}:null;}
 // 衣櫃／抽屜／屋頂蓋子和窗簾：取比較近的那個
-function currentAct(){{const rc=RACE.label();if(rc)return {rc};}{const nm=NM.label();if(nm)return {nm};}if(TN.on){const k=TN.label();return k?{tn:k}:null;}if(BB.on){const k=BB.label();return k?{bb:k}:null;}const tn=TN.label();if(tn)return {tn};if(SKATE.on){const k=SKATE.act();return k?{sk:k}:null;}const bb=BB.label();if(bb)return {bb};const mq=SHOP.near&&SHOP.near();if(mq)return {mq};const sk=SKATE.act();if(sk)return {sk};const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
+function currentAct(){{const rc=RACE.label();if(rc)return {rc};}{const nm=NM.label();if(nm)return {nm};}{const rb=RB.label();if(rb)return {rb};}if(TN.on){const k=TN.label();return k?{tn:k}:null;}if(BB.on){const k=BB.label();return k?{bb:k}:null;}const tn=TN.label();if(tn)return {tn};if(SKATE.on){const k=SKATE.act();return k?{sk:k}:null;}const bb=BB.label();if(bb)return {bb};const mq=SHOP.near&&SHOP.near();if(mq)return {mq};const sk=SKATE.act();if(sk)return {sk};const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
 function syncActBtn(){const a=currentAct();actCur=a;
-  const html=!a?'':a.rc?`<kbd>F</kbd>${a.rc}`:a.nm?`<kbd>F</kbd>${a.nm}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${outfitCount('f')+outfitCount('m')} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
+  const html=!a?'':a.rc?`<kbd>F</kbd>${a.rc}`:a.nm?`<kbd>F</kbd>${a.nm}`:a.rb?`<kbd>F</kbd>${a.rb}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${outfitCount('f')+outfitCount('m')} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
   if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
-function toggleAct(){const a=currentAct();if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
+function toggleAct(){const a=currentAct();if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.rb){RB.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
 actBtn.addEventListener('click',e=>{e.stopPropagation();toggleAct();});
 actBtn.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleAct();},{passive:false});
 document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)c.target=0;syncActBtn();AUDIO.sfx('swish');};
@@ -3788,6 +3825,7 @@ const BB=(()=>{
     const up=e=>{e.preventDefault();e.stopPropagation();b.classList.remove('hit');};
     b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('touchend',up,{passive:false});b.addEventListener('touchcancel',up,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('mouseup',up);}
   document.getElementById('ftStart').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');B.ftStart();};
+  document.getElementById('rbMenu').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(166.1,89,-Math.PI/2);setTimeout(()=>RB.pickPanel(),400);};
   document.getElementById('nmMenu').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(98.6,160,-Math.PI/2);setTimeout(()=>NM.pickPanel(),400);};
   draw();
   return B;})();
@@ -5366,6 +5404,305 @@ const NM=(()=>{
   N.inArea=(x,z)=>x>=N.AREA.x0&&x<=N.AREA.x1&&z>=N.AREA.z0&&z<=N.AREA.z1;
   return N;})();
 
+/* ---------------- 機器人擂台（2026-10-12 使用者：弄一個場地、增加一個鋼鐵擂台，操控機器人雙方在擂台上互打；要有一堆組合技能可以點擊、招式華麗、有慢動作鏡頭跟隨；
+   招式參考拳擊卡通；像夜市一樣弄關卡有獎勵。問了使用者：搖桿移動＋按鈕出拳；大招慢動作時鏡頭慢慢移到側面拉近；位置在跳台公園旁邊） ----------------
+   場地：跳台公園南邊、圓環大道北邊（x 150～200、z 74～104）：鋼鐵擂台（離地 1 m、11×11 m、四角柱、三條發光繩）、燈架、看台、大螢幕。畫面上叫「機器人擂台」（不用電影片名）。
+   操作：搖桿／WASD 移動（往前＝朝對手、左右＝繞著對手轉）；刺拳 J、直拳 K、上勾拳 U、防禦 L（按住）、閃避 空白鍵；必殺技 1～6（要能量：打中、被打都會加）。
+   連段：基本拳照順序打出來會變成組合技（例：刺拳→刺拳→直拳＝「一二連拳」），最後一拳加傷害、加能量。
+   必殺技收尾、K.O. 時慢動作，鏡頭慢慢滑到側面拉近（不晃、不繞圈；防暈模式只慢動作）；打中時畫面停一下（頓幀）＋火花，不用畫面震動。
+   關卡：5 個對手，打贏一關解鎖一招必殺技，第 5 關（冠軍）贏了得到金色塗裝。存在 home-rb。 */
+const RB=(()=>{
+  const R={on:false,st:'idle',AREA:{x0:148,x1:202,z0:72,z1:105},slow:0,hs:0};
+  const CX=175,CZ=89,FY=1.0,HALF=4.35;   // 擂台中心、台面高、可以站的半寬（繩子內）
+  const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),sm=t=>t*t*(3-2*t),rnd=(a,b)=>a+Math.random()*(b-a),$=id=>document.getElementById(id);
+  const big=t=>{const el=$('gBig');el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');};
+  const SAVE=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-rb')||'{}')||{};}catch(_){}return {cleared:o.cleared||0,best:o.best||[],gold:!!o.gold};})();
+  const save=()=>{try{localStorage.setItem('home-rb',JSON.stringify(SAVE));}catch(_){}};R.SAVE=SAVE;
+  const G=new THREE.Group();scene.add(G);
+  const mk=(geo,mat,x,y,z,par=G)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);par.add(m);m.castShadow=true;return m;};
+  const basic=c=>new THREE.MeshBasicMaterial({color:c,toneMapped:false});
+  function textTex(t,w,h,bg,fg,font){const [c,g]=cvs(w,h);if(bg){g.fillStyle=bg;g.fillRect(0,0,w,h);}g.fillStyle=fg;g.font=font;g.textAlign='center';g.textBaseline='middle';g.fillText(t,w/2,h/2+2);const tx=new THREE.CanvasTexture(c);tx.colorSpace=THREE.SRGBColorSpace;return tx;}
+
+  // ================= 場地 =================
+  {const A=R.AREA,tx=(()=>{const [c,g]=cvs(128,128);g.fillStyle='#3a3f46';g.fillRect(0,0,128,128);g.strokeStyle='#2c3036';g.lineWidth=3;for(let i=0;i<=4;i++){g.beginPath();g.moveTo(i*32,0);g.lineTo(i*32,128);g.stroke();g.beginPath();g.moveTo(0,i*32);g.lineTo(128,i*32);g.stroke();}
+      const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set((A.x1-A.x0)/4,(A.z1-A.z0)/4);return t;})();
+   const g=new THREE.PlaneGeometry(A.x1-A.x0,A.z1-A.z0);g.rotateX(-Math.PI/2);mk(g,std({map:tx,roughness:0.9}),(A.x0+A.x1)/2,0.02,(A.z0+A.z1)/2).receiveShadow=true;
+   // 台子：鋼板（菱形防滑紋）＋中間標誌
+   const plate=(()=>{const [c,g]=cvs(512,512);g.fillStyle='#8d949c';g.fillRect(0,0,512,512);g.fillStyle='#a7aeb6';for(let y=0;y<512;y+=24)for(let x=(y/24%2)*12;x<512;x+=24){g.save();g.translate(x,y);g.rotate(0.6);g.fillRect(-7,-2,14,4);g.restore();}
+     g.strokeStyle='#d8262c';g.lineWidth=10;g.beginPath();g.arc(256,256,120,0,Math.PI*2);g.stroke();g.fillStyle='rgba(20,24,30,.75)';g.font=`900 64px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText('ROBOT',256,236);g.font=`900 40px ${FONT}`;g.fillText('機器人擂台',256,300);
+     const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;})();
+   const W=11;mk(new THREE.BoxGeometry(W,FY,W),std({color:'#2b2f36',roughness:0.6,metalness:0.5}),CX,FY/2,CZ).receiveShadow=true;
+   const top=mk(new THREE.PlaneGeometry(W-0.2,W-0.2).rotateX(-Math.PI/2),std({map:plate,roughness:0.45,metalness:0.6}),CX,FY+0.005,CZ);top.receiveShadow=true;
+   for(const [sx,sz] of [[-1,-1],[1,-1],[-1,1],[1,1]]){const col=sx<0?'#2f6fe0':'#d8262c';mk(new THREE.CylinderGeometry(0.16,0.2,1.7,12),std({color:'#c9ced4',metalness:0.8,roughness:0.3}),CX+sx*(W/2-0.3),FY+0.85,CZ+sz*(W/2-0.3));
+     mk(new THREE.CylinderGeometry(0.2,0.2,0.18,12),basic(col),CX+sx*(W/2-0.3),FY+1.75,CZ+sz*(W/2-0.3));}
+   const ropeM=new THREE.MeshBasicMaterial({color:'#38e1ff',toneMapped:false});R.ropeM=ropeM;
+   for(const h of [0.55,1.0,1.45])for(const [ax,az,len,rot] of [[0,-1,W-0.6,Math.PI/2],[0,1,W-0.6,Math.PI/2],[-1,0,W-0.6,0],[1,0,W-0.6,0]]){const r=mk(new THREE.CylinderGeometry(0.035,0.035,len,6),ropeM,CX+ax*(W/2-0.3),FY+h,CZ+az*(W/2-0.3));r.rotation.set(Math.PI/2,0,rot);r.castShadow=false;}
+   // 台階（西邊）
+   for(let i=0;i<3;i++)mk(new THREE.BoxGeometry(0.6,0.33*(i+1),2.4),std({color:'#4a4f57',roughness:0.7}),CX-W/2-1.6+i*0.6,0.165*(i+1),CZ);
+   addBox(CX-W/2,CX+W/2,CZ-W/2,CZ+W/2,FY);
+   // 燈架（四角高塔＋燈頭）
+   for(const [sx,sz] of [[-1,-1],[1,-1],[-1,1],[1,1]]){const x=CX+sx*9,z=CZ+sz*9;mk(new THREE.BoxGeometry(0.4,9,0.4),std({color:'#5a5f67',metalness:0.6,roughness:0.4}),x,4.5,z);
+     const hd=mk(new THREE.BoxGeometry(1.6,0.7,0.5),std({color:'#2b2f36'}),x,9.1,z);hd.lookAt(CX,FY,CZ);const l=mk(new THREE.PlaneGeometry(1.4,0.5),basic('#fff6d8'),0,0,0.26,hd);addBox(x-0.25,x+0.25,z-0.25,z+0.25,9);}
+   // 看台（北、南兩邊，觀眾點點）
+   const crowd=(()=>{const [c,g]=cvs(256,64);g.fillStyle='#4a505a';g.fillRect(0,0,256,64);const cs=['#f2f2f2','#d8262c','#1f4fb8','#f2c94c','#2a2a2a','#ff7eb6','#3fbf6a'];for(let i=0;i<700;i++){g.fillStyle=cs[i%cs.length];g.beginPath();g.arc(Math.random()*256,Math.random()*64,1.6+Math.random(),0,7);g.fill();}
+     const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=THREE.RepeatWrapping;t.repeat.set(5,1);return t;})(),crowdM=std({map:crowd,roughness:0.9}),conc=std({color:'#9a978f',roughness:0.95});
+   for(const sd of [-1,1])for(let t=0;t<4;t++){const z=CZ+sd*(10.5+t*1.2),y=0.5+t*0.65;mk(new THREE.BoxGeometry(26,y,1.2),conc,CX,y/2,z);const f=mk(new THREE.PlaneGeometry(26,0.6),crowdM,CX,y+0.3,z);f.rotation.y=sd<0?0:Math.PI;f.castShadow=false;
+     addBox(CX-13,CX+13,z-0.6,z+0.6,y);}
+   // 大螢幕（東邊）
+   const scr=textTex('機器人擂台',512,192,'#0b0d10','#38e1ff',`900 84px ${FONT}`);R.scrTex=scr;const sc=mk(new THREE.PlaneGeometry(8,3),new THREE.MeshBasicMaterial({map:scr,toneMapped:false}),CX+15,6.5,CZ);sc.rotation.y=-Math.PI/2;
+   mk(new THREE.BoxGeometry(0.4,3.4,8.4),std({color:'#1a1d22'}),CX+15.25,6.5,CZ);for(const sz of [-3,3])mk(new THREE.BoxGeometry(0.3,5,0.3),std({color:'#5a5f67'}),CX+15.25,2.5,CZ+sz);addBox(CX+15,CX+15.5,CZ-4.2,CZ+4.2,8.2);
+   // 起點：台階前的發光圈
+   R.pad=mk(new THREE.RingGeometry(0.8,1.1,36).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#38e1ff',transparent:true,opacity:0.8,toneMapped:false}),CX-W/2-3.4,0.04,CZ);R.pad.castShadow=false;}
+
+  // ================= 機器人模型 =================
+  // 面向 +z；關節：肩 sh（x 往前抬、z 往內）、肘 el（x 負＝往前彎）、腰 torso（y 扭、x 前傾）、腿 lg／膝 kn
+  function makeBot(c){const root=new THREE.Group(),hip=new THREE.Group();root.add(hip);hip.position.y=1.12;
+    const M1=std({color:c.body,roughness:0.32,metalness:0.75}),M2=std({color:c.trim,roughness:0.38,metalness:0.6}),DK=std({color:'#2a2e35',roughness:0.5,metalness:0.6}),GL=new THREE.MeshBasicMaterial({color:c.glow,toneMapped:false});
+    const torso=new THREE.Group();hip.add(torso);
+    mk(new THREE.CylinderGeometry(0.26,0.3,0.36,12),DK,0,0.16,0,torso);
+    const ch=mk(new THREE.BoxGeometry(0.98,0.78,0.6),M1,0,0.68,0,torso);
+    mk(new THREE.BoxGeometry(0.7,0.2,0.62),M2,0,0.3,0,torso);
+    mk(new THREE.CircleGeometry(0.13,20),GL,0,0.7,0.305,torso);
+    for(const s of [-1,1])mk(new THREE.BoxGeometry(0.06,0.5,0.02),GL,s*0.3,0.68,0.305,torso);
+    const head=new THREE.Group();head.position.y=1.12;torso.add(head);
+    mk(new THREE.BoxGeometry(0.42,0.38,0.42),M2,0,0.12,0,head);mk(new THREE.BoxGeometry(0.36,0.09,0.03),GL,0,0.15,0.215,head);mk(new THREE.CylinderGeometry(0.02,0.02,0.25,6),DK,0.12,0.42,0,head);mk(new THREE.SphereGeometry(0.04,8,6),GL,0.12,0.55,0,head);
+    const arm=s=>{const sh=new THREE.Group();sh.position.set(s*0.64,0.9,0);torso.add(sh);mk(new THREE.SphereGeometry(0.25,14,10),M2,0,0,0,sh).scale.set(1,0.85,1);
+      mk(new THREE.CylinderGeometry(0.1,0.1,0.5,10),DK,0,-0.3,0,sh);const el=new THREE.Group();el.position.y=-0.56;sh.add(el);mk(new THREE.SphereGeometry(0.12,10,8),M2,0,0,0,el);
+      mk(new THREE.CylinderGeometry(0.13,0.11,0.42,10),M1,0,-0.24,0,el);const fs=new THREE.Group();fs.position.y=-0.52;el.add(fs);
+      mk(new THREE.BoxGeometry(0.34,0.32,0.36),M2,0,0,0,fs);mk(new THREE.BoxGeometry(0.36,0.06,0.04),GL,0,0.02,0.18,fs);return {sh,el,fs};};
+    const L=arm(-1),Rr=arm(1);
+    const leg=s=>{const lg=new THREE.Group();lg.position.set(s*0.26,0,0);hip.add(lg);mk(new THREE.CylinderGeometry(0.14,0.12,0.5,10),DK,0,-0.27,0,lg);const kn=new THREE.Group();kn.position.y=-0.55;lg.add(kn);
+      mk(new THREE.SphereGeometry(0.13,10,8),M2,0,0,0,kn);mk(new THREE.BoxGeometry(0.22,0.48,0.26),M1,0,-0.26,0,kn);mk(new THREE.BoxGeometry(0.3,0.12,0.46),M2,0,-0.52,0.06,kn);return {lg,kn};};
+    const LL=leg(-1),LR=leg(1);G.add(root);
+    return {root,hip,torso,head,shL:L.sh,elL:L.el,fsL:L.fs,shR:Rr.sh,elR:Rr.el,fsR:Rr.fs,lgL:LL.lg,knL:LL.kn,lgR:LR.lg,knR:LR.kn,M1,M2,GL};}
+  function paint(b,c){b.M1.color.set(c.body);b.M2.color.set(c.trim);b.GL.color.set(c.glow);}
+  const ME_C={body:'#2f6fe0',trim:'#e9eef2',glow:'#38e1ff'},GOLD_C={body:'#e8b43a',trim:'#fff4d6',glow:'#ffffff'};
+  const OPP=[
+    {name:'鐵罐頭',desc:'動作慢、很好打（練習用）',c:{body:'#8a6a4a',trim:'#5a4a3a',glow:'#ffb347'},hp:110,dmg:0.7,spd:2.0,aggr:0.7,block:0.15,dodge:0.05,sp:['rush'],reward:'skyup'},
+    {name:'快拳小藍',desc:'刺拳很快、會閃',c:{body:'#38b6ff',trim:'#1a2a3a',glow:'#bff4ff'},hp:120,dmg:0.85,spd:3.1,aggr:1.4,block:0.25,dodge:0.25,sp:['rush'],reward:'spin'},
+    {name:'重砲大熊',desc:'血很厚、一拳很痛',c:{body:'#6a4a8a',trim:'#2a2a2a',glow:'#ff6fae'},hp:170,dmg:1.25,spd:2.2,aggr:0.9,block:0.35,dodge:0.05,sp:['rocket','skyup'],reward:'weave'},
+    {name:'閃電忍者',desc:'很會閃、會繞到旁邊',c:{body:'#2a2e35',trim:'#d8262c',glow:'#ff3b3b'},hp:140,dmg:1.0,spd:3.6,aggr:1.3,block:0.3,dodge:0.45,sp:['spin','weave'],reward:'thunder'},
+    {name:'黃金拳王',desc:'冠軍：什麼都會，最後大絕招',c:{body:'#c8a23a',trim:'#2a2a2a',glow:'#fff08a'},hp:200,dmg:1.2,spd:3.0,aggr:1.4,block:0.45,dodge:0.3,sp:['rocket','weave','thunder'],reward:'gold'}];
+  R.OPP=OPP;
+  const me=makeBot(ME_C),op=makeBot(OPP[0].c);if(SAVE.gold)paint(me,GOLD_C);
+  // 沒在打的時候：兩台站在角落當展示
+  function idlePlace(){me.root.position.set(CX-3,FY,CZ+2.5);me.root.rotation.set(0,Math.PI*0.75,0);op.root.position.set(CX+3,FY,CZ-2.5);op.root.rotation.set(0,-Math.PI*0.25,0);setPose(me,GUARD,0);setPose(op,GUARD,0);}
+
+  // ================= 姿勢 =================
+  // P(左肩 x,z、左肘、右肩 x,z、右肘、腰扭、前傾、蹲)
+  const P=(lx,lz,le,rx,rz,re,tw=0,ln=0.08,cr=0.06)=>({lx,lz,le,rx,rz,re,tw,ln,cr});
+  const GUARD=P(-1.0,0.35,-2.0,-1.0,-0.35,-2.0),BLOCK=P(-1.5,0.5,-2.5,-1.5,-0.5,-2.5,0,0.18,0.15),HIT=P(-0.7,0.6,-1.5,-0.7,-0.6,-1.5,0,-0.4,0.05);
+  const JAB_W=P(-0.9,0.25,-1.8,-1.0,-0.35,-2.0,0.12),JAB_S=P(-1.62,0.08,-0.05,-1.0,-0.4,-2.1,-0.38,0.14,0.04);
+  const STR_W=P(-1.0,0.35,-2.0,-0.7,-0.2,-2.3,0.38,0.0,0.1),STR_S=P(-1.1,0.45,-2.1,-1.62,-0.08,-0.05,-0.6,0.22,0.06);
+  const UP_W=P(-1.0,0.35,-2.0,-0.2,-0.15,-1.7,0.25,0.25,0.32),UP_S=P(-1.0,0.35,-2.0,-2.9,-0.1,-0.8,-0.35,-0.18,-0.06);
+  const HKL_S=P(-1.45,1.15,-1.45,-1.0,-0.35,-2.0,-0.75,0.15,0.08),HKR_S=P(-1.0,0.35,-2.0,-1.45,-1.15,-1.45,0.75,0.15,0.08);
+  const WIND=P(-0.6,0.2,-2.2,-0.3,-0.1,-2.4,0.5,-0.1,0.2),ROCK_S=P(-1.0,0.35,-2.0,-1.6,-0.05,0,-0.5,0.2,0.08);
+  const lerpP=(a,b,k)=>{const o={};for(const n in a)o[n]=a[n]+(b[n]-a[n])*k;return o;};
+  function setPose(b,p,walk,extra){b.shL.rotation.set(p.lx,0,p.lz);b.elL.rotation.set(p.le,0,0);b.shR.rotation.set(p.rx,0,p.rz);b.elR.rotation.set(p.re,0,0);
+    b.torso.rotation.set(p.ln,p.tw,0);b.head.rotation.set(-p.ln*0.6,-p.tw*0.5,0);b.hip.position.y=1.12-p.cr;
+    const w=walk||0,k=Math.sin(w);b.lgL.rotation.set(-0.3-p.cr*1.2+k*0.35,0,-0.05);b.lgR.rotation.set(0.15-p.cr*1.2-k*0.35,0,0.05);b.knL.rotation.x=0.45+p.cr*2.4+Math.max(0,k)*0.4;b.knR.rotation.x=0.3+p.cr*2.4+Math.max(0,-k)*0.4;}
+
+  // ================= 招式 =================
+  // keys：[時間, 姿勢]；hits：[{t 打中的時間, dmg, range 距離, kb 擊退, arm 哪隻拳, up 擊飛}]；dash：[開始, 結束, 速度]；inv 無敵時間；armor 不會被打斷；slow 最後一下慢動作
+  const MOVES={
+    jab:{n:'刺拳',dur:0.34,keys:[[0,GUARD],[0.07,JAB_W],[0.14,JAB_S],[0.34,GUARD]],hits:[{t:0.14,dmg:4,range:2.7,kb:1.2,arm:'L'}]},
+    str:{n:'直拳',dur:0.5,keys:[[0,GUARD],[0.12,STR_W],[0.24,STR_S],[0.5,GUARD]],hits:[{t:0.24,dmg:8,range:2.9,kb:2.6,arm:'R'}],dash:[0.12,0.24,3]},
+    upr:{n:'上勾拳',dur:0.62,keys:[[0,GUARD],[0.16,UP_W],[0.3,UP_S],[0.62,GUARD]],hits:[{t:0.3,dmg:11,range:2.4,kb:1.4,arm:'R',up:4}]},
+    rush:{n:'旋風連打',sp:true,cost:35,dur:1.55,armor:true,slow:true,keys:[[0,GUARD]],hits:[],dash:[0,1.3,1.4],fx:'rush'},
+    rocket:{n:'火箭飛拳',sp:true,cost:35,dur:1.25,armor:true,slow:true,keys:[[0,GUARD],[0.35,WIND],[0.45,ROCK_S],[1.0,ROCK_S],[1.25,GUARD]],hits:[],fx:'rocket'},
+    skyup:{n:'飛天上勾拳',sp:true,cost:50,dur:1.15,armor:true,slow:true,keys:[[0,GUARD],[0.3,UP_W],[0.48,UP_S],[0.9,UP_S],[1.15,GUARD]],hits:[{t:0.48,dmg:18,range:2.6,kb:2,arm:'R',up:7.5}],dash:[0.08,0.45,8.5],fx:'skyup'},
+    spin:{n:'旋轉鐵拳',sp:true,cost:50,dur:1.15,armor:true,slow:true,keys:[[0,GUARD],[0.12,P(-1.4,1.4,-0.2,-1.0,-0.35,-2.0,0.2)],[0.5,P(-1.4,1.4,-0.2,-1.0,-0.35,-2.0,0.2)],[0.62,STR_W],[0.78,STR_S],[1.15,GUARD]],hits:[{t:0.38,dmg:8,range:2.9,kb:1.5,arm:'L'},{t:0.78,dmg:11,range:3.0,kb:4.5,arm:'R'}],dash:[0.55,0.78,6],fx:'spin'},
+    weave:{n:'八字搖擺連擊',sp:true,cost:65,dur:2.05,armor:true,slow:true,inv:[0,0.85],keys:[[0,GUARD]],hits:[],dash:[0.1,0.85,2.2],fx:'weave'},
+    thunder:{n:'雷霆重拳',sp:true,cost:100,dur:1.9,armor:true,slow:true,keys:[[0,GUARD],[0.9,WIND],[1.05,STR_S],[1.6,STR_S],[1.9,GUARD]],hits:[{t:1.05,dmg:32,range:3.0,kb:9,arm:'R',up:2.5}],dash:[0.9,1.05,14],fx:'thunder'}};
+  // 旋風連打：左右輪流 9 拳＋最後一記直拳；八字搖擺：先左右搖擺閃 0.85 秒，再左右勾拳 6 下＋最後直拳
+  {const M=MOVES.rush;for(let i=0;i<9;i++){const t=0.1+i*0.12,L=i%2===0;M.keys.push([t,L?JAB_S:STR_S],[t+0.06,GUARD]);M.hits.push({t,dmg:3,range:2.9,kb:0.5,arm:L?'L':'R'});}
+   M.keys.push([1.2,STR_W],[1.32,STR_S],[1.55,GUARD]);M.hits.push({t:1.32,dmg:9,range:3.0,kb:5,arm:'R'});M.keys.sort((a,b)=>a[0]-b[0]);}
+  {const M=MOVES.weave,sw=s=>P(-1.2,0.45,-2.3,-1.2,-0.45,-2.3,s*0.3,0.35,0.28);for(let i=0;i<4;i++)M.keys.push([0.1+i*0.2,sw(i%2?1:-1)]);
+   for(let i=0;i<6;i++){const t=0.95+i*0.15,L=i%2===0;M.keys.push([t-0.07,sw(L?1:-1)],[t,L?HKL_S:HKR_S]);M.hits.push({t,dmg:3+i,range:2.8,kb:0.6,arm:L?'L':'R'});}
+   M.keys.push([1.78,STR_W],[1.88,STR_S],[2.05,GUARD]);M.hits.push({t:1.88,dmg:10,range:3.0,kb:6,arm:'R'});M.keys.sort((a,b)=>a[0]-b[0]);}
+  const SPECIALS=['rush','rocket','skyup','spin','weave','thunder'];
+  const unlocked=()=>{const u=['rush','rocket'];for(let i=0;i<SAVE.cleared&&i<4;i++)u.push(OPP[i].reward);return u;};
+  const COMBOS=[{seq:['jab','jab','str'],n:'一二連拳',mul:1.5},{seq:['jab','str','upr'],n:'三段連擊',mul:1.6},{seq:['str','upr'],n:'上下夾擊',mul:1.4},{seq:['jab','jab','jab','upr'],n:'四連刺上勾',mul:1.8},{seq:['upr','str'],n:'追擊直拳',mul:1.4}];
+  function poseAt(M,t){const K=M.keys;let a=K[0],b=K[K.length-1];for(let i=0;i<K.length-1;i++){if(t>=K[i][0]&&t<=K[i+1][0]){a=K[i];b=K[i+1];break;}}if(t>=b[0])return b[1];const k=sm((t-a[0])/Math.max(1e-4,b[0]-a[0]));return lerpP(a[1],b[1],k);}
+
+  // ================= 戰鬥狀態 =================
+  const F={};   // F.me、F.op：{b 模型, x,z 擂台座標（相對中心）, yaw, hp, max, en, mv 正在出的招, t, stun, block, inv, vx,vz, y,vy, walk, ko}
+  const mkF=(b,x,z)=>({b,x,z,yaw:0,hp:100,max:100,en:0,mv:null,t:0,stun:0,block:false,inv:0,vx:0,vz:0,y:0,vy:0,walk:0,ko:false,dodgeT:0,dcd:0});
+  const FX=[];const GLOW=(()=>{const [c,x]=cvs(64,64),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(0.35,'rgba(255,255,255,0.6)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
+  function puff(p,col,s0,s1,life,v){if(FX.length>140)return;const m=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:col,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));m.position.copy(p);m.scale.setScalar(s0);scene.add(m);FX.push({m,t:0,life,s0,s1,v:v||null});}
+  function ring(p,col,s1,life){const g=new THREE.RingGeometry(0.3,0.45,40);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.position.copy(p);m.lookAt(camera.position);scene.add(m);FX.push({m,t:0,life,ring:s1,geo:g});}
+  function bolt(a,b,col){const pts=[];const n=10;for(let i=0;i<=n;i++){const p=a.clone().lerp(b,i/n);if(i&&i<n)p.add(new V3(rnd(-0.35,0.35),rnd(-0.35,0.35),rnd(-0.35,0.35)));pts.push(p);}
+    const g=new THREE.BufferGeometry().setFromPoints(pts),m=new THREE.Line(g,new THREE.LineBasicMaterial({color:col,transparent:true,toneMapped:false}));scene.add(m);FX.push({m,t:0,life:0.18,geo:g,line:true});
+    for(let i=1;i<n;i+=3)puff(pts[i],col,0.45,0.1,0.2);}   /* 線太細：每隔幾點加一團光 */
+  function fxTick(dt){for(const f of FX){f.t+=dt;const k=Math.min(1,f.t/f.life);if(f.ring){f.m.scale.setScalar(1+k*f.ring);f.m.material.opacity=0.9*(1-k);}else if(f.line){f.m.material.opacity=1-k;}
+      else{if(f.v){f.m.position.addScaledVector(f.v,dt);f.v.multiplyScalar(Math.exp(-dt*3));}f.m.scale.setScalar(f.s0+(f.s1-f.s0)*k);f.m.material.opacity=1-k;}
+      if(k>=1){scene.remove(f.m);f.m.material.dispose();if(f.geo)f.geo.dispose();f.dead=true;}}for(let i=FX.length-1;i>=0;i--)if(FX[i].dead)FX.splice(i,1);}
+  // 拳頭在世界的位置
+  const TV=new V3(),TV2=new V3();const fistW=(f,arm,out)=>{(arm==='L'?f.b.fsL:f.b.fsR).getWorldPosition(out);return out;};
+  // 火箭飛拳：飛出去的拳頭
+  const rocketM=new THREE.Group();{const fm=std({color:'#e9eef2',metalness:0.6,roughness:0.35});mk(new THREE.BoxGeometry(0.4,0.38,0.45),fm,0,0,0,rocketM);mk(new THREE.ConeGeometry(0.16,0.6,12).rotateX(-Math.PI/2),basic('#ff9a3a'),0,0,-0.45,rocketM);rocketM.visible=false;scene.add(rocketM);}
+  let rocket=null;
+
+  // ================= 開始／結束 =================
+  const hud=$('rbHud'),btns=$('rbBtns'),sp=$('rbSp'),panel=$('rbPanel');
+  R.label=()=>{if(R.on)return null;if(!started||mode!=='walk'||GAME.on||RACE.on||NM.on||player.y>1.2)return null;return Math.hypot(player.pos.x-(CX-8.9),player.pos.y-CZ)<2.4?'上擂台（機器人對打）':null;};
+  R.toggle=()=>{if(R.on)R.stop();else R.pickPanel();};
+  R.pickPanel=()=>{panel.querySelector('.res').innerHTML='';panel.querySelector('.stages').innerHTML=OPP.map((o,i)=>{const lock=i>SAVE.cleared;return `<button data-s="${i}" ${lock?'disabled':''}>第 ${i+1} 關・${o.name}<small>${lock?'🔒 先打贏前一關':o.desc+(i<SAVE.cleared?'　✅ 打贏過':'')}　贏了：${rewardName(o.reward)}</small></button>`;}).join('');
+    panel.querySelector('.prize').innerHTML='你的必殺技：'+unlocked().map(k=>MOVES[k].n).join('、')+(SAVE.gold?'　🏆 金色塗裝':'');panel.hidden=false;
+    for(const b of panel.querySelectorAll('[data-s]'))b.onclick=e=>{e.stopPropagation();R.start(+b.dataset.s);};};
+  const rewardName=k=>k==='gold'?'金色塗裝＋冠軍':'必殺技「'+MOVES[k].n+'」';
+  for(const ev of ['click','mousedown','touchstart','pointerdown'])panel.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
+  panel.querySelector('[data-x=exit]').onclick=e=>{e.stopPropagation();panel.hidden=true;if(R.on)R.stop();};
+  R.start=i=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(RACE.on)RACE.stop();if(NM.on)NM.stop();if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
+    const O=OPP[i];R.stage=i;R.O=O;paint(op,O.c);if(SAVE.gold)paint(me,GOLD_C);else paint(me,ME_C);panel.hidden=true;
+    F.me=mkF(me,-2.6,0);F.op=mkF(op,2.6,0);F.op.max=F.op.hp=O.hp;F.me.max=F.me.hp=130;F.me.en=0;F.op.en=0;F.me.seq=[];F.me.lastBasic=-9;F.op.ai={cd:1,strafe:1,st:0};
+    R.on=true;R.st='intro';R.t=0;R.t2=0;R.introN=-1;R.time=99;R.slow=0;R.hs=0;R.cine=0;R.camK=0;R.camP=null;R.buf=null;R.blockKey=false;R.blockBtn=false;rocket=null;rocketM.visible=false;
+    document.body.classList.add('rb');hud.hidden=false;btns.hidden=false;sp.hidden=false;buildSp();if(view!=='third'){view='third';syncViewUI();}
+    R.scrTex.image.getContext('2d');drawScreen(`第 ${i+1} 關　VS　${O.name}`);AUDIO.sfx('chime');
+    if(!R.told){R.told=true;toast(isTouch?'左搖桿移動（往前＝靠近對手）；右下：刺拳、直拳、上勾、防禦（按住）、閃避；右邊：必殺技（要能量）。照順序出拳會變組合技':'WASD 移動；J 刺拳、K 直拳、U 上勾拳、L 防禦（按住）、空白鍵閃避；1～6 必殺技（要能量）；照順序出拳會變組合技；Esc 離開');}};
+  R.stop=()=>{if(!R.on)return;R.on=false;R.st='idle';document.body.classList.remove('rb');hud.hidden=btns.hidden=sp.hidden=true;panel.hidden=true;R.slow=0;rocketM.visible=false;
+    idlePlace();drawScreen('機器人擂台');player.pos.set(CX-8.9,CZ);player.y=0;player.yaw=-Math.PI/2;player.vel.set(0,0);avatar.root.visible=true;};
+  function drawScreen(t){const c=R.scrTex.image,g=c.getContext('2d');g.fillStyle='#0b0d10';g.fillRect(0,0,c.width,c.height);g.fillStyle='#38e1ff';g.font=`900 ${t.length>9?52:84}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText(t,c.width/2,c.height/2+2);R.scrTex.needsUpdate=true;}
+  // 必殺技按鈕（解鎖的才出現）
+  function buildSp(){const u=unlocked();sp.innerHTML=SPECIALS.filter(k=>u.includes(k)).map(k=>`<button data-k="${k}"><b>${MOVES[k].n}</b><i style="--w:0%"></i><small>${MOVES[k].cost}${isTouch?'':'　'+(SPECIALS.indexOf(k)+1)}</small></button>`).join('');
+    for(const b of sp.querySelectorAll('button')){const dn=e=>{e.preventDefault();e.stopPropagation();R.press(b.dataset.k);};b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});}}
+  for(const b of btns.querySelectorAll('button')){const k=b.dataset.k;
+    const dn=e=>{e.preventDefault();e.stopPropagation();if(k==='block')R.blockBtn=true;else if(k==='exit')R.stop();else R.press(k);b.classList.add('hit');};
+    const up=e=>{e.preventDefault();e.stopPropagation();if(k==='block')R.blockBtn=false;b.classList.remove('hit');};
+    b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('touchend',up,{passive:false});b.addEventListener('touchcancel',up,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('mouseup',up);b.addEventListener('mouseleave',up);b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});}
+  R.key=(e,down)=>{if(e.code==='KeyL'){R.blockKey=down;return true;}if(!down)return false;if(e.code==='Escape'){R.stop();return true;}if(e.repeat)return['KeyJ','KeyK','KeyU','Space'].includes(e.code);
+    const m={KeyJ:'jab',KeyK:'str',KeyU:'upr',Space:'dodge',Digit1:'rush',Digit2:'rocket',Digit3:'skyup',Digit4:'spin',Digit5:'weave',Digit6:'thunder'}[e.code];if(m){R.press(m);e.preventDefault&&e.preventDefault();return true;}return false;};
+  // 按招式：基本拳可以先按（緩衝 0.3 秒，連段才接得順）
+  R.press=k=>{if(!R.on||R.st!=='fight')return;const f=F.me;
+    if(k==='dodge'){if(f.dcd>0||f.ko)return;if(f.mv&&!MOVES[f.mv].sp&&f.t>0.15)f.mv=null;if(f.mv||f.stun>0)return;const d=R.joyDir||{f:-1,s:0};const dir=dirVec(f,d.f||(d.s?0:-1),d.s);f.vx=dir.x*9;f.vz=dir.z*9;f.inv=0.3;f.dodgeT=0.25;f.dcd=0.7;AUDIO.sfx('whoosh');return;}
+    if(MOVES[k]&&MOVES[k].sp){if(!unlocked().includes(k))return;if(f.en<MOVES[k].cost){note('能量不夠（'+MOVES[k].cost+'）');return;}if(f.ko)return;if(f.mv&&MOVES[f.mv].sp)return;f.stun=0;start(f,k);f.en-=MOVES[k].cost;return;}
+    if(!MOVES[k])return;if(f.mv||f.stun>0){R.buf={k,t:0.3};return;}start(f,k);};
+  function note(t){const el=$('rbNote');el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}
+  function start(f,k){const M=MOVES[k];f.mv=k;f.t=0;f.hitDone=new Set();f.mul=1;
+    if(f===F.me&&!M.sp){const now=R.t;if(now-f.lastBasic>0.8)f.seq=[];f.seq.push(k);f.lastBasic=now;for(const c of COMBOS){const s=f.seq.slice(-c.seq.length);if(s.length===c.seq.length&&s.every((x,i)=>x===c.seq[i])){f.mul=c.mul;f.combo=c.n;break;}}}
+    if(M.sp){R.cine=Math.max(R.cine,M.dur+0.4);big(M.n+'！');AUDIO.sfx(M.fx==='thunder'?'beam':'whoosh');if(f===F.op)note(R.O.name+'：'+M.n+'！');
+      const p=TV.copy(f.b.root.position);p.y+=1.6;ring(p,M.fx==='thunder'?'#fff08a':'#38e1ff',4,0.5);}
+    else AUDIO.sfx('whiff');}
+  // 方向：f＝朝對手的分量、s＝側向
+  function dirVec(f,ff,ss){const o=f===F.me?F.op:F.me,dx=o.x-f.x,dz=o.z-f.z,l=Math.hypot(dx,dz)||1,fx=dx/l,fz=dz/l;return {x:fx*ff-fz*ss,z:fz*ff+fx*ss};}
+
+  // ================= 打擊判定 =================
+  function tryHit(a,d,h){const dx=d.x-a.x,dz=d.z-a.z,dist=Math.hypot(dx,dz);if(dist>h.range+0.2||d.ko)return false;
+    const fwx=Math.sin(a.yaw),fwz=Math.cos(a.yaw),cos=(dx*fwx+dz*fwz)/(dist||1);if(cos<0.55&&!(MOVES[a.mv]&&MOVES[a.mv].fx==='spin'))return false;
+    const fp=fistW(a,h.arm,TV2).clone();
+    if(d.inv>0){note(d===F.me?'閃過了！':'被閃過了');puff(fp,'#bfefff',0.4,1.2,0.3);return true;}
+    const atkMul=(a===F.op?R.O.dmg:1)*(a.mul||1),blk=d.block&&!d.mv&&((d.x-a.x)*Math.sin(d.yaw)+(d.z-a.z)*Math.cos(d.yaw))<0;
+    let dmg=h.dmg*atkMul*(blk?0.18:1);if(blk&&MOVES[a.mv].sp)dmg*=1.6;
+    d.hp=Math.max(0,d.hp-dmg);a.en=Math.min(100,a.en+(blk?2:6));d.en=Math.min(100,d.en+(blk?3:4));
+    const n=1/(dist||1);d.vx+=dx*n*h.kb*(blk?0.35:1);d.vz+=dz*n*h.kb*(blk?0.35:1);
+    if(blk){puff(fp,'#7fd8ff',0.5,1.6,0.25);AUDIO.sfx('thud',fp);R.hs=Math.max(R.hs,0.04);}
+    else{const M=MOVES[d.mv];if(!(M&&M.armor)){d.mv=null;d.stun=Math.max(d.stun,h.up?0.9:0.22+h.dmg*0.012);}if(h.up&&!(M&&M.armor)){d.vy=h.up;}
+      const col=a===F.me?'#ffd27a':'#ff8a8a';for(let i=0;i<(h.dmg>10?14:6);i++)puff(fp,col,0.25,0.05,0.35,new V3(rnd(-4,4),rnd(-1,4),rnd(-4,4)));puff(fp,'#ffffff',0.6,2.2,0.18);
+      if(h.dmg>=9)ring(fp,col,5,0.35);AUDIO.sfx(h.dmg>=14?'heavy':'hit',fp);if(h.dmg>=14)AUDIO.sfx('crack',fp);R.hs=Math.max(R.hs,h.dmg>=14?0.12:h.dmg>=8?0.07:0.04);
+      dmgText(fp,Math.round(dmg),a===F.me);
+      if(a===F.me&&a.mul>1&&a.combo){big(a.combo+'！');AUDIO.sfx('combo');a.en=Math.min(100,a.en+10);a.combo=null;}}
+    if(d.hp<=0&&!d.ko){d.ko=true;d.mv=null;d.stun=99;d.vy=Math.max(d.vy,3);R.cine=3;R.slow=2.2;big('K.O.！');AUDIO.sfx('bigboom');AUDIO.sfx(d===F.op?'bigcheer':'over');R.st='ko';R.koT=0;}
+    return true;}
+  const DT=[];function dmgText(p,n,mine){const el=document.createElement('div');el.className='rbDmg'+(mine?'':' op');el.textContent=n;document.body.appendChild(el);DT.push({el,p:p.clone(),t:0});}
+  function dmgTick(dt){for(const d of DT){d.t+=dt;d.p.y+=dt*1.2;const v=d.p.clone().project(camera);d.el.style.transform=`translate(${(v.x*0.5+0.5)*innerWidth}px,${(-v.y*0.5+0.5)*innerHeight}px) translate(-50%,-50%) scale(${1+0.4*Math.max(0,0.15-d.t)/0.15})`;d.el.style.opacity=String(Math.max(0,1-d.t/0.8));if(d.t>0.8){d.el.remove();d.dead=true;}}for(let i=DT.length-1;i>=0;i--)if(DT[i].dead)DT.splice(i,1);}
+
+  // ================= 每格 =================
+  function fighter(f,o,dt){if(f.dcd>0)f.dcd-=dt;if(f.inv>0)f.inv-=dt;if(f.dodgeT>0)f.dodgeT-=dt;
+    // 招式
+    let pose=GUARD,moving=false;
+    if(f.mv){const M=MOVES[f.mv],t0=f.t;f.t+=dt;const t=f.t;pose=poseAt(M,Math.min(t,M.dur));
+      if(M.inv&&t>=M.inv[0]&&t<=M.inv[1])f.inv=Math.max(f.inv,0.05);
+      if(M.dash&&t>=M.dash[0]&&t<=M.dash[1]){const d=dirVec(f,1,0),dist=Math.hypot(o.x-f.x,o.z-f.z);if(dist>1.7){f.x+=d.x*M.dash[2]*dt;f.z+=d.z*M.dash[2]*dt;}}
+      for(let i=0;i<M.hits.length;i++){const h=M.hits[i];if(!f.hitDone.has(i)&&t>=h.t){f.hitDone.add(i);const last=i===M.hits.length-1;if(tryHit(f,o,h)&&M.slow&&last&&!o.ko){R.slow=Math.max(R.slow,0.9);}}}
+      fxMove(f,o,M,t0,t);
+      if(t>=M.dur){f.mv=null;if(f===F.me&&R.buf&&R.buf.t>0){const k=R.buf.k;R.buf=null;start(f,k);}}}
+    else if(f.ko){pose=HIT;}
+    else if(f.stun>0){f.stun-=dt;pose=HIT;}
+    else if(f.block){pose=BLOCK;}
+    // 移動（搖桿／AI 給的 f.inF、f.inS）
+    if(!f.mv&&f.stun<=0&&!f.ko&&f.dodgeT<=0){const spd=(f===F.me?3.2:R.O.spd)*(f.block?0.45:1),d=dirVec(f,f.inF||0,f.inS||0),l=Math.hypot(d.x,d.z);if(l>0.05){f.x+=d.x/Math.max(1,l)*spd*dt;f.z+=d.z/Math.max(1,l)*spd*dt;moving=true;}}
+    // 擊退、擊飛
+    f.x+=f.vx*dt;f.z+=f.vz*dt;const k=Math.exp(-dt*(f.dodgeT>0?3:6));f.vx*=k;f.vz*=k;
+    if(f.y>0||f.vy>0){f.vy-=20*dt;f.y+=f.vy*dt;if(f.y<=0){f.y=0;if(f.vy<-4){AUDIO.sfx('thud',f.b.root.position);puff(TV.copy(f.b.root.position).setY(FY+0.2),'#c9ced4',0.5,2,0.4);}f.vy=0;}}
+    // 繩子：撞到彈回來
+    for(const ax of ['x','z']){if(Math.abs(f[ax])>HALF){f[ax]=Math.sign(f[ax])*HALF;const v=ax==='x'?'vx':'vz';if(Math.abs(f[v])>3){f[v]*=-0.5;R.ropeT=0.25;AUDIO.sfx('boing');}else f[v]=0;}}
+    // 面向對手
+    if(!(f.mv&&MOVES[f.mv].fx==='spin'&&f.t>0.12&&f.t<0.55)){const want=Math.atan2(o.x-f.x,o.z-f.z);let dy=want-f.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));f.yaw+=dy*Math.min(1,dt*10);}
+    else f.yaw+=dt*Math.PI*2/0.43;
+    if(moving)f.walk+=dt*9;
+    setPose(f.b,pose,moving?f.walk:0);
+    f.b.root.position.set(CX+f.x,FY+f.y,CZ+f.z);f.b.root.rotation.set(f.ko&&f.y<=0?-1.35*Math.min(1,(f.koT=(f.koT||0)+dt)/0.5):0,f.yaw,0,'YXZ');}
+  // 招式特效
+  function fxMove(f,o,M,t0,t){const cross=x=>t0<x&&t>=x,p=TV;
+    if(M.fx==='rush'&&Math.random()<0.6){fistW(f,Math.random()<0.5?'L':'R',p);puff(p,'#ffd27a',0.35,0.05,0.18);}
+    if(M.fx==='thunder'){if(t<0.95&&Math.random()<0.5){const a=TV.copy(f.b.root.position).add(new V3(rnd(-1,1),rnd(0.5,2.6),rnd(-1,1)));bolt(a,fistW(f,'R',TV2).clone(),'#fff08a');}if(cross(0.2))AUDIO.sfx('beam');if(cross(1.05)){for(let i=0;i<5;i++)bolt(fistW(f,'R',TV2).clone(),TV.copy(o.b.root.position).add(new V3(rnd(-1,1),rnd(0.5,2.5),rnd(-1,1))),'#ffffff');}}
+    if(M.fx==='skyup'&&t<0.48&&Math.random()<0.5){fistW(f,'R',p);puff(p,'#38e1ff',0.4,0.05,0.25);}
+    if(M.fx==='spin'&&t>0.1&&t<0.55&&Math.random()<0.6){fistW(f,'L',p);puff(p,'#bfefff',0.4,0.05,0.25);}
+    if(M.fx==='weave'&&t<0.85&&Math.random()<0.35){puff(TV.copy(f.b.root.position).setY(FY+1.5),'#bfefff',0.6,0.1,0.3);}
+    if(M.fx==='rocket'){if(t<0.4&&Math.random()<0.6){fistW(f,'R',p);puff(p,'#ff9a3a',0.35,0.05,0.2);}
+      if(cross(0.45)){fistW(f,'R',p);rocket={f,o,p:p.clone(),hit:false,back:false,t:0};f.b.fsR.visible=false;rocketM.visible=true;AUDIO.sfx('takeoff');AUDIO.sfx('fire');}}}
+  function rocketTick(dt){if(!rocket)return;const r=rocket;r.t+=dt;
+    if(r.back)r.f.b.fsR.getWorldPosition(TV2);else{r.o.b.root.getWorldPosition(TV2);TV2.y+=1.5;}   /* 飛去打對手的胸口，打到再飛回手上 */
+    const d=TV.copy(TV2).sub(r.p),l=d.length();
+    if(l<0.6||r.t>2.5){if(!r.back&&r.t<=2.5){r.back=true;tryHitRocket(r);}else{rocket=null;rocketM.visible=false;r.f.b.fsR.visible=true;return;}}
+    d.normalize();r.p.addScaledVector(d,Math.min(l,(r.back?16:22)*dt));rocketM.position.copy(r.p);rocketM.lookAt(TV2);if(Math.random()<0.8)puff(r.p.clone(),'#ff9a3a',0.4,0.05,0.25);}
+  function tryHitRocket(r){const a=r.f,d=r.o;if(d.ko)return;const fp=r.p.clone();
+    if(d.inv>0){note(d===F.me?'閃過了！':'被閃過了');return;}
+    const blk=d.block&&!d.mv,dmg=14*(a===F.op?R.O.dmg:1)*(blk?0.3:1);d.hp=Math.max(0,d.hp-dmg);a.en=Math.min(100,a.en+6);const dx=d.x-a.x,dz=d.z-a.z,n=1/(Math.hypot(dx,dz)||1);d.vx+=dx*n*(blk?2:5.5);d.vz+=dz*n*(blk?2:5.5);
+    if(!blk&&!(d.mv&&MOVES[d.mv].armor)){d.mv=null;d.stun=0.6;}for(let i=0;i<14;i++)puff(fp,'#ffb347',0.3,0.05,0.4,new V3(rnd(-4,4),rnd(-1,4),rnd(-4,4)));puff(fp,'#ffffff',0.8,2.6,0.2);ring(fp,'#ff9a3a',6,0.4);
+    AUDIO.sfx('boom',fp);R.hs=0.12;if(!blk)R.slow=Math.max(R.slow,0.9);dmgText(fp,Math.round(dmg),a===F.me);
+    if(d.hp<=0&&!d.ko){d.ko=true;d.stun=99;d.vy=3;R.cine=3;R.slow=2.2;big('K.O.！');AUDIO.sfx('bigboom');AUDIO.sfx(d===F.op?'bigcheer':'over');R.st='ko';R.koT=0;}}
+  // 對手 AI：保持距離 2.3 m、繞圈、有空檔就出拳；你出拳時有機率防禦或閃；能量夠就放必殺技
+  function ai(o,me,dt){const A=o.ai,O=R.O,dist=Math.hypot(me.x-o.x,me.z-o.z);A.cd-=dt;A.react=(A.react||0)-dt;A.st-=dt;
+    o.inF=dist>2.6?1:dist<1.7?-0.6:0;if(A.st<=0){A.st=rnd(1,2.5);A.strafe=Math.random()<0.5?-1:1;}o.inS=dist<3.5?A.strafe*0.55:0;
+    // 看到你出拳（或必殺技）：防禦／閃
+    if(me.mv&&me.t<0.08&&A.react<=0){A.react=0.5;const sp=MOVES[me.mv].sp,r=Math.random();if(r<O.dodge*(sp?1.3:1)&&o.dcd<=0&&!o.mv&&o.stun<=0){const d=dirVec(o,-0.4,Math.random()<0.5?-1:1);o.vx=d.x*9;o.vz=d.z*9;o.inv=0.3;o.dodgeT=0.25;o.dcd=1.2;AUDIO.sfx('whoosh');}
+      else if(r<O.dodge+O.block*(sp?1.2:1))A.blockT=MOVES[me.mv].dur+0.1;}
+    if(A.blockT>0){A.blockT-=dt;o.block=true;}else o.block=false;
+    if(o.mv||o.stun>0||o.ko||me.ko)return;
+    // 必殺技
+    const can=O.sp.filter(k=>o.en>=MOVES[k].cost);if(can.length&&dist<4.5&&Math.random()<dt*0.8){const k=can[Math.floor(Math.random()*can.length)];o.en-=MOVES[k].cost;o.block=false;A.blockT=0;start(o,k);return;}
+    if(dist<2.9&&A.cd<=0&&!o.block){const r=Math.random(),k=r<0.5?'jab':r<0.82?'str':'upr';start(o,k);A.cd=rnd(0.5,1.4)/O.aggr;}
+    o.en=Math.min(100,o.en+dt*2.2);}
+  R.step=(dt,f,s)=>{fxTick(dt);dmgTick(dt);rocketTick(dt);R.t+=dt;if(R.buf){R.buf.t-=dt;if(R.buf.t<=0)R.buf=null;}
+    const me=F.me,o=F.op;R.joyDir={f:f||0,s:s||0};
+    if(R.hs>0){R.hs-=dt;hudDraw();return;}   /* 頓幀：打中那一下停一下 */
+    if(R.st==='intro'){R.t2=(R.t2||0)+dt;if(!R.introN)R.introN=0;const n=Math.floor(R.t2/0.7);if(n!==R.introN&&n<3){R.introN=n;big(['3','2','1'][n]);AUDIO.sfx('beep');}if(R.t2>=2.1){R.st='fight';R.t2=0;R.introN=0;big('FIGHT！');AUDIO.sfx('go');AUDIO.sfx('cheer');}}
+    me.inF=f||0;me.inS=s||0;me.block=(R.blockKey||R.blockBtn)&&!me.mv;
+    if(R.st==='fight'){ai(o,me,dt);R.time-=dt;if(R.time<=0){R.time=0;R.st='ko';R.koT=0;const win=me.hp/me.max>=o.hp/o.max;(win?o:me).ko=true;big('時間到！');AUDIO.sfx('over');}}
+    else{me.inF=me.inS=0;o.inF=o.inS=0;}
+    fighter(me,o,dt);fighter(o,me,dt);
+    // 兩台不要重疊
+    {const dx=o.x-me.x,dz=o.z-me.z,d=Math.hypot(dx,dz);if(d<1.5&&d>1e-3){const p=(1.5-d)/2/d;me.x-=dx*p;me.z-=dz*p;o.x+=dx*p;o.z+=dz*p;}}
+    if(R.ropeT>0){R.ropeT-=dt;R.ropeM.color.set(R.ropeT>0?'#ffffff':'#38e1ff');}
+    if(R.st==='ko'){R.koT+=dt;if(R.koT>2.6){R.st='done';result(o.ko&&!me.ko);}}
+    if(R.cine>0)R.cine-=dt;
+    player.pos.set(CX-8.9,CZ);player.y=0;player.vel.set(0,0);hudDraw();};
+  // 慢動作（主迴圈乘上去）
+  R.rt=dt=>{if(!R.on)return 1;if(R.slow>0){R.slow-=dt;return 0.28;}return 1;};
+  function result(win){const i=R.stage;let msg='';
+    if(win){if(i+1>SAVE.cleared){SAVE.cleared=i+1;const rw=OPP[i].reward;if(rw==='gold'){SAVE.gold=true;paint(me,GOLD_C);msg='🏆 冠軍！得到金色塗裝';}else msg=`🎁 解鎖必殺技「${MOVES[rw].n}」！`;}
+      const t=Math.round(99-R.time);if(!SAVE.best[i]||t<SAVE.best[i])SAVE.best[i]=t;save();}
+    R.pickPanel();panel.querySelector('.res').innerHTML=win?`<b>${i===4?'🏆 冠軍！':'勝利！'}</b><br>打倒 ${R.O.name}（${Math.round(99-R.time)} 秒）${msg?'<br>'+msg:''}`:`<b>輸了…</b><br>${R.O.name} 剩 ${Math.round(F.op.hp)} 血。按住防禦擋重拳、看準空檔反擊，能量滿了放必殺技！`;
+    drawScreen(win?'WINNER!':'再接再厲');buildSp();}
+  function hudDraw(){R.hudT=(R.hudT||0)-1/60;if(R.hudT>0)return;R.hudT=0.06;const me=F.me,o=F.op;
+    hud.innerHTML=`<div class="bar me"><span>你</span><i style="width:${me.hp/me.max*100}%"></i></div><div class="tm">${Math.ceil(R.time)}</div><div class="bar op"><i style="width:${o.hp/o.max*100}%"></i><span>${R.O.name}</span></div><div class="en"><i style="width:${me.en}%"></i><em></em><em></em></div>`;
+    for(const b of sp.querySelectorAll('button')){const c=MOVES[b.dataset.k].cost;b.classList.toggle('ready',me.en>=c);b.querySelector('i').style.setProperty('--w',Math.min(100,me.en/c*100)+'%');}}
+  // 鏡頭：平常在你的機器人後上方看兩台中間；必殺技／K.O. 時慢慢滑到側面拉近（防暈模式不動）
+  const CP=new V3(),CL=new V3(),SID=new V3(),BEH=new V3();
+  R.camera=dt=>{const me=F.me,o=F.op,mx=CX+(me.x+o.x)/2,mz=CZ+(me.z+o.z)/2,dx=o.x-me.x,dz=o.z-me.z,l=Math.hypot(dx,dz)||1,fx=dx/l,fz=dz/l;
+    BEH.set(CX+me.x-fx*4.3+fz*1.3,FY+3.9,CZ+me.z-fz*4.3-fx*1.3);   /* 近一點、高一點：繩子在畫面下面，不擋 */
+    const sd=R.camSide||(R.camSide=1);SID.set(mx+(-fz)*sd*5.0-fx*0.8,FY+2.5,mz+fx*sd*5.0-fz*0.8);   /* 在繩子裡面，不會被繩子擋 */
+    const want=R.cine>0&&!CALM.on?1:0;R.camK+=(want-R.camK)*Math.min(1,dt*2.4);if(R.camK<0.02&&want===0)R.camSide=(Math.random()<0.5?-1:1);
+    CP.copy(BEH).lerp(SID,sm(R.camK));CL.set(mx,FY+1.2,mz);
+    if(!R.camP)R.camP=CP.clone();R.camP.lerp(CP,1-Math.exp(-dt*8));camera.position.copy(R.camP);camera.lookAt(CL);};
+  R.tick=dt=>{if(R.on){return;}if(Math.abs(player.pos.x-CX)>70||Math.abs(player.pos.y-CZ)>60)return;const t=performance.now()/1000;R.pad.material.opacity=0.55+0.3*Math.sin(t*3);
+    setPose(me,lerpP(GUARD,P(-1.05,0.4,-2.05,-1.05,-0.4,-2.05),0.5+0.5*Math.sin(t*2)),0);setPose(op,lerpP(GUARD,P(-1.05,0.4,-2.05,-1.05,-0.4,-2.05),0.5+0.5*Math.sin(t*2+1)),0);};
+  R.inArea=(x,z)=>x>=R.AREA.x0&&x<=R.AREA.x1&&z>=R.AREA.z0&&z<=R.AREA.z1;
+  R.dbg=()=>F;R.unl=()=>unlocked();R.cost=k=>MOVES[k].cost;R._block=v=>{R.blockBtn=v;};R.MOVES=MOVES;   /* 測試用 */
+  idlePlace();
+  return R;})();
+
 /* ---------------- 動作（使用者要求：月球漫步、最近很紅的 Bye Bye Bye，順便放一些常見的動作） ----------------
    上方「動作」按鈕（電腦 N 鍵）打開清單，點一個就開始做（會切到第三人稱，人物轉過來面對鏡頭）。
    跳舞類（Bye Bye Bye、牙線舞、騎馬舞、機器人舞、月球漫步、坐下）會一直做，推搖桿／按方向鍵、跳、再點一次就停；其他做完自己停。
@@ -6359,7 +6696,8 @@ const SPOTS=[
   {name:'籃球場',x:COURT.cx+2,z:COURT.z0-3.2,yaw:Math.PI},
   {name:'服裝店',x:44,z:102.5,yaw:0},
   {name:'網球場',x:83,z:101.5,yaw:0},
-  {name:'夜市',x:86,z:150,yaw:-Math.PI/2},   // 夜市入口廣場（套圈圈攤旁邊），面向夜市街
+  {name:'夜市',x:86,z:150,yaw:-Math.PI/2},
+  {name:'機器人擂台',x:166.1,z:89,yaw:-Math.PI/2},   // 擂台西邊台階前，面向擂台   // 夜市入口廣場（套圈圈攤旁邊），面向夜市街
   {name:'賽車場',x:-54,z:322.6,yaw:Math.PI},
   {name:'大漩渦',x:-100,z:636,yaw:Math.PI},   // 大漩渦起點拱門前（面向漩渦）   // 站在賽車旁邊（面向車）   // 門口、面向店
   {name:'超級彈跳床',x:-5.2,z:-4.6,yaw:0},   // 房子西邊的空地，面向彈跳床   // 球車旁、面向球場   // 大跳台起跳區、面向東
@@ -6371,6 +6709,7 @@ const SPOTS=[
 const canvas=renderer.domElement;
 addEventListener('keydown',e=>{keys[e.code]=true;if(!started){if(e.code==='Enter'&&!startBtn.disabled)startBtn.click();return;}
   if(GAME.on&&GAME.key(e,true))return;   // 小遊戲的技能鍵
+  if(RB.on&&RB.key(e,true))return;   // 機器人擂台：J K U 出拳、L 防禦、空白鍵閃避、1～6 必殺技
   if(NM.on&&NM.key(e,true))return;   // 夜市套圈：1～3 技能、P 自動、Esc 離開
   if(RACE.on&&RACE.key(e,true))return;   // 賽車：空白鍵加速器、Shift 甩尾、1～4 技能
   if(SKATE.on&&SKATE.key(e,true))return;   // 直排輪：B 倒溜、T 花式
@@ -6381,7 +6720,7 @@ addEventListener('keydown',e=>{keys[e.code]=true;if(!started){if(e.code==='Enter
 document.getElementById('jumpBtn').addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();jumpHeld=true;doJump();},{passive:false});
 for(const ev of ['touchend','touchcancel'])document.getElementById('jumpBtn').addEventListener(ev,()=>{jumpHeld=false;});
 document.getElementById('jumpBtn').addEventListener('click',doJump);
-addEventListener('keyup',e=>{keys[e.code]=false;if(GAME.on)GAME.key(e,false);if(RACE.on)RACE.key(e,false);});
+addEventListener('keyup',e=>{keys[e.code]=false;if(RB.on)RB.key(e,false);if(GAME.on)GAME.key(e,false);if(RACE.on)RACE.key(e,false);});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
 let dragging=false,lastX=0,lastY=0;
 canvas.addEventListener('mousedown',e=>{if(!started||mode!=='walk')return;dragging=true;lastX=e.clientX;lastY=e.clientY;});
@@ -6484,6 +6823,7 @@ function drawMinimapBg(){
   for(let i=2;i<=N_UNITS;i++){const [a,b]=w2m(ux(i-1),Z_BACK),[,d]=w2m(0,Z_YARD);g.fillStyle='#8b857b';g.fillRect(a-0.5,b,1,d-b);}
   rect({x0:0,x1:ux(1),z0:Z_BACK,z1:Z_YARD},'#ffb454');
   rect(SHOP,'#f48fb1');{const [a,b]=w2m((SHOP.x0+SHOP.x1)/2,(SHOP.z0+SHOP.z1)/2);g.fillStyle='#fff';g.font=`bold ${Math.max(9,Math.min(13,sc*2.4))}px ${FONT}`;g.textAlign='center';g.fillText('服裝店',a,b);}
+  rect(RB.AREA,'#4a5562');{const [a,b]=w2m((RB.AREA.x0+RB.AREA.x1)/2,(RB.AREA.z0+RB.AREA.z1)/2);g.fillStyle='#38e1ff';g.font=`bold ${Math.max(9,Math.min(13,sc*2.4))}px ${FONT}`;g.textAlign='center';g.fillText('擂台',a,b);}
   rect(NM.AREA,'#8a4a3a');{const [a,b]=w2m((NM.AREA.x0+NM.AREA.x1)/2,(NM.AREA.z0+NM.AREA.z1)/2);g.fillStyle='#ffe08a';g.font=`bold ${Math.max(9,Math.min(13,sc*2.4))}px ${FONT}`;g.textAlign='center';g.fillText('夜市',a,b);}
   for(const r of SKATE_RACKS){const [a,b]=w2m(r.x,r.z);g.fillStyle='#e94f8a';g.beginPath();g.arc(a,b,Math.max(3.5,sc*1.4),0,Math.PI*2);g.fill();g.fillStyle='#fff';g.font=`bold ${Math.max(9,Math.min(13,sc*2.4))}px ${FONT}`;g.textAlign='center';g.fillText('直排輪',a,b-Math.max(6,sc*2.2));}   // 小地圖：直排輪架
   g.fillStyle='#3a2300';g.font=`bold ${Math.max(10,Math.min(16,sc*3.2))}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';
@@ -6544,6 +6884,7 @@ function updatePlace(){
     t=['繽紛衣櫥',s?(s.closet?'試衣間・打開衣櫃':`試穿：${CHAR_OUTFITS[s.g][s.o].name}`):x>54.5?(z<S.z0+4.5?'試衣間':'男裝區'):z<S.z0+4.5&&x>29&&x<41?'大鏡子':z>94.5&&x>47.5?'收銀台':row?`女裝區・${row.cat}`:'女裝區'];}
   else if(z>625&&mode==='walk')t=['大漩渦',RACE.on&&RACE.mode==='vortex'?'離心力車道':RACE.atGate()?(isTouch?'點下方按鈕開始大漩渦挑戰':'按 F 開始大漩渦挑戰'):'離心力車道'];
   else if(z>276&&x>-335&&x<345&&mode==='walk')t=['賽車場',RACE.on?(RACE.mode==='race'?'比賽中':RACE.mode==='free'?'自由練習':'導航系統啟動'):RACE.near()?(isTouch?'點下方按鈕坐進賽車':'按 F 坐進賽車'):z<309?'看台・入口':'賽道'];
+  else if(RB.inArea(x,z))t=['機器人擂台',RB.on?'對打中':RB.label()?(isTouch?'點下方按鈕上擂台':'按 F 上擂台'):'擂台'];
   else if(NM.inArea(x,z)){const l=NM.label();t=['夜市',NM.on?(NM.st==='toss'?'套圈圈攤':'套圈大進擊'):l?(isTouch?'點下方按鈕':'按 F ')+(l.startsWith('玩')?'玩套圈圈':'開始套圈大進擊'):'夜市街'];}
   else if(inR(x,z,TENNIS_PARK))t=['網球場',TN.on?'網球':TN.near()?'按 F 拿球拍':'場邊'];
   else if(inR(x,z,COURT_PARK))t=['圓環籃球場',BB.on?'籃球':inR(x,z,COURT)?'全場 28×15':'場邊'];
@@ -7465,7 +7806,7 @@ function step(dt){
     const len=Math.hypot(f,s);if(len>1){f/=len;s/=len;}
     const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),rx=Math.cos(player.yaw),rz=-Math.sin(player.yaw);
     const k=1-Math.exp(-dt*7);
-    if(NM.on)NM.step(dt,f,s);else if(RACE.on)RACE.step(dt,f,s);else if(BALLOON.riding)BALLOON.step(dt,f,s,stage);else if(LIE.on)LIE.step(dt,f,s);else if(SKATE.on)SKATE.step(dt,f,s,running);else if(BB.fly)BB.flyStep(dt);else if(TN.on)TN.step(dt,f,s,running);else{
+    if(RB.on)RB.step(dt,f,s);else if(NM.on)NM.step(dt,f,s);else if(RACE.on)RACE.step(dt,f,s);else if(BALLOON.riding)BALLOON.step(dt,f,s,stage);else if(LIE.on)LIE.step(dt,f,s);else if(SKATE.on)SKATE.step(dt,f,s,running);else if(BB.fly)BB.flyStep(dt);else if(TN.on)TN.step(dt,f,s,running);else{
     player.vel.x+=((fx*f+rx*s)*speed-player.vel.x)*k;player.vel.y+=((fz*f+rz*s)*speed-player.vel.y)*k;
     {const mx=player.vel.x*dt,mz=player.vel.y*dt,n=Math.max(1,Math.ceil(Math.hypot(mx,mz)/0.2));for(let i=0;i<n;i++){player.pos.x+=mx/n;player.pos.y+=mz/n;resolve(player.pos,0.3,player.y);}}
     player.pos.x=Math.max(BOUND.x0,Math.min(BOUND.x1,player.pos.x));player.pos.y=Math.max(BOUND.z0,Math.min(BOUND.z1,player.pos.y));
@@ -7496,7 +7837,8 @@ function step(dt){
         if(player.y<FL[4]+0.4)player.pos.y=Math.max(LADDER.z0+0.05,Math.min(LADDER.z1-0.05,player.pos.y));
         if(player.y>=FL[4]+0.8&&v>0)player.pos.y-=1.4*dt;}   // 爬到頂繼續往上推：往北跨到屋頂上
     }else playerFall(dt);}
-    if(NM.on){const sa=NM.showAvatar();avatar.root.visible=sa;if(sa)updateAvatar(dt,1);NM.camera(dt);}   /* 夜市套圈：鏡頭跟著隊伍 */
+    if(RB.on){avatar.root.visible=false;RB.camera(dt);}   /* 機器人擂台：鏡頭跟著兩台機器人 */
+    else if(NM.on){const sa=NM.showAvatar();avatar.root.visible=sa;if(sa)updateAvatar(dt,1);NM.camera(dt);}   /* 夜市套圈：鏡頭跟著隊伍 */
     else if(RACE.on){avatar.root.visible=false;if(RACE.sk8)RACE.skPose(dt);RACE.camera(dt);}   /* 開賽車：鏡頭跟車 */
     else if(view==='third'){avatar.root.visible=true;updateAvatar(dt,stage);camDt=dt;thirdPersonCamera();}
     else{avatar.root.visible=false;if(BB.on||SHOP.inside())updateAvatar(dt,stage);   /* 第一人稱拿著球：人物藏起來，但球照樣跟著手 */
@@ -7526,6 +7868,7 @@ function step(dt){
   TN.tick(dt);
   RACE.tick(dt);
   NM.tick(dt);
+  RB.tick(dt);
   {let t=0;if(CALM.on&&mode==='walk'&&started){const sp=RACE.on?Math.abs(RACE.v)*0.05:SKATE.on?SKATE.vel.length():player.vel.length();let dy=player.yaw-CALM.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
      t=Math.min(0.85,sp*0.08+Math.abs(dy)/Math.max(dt,1e-3)*0.22+(player.ground?0:0.2));}   // 防暈：越快、轉越快、在空中，四周越暗
    CALM.yaw=player.yaw;CALM.v+=(t-CALM.v)*Math.min(1,dt*6);if(Math.abs(CALM.v-CALM.last)>0.01||(CALM.v<0.01&&CALM.last)){CALM.last=CALM.v<0.01?0:CALM.v;document.getElementById('calmVig').style.opacity=CALM.last.toFixed(2);}}
@@ -7543,7 +7886,7 @@ function loop(){
   if(POWER.save&&frameAcc<1/31)return;   // 省電模式：每秒最多 30 張
   const dt=Math.min(0.05,frameAcc);frameAcc=0;
   fitT-=dt;if(fitT<=0){fitT=0.3;fitView();}
-  if(started){try{step(dt*BB.rt(dt)*TN.rt(dt)*RACE.rt(dt));}catch(e){if(!loopErr){loopErr=true;console.error(e);}}}   // 灌籃、遠投進球前有慢動作；這一格出錯也照樣畫畫面（不會整個卡住）
+  if(started){try{step(dt*BB.rt(dt)*TN.rt(dt)*RACE.rt(dt)*RB.rt(dt));}catch(e){if(!loopErr){loopErr=true;console.error(e);}}}   // 灌籃、遠投進球前有慢動作；這一格出錯也照樣畫畫面（不會整個卡住）
   if(labels.visible){const pf=floorOf(player.y);for(const s of labels.children){const d=camera.position.distanceTo(s.position);let o;
     if(s.userData.room)o=mode==='walk'&&s.userData.floor===pf&&indoors()?THREE.MathUtils.smoothstep(d,1.0,2.0)*(1-THREE.MathUtils.smoothstep(d,5,7.5)):0;
     else o=(mode==='aerial'||s.userData.always)?1:THREE.MathUtils.smoothstep(d,8,18);
@@ -7559,7 +7902,7 @@ loop();
 const startBtn=document.getElementById('start');startBtn.disabled=false;startBtn.textContent='進入';
 startBtn.onclick=()=>{document.getElementById('overlay').style.display='none';started=true;guardBack();hintUntil=performance.now()+9000;syncHint();setTimeout(syncHint,9100);};
 NM.applyPrizes();
-window.__dbg={NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+window.__dbg={RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
