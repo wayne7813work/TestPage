@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-12.16"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-12.17"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -375,7 +375,7 @@
   #cuPanel .auto button{width:100%;font-size:13px}#cuPanel .auto button.on{background:rgba(40,190,120,.85);color:#fff;border-color:#b8ffd8}
   #cuPanel .note{font-size:11px;opacity:.75;margin:0;text-align:left}
   body.cu #jumpBtn,body.cu #act,body.cu #skBtns,body.cu #bbBtns,body.cu #minimap{visibility:hidden}
-  body.cu #bAerial,body.cu #bView,body.cu #hint{display:none!important}
+  body.cu #bAerial,body.cu #bView,body.cu #hint,body.cu #bMap{display:none!important}   /* 遊戲中小地圖藏起來，地圖按鈕沒作用 */
   body.touch #nmBtns{left:auto;right:calc(12px + var(--sar));bottom:calc(16px + var(--sab));transform:none;display:grid;grid-template-columns:repeat(2,58px);gap:8px}
   body.touch #nmBtns button{width:58px;height:58px;font-size:13px}body.touch #nmBtns button small{display:none}
   body.nm #jumpBtn,body.nm #skBtns,body.nm #bbBtns{visibility:hidden}body.nm:not(.nmtoss) #act{display:none!important}   /* 跑道：中間的「離開」按鈕擋畫面，右下已經有「離開」 */body.nmtoss #joy,body.nmtoss #nmBtns{visibility:hidden}
@@ -3411,7 +3411,7 @@ const CAMPUS=(()=>{
      for(const s of [-1,1]){const z=k.cz+s*14.6;CM.add(new THREE.CylinderGeometry(0.08,0.1,3.4,8).translate(k.cx,1.7,z),MAT.steel);CM.add(mbox(k.cx-0.9,k.cx+0.9,2.9,3.95,z-s*0.5-0.03,z-s*0.5+0.03),white);
        const rim=new THREE.TorusGeometry(0.23,0.02,6,16);rim.rotateX(Math.PI/2);rim.translate(k.cx,3.05,z-s*0.8);CM.add(rim,std({color:'#e2552a',roughness:0.5}));addCircle(k.cx,z,0.15,3.4);}}}
   // ---- 椰子樹（椰林大道兩側）：樹幹、葉子各一個 InstancedMesh ----
-  {const P=[];for(let x=-648;x<=-300;x+=12)for(const z of [101.4,118.6])P.push([x+r2(-0.4,0.4),z]);
+  {const P=[];for(let x=-648;x<=-300;x+=12){const xx=x+r2(-0.4,0.4);if(C.roads.some(r=>!r.ave&&xx>r.x0-1.2&&xx<r.x1+1.2))continue;for(const z of [101.4,118.6])P.push([xx,z]);}   /* 中央步道、西側道路穿過椰林大道的地方不種 */
    const trunkG=new THREE.CylinderGeometry(0.2,0.32,9,8);trunkG.translate(0,4.5,0);
    const leaf=new THREE.BoxGeometry(0.5,0.05,3.2);leaf.translate(0,0,1.6);const lp=leaf.attributes.position;for(let i=0;i<lp.count;i++){const z=lp.getZ(i);lp.setY(i,lp.getY(i)-0.12*z*z);lp.setX(i,lp.getX(i)*(1-z/3.6));}leaf.computeVertexNormals();
    const parts=[];for(let k=0;k<9;k++){const g=leaf.clone();g.rotateX(-0.25);g.rotateY(k/9*Math.PI*2);g.translate(0,9,0);parts.push(g);}parts.push(new THREE.SphereGeometry(0.42,8,6).translate(0,8.9,0));const crownG=mergeGeometries(parts.map(g=>g.index?g.toNonIndexed():g),false);
@@ -3426,9 +3426,10 @@ const CAMPUS=(()=>{
      g.position.set(x,0,z);CM.addObject(g);addCircle(x,z,0.28,h*0.5);n++;}}
   // ---- 路燈（校內道路兩側，每 26 m）、長椅（椰林大道） ----
   {const pole=std({color:'#2b2f33',roughness:0.5,metalness:0.6});
-   const lamp=(x,z)=>{CM.add(new THREE.CylinderGeometry(0.07,0.1,4.6,8).translate(x,2.3,z),pole);CM.add(mbox(x-0.22,x+0.22,4.6,5.1,z-0.22,z+0.22),MAT.lamp);CM.add(new THREE.ConeGeometry(0.34,0.3,4).rotateY(Math.PI/4).translate(x,5.25,z),pole);};
-   for(const r of C.roads){const alongX=r.x1-r.x0>r.z1-r.z0,len=alongX?r.x1-r.x0:r.z1-r.z0;let k=0;for(let s=8;s<len-4;s+=26,k++){const sd=k%2;if(alongX){const x=r.x0+s,z=sd?r.z1+0.8:r.z0-0.8;if(!C.blocked(x,z))lamp(x,z);}else{const z=r.z0+s,x=sd?r.x1+0.8:r.x0-0.8;if(!C.blocked(x,z))lamp(x,z);}}}
-   const wood=std({color:'#a0703f',roughness:0.7});for(let x=-640;x<-305;x+=24)for(const z of [100.3,119.7]){const s=z<110?1:-1;CM.add(mbox(x-0.9,x+0.9,0.42,0.48,z-0.22,z+0.22),wood);CM.add(mbox(x-0.9,x+0.9,0.48,0.9,z+s*0.2-0.03,z+s*0.2+0.03),wood);for(const a of [-0.8,0.8])CM.add(mbox(x+a-0.04,x+a+0.04,0,0.42,z-0.2,z+0.2),pole);addBox(x-0.9,x+0.9,z-0.22,z+0.22,0.48);}}
+   C.lamps=[];const onOther=(x,z,me)=>C.roads.some(r=>r!==me&&inR(x,z,r,0.6));   /* 2026-10-12：擺在另一條路上的不放（跑道會穿過去） */
+   const lamp=(x,z)=>{C.lamps.push([x,z]);CM.add(new THREE.CylinderGeometry(0.07,0.1,4.6,8).translate(x,2.3,z),pole);CM.add(mbox(x-0.22,x+0.22,4.6,5.1,z-0.22,z+0.22),MAT.lamp);CM.add(new THREE.ConeGeometry(0.34,0.3,4).rotateY(Math.PI/4).translate(x,5.25,z),pole);};
+   for(const r of C.roads){const alongX=r.x1-r.x0>r.z1-r.z0,len=alongX?r.x1-r.x0:r.z1-r.z0;let k=0;for(let s=8;s<len-4;s+=26,k++){const sd=k%2;if(alongX){const x=r.x0+s,z=sd?r.z1+0.8:r.z0-0.8;if(!C.blocked(x,z)&&!onOther(x,z,r))lamp(x,z);}else{const z=r.z0+s,x=sd?r.x1+0.8:r.x0-0.8;if(!C.blocked(x,z)&&!onOther(x,z,r))lamp(x,z);}}}
+   const wood=std({color:'#a0703f',roughness:0.7});for(let x=-640;x<-305;x+=24)for(const z of [100.3,119.7]){const s=z<110?1:-1;if(C.roads.some(r=>!r.ave&&x>r.x0-1.5&&x<r.x1+1.5))continue;CM.add(mbox(x-0.9,x+0.9,0.42,0.48,z-0.22,z+0.22),wood);CM.add(mbox(x-0.9,x+0.9,0.48,0.9,z+s*0.2-0.03,z+s*0.2+0.03),wood);for(const a of [-0.8,0.8])CM.add(mbox(x+a-0.04,x+a+0.04,0,0.42,z-0.2,z+0.2),pole);addBox(x-0.9,x+0.9,z-0.22,z+0.22,0.48);}}
   CM.build(grp);
   // 小地圖（電腦版；人在校園裡時換成校園地圖）
   C.MB={x0:C.x0-6,z0:C.z0-6,x1:C.x1+40,z1:C.z1+6};
@@ -6878,11 +6879,11 @@ const CU=(()=>{
   const STG=[
     {n:'第 1 關・椰林大道',sub:'新生報到',pts:[[-606,110],[-300,110]],W:6.6,v:2.7,r0:6,r1:28,hp:1,mix:{hw:1,pencil:0.25},late:{exam:0.4},boss:'dict',bossHp:2600},
     {n:'第 2 關・宿舍區',sub:'作業爆量',pts:[[-324,37],[-648,37]],W:6,v:2.8,r0:6,r1:33,hp:3.2,mix:{hw:1,exam:0.2,pencil:0.4},late:{exam:0.6,eraser:0.25},boss:'report',bossHp:3900},
-    {n:'第 3 關・圖書館與湖',sub:'早八危機',pts:[[-445,64],[-445,187],[-292,187]],W:5.8,v:2.9,r0:6,r1:38,hp:6,mix:{hw:1,exam:0.3,clock:0.3,pencil:0.4},late:{exam:0.6,clock:0.6,eraser:0.35},boss:'alarm',bossHp:7500},
+    {n:'第 3 關・圖書館與湖',sub:'早八危機',pts:[[-445,64],[-445,187],[-292,187]],W:5.5,v:2.9,r0:6,r1:38,hp:6,mix:{hw:1,exam:0.3,clock:0.3,pencil:0.4},late:{exam:0.6,clock:0.6,eraser:0.35},boss:'alarm',bossHp:7500},
     {n:'第 4 關・體育館',sub:'點名大作戰',pts:[[-324,187],[-649,187],[-649,40]],W:6,v:3.3,r0:7,r1:44,hp:14,mix:{hw:1,exam:0.3,clock:0.3,pencil:0.6},late:{exam:0.6,clock:0.5,eraser:0.5},boss:'roll',bossHp:10000},
     {n:'第 5 關・田徑場',sub:'期末考',track:true,W:5.6,v:3,r0:7,r1:50,hp:22,mix:{hw:1,exam:0.3,clock:0.3,pencil:0.6},late:{exam:0.8,clock:0.6,eraser:0.6},boss:'final',bossHp:15000}];
   K.STG=STG;
-  function stageRoute(S){if(!S.track)return mkRoute(S.pts,S.W,false);const T=C.track,rc=(T.r0+T.r1)/2,pts=[];   // 田徑場：一整圈（從北側直道東端往西跑）
+  function stageRoute(S){if(!S.track)return mkRoute(S.pts,S.W,false);const T=C.track,rc=(T.r0+T.r1)/2-1,pts=[];   /* 往內 1 m：外側不要擦到南邊看台 */   // 田徑場：一整圈（從北側直道東端往西跑）
     for(let k=0;k<=40;k++)pts.push([T.cx+T.hs-2*T.hs*k/40,T.cz-rc]);for(let k=1;k<=30;k++){const a=-Math.PI/2-Math.PI*k/30;pts.push([T.cx-T.hs+rc*Math.cos(a),T.cz+rc*Math.sin(a)]);}
     for(let k=1;k<=40;k++)pts.push([T.cx-T.hs+2*T.hs*k/40,T.cz+rc]);for(let k=1;k<30;k++){const a=Math.PI/2-Math.PI*k/30;pts.push([T.cx+T.hs+rc*Math.cos(a),T.cz+rc*Math.sin(a)]);}pts.push([T.cx+T.hs,T.cz-rc]);
     return mkRoute(pts,S.W,true);}
@@ -7082,7 +7083,7 @@ const CU=(()=>{
   function bossSpawn(k,a,b,hp){const D=BOSS[k];if(bossMesh){BOSSG.remove(bossMesh);bossMesh.geometry.dispose();}bossMesh=new THREE.Mesh(D.mk(),MMAT);BOSSG.add(bossMesh);BOSSG.visible=true;
     B={k,D,a,b,hp,max:hp,r:D.r,st:'walk',t:0,cool:2.5,atk:null,ai:0,yaw:0,flash:0,p2:false};barSp.visible=true;drawBar();big(`⚠ ${D.n} 出現了！`);AUDIO.sfx('slam');AUDIO.sfx('wave');AUDIO.setTempo&&AUDIO.setTempo(150);note(`${D.n}：看到紅色的地方就快閃開！`);}
   function bossHurt(d){if(!B||B.hp<=0)return;B.hp-=d*dmgMul();B.flash=0.08;if(!B.p2&&B.hp<B.max*0.5){B.p2=true;big(`${B.D.n} 生氣了！`);AUDIO.sfx('heavy');}if(B.hp<=0)bossDie();}
-  function bossDie(){B.hp=0;B.st='dead';B.t=0;wp(B.a,B.b,TV);for(let k=0;k<30;k++)part(TV.x+rnd(-2,2),rnd(0.5,5),TV.z+rnd(-2,2),['#ffd23a','#ff6a3a','#ffffff'][k%3],rnd(1,2.2),0.8,rnd(-4,4),rnd(2,6),rnd(-4,4));ring(TV.x,TV.z,8,'#ffd23a',0.8);AUDIO.sfx('bigboom');AUDIO.sfx('bigcheer');
+  function bossDie(){B.hp=0;B.st='dead';B.t=0;hideTele();wp(B.a,B.b,TV);for(let k=0;k<30;k++)part(TV.x+rnd(-2,2),rnd(0.5,5),TV.z+rnd(-2,2),['#ffd23a','#ff6a3a','#ffffff'][k%3],rnd(1,2.2),0.8,rnd(-4,4),rnd(2,6),rnd(-4,4));ring(TV.x,TV.z,8,'#ffd23a',0.8);AUDIO.sfx('bigboom');AUDIO.sfx('bigcheer');
     for(let k=0;k<40;k++)dropGem(B.a+rnd(-3,3),B.b+rnd(-3,3),5);K.kills+=1;if(K.mode==='stage')winStart();else{big(`打倒${B.D.n}！`);K.bossN++;}}
   function bossTick(dt){if(!B)return;B.t+=dt;B.flash=Math.max(0,B.flash-dt);if(B.st==='dead'){BOSSG.scale.setScalar(Math.max(0.01,1-B.t*1.2));BOSSG.rotation.z=B.t*2;if(K.mode!=='stage'&&B.t>1.5){BOSSG.visible=false;barSp.visible=false;BOSSG.scale.setScalar(1);BOSSG.rotation.z=0;B=null;}return;}   /* 無盡：倒下 1.5 秒後收掉（下一隻 150 秒後來） */
     const da=K.pa-B.a,db=K.pb-B.b,d=Math.hypot(da,db)||1,stg=K.mode==='stage',p2=B.p2?0.7:1;
@@ -7127,11 +7128,11 @@ const CU=(()=>{
     const P=PV[o.k],lv=(K.pv[o.k]||0)+1;return {ico:P.ico,n:P.n,lv:`Lv ${lv}`,d:P.d};}
   function autoScore(o){if(o.t!=='w'&&o.t!=='p')return 1;if(o.t==='w'){const lv=K.wp[o.k]||0;if(!lv)return Object.keys(K.wp).length<4?10+({gatling:3,laser:2.5,shotgun:2,rocket:1.5,chain:1,books:0.8}[o.k]||0):4;return 6+lv*0.8;}
     if(o.k==='hp'&&K.hp<K.hpMax*0.5)return 9;return {atk:5.5,rate:5.2,regen:3.5,mag:3,move:2.5,hp:3}[o.k];}
-  function openCards(){K.cards=options();K.prevSt=K.prevSt||K.st;K.st='card';K.cardT=K.auto?1.1:0;
+  function openCards(){K.cards=options();K.prevSt=K.prevSt||K.st;K.st='card';K.cardAt=performance.now();K.cardT=K.auto?1.1:0;
     const L=K.cards.map((o,i)=>{const h=cardHtml(o);return `<button data-i="${i}"><i>${h.ico}</i><b>${h.n}</b><em>${h.lv}</em><small>${h.d}</small><kbd>${i+1}</kbd></button>`;}).join('');
     cardsEl.querySelector('.cards').innerHTML=L;cardsEl.querySelector('h3').textContent=`升級！Lv ${K.lv-K.pend+1}　選一個`;cardsEl.querySelector('.auto').textContent=K.auto?'自動模式：馬上幫你選…':'';cardsEl.hidden=false;
     if(K.auto){let bi=0,bs=-1;K.cards.forEach((o,i)=>{const s=autoScore(o)+Math.random()*0.5;if(s>bs){bs=s;bi=i;}});K.autoPick=bi;cardsEl.querySelectorAll('button')[bi].classList.add('sel');}
-    for(const b of cardsEl.querySelectorAll('button')){const f=e=>{e.preventDefault();e.stopPropagation();pickCard(+b.dataset.i);};b.addEventListener('touchstart',f,{passive:false});b.addEventListener('mousedown',f);}
+    for(const b of cardsEl.querySelectorAll('button')){const f=e=>{e.preventDefault();e.stopPropagation();if(performance.now()-K.cardAt<400)return;pickCard(+b.dataset.i);};   /* 剛跳出來 0.4 秒內點到不算（手指正在拖） */b.addEventListener('touchstart',f,{passive:false});b.addEventListener('mousedown',f);}
     AUDIO.sfx('lvup');}
   function pickCard(i){if(K.st!=='card'||!K.cards||!K.cards[i])return;const o=K.cards[i];K.cards=null;
     if(o.t==='w'){const lv=(K.wp[o.k]||0)+1;K.wp[o.k]=lv;K.wt[o.k]=0;if(lv>=5){big(`✨ 進化：${WP[o.k].evo}！`);AUDIO.sfx('combo');}else if(lv===1)note(`${WP[o.k].ico} ${WP[o.k].n}：${WP[o.k].d}`);}
@@ -7177,7 +7178,7 @@ const CU=(()=>{
   const fmt=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
   let savedView=null;
   K.start=(md,i)=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(K.on)K.stop(true);if(RB.on)RB.stop();if(NM.on)NM.stop();if(SB.on)SB.stop();if(RACE.on)RACE.stop();if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
-    if(mode==='aerial')toggleAerial();panel.hidden=true;
+    if(mode==='aerial')toggleAerial();panel.hidden=true;if(avatar.morph)GAME.morph(false);   /* 死亡騎士：先變回人類（不然拿著大劍又拿槍） */
     K.mode=md;K.stage=i;K.S=md==='stage'?STG[i]:null;K.R=md==='stage'?stageRoute(K.S):null;K.hpS=1;
     if(md==='endless'){fgInit();K.pa=C.pad.x-14;K.pb=C.pad.z;}else{K.pa=0;K.pb=0;}
     K.on=true;K.st='count';K.cd=2.6;K.lastCd=4;K.t=0;K.prog=0;K.kills=0;K.lv=1;K.xp=0;K.pend=0;K.hpMax=100;K.hp=100;K.hurtT=0;K.touch=0;K.spAcc=0;K.waveT=24;K.evt={};K.elT=45;K.chT=50;K.bsT=150;K.bossN=0;
@@ -7197,7 +7198,7 @@ const CU=(()=>{
   function die(){if(K.dead)return;K.dead=true;K.st='dead';K.deadT=0;big(K.mode==='stage'?'被作業淹沒了…':'倒下了…');AUDIO.sfx('over');AUDIO.musicStop();setTimeout(()=>{if(K.on&&K.st==='dead')result(false);},1700);}
   function winStart(){K.st='win';K.winT=0;big('🎓 過關！');AUDIO.sfx('cheer');hideTele();}
   function result(ok){const i=K.stage,hpk=K.hp/K.hpMax;let html='';K.score=K.kills*10+K.lv*50+(ok?Math.round(hpk*1000)+1000:0);
-    if(K.mode==='stage'){const stars=ok?(hpk>=0.6?3:hpk>=0.3?2:1):0,first=ok&&!SAVE.stars[i];if(stars>SAVE.stars[i])SAVE.stars[i]=stars;if(K.score>SAVE.best[i])SAVE.best[i]=K.score;let grad='';if(ok&&i===4&&!SAVE.grad){SAVE.grad=true;cuGrad=true;grad='<br>🎓 <b>畢業了！</b>得到學士服（衣櫃：女裝「禮服」、男裝）';}save();
+    if(K.mode==='stage'){const stars=ok?(hpk>=0.6?3:hpk>=0.3?2:1):0,first=ok&&!SAVE.stars[i];if(stars>SAVE.stars[i])SAVE.stars[i]=stars;if(ok&&K.score>SAVE.best[i])SAVE.best[i]=K.score;let grad='';if(ok&&i===4&&!SAVE.grad){SAVE.grad=true;cuGrad=true;grad='<br>🎓 <b>畢業了！</b>得到學士服（衣櫃的「全部」裡，男女都有）';}save();
       html=ok?`<b>🎓 過關！${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</b><br>擊倒 ${K.kills} 隻・Lv ${K.lv}・剩 ${Math.round(hpk*100)}% 生命・${K.score} 分${first?`<br>📜 得到獎狀：${STG[i].n.split('・')[1]}（大門口的榮譽榜）`:''}${grad}`:`<b>沒過…</b><br>走了 ${Math.round(K.prog*100)}%・擊倒 ${K.kills} 隻・Lv ${K.lv}<br><small>升級時多選武器（加特林、雷射、火箭砲），看到大魔王的紅色範圍就閃開；大招冷卻好就按</small>`;}
     else{const t=K.t,rec=t>SAVE.eT;if(rec)SAVE.eT=Math.floor(t);if(K.kills>SAVE.eK)SAVE.eK=K.kills;save();const md=t>=600?'🥇 金牌':t>=360?'🥈 銀牌':t>=180?'🥉 銅牌':'';
       html=`<b>撐了 ${fmt(t)}${rec?'（新紀錄！）':''}</b><br>擊倒 ${K.kills} 隻・Lv ${K.lv}${md?`<br>${md}（放在榮譽榜）`:''}`;}
@@ -7215,7 +7216,7 @@ const CU=(()=>{
   for(const b of btns.querySelectorAll('button')){const k=b.dataset.k;const dn=e=>{e.preventDefault();e.stopPropagation();K.press(k);b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),150);};
     b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});}
   K.key=(e,down)=>{if(!down||e.repeat)return false;if(K.st==='card'){const i={Digit1:0,Digit2:1,Digit3:2,Numpad1:0,Numpad2:1,Numpad3:2}[e.code];if(i!==undefined){pickCard(i);return true;}}
-    const m={Digit1:'air',Digit2:'ice',Digit3:'rage',KeyQ:'air',KeyE:'ice',KeyR:'rage',KeyP:'auto'}[e.code];if(m){K.press(m);return true;}if(e.code==='Escape'){K.stop();return true;}if(e.code==='Space'||e.code==='KeyF'||e.code==='KeyV'||e.code==='KeyC')return true;return false;};
+    const m={Digit1:'air',Digit2:'ice',Digit3:'rage',KeyQ:'air',KeyE:'ice',KeyR:'rage',KeyP:'auto'}[e.code];if(m){K.press(m);return true;}if(e.code==='Escape'){K.stop();return true;}if(e.code==='Space'||e.code==='KeyF'||e.code==='KeyV'||e.code==='KeyC'||e.code==='KeyM')return true;return false;};
   function note(t){const el=$('cuNote');if(!el)return;el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}
   let sndT={};function soft(k,gap,p){const n=performance.now()/1000;if((sndT[k]||0)>n)return;sndT[k]=n+gap;AUDIO.sfx(k,p);}
   // 拖曳（手指／滑鼠左右拖＝左右移動）
@@ -7235,7 +7236,8 @@ const CU=(()=>{
         s-=4*Math.exp(-((w-B.b)**2)/4);}
       if(s>bs){bs=s;best=w;}}return best;}
   const stgM=()=>K.mode==='stage';
-  K.step=(dt,f,s)=>{if(!K.on)return;
+  const menuEl=$('menu');
+  K.step=(dt,f,s)=>{if(!K.on)return;if(!menuEl.hidden)return;   /* 選單打開時暫停 */
     if(K.st==='card'){if(K.auto){K.cardT-=dt;if(K.cardT<=0)pickCard(K.autoPick);}return;}
     if(!stgM()&&K.st==='endless')K.hpS=1+(K.t/80)**1.6+(K.t/160)**2.5;   /* 無盡：越撐越硬 */
     if(stgM())K.hpS=1+(K.S.hp-1)*Math.min(1,K.prog*K.prog*1.15+(K.st==='boss'?1:0));   /* 關卡一開始怪物比較弱（只有手槍），越走越硬 */
@@ -7418,6 +7420,7 @@ const CU=(()=>{
     if(HB.cap.visible)HB.cap.rotation.y+=dt*0.8;}
   // 每格（不管有沒有在玩）：開始站位閃一下、榮譽榜；校園裡陰影跟著人（陰影範圍只有 150 m，原本只在家附近）
   K.tick=dt=>{const inC=C.inside(player.pos.x,player.pos.y);
+    {const want=K.on&&sun.intensity<1.2;if(want){K.lit=true;hemi.intensity=Math.max(hemi.intensity,0.95);}else if(K.lit){K.lit=false;setTime(+$('time').value);}}   /* 晚上玩：天空光調亮，看得清楚路和人 */
     if(inC||HB.shown===null){honorTick(dt);if(!K.on&&(nP||PARTM.count))fxDraw(dt);}
     if(inC&&!K.on)K.padM.material.opacity=0.55+0.35*Math.sin(performance.now()/1000*3);
     const want=inC?TV.set(Math.round(player.pos.x/30)*30,0,Math.round(player.pos.y/30)*30):TV.set(22,0,-2);if(shadowCenter.distanceTo(want)>1){shadowCenter.copy(want);placeSun();}};
@@ -8207,7 +8210,7 @@ const avatar=(()=>{
   return A;
 })();
 // 選單「人物」：變身死亡騎士（小遊戲裡技能列也有變身按鈕）
-{const b=document.getElementById('dkMenu');b.onclick=()=>{GAME.morph(!avatar.morph);b.textContent=avatar.morph?'變回人類':'變身：死亡騎士';if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}};}
+{const b=document.getElementById('dkMenu');b.onclick=()=>{if(CU.on){toast('先離開校園大逃亡再變身');return;}GAME.morph(!avatar.morph);b.textContent=avatar.morph?'變回人類':'變身：死亡騎士';if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}};}
 // 選單「人物」：男生／女生、衣服、髮色（換了就切到第三人稱讓你看到）
 let charMenuRender=null;
 {const gEl=document.getElementById('charG'),oEl=document.getElementById('charO'),hEl=document.getElementById('charH');
@@ -9520,7 +9523,7 @@ addEventListener('popstate',()=>{if(!started)return;const now=performance.now();
 /* ---------------- 自動更新：避免手機一直用快取的舊版 ----------------
    打開時、從背景切回來時（遊戲中不會）用 no-store 抓一次最新的 index.html，app-version 不一樣就換成新版（網址加 ?v=版本號）。 */
 {const APP_VERSION=document.querySelector('meta[name=app-version]').content;
- async function checkUpdate(){if(!/^https?:$/.test(location.protocol)||GAME.on)return;
+ async function checkUpdate(){if(!/^https?:$/.test(location.protocol)||GAME.on||CU.on||SB.on||RB.on||NM.on||RACE.on||TN.on)return;   /* 小遊戲中切回來不要換新版（會整個重新載入） */
    try{const r=await fetch(location.pathname+'?_='+Date.now(),{cache:'no-store'});const m=(await r.text()).match(/name="app-version" content="([^"]+)"/);
      const u=new URL(location.href);if(m&&m[1]!==APP_VERSION&&u.searchParams.get('v')!==m[1]){u.searchParams.set('v',m[1]);location.replace(u.toString());}}catch(_){}}
  checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate();});}
