@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-12.14"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-12.15"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -498,7 +498,7 @@
   <button id="nmMenu">夜市套圈大進擊（3 關）</button>
   <button id="rbMenu">機器人擂台（5 關）</button>
   <button id="sbMenu">街頭鬥牛（籃球比賽 5 關）</button>
-  <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。開始後畫面下方才會出現技能按鈕，按了馬上往前方放：氣功炮（J）、超級氣功波（L）、旋風腿（U）、如來神掌（I）、足球（O）、按住蓄力氣功彈（H）。視角往上抬就往上打（打飛到空中的殭屍可以接著打）。車子、鄰居的房子、周邊建築、全家都打得壞（我家不會壞），遊戲結束會復原。</p>
+  <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。開始後畫面下方才會出現技能按鈕，按了馬上往前方放：氣功炮（J）、超級氣功波（L）、旋風腿（U）、如來神掌（I）、足球（O）、按住蓄力氣功彈（H）。視角往上抬就往上打（打飛到空中的殭屍可以接著打）。車子、鄰居的房子、周邊建築、便利商店都打得壞（我家不會壞），遊戲結束會復原。</p>
   <h3 style="margin-top:14px">舒適設定</h3>
   <label><span>視角轉動靈敏度</span><span id="sensVal">100%</span></label>
   <input id="sens" type="range" min="0.3" max="1.5" step="0.05" value="1">
@@ -639,7 +639,7 @@ const SURR = [
   {x0:70.6, x1:96, z0:-55, z1:4, h:9, c:'#d4cbbb'},
 ];
 const GRASS = {x0:-11, x1:26, z0:11.4, z1:34};
-// 全家便利商店：巷子對面的空地上，門口正對我家大門（門 x 4.1～5.9）
+// 便利商店：巷子對面的空地上，門口正對我家大門（門 x 4.1～5.9）
 const STORE = {x0:-1, x1:11, z0:12.6, z1:20.6, h:4.2, dx0:4.1, dx1:5.9};
 const BOUND = {x0:-330, x1:430, z0:-60, z1:960};   /* 2026-10-10 往南擴大：賽車場 */   // 擴大地圖：往西、東、南都可以走／溜（大圓環、新道路；2026-10-09 圓環那邊再擴大＋籃球場）
 const BOUND_CORE = {x0:-48, x1:96, z0:-60, z1:68};   // 原本的範圍：水泥地面只鋪到這附近，外面是綠地
@@ -822,7 +822,7 @@ class Merger{
   }
 }
 
-/* ---------------- 打得壞的東西（小遊戲）：鄰居的房子、隔壁大樓、周邊建築、全家、車子；我家不會壞 ----------------
+/* ---------------- 打得壞的東西（小遊戲）：鄰居的房子、隔壁大樓、周邊建築、便利商店、車子；我家不會壞 ----------------
    建場景時，落在這些範圍裡的靜態物件會記住自己在合併網格裡的位置（跨好幾戶的長條物件先在戶界切開）；
    打壞時把那一段複製成獨立的網格去倒塌／炸飛，原本那段縮成一點藏起來；遊戲結束再寫回去（平常不多耗效能）。 */
 const REGIONS=[];
@@ -832,7 +832,7 @@ const ROW_CUTS=[];for(let i=1;i<N_UNITS;i++)ROW_CUTS.push(ux(i)+0.11);   // 戶�
 for(let i=1;i<N_UNITS;i++)region({name:`鄰居（往東第 ${i} 戶）`,kind:'house',max:900,x0:ROW_CUTS[i-1],x1:i<N_UNITS-1?ROW_CUTS[i]:ROW_X1+0.7,z0:ROW_Z0,z1:ROW_Z1,h:FL[4]+1.2,mat:'#d9d2c3'});
 region({name:'隔壁大樓',kind:'house',max:1600,x0:NBB.x0-0.05,x1:NBB.x1+0.13,z0:NBB.z0-0.05,z1:NBB.z1+0.05,h:NBB.h+0.8,mat:'#9a9d9e'});
 for(const b of SURR)region({name:b.kind==='factory'?'工廠':'周邊建築',kind:'house',max:Math.round(Math.min(4000,Math.max(900,(b.x1-b.x0)*(b.z1-b.z0)*b.h*0.12))),x0:b.x0-0.05,x1:b.x1+0.05,z0:b.z0-0.05,z1:b.z1+0.05,h:b.h,mat:b.c});
-const STORE_REG=region({name:'全家便利商店',kind:'house',max:800,x0:STORE.x0-0.3,x1:STORE.x1+0.3,z0:STORE.z0-0.35,z1:STORE.z1+0.1,h:STORE.h+0.6,mat:'#e8e8e4'});
+const STORE_REG=region({name:'便利商店',kind:'house',max:800,x0:STORE.x0-0.3,x1:STORE.x1+0.3,z0:STORE.z0-0.35,z1:STORE.z1+0.1,h:STORE.h+0.6,mat:'#e8e8e4'});
 function geoBox(g){const p=g.attributes.position.array;let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(let i=0;i<p.length;i+=3){const x=p[i],z=p[i+2];if(x<x0)x0=x;if(x>x1)x1=x;if(z<z0)z0=z;if(z>z1)z1=z;}return {x0,x1,z0,z1};}
 // 中心在範圍裡、而且整個（容許 20 cm）都在範圍裡，才算這個範圍的
 function regionOf(b){const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2,t=0.2;
@@ -1332,17 +1332,15 @@ function luxSedan(color){
   return g;
 }
 
-// Toyota Vios（使用者要求：我家門前的車改成 Vios、鐵灰色）：小型房車 4.42×1.73×1.48，車頭朝 +x
+// 我家的車（使用者要求照自家的小型房車做、鐵灰色；2026-10-12 拿掉車廠標誌和車名，只留外型）：小型房車 4.42×1.73×1.48，車頭朝 +x
 const viosShapes={
   lower:extShape([[-2.21,0.27],[2.15,0.27],[2.23,0.6],[2.12,0.76],[0.95,0.98],[-1.55,1.0],[-2.12,0.96],[-2.22,0.62]],1.66,0.05),
   cabin:extShape([[0.95,0.96],[0.16,1.42],[-0.86,1.44],[-1.56,0.99]],1.46,0.03),
   roof:extShape([[0.2,1.4],[0.1,1.47],[-0.82,1.48],[-0.92,1.42]],1.36,0)};
 const viosTex=(()=>{
-  const emb=(()=>{const [c,g]=cvs(128,96);g.strokeStyle='#e8eaec';g.lineWidth=7;g.beginPath();g.ellipse(64,48,56,38,0,0,Math.PI*2);g.stroke();   // TOYOTA 標誌：三個橢圓
-    g.lineWidth=6;g.beginPath();g.ellipse(64,40,34,13,0,0,Math.PI*2);g.stroke();g.beginPath();g.ellipse(64,56,11,30,0,0,Math.PI*2);g.stroke();return new THREE.CanvasTexture(c);})();
+  const emb=(()=>{const [c,g]=cvs(128,96);g.fillStyle='#c9ccd0';g.beginPath();g.ellipse(64,48,40,26,0,0,Math.PI*2);g.fill();g.fillStyle='#9a9ea4';g.beginPath();g.ellipse(64,48,30,18,0,0,Math.PI*2);g.fill();return new THREE.CanvasTexture(c);})();   // 沒有字、沒有圖案的鍍鉻圓牌（原本是真實車廠標誌，2026-10-12 拿掉）
   const plate=(()=>{const [c,g]=cvs(256,96);g.fillStyle='#f4f4f0';g.fillRect(0,0,256,96);g.strokeStyle='#222';g.lineWidth=5;g.strokeRect(4,4,248,88);g.fillStyle='#1a1a1a';g.font=`800 56px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText('ABC-1234',128,52);
     const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;})();
-  const name=(()=>{const [c,g]=cvs(256,64);g.fillStyle='#e8eaec';g.font=`800 46px Arial, sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText('VIOS',128,34);return new THREE.CanvasTexture(c);})();
   const grille=(()=>{const [c,g]=cvs(128,64);g.fillStyle='#0e0f11';g.fillRect(0,0,128,64);g.strokeStyle='#2b2e33';g.lineWidth=3;for(let x=-64;x<192;x+=12){g.beginPath();g.moveTo(x,0);g.lineTo(x+32,64);g.stroke();g.beginPath();g.moveTo(x+32,0);g.lineTo(x,64);g.stroke();}
     const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(4,1);return t;})();
   return {emb,plate,name,grille};})();
@@ -1373,7 +1371,7 @@ function vios(color){
     g.add(new THREE.Mesh(strut(new V3(0.92,0.985,sz*0.77),new V3(0.12,1.44,sz*0.625),0.035),pm));g.add(new THREE.Mesh(strut(new V3(-1.5,0.995,sz*0.765),new V3(-0.85,1.44,sz*0.625),0.045),pm));}
   g.add(mesh(box(0.04,0.2,1.12),new THREE.MeshStandardMaterial({map:viosTex.grille,roughness:0.6}),2.19,0.45,0));                   // 前保桿大下格柵（蜂巢）
   g.add(mesh(box(0.04,0.06,0.66),blk,2.19,0.6,0));g.add(mesh(box(0.035,0.018,0.74),chrome,2.2,0.638,0));                            // 上格柵＋鍍鉻條
-  g.add(face(0.15,0.11,viosTex.emb,2.215,0.6,0,1));                                                                                  // 前 TOYOTA 標誌
+  g.add(face(0.15,0.11,viosTex.emb,2.215,0.6,0,1));                                                                                  // 前面的圓牌（沒有標誌）
   const plM=std({map:viosTex.plate,roughness:0.6});g.add(face(0.5,0.15,null,2.225,0.45,0,1,plM));g.add(face(0.5,0.15,null,-2.225,0.53,0,-1,plM));   // 前後車牌
   for(const sz of [-1,1]){
     const h=mesh(box(0.3,0.06,0.27),MAT.headLight,2.0,0.752,sz*0.59);h.rotation.y=-sz*0.35;h.rotation.z=-0.22;g.add(h);              // 鷹眼大燈（往兩側拉長）
@@ -1389,7 +1387,7 @@ function vios(color){
       const out=sz*0.101;w.add(mesh(cyl(0.2,0.2,0.02,18),MAT.steel,0,0,out,Math.PI/2));
       for(let k=0;k<5;k++){const a=k/5*Math.PI*2,sp=mesh(box(0.05,0.17,0.02),MAT.steel,-Math.sin(a)*0.09,Math.cos(a)*0.09,out*1.06);sp.rotation.z=a;w.add(sp);}
       w.add(mesh(cyl(0.055,0.055,0.03,10),blk,0,0,out*1.12,Math.PI/2));}}
-  g.add(mesh(box(0.03,0.03,0.74),chrome,-2.19,0.72,0));g.add(face(0.13,0.095,viosTex.emb,-2.2,0.82,0,-1));g.add(face(0.34,0.085,viosTex.name,-2.19,0.66,0.38,-1));   // 車尾鍍鉻條、標誌、VIOS 字
+  g.add(mesh(box(0.03,0.03,0.74),chrome,-2.19,0.72,0));g.add(face(0.13,0.095,viosTex.emb,-2.2,0.82,0,-1));   // 車尾鍍鉻條、圓牌（拿掉車廠標誌和車名字）
   g.add(mesh(box(0.14,0.05,0.06),pm,-0.78,1.49,0));                                                                                  // 鯊魚鰭天線
   return g;
 }
@@ -2586,24 +2584,24 @@ for(const b of SURR){
   M.add(groundRect(b.x0,b.x1,b.z0,b.z1,b.h+0.01),b.kind==='factory'?MAT.ribRoof:MAT.roofC);
   addBox(b.x0,b.x1,b.z0,b.z1,b.h);surfaces.push({x0:b.x0,x1:b.x1,z0:b.z0,z1:b.z1,y:b.h});   // 屋頂可以站（跳得過去就站得上去）
 }
-// 我家正對面的空地邊緣：低矮的鐵絲網（全家門口前面不圍）
+// 我家正對面的空地邊緣：低矮的鐵絲網（便利商店門口前面不圍）
 for(const [a,b] of [[GRASS.x0,STORE.x0-2],[STORE.x1+2,GRASS.x1]]){
   for(let x=a;x<b;x+=2.5){M.add(mbox(x,x+0.06,0,1.2,GRASS.z0,GRASS.z0+0.06),MAT.black);}
   M.add(mbox(a,b,1.1,1.15,GRASS.z0,GRASS.z0+0.04),MAT.black);
   addBox(a,b,GRASS.z0-0.05,GRASS.z0+0.1,1.2);}
 
-/* ---- 全家便利商店（使用者要求：我家門前）：巷子對面，門口正對我家大門；可以走進去 ----
-   白色招牌＋綠、藍橫條，整面落地玻璃、自動門；裡面：櫃台（收銀機、咖啡機、保溫櫃）、後面菸架、三排貨架、後牆飲料冰櫃、
+/* ---- 便利商店（使用者要求：我家門前）：巷子對面，門口正對我家大門；可以走進去 ----
+   白色招牌（自己設計的「便利商店 24H」）＋黃、深藍橫條，整面落地玻璃、自動門；裡面：櫃台（收銀機、咖啡機、保溫櫃）、後面菸架、三排貨架、後牆飲料冰櫃、
    東牆零食架、ATM、靠窗座位區。 */
 const STORE_GLOW=[];
 const STORE_DOOR={panels:[],t:0,col:null,near:false};
 {const S=STORE,T=0.2,CH=3.2,x0=S.x0,x1=S.x1,z0=S.z0,z1=S.z1,H=S.h;
  // 貼圖
  const signC=(()=>{const W=2048,Hh=256,[c,g]=cvs(W,Hh);g.fillStyle='#ffffff';g.fillRect(0,0,W,Hh);
-   g.fillStyle='#00a651';g.fillRect(0,Hh-74,W,30);g.fillStyle='#0b5fb0';g.fillRect(0,Hh-40,W,40);
-   g.textBaseline='middle';g.textAlign='center';g.font=`italic 900 128px Arial, ${FONT}`;g.fillStyle='#0b5fb0';g.fillText('FamilyMart',W*0.42,Hh*0.36);
-   g.font=`900 116px ${FONT}`;g.fillStyle='#00a651';g.fillText('全家',W*0.79,Hh*0.37);return c;})();
- const stripeC=(()=>{const [c,g]=cvs(64,256);g.fillStyle='#ffffff';g.fillRect(0,0,64,256);g.fillStyle='#00a651';g.fillRect(0,182,64,30);g.fillStyle='#0b5fb0';g.fillRect(0,216,64,40);return c;})();
+   g.fillStyle='#f5a800';g.fillRect(0,Hh-74,W,30);g.fillStyle='#1f3b6e';g.fillRect(0,Hh-40,W,40);
+   g.textBaseline='middle';g.textAlign='center';g.font=`900 132px ${FONT}`;g.fillStyle='#1f3b6e';g.fillText('便利商店',W*0.44,Hh*0.37);
+   g.font=`900 104px Arial, ${FONT}`;g.fillStyle='#f5a800';g.fillText('24H',W*0.8,Hh*0.37);return c;})();   /* 自己設計的一般招牌（原本是真實商標，2026-10-12 改掉） */
+ const stripeC=(()=>{const [c,g]=cvs(64,256);g.fillStyle='#ffffff';g.fillRect(0,0,64,256);g.fillStyle='#f5a800';g.fillRect(0,182,64,30);g.fillStyle='#1f3b6e';g.fillRect(0,216,64,40);return c;})();
  const goodsC=(()=>{const W=1024,Hh=400,[c,g]=cvs(W,Hh);g.fillStyle='#f2f2f0';g.fillRect(0,0,W,Hh);const pal=['#e6403a','#f5b400','#2f8fd8','#36a852','#ffffff','#f27b20','#8a4fd0','#e94f8a','#1b3d78','#c7d63c','#7a4a2a'];
    for(let row=0;row<4;row++){const y0=row*100;g.fillStyle='#d9d9d6';g.fillRect(0,y0+92,W,8);let x=4;
      while(x<W-10){const w=rr(18,54),h=rr(38,84);g.fillStyle=pick(pal);g.fillRect(x,y0+92-h,w,h);g.fillStyle='rgba(255,255,255,0.55)';g.fillRect(x+3,y0+92-h*0.62,w-6,h*0.18);g.fillStyle='rgba(0,0,0,0.12)';g.fillRect(x+w-3,y0+92-h,3,h);x+=w+rr(1,4);}}
@@ -3119,7 +3117,7 @@ for(const [x,z] of POLES){const p=pole(-1);p.position.set(x,0,z);M.addObject(p);
 // 車子可以站（使用者：無法跳到汽車上面）：每種車沿車長（本地 x，車頭 +x）的頂面高度 [x0,x1,前端高,後端高,半寬?]；擋人方塊也照這幾段切，站在引擎蓋上不會被車頂那段擋住
 const VPROF={
   '汽車':[[-2.25,-1.95,0.85,0.98],[-1.95,-1.0,1.0,1.45],[-1.0,0.55,1.45,1.45],[0.55,1.38,1.43,0.95],[1.38,2.25,0.95,0.74]],
-  'Toyota Vios':[[-2.21,-1.56,0.95,0.99],[-1.56,-0.86,0.99,1.45],[-0.86,0.16,1.48,1.48],[0.16,0.95,1.45,0.98],[0.95,2.21,0.98,0.72]],
+  '小型房車':[[-2.21,-1.56,0.95,0.99],[-1.56,-0.86,0.99,1.45],[-0.86,0.16,1.48,1.48],[0.16,0.95,1.45,0.98],[0.95,2.21,0.98,0.72]],
   '跑車':[[-2.3,-1.75,0.8,0.9],[-1.75,-0.85,0.9,1.14],[-0.85,0.05,1.14,1.12],[0.05,0.95,1.12,0.8],[0.95,2.3,0.8,0.5]],
   '豪華轎車':[[-2.65,-2.15,0.9,1.04],[-2.15,-1.25,1.04,1.56],[-1.25,0.52,1.58,1.58],[0.52,1.45,1.55,1.0],[1.45,2.65,1.0,0.82]],
   '公車':[[-5.5,5.5,3.18,3.18],[-0.1,2.5,3.49,3.49,0.75]],
@@ -3140,7 +3138,7 @@ function addVehicle(name,obj,x,z,ry,L,W,H,hp,y=0.03,lux=false){
   r.box0={x0:r.x0,x1:r.x1,z0:r.z0,z1:r.z1};return r;}
 // 前三戶（我家＋往東兩戶）前院：車頭朝房子停一台汽車（停在石材柱之間，不擋大門）＋一台機車（使用者要求）
 for(const [i,cc,sc] of [[0,'#e9e9e6','#3c3f43'],[1,'#9aa3ab','#d9dcdc'],[2,'#2f3f5a','#b8302a']]){const x0=ux(i),cx=i===0?3.1:x0+1.6,cz=Z_1F+0.2+2.27;
-  if(i===0)addVehicle('Toyota Vios',vios('#5a5f65'),cx,cz,Math.PI/2,4.42,1.75,1.48,160);   // 我家：Toyota Vios、鐵灰色（使用者要求）
+  if(i===0)addVehicle('小型房車',vios('#5a5f65'),cx,cz,Math.PI/2,4.42,1.75,1.48,160);   // 我家的車、鐵灰色（使用者要求）
   else addVehicle('汽車',car(cc),cx,cz,Math.PI/2,4.5,1.9,1.5,160);
   addVehicle('機車',scooter(sc),i===0?0.75:x0+4.15,2.2,Math.PI/2,1.4,0.5,1.1,50);}
 for(const [i,c] of [[4,'#efefea'],[5,'#3c3f43'],[7,'#c7a54a']]){const x=ux(i)+rr(1.2,2.6),z=rr(1.2,3.4);addVehicle('機車',scooter(c),x,z,Math.PI/2+rr(-0.15,0.15),1.4,0.5,1.1,50);}
@@ -3152,12 +3150,12 @@ addVehicle('公車',bus('#f4f1e8','#c8372d'),-18.2,-42,-Math.PI/2,11,2.5,3.5,450
  M.add(mbox(-11.9,-10.5,2.45,2.55,29.6,33.6),MAT.polycarb);M.add(mbox(-10.6,-10.5,0,2.45,29.6,33.6),MAT.frostedGlass);   // 候車亭：頂棚＋背板
  for(const z of [29.65,33.55])M.add(mbox(-10.62,-10.48,0,2.5,z-0.05,z+0.05),MAT.darkAlu);M.add(mbox(-11.0,-10.62,0.42,0.47,30.2,33.0),MAT.steel);
  addBox(-10.62,-10.48,29.6,33.6,2.5);}
-// 門前巷子（全家這側路邊）：跑車、豪華轎車
+// 門前巷子（便利商店這側路邊）：跑車、豪華轎車
 addVehicle('跑車',sportsCar('#f2c200'),1.4,9.5,0,4.6,1.95,1.2,200,0,true);
 addVehicle('豪華轎車',luxSedan('#15171a'),9.8,9.5,0,5.3,1.9,1.6,220,0,true);
 addVehicle('跑車',sportsCar('#c8102e'),24,9.5,Math.PI,4.6,1.95,1.2,200,0,true);
 addVehicle('豪華轎車',luxSedan('#e6e6e3'),33,9.5,0,5.3,1.9,1.6,220,0,true);
-// 全家門口：重型機車、一排機車（車頭朝巷子）
+// 便利商店門口：重型機車、一排機車（車頭朝巷子）
 addVehicle('重型機車',motorbike('#d81e1e'),-0.5,11.55,Math.PI/2,2.0,0.7,1.3,70);
 addVehicle('重型機車',motorbike('#1d1f22'),0.4,11.55,Math.PI/2,2.0,0.7,1.3,70);
 addVehicle('重型機車',motorbike('#2a62c9'),42,9.6,0,2.0,0.7,1.3,70,0);
@@ -3178,7 +3176,7 @@ M.build(scene);
    o.position.set(22+Math.cos(a)*r,h/2,-2+Math.sin(a)*r);o.rotation.set(0,rnd()*0.4,0);o.scale.set(w,h,d);o.updateMatrix();im.setMatrixAt(i,o.matrix);col.setHSL(0.07+rnd()*0.06,0.12,0.6+rnd()*0.22);im.setColorAt(i,col);}
  scene.add(im);}
 
-/* ---------------- 熱氣球（使用者要求：想要搭著飛上天）：停在巷子對面空地上（全家後面） ----------------
+/* ---------------- 熱氣球（使用者要求：想要搭著飛上天）：停在巷子對面空地上（便利商店後面） ----------------
    走到吊籃旁邊按 F（手機點下方按鈕）上去；按「跳」（空白鍵）噴火往上升，不噴火會慢慢下降；搖桿／WASD 慢慢飄（Shift 或搖桿推到底比較快）；
    空中按「降落」自動慢慢降到地面（可以降在屋頂上），落地後按「下熱氣球」。小遊戲中不能搭。 */
 const BALLOON=(()=>{const HOME=new V2(2,27.5),g=new THREE.Group();scene.add(g);
@@ -6565,7 +6563,7 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
   const panel=document.getElementById('emotePanel'),btn=document.getElementById('bEmote');
   const LIST=[
     {k:'moon',name:'月球漫步',loop:true,bpm:112,face:Math.PI/2},
-    {k:'bye',name:'Bye Bye Bye（死侍）',loop:true,bpm:172},
+    {k:'bye',name:'Bye Bye Bye（忍者裝）',loop:true,bpm:172},
     {k:'floss',name:'牙線舞',loop:true,bpm:128},
     {k:'horse',name:'騎馬舞',loop:true,bpm:132},
     {k:'robot',name:'機器人舞',loop:true,bpm:110},
@@ -6593,7 +6591,7 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
     E.on=it;E.t=0;E.cnt=0;player.vel.set(0,0);if(view!=='third'){view='third';syncViewUI();}
     avatar.yaw=player.yaw+Math.PI+(it.face||0);   // 轉過來面對鏡頭（月球漫步：側面）
     if(it.k==='moon')E.addHat();
-    E.prev=null;if(it.k==='bye')E.suit(true);   /* 死侍版：換上死侍裝 */
+    E.prev=null;if(it.k==='bye')E.suit(true);   /* 換上忍者裝 */
     if(it.bpm){AUDIO.beat(it.bpm);E.beat=true;}
     btn.textContent='停止';btn.classList.add('on');
     const el=document.getElementById('gBig');if(el){el.textContent=it.k==='bye'?'Bye Bye Bye ⚔':it.k==='moon'?'月球漫步 🌙':it.name;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
@@ -6607,8 +6605,8 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
     const band=new THREE.Mesh(new THREE.CylinderGeometry(0.132,0.132,0.03,24),wh);band.position.y=0.025;g.add(band);
     g.position.set(0,1.79,0.0);g.rotation.x=-0.12;g.traverse(o=>{if(o.isMesh)o.castShadow=true;});avatar.body.add(g);E.hat=g;};
   E.removeHat=()=>{if(E.hat){avatar.body.remove(E.hat);E.hat=null;}};
-  // 死侍版 Bye Bye Bye（使用者：要 Deadpool 版本、要有裝扮）：跳舞時換上死侍裝（紅色緊身衣、面罩、背後兩把武士刀）；停下來換回原本的衣服
-  const DP={name:'死侍',top:'#a3121c',sleeve:'long',bottom:'pants',bc:'#a3121c',shoe:'#241012',extra:'deadpool',mask:'#a3121c',glove:'#a3121c'};
+  // Bye Bye Bye 跳舞時換上忍者裝（原本是使用者要的某電影角色裝扮；2026-10-12 為了避免侵權改成一般的忍者：深藍連身衣＋只露眼睛的頭巾、紅腰帶、綁腿、背上一把刀）；停下來換回原本的衣服
+  const DP={name:'忍者',top:'#1d2433',sleeve:'long',bottom:'pants',bc:'#1d2433',shoe:'#15171c',extra:'ninja',mask:'#1d2433',glove:'#1d2433'};
   E.suit=on=>{const A=avatar;if(on){if(A.morph)return;A.dress({...charCfg,O:DP});E.dp=true;}else if(E.dp){E.dp=false;A.dress(charCfg);}};
   // 跳舞的關節平滑（卡點的動作 0.04 秒內到位，換段落時不會瞬間跳過去）：E.ft（測試）時不平滑
   E.smooth=(a,dt,rate)=>{const js=[a.body,a.chest,a.head,a.armL,a.armR,a.foreL,a.foreR,a.legL,a.legR,a.shinL,a.shinR,a.footL,a.footR,a.handL&&a.handL.g,a.handR&&a.handR.g];
@@ -6849,12 +6847,11 @@ const avatar=(()=>{
     x.fillStyle=fem?'rgba(255,120,140,0.35)':'rgba(255,140,140,0.18)';for(const cx of [W*0.2,W*0.8]){x.beginPath();x.ellipse(cx,H*0.78,16,8,0,0,Math.PI*2);x.fill();}   // 腮紅
     x.strokeStyle=fem?'#d0546b':'#8a4a3a';x.lineWidth=3.5;x.lineCap='round';x.beginPath();x.arc(W/2,H*0.82,9,Math.PI*0.15,Math.PI*0.85);x.stroke();   // 微笑
     const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return faceTex[g]=std({map:t,transparent:true,roughness:0.8,depthWrite:false});}
-  // 死侍面罩：紅色頭套上兩塊往外上方翹的黑色眼罩＋白色斜眼（沒有嘴巴）
+  // 忍者頭巾：整顆頭是深藍布，眼睛那一條露出皮膚＋眼睛、眉毛
   function maskFace(){if(faceTex.mask)return faceTex.mask;const W=256,H=128,[c,x]=cvs(W,H);
-    for(const s of [-1,1]){const cx=W/2+s*W*0.18,cy=H*0.5;x.save();x.translate(cx,cy);x.scale(s,1);
-      x.fillStyle='#0d0d10';x.beginPath();x.moveTo(-30,8);x.quadraticCurveTo(-26,-30,10,-34);x.quadraticCurveTo(44,-38,62,-30);x.quadraticCurveTo(52,10,30,26);x.quadraticCurveTo(-4,40,-30,8);x.fill();   // 黑色眼罩（往太陽穴延伸）
-      x.fillStyle='#ffffff';x.beginPath();x.moveTo(-14,4);x.quadraticCurveTo(4,-12,26,-10);x.quadraticCurveTo(18,8,-2,10);x.quadraticCurveTo(-10,10,-14,4);x.fill();x.restore();}   // 白色斜眼（內眼角低、外眼角高）
-    x.strokeStyle='rgba(60,0,0,0.35)';x.lineWidth=2;x.beginPath();x.moveTo(W/2,0);x.lineTo(W/2,H);x.stroke();   // 中間縫線
+    x.fillStyle='#e0b48a';x.beginPath();x.roundRect(W*0.14,H*0.34,W*0.72,H*0.28,H*0.12);x.fill();   // 露出眼睛的那一條
+    for(const s of [-1,1]){const cx=W/2+s*W*0.15;x.fillStyle='#1b1512';x.beginPath();x.ellipse(cx,H*0.5,9,7,0,0,Math.PI*2);x.fill();x.fillStyle='#ffffff';x.beginPath();x.arc(cx+3,H*0.47,2.2,0,Math.PI*2);x.fill();   // 眼睛
+      x.strokeStyle='#2a1d14';x.lineWidth=4;x.beginPath();x.moveTo(cx-14*s,H*0.4);x.lineTo(cx+12*s,H*0.38);x.stroke();}   // 眉毛
     const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return faceTex.mask=std({map:t,transparent:true,roughness:0.6,depthWrite:false});}
   // 百褶裙的直條紋
   const pleatTex=(()=>{const [c,x]=cvs(256,8);for(let i=0;i<32;i++){x.fillStyle=i%2?'rgba(0,0,0,0.22)':'rgba(255,255,255,0.08)';x.fillRect(i*8,0,8,8);}const t=new THREE.CanvasTexture(c);t.wrapS=THREE.RepeatWrapping;return t;})();
@@ -6905,7 +6902,7 @@ const avatar=(()=>{
   A.dress=cfg=>{
     for(const g of [parts,legL,legR,armL,armR])g.clear();
     const fem=cfg.g==='f',O=cfg.O||CHAR_OUTFITS[cfg.g][cfg.o],hair=M(CHAR_HAIR[cfg.h][1],0.55),pm=O.pat?PAT(O.pat):null,top=pm||M(O.top,0.65),sl=pm||M(O.sc||O.top,0.65),bc=O.bpat?PAT(O.bpat):pm&&O.patB?pm:M(O.bc,0.7),shoe=M(O.shoe,0.45),P=parts;
-    const skin=O.mask?M(O.mask,0.55):skin0,glove=O.glove?M(O.glove,0.55):skin;   // 死侍：整顆頭是紅色面罩、手套
+    const skin=O.mask?M(O.mask,0.55):skin0,glove=O.glove?M(O.glove,0.55):skin;   // 忍者：整顆頭是頭巾、手套
     A.stride=O.stride||1;
     const hipY=fem?0.93:0.95,shX=fem?0.2:0.235;legL.position.set(-0.085,hipY,0);legR.position.set(0.085,hipY,0);armL.position.set(-shX,1.47,0);armR.position.set(shX,1.47,0);
     // 身體
@@ -7029,21 +7026,15 @@ const avatar=(()=>{
         for(const sx of [-1,1]){const c=at(new THREE.Mesh(new THREE.BoxGeometry(0.08,0.05,0.02),M(O.top,0.6)),sx*0.05,1.47,0.11,P);c.rotation.z=sx*0.45;}break;}
       case 'yukata':{const o=at(new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.17,0.08,20),M('#1d1f24',0.6)),0,1.0,0,P);o.scale.set(1.15,1,0.82);   // 浴衣：細腰帶＋交領
         for(const sx of [-1,1]){const v=at(new THREE.Mesh(new THREE.BoxGeometry(0.035,0.24,0.01),M('#e8e2d6',0.6)),sx*0.04,1.4,0.124,P);v.rotation.z=sx*0.45;}break;}
-      case 'deadpool':{const bk=M('#141417',0.5),hw=fem?0.168:0.207,hd=fem?0.111:0.122,dk=M('#2a2a30',0.45),sv=std({color:'#c9ced6',roughness:0.25,metalness:0.85});   // 死侍：紅色緊身衣＋兩側黑色、腰帶＋圓形標誌扣環、小包包、背後交叉兩把武士刀
-        for(const sx of [-1,1]){const sp=at(cap(0.06,fem?0.26:0.3,bk),sx*(hw-0.03),1.22,0,P);sp.scale.set(0.55,1,hd/0.06*0.95);   // 身體兩側黑色
-          const sh=at(ball(0.075,bk,12,8),sx*(fem?0.2:0.235),1.47,0,P);sh.scale.set(1.05,0.75,1.05);}   // 肩膀黑色
-        for(const [a,sx] of [[armL,-1],[armR,1]])at(cap(0.03,0.4,bk),sx*0.032,-0.28,0,a);   // 手臂外側黑線
-        for(const [lg,sx] of [[legL,-1],[legR,1]]){at(cap(0.034,0.62,bk),sx*0.045,-0.42,0,lg);const hol=at(new THREE.Mesh(new THREE.BoxGeometry(0.05,0.12,0.1),bk),sx*0.07,-0.2,0,lg);hol.castShadow=true;}   // 腿外側黑線、大腿槍套
-        {const b=at(new THREE.Mesh(new THREE.CylinderGeometry(0.152,0.152,0.055,22),dk),0,fem?1.0:0.99,0,P);b.scale.set(fem?1.15:1.22,1,0.8);}   // 腰帶
-        {const [c,x]=cvs(64,64);x.fillStyle='#b0141e';x.beginPath();x.arc(32,32,30,0,Math.PI*2);x.fill();x.fillStyle='#111';   // 扣環的死侍標誌
-         for(const s of [-1,1]){x.beginPath();x.ellipse(32+s*14,32,11,25,0,0,Math.PI*2);x.fill();}x.fillStyle='#fff';for(const s of [-1,1]){x.beginPath();x.ellipse(32+s*13,30,5,3,s*0.4,0,Math.PI*2);x.fill();}
-         const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const bu=at(new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,0.02,24),[sv,std({map:t,roughness:0.4}),sv]),0,fem?1.0:0.99,(fem?0.111:0.122)*0.8+0.035,P);bu.rotation.x=Math.PI/2;}
-        for(const a of [-2.2,-1.6,1.6,2.2,Math.PI]){const pw=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.07,0.04),bk);pw.castShadow=true;const r=0.172;at(pw,Math.sin(a)*r*(fem?1.1:1.2),fem?0.98:0.97,Math.cos(a)*r*0.8,P).rotation.y=a;}   // 腰帶上的小包包
-        for(const sx of [-1,1]){const g=new THREE.Group();g.position.set(0,1.22,-hd-0.04);g.rotation.z=sx*0.55;P.add(g);   // 背後交叉的武士刀（刀鞘＋護手＋刀柄），刀柄從肩膀後面冒出來
-          const sc=new THREE.Mesh(new THREE.BoxGeometry(0.032,0.66,0.022),bk);sc.position.y=-0.08;sc.castShadow=true;g.add(sc);
-          const gd=new THREE.Mesh(new THREE.CylinderGeometry(0.034,0.034,0.012,14),M('#d9b24a',0.3));gd.position.y=0.26;g.add(gd);
-          const hl=new THREE.Mesh(new THREE.CylinderGeometry(0.014,0.014,0.2,8),M('#3a0a0e',0.7));hl.position.y=0.37;hl.castShadow=true;g.add(hl);
-          const pm_=new THREE.Mesh(new THREE.CylinderGeometry(0.016,0.016,0.015,8),M('#d9b24a',0.3));pm_.position.y=0.475;g.add(pm_);}
+      case 'ninja':{const rd=M('#c8282e',0.6),gy=M('#8a8f99',0.75),bk=M('#0f1116',0.5),hd=fem?0.111:0.122;   // 忍者：紅腰帶（背後打結垂下兩條）、綁腿、護腕、背上斜背一把刀
+        {const b=at(new THREE.Mesh(new THREE.CylinderGeometry(0.155,0.155,0.07,22),rd),0,fem?1.0:0.99,0,P);b.scale.set(fem?1.15:1.22,1,0.8);b.castShadow=true;}   // 紅腰帶
+        for(const sx of [-1,1]){const t=at(new THREE.Mesh(new THREE.BoxGeometry(0.05,0.26,0.012),rd),sx*0.05,fem?0.86:0.85,-hd*0.8-0.035,P);t.rotation.z=sx*0.18;t.castShadow=true;}   // 腰帶結垂下來
+        for(const lg of [legL,legR]){const w=at(cap(0.07,0.14,gy),0,-0.62,0,lg);w.castShadow=true;}   // 綁腿
+        for(const a of [armL,armR])at(cap(0.055,0.1,gy),0,-0.44,0,a);   // 護腕
+        {const g=new THREE.Group();g.position.set(0,1.22,-hd-0.04);g.rotation.z=0.6;P.add(g);   // 背上斜背一把刀（刀鞘＋護手＋紅色刀柄）
+         const sc=new THREE.Mesh(new THREE.BoxGeometry(0.03,0.6,0.022),bk);sc.position.y=-0.06;sc.castShadow=true;g.add(sc);
+         const gd=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.012,0.05),bk);gd.position.y=0.25;g.add(gd);
+         const hl=new THREE.Mesh(new THREE.CylinderGeometry(0.014,0.014,0.18,8),rd);hl.position.y=0.35;hl.castShadow=true;g.add(hl);}
         break;}
       case 'hood':{const h=at(ball(0.12,top,16,10),0,1.5,-0.13,P);h.scale.set(1.15,0.6,0.7);for(const sx of [-1,1])at(new THREE.Mesh(new THREE.CylinderGeometry(0.006,0.006,0.16,6),M('#ffffff',0.6)),sx*0.04,1.38,0.13,P);break;}
       // ---- 100 套女裝用的新配件（AC＝這個配件的顏色 acc／acc2） ----
@@ -7558,7 +7549,7 @@ const SPOTS=[
   {name:'大漩渦',x:-100,z:636,yaw:Math.PI},   // 大漩渦起點拱門前（面向漩渦）   // 站在賽車旁邊（面向車）   // 門口、面向店
   {name:'超級彈跳床',x:-5.2,z:-4.6,yaw:0},   // 房子西邊的空地，面向彈跳床   // 球車旁、面向球場   // 大跳台起跳區、面向東
   {name:'大圓環',x:-16,z:80,yaw:Math.PI},   // 直排輪架旁邊、面向入口   // 傳送到熱氣球現在停的地方（可能降落在別處）
-  {name:'全家便利商店',x:(STORE.dx0+STORE.dx1)/2,z:10.8,yaw:Math.PI},
+  {name:'便利商店',x:(STORE.dx0+STORE.dx1)/2,z:10.8,yaw:Math.PI},
 ];
 
 /* ---------------- 輸入 ---------------- */
@@ -7687,7 +7678,7 @@ function drawMinimapBg(){
   {const [x,y]=w2m(ux(0)+UW/2-0.7,(Z_BACK+Z_YARD)/2);g.fillText('我家',x,y);}
   g.fillStyle='#c9d1d7';g.font=`${Math.max(9,Math.min(13,sc*2.4))}px ${FONT}`;
   {const [x,y]=w2m(30,(LANE_Z0+LANE_Z1)/2);g.fillText('門前巷子',x,y);}
-  {const [x,y]=w2m((STORE.x0+STORE.x1)/2,(STORE.z0+STORE.z1)/2);g.fillStyle='#ffffff';g.fillText('全家',x,y);g.fillStyle='#c9d1d7';}
+  {const [x,y]=w2m((STORE.x0+STORE.x1)/2,(STORE.z0+STORE.z1)/2);g.fillStyle='#ffffff';g.fillText('超商',x,y);g.fillStyle='#c9d1d7';}
   {const [x,y]=w2m(-16,-35);g.save();g.translate(x,y);g.rotate(-Math.PI/2);g.fillText('大馬路',0,0);g.restore();}
   {const [x,y]=w2m(67,-30);g.save();g.translate(x,y);g.rotate(-Math.PI/2);g.fillText('側邊巷子',0,0);g.restore();}
   mmBg=c;
@@ -7746,8 +7737,8 @@ function updatePlace(){
   else if(inR(x,z,TENNIS_PARK))t=['網球場',TN.on?'網球':TN.near()?'按 F 拿球拍':'場邊'];
   else if(inR(x,z,COURT_PARK))t=['圓環籃球場',SB.on?'街頭鬥牛':SB.label()?(isTouch?'點下方按鈕開始街頭鬥牛':'按 F 開始街頭鬥牛'):BB.on?'籃球':inR(x,z,COURT)?'全場 28×15':'場邊'];
   else if(inR(x,z,JUMP_PARK)){const J=JUMPS.find(J=>x>J.x0-8&&x<J.x3+12&&z>J.z0-1.5&&z<J.z1+1.5);t=['跳台公園',J?J.name+(player.y>0.4?`（高 ${player.y.toFixed(1)} m）`:''):JUMPS.some(J=>z>J.z0&&z<J.z1&&x<J.x0)?'助跑道':'大跳台、中跳台'];}
-  else if(inR(x,z,STORE))t=['全家便利商店',player.y>=STORE.h-0.3?'屋頂':''];
-  else if(inR(x,z,{x0:STORE.x0-2,x1:STORE.x1+2,z0:LANE_Z1,z1:STORE.z0}))t=['全家便利商店','門口'];
+  else if(inR(x,z,STORE))t=['便利商店',player.y>=STORE.h-0.3?'屋頂':''];
+  else if(inR(x,z,{x0:STORE.x0-2,x1:STORE.x1+2,z0:LANE_Z1,z1:STORE.z0}))t=['便利商店','門口'];
   else if(inR(x,z,GRASS))t=['對面空地',''];
   else if(Math.hypot(x-TRAMPS[1].x,z-TRAMPS[1].z)<4.5)t=['超級彈跳床',player.y>1?`高 ${player.y.toFixed(1)} m`:'跳得比房子還高'];
   else if(inR(x,z,NB))t=['側邊空地',''];
@@ -8331,7 +8322,7 @@ const GAME=(()=>{
     G.prints=G.prints.filter(q=>!q.dead);}
   function specialClear(){for(const l of [G.arcs,G.blades,G.rocks,G.cracks])for(const o of l)scene.remove(o.m);G.arcs=[];G.blades=[];G.rocks=[];G.cracks=[];G.quakes=[];
     for(const b of G.balls)scene.remove(b.m);G.balls=[];G.curBall=null;for(const q of G.prints)scene.remove(q.dark,q.glow);G.prints=[];palmG.visible=false;palmMat.opacity=0.92;G.palm=null;}
-  // ---- 破壞：車子、鄰居的房子、隔壁大樓、周邊建築、全家（我家不會壞；遊戲結束會復原） ----
+  // ---- 破壞：車子、鄰居的房子、隔壁大樓、周邊建築、便利商店（我家不會壞；遊戲結束會復原） ----
   // 範圍、合併網格裡的位置在「打得壞的東西」那段（REGIONS）。打到才把那段拆出來：車子會晃、打爆炸飛變焦黑殘骸並連鎖爆炸；房子倒塌成瓦礫。
   const DESTR=(()=>{
     const D={n:0,falls:[],debris:[],vehs:[],pend:[],tgtT:0,shT:0};
@@ -8468,7 +8459,7 @@ const GAME=(()=>{
     teleport(5.26,0.6,Math.PI,0);   // 面向巷子（殭屍從那邊來）
     document.body.classList.add('gaming');document.body.classList.toggle('dk',avatar.morph);{const mb=$('gMorph');if(mb)mb.firstChild.textContent=avatar.morph?'還原':'變身';}hud.hidden=false;skills.hidden=false;overEl.hidden=true;killEl.textContent='擊倒 0';comboEl.textContent='';waveEl.textContent='準備…';menu.hidden=true;bMenu.classList.remove('on');
     if(G.free)waveEl.textContent='自由破壞';
-    AUDIO.musicStart();toast(G.free?'自由破壞模式：車子、鄰居的房子、周邊建築、全家都打得壞（我家不會壞）；技能往前方放，視角往上抬就往上打':'殭屍來襲！守住家裡！按下方按鈕往前方放技能，按住「蓄力」集氣放開發射；車子、別人的房子也打得壞');}
+    AUDIO.musicStart();toast(G.free?'自由破壞模式：車子、鄰居的房子、周邊建築、便利商店都打得壞（我家不會壞）；技能往前方放，視角往上抬就往上打':'殭屍來襲！守住家裡！按下方按鈕往前方放技能，按住「蓄力」集氣放開發射；車子、別人的房子也打得壞');}
   function end(){clearAll();DESTR.reset();AUDIO.musicStop();document.body.classList.remove('gaming');G.on=false;G.over=false;hud.hidden=true;skills.hidden=true;overEl.hidden=true;flash.style.boxShadow='';if(G.prevView){view=G.prevView;syncViewUI();}G.prevView=null;}
   function gameOver(){G.over=true;overEl.hidden=false;$('gOverMsg').textContent=`撐到第 ${G.wave} 波，擊倒 ${G.kills} 隻殭屍，破壞 ${DESTR.n} 個東西，最高 ${G.best} 連擊`;AUDIO.musicStop();chargeStop();snd('over');}
   $('gStart').onclick=()=>start(false);$('gFree').onclick=()=>start(true);$('gQuit').onclick=end;$('gRetry').onclick=()=>start(G.free);$('gExit').onclick=end;
@@ -8711,7 +8702,7 @@ function step(dt){
   for(const d of DOORS){if(d.wasNear===undefined)d.wasNear=false;const near=(mode==='walk'&&Math.abs(player.y-d.y)<1&&Math.hypot(player.pos.x-d.center.x,player.pos.y-d.center.y)<2.2)||GAME.zNear(d.center,d.y);   // 殭屍靠近也會開
     if(near&&!d.wasNear&&started)AUDIO.sfx('door');d.wasNear=near;   // 開門聲
     d.ang+=((near?d.max:0)-d.ang)*Math.min(1,dt*4);d.pivot.rotation.y=d.rot0+d.sgn*d.ang;d.col.off=d.ang>0.8;}
-  // 全家自動門：人或殭屍靠近就往兩側滑開，進門「叮咚」（店倒了就不見）
+  // 便利商店自動門：人或殭屍靠近就往兩側滑開，進門「叮咚」（店倒了就不見）
   {const D=STORE_DOOR,cx=(STORE.dx0+STORE.dx1)/2,gone=STORE_REG.dead;
    const pn=mode==='walk'&&player.y<1.5&&Math.hypot(player.pos.x-cx,player.pos.y-STORE.z0)<2.4,near=!gone&&(pn||GAME.zNear(new V2(cx,STORE.z0),0));
    if(pn&&!D.near&&!gone&&started)AUDIO.sfx('chime');D.near=pn;
