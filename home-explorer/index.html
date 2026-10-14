@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-14.28"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-14.30"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -7388,7 +7388,13 @@ const CU=(()=>{
   function forNear(a,b,r,fn){const c0=Math.floor((a-r)/CS)-gx0,c1=Math.floor((a+r)/CS)-gx0,d0=Math.floor((b-r)/CS)-gz0,d1=Math.floor((b+r)/CS)-gz0;
     for(let cz=Math.max(0,d0);cz<=Math.min(GW-1,d1);cz++)for(let cx=Math.max(0,c0);cx<=Math.min(GW-1,c1);cx++){let i=GH[cx+cz*GW];while(i>=0){const nx=GN[i];if(MAL[i]&&fn(i)===false)return;i=nx;}}}
   // 最近的 24 隻（自動瞄準用）
-  const NK=24,ND=new Float32Array(NK),NI=new Int32Array(NK);let nN=0;
+  let ND=new Float32Array(24),NI=new Int32Array(24),nN=0;const NK=24;
+  // 2026-10-14 使用者：瞄準之後感覺比較爛 → 原本瞄準方向沒怪時，雷射、火箭、冰凍、無人機去打空地（-7）、閃電鏈不放。
+  // 另外留一份「不管方向、最近的 24 隻」（ND2／NI2）：這些聰明的武器瞄準方向沒怪就改用這份；手槍、加特林、霰彈槍照瞄準方向射（看得到自己在控制）
+  let ND2=new Float32Array(24),NI2=new Int32Array(24),nN2=0,coneMon=false;
+  function nearIns2(i,d){if(nN2<NK){let j=nN2++;while(j>0&&ND2[j-1]>d){ND2[j]=ND2[j-1];NI2[j]=NI2[j-1];j--;}ND2[j]=d;NI2[j]=i;return;}if(d>=ND2[NK-1])return;let j=NK-1;while(j>0&&ND2[j-1]>d){ND2[j]=ND2[j-1];NI2[j]=NI2[j-1];j--;}ND2[j]=d;NI2[j]=i;}
+  const SMART={laser:1,rocket:1,ice:1,chain:1,drone:1};
+  function swapNear(){let a=ND;ND=ND2;ND2=a;let b=NI;NI=NI2;NI2=b;let c=nN;nN=nN2;nN2=c;}
   const aimPen=(da,db,d2)=>{if(!K.aim.on||K.mode==='stage')return 1;const c=(da*K.aim.x+db*K.aim.z)/(Math.sqrt(d2)||1);return c>0.95?1:c>0.9?1+(0.95-c)*20:0;};   /* 瞄準方向 ±18° 內優先、±25° 以外不打（0＝跳過） */
   function nearIns(i,d){if(nN<NK){let j=nN++;while(j>0&&ND[j-1]>d){ND[j]=ND[j-1];NI[j]=NI[j-1];j--;}ND[j]=d;NI[j]=i;return;}if(d>=ND[NK-1])return;let j=NK-1;while(j>0&&ND[j-1]>d){ND[j]=ND[j-1];NI[j]=NI[j-1];j--;}ND[j]=d;NI[j]=i;}
   // ================= 無盡模式：校園格子地圖（2 m 一格）＋往玩家的距離場（怪物照著繞過建築、湖） =================
@@ -7456,6 +7462,12 @@ const CU=(()=>{
     shield:new THREE.MeshBasicMaterial({color:'#5fe0ff',transparent:true,opacity:0.85,toneMapped:false}),pv:new THREE.MeshBasicMaterial({color:'#b98aff',transparent:true,opacity:0.85,toneMapped:false})};
   const items=[];
   function dropItem(k,a,b){const m=add(ITG[k],ITM[k]);items.push({k,a,b,m,t:0});}
+  // 掉落物要明顯（2026-10-14 使用者：地板道具不明顯，不知道那裡有道具）：往上的光柱（武器箱金色、能力水晶紫色）＋地上光圈，遠遠就看得到
+  const BEAMG=new THREE.CylinderGeometry(0.2,0.36,7,14,1,true).translate(0,3.2,0),BRG=new THREE.RingGeometry(0.75,1.05,28).rotateX(-Math.PI/2).translate(0,-0.62,0);
+  const BEAMM={crate:new THREE.MeshBasicMaterial({color:'#ffcf3a',transparent:true,opacity:0.35,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,toneMapped:false}),pv:new THREE.MeshBasicMaterial({color:'#c07aff',transparent:true,opacity:0.35,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,toneMapped:false})};
+  const BRM={crate:new THREE.MeshBasicMaterial({color:'#ffd23a',transparent:true,opacity:0.8,depthWrite:false,toneMapped:false}),pv:new THREE.MeshBasicMaterial({color:'#d39bff',transparent:true,opacity:0.8,depthWrite:false,toneMapped:false})};
+  function beam(it){const k=it.k==='pv'?'pv':'crate',b=new THREE.Mesh(BEAMG,BEAMM[k]),r=new THREE.Mesh(BRG,BRM[k]);b.renderOrder=3;r.renderOrder=3;it.m.add(b,r);it.beam=b;
+    wp(it.a,it.b,TV);for(let q=0;q<10;q++)part(TV.x,rnd(0.5,1.5),TV.z,k==='pv'?'#d39bff':'#ffd23a',0.45,0.5,rnd(-3,3),rnd(2,5),rnd(-3,3));soft('gem',0.15);}
   // 大魔王的攻擊預告（紅圈、紅色長條）
   const TELE=[0,1,2].map(()=>{const m=add(new THREE.CircleGeometry(1,40).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#ff2a2a',transparent:true,opacity:0.3,depthWrite:false,toneMapped:false}));m.visible=false;m.renderOrder=1;return m;});
   const TELER=add(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#ff2a2a',transparent:true,opacity:0.3,depthWrite:false,toneMapped:false}));TELER.visible=false;TELER.renderOrder=1;
@@ -7499,7 +7511,15 @@ const CU=(()=>{
   function vestOff(){for(const k of ['m','hb']){const o=VEST[k];if(o){if(o.parent)o.parent.remove(o);o.material.dispose();VEST[k]=null;}}}
   const dmgMul=()=>(1+0.12*(K.pv.atk||0)+(K.atkB||0))*(K.rage>0?1.3:1);
   // 打怪：d＝傷害、kb＝擊退（沿著 da,db 方向）
-  function hurt(i,d,kb,da,db){if(!MAL[i])return;MH[i]-=d*dmgMul();MFL[i]=0.09;if(kb&&!MT[TYPES[MTY[i]]].elite){const l=Math.hypot(da,db)||1;MKA[i]+=da/l*kb*5;MKB[i]+=db/l*kb*5;}if(MH[i]<=0)killM(i);}
+  // 打中的感覺（2026-10-14 使用者：打怪物都沒甚麼效果，不知道有沒有打到）：原本只閃白 0.09 秒，作業紙怪本來就是白的看不出來
+  // → 閃橘紅光 0.13 秒＋身體彈一下（draw）、噴火花、跳傷害數字（每秒最多約 30 個）、輕輕的「啪」（最多每 0.07 秒一次）
+  let hfB=0,dnB=0,hsT=0;const DNT={},DN=[];
+  const dnTex=(s2,bg)=>{const k=s2+(bg?'b':'');if(DNT[k])return DNT[k];const [c,g]=cvs(128,64);g.font=`900 ${bg?54:44}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.lineWidth=9;g.strokeStyle='#1a0a00';g.strokeText(s2,64,34);g.fillStyle=bg?'#ffd23a':'#ffffff';g.fillText(s2,64,34);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return DNT[k]=t;};
+  for(let k=0;k<30;k++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({depthTest:false,depthWrite:false,transparent:true,toneMapped:false}));sp.visible=false;sp.renderOrder=7;G.add(sp);DN.push({sp,t:9,x:0,z:0,y:0,s:1});}let dnI=0;
+  function hitFx(i,v){wp(MA[i],MB_[i],TV);if(hfB>=1){hfB--;for(let q=0;q<2;q++)part(TV.x+rnd(-0.2,0.2),rnd(0.6,1.2),TV.z+rnd(-0.2,0.2),q?'#fff2a8':'#ff9a3a',0.3,0.2,rnd(-2.5,2.5),rnd(1,3),rnd(-2.5,2.5));}
+    if(dnB>=1&&v>=0.5){dnB--;const o=DN[dnI=(dnI+1)%DN.length],bg=v>=20;o.sp.material.map=dnTex(String(Math.round(v)),bg);o.sp.material.needsUpdate=true;o.t=0;o.x=TV.x+rnd(-0.3,0.3);o.z=TV.z+rnd(-0.3,0.3);o.y=MT[TYPES[MTY[i]]].elite?2.3:1.5;o.s=bg?1.25:0.9;o.sp.visible=true;}
+    const n=performance.now();if(n>hsT){hsT=n+70;const c=AUDIO.A&&AUDIO.A.ctx;if(c&&AUDIO.syn&&c.state==='running'){AUDIO.syn.noise(c.currentTime,0.035,0.05,AUDIO.A.sfx,'bandpass',rnd(1800,2800),0,1.4);AUDIO.syn.tone('square',rnd(700,900),300,c.currentTime,0.03,0.018,AUDIO.A.sfx);}}}
+  function hurt(i,d,kb,da,db){if(!MAL[i])return;const dd=d*dmgMul();MH[i]-=dd;MFL[i]=0.13;hitFx(i,dd);if(kb&&!MT[TYPES[MTY[i]]].elite){const l=Math.hypot(da,db)||1;MKA[i]+=da/l*kb*5;MKB[i]+=db/l*kb*5;}if(MH[i]<=0)killM(i);}
   function aoe(a,b,r,d,kb,slow){forNear(a,b,r+1,i=>{const da=MA[i]-a,db=MB_[i]-b;if(da*da+db*db<r*r){if(slow){MSL[i]=Math.max(MSL[i],slow.t);if(slow.fz)MFZ[i]=Math.max(MFZ[i],slow.fz);}hurt(i,d,kb,da,db);}});if(B&&B.hp>0&&Math.hypot(B.a-a,B.b-b)<r+B.r)bossHurt(d*0.8);}
   function expl(a,b,r,d,col='#ff8a3a',kb=1){aoe(a,b,r,d,kb);wp(a,b,TV);ring(TV.x,TV.z,r,col,0.35);for(let k=0;k<7;k++)part(TV.x+rnd(-r,r)*0.5,rnd(0.3,1.5),TV.z+rnd(-r,r)*0.5,k%2?col:'#ffe08a',rnd(0.8,1.6),0.4,0,rnd(1,3),0);soft('boom',0.12,TV);}
   const tgt=(k=0)=>nN?NI[Math.min(k,nN-1)]:-1;
@@ -7542,7 +7562,7 @@ const CU=(()=>{
   const BOSS_HPM=1.3;
   function bossSpawn(k,a,b,hp){hp*=BOSS_HPM;const D=BOSS[k];if(bossMesh){BOSSG.remove(bossMesh);bossMesh.geometry.dispose();}bossMesh=new THREE.Mesh(D.mk(),MMAT);BOSSG.add(bossMesh);BOSSG.visible=true;
     B={k,D,a,b,hp,max:hp,r:D.r,st:'walk',t:0,cool:2.5,atk:null,ai:0,yaw:0,flash:0,p2:false,morph:false,grow:1};hzClear();barSp.visible=true;drawBar();big(`⚠ ${D.n} 出現了！`);AUDIO.sfx('slam');AUDIO.sfx('wave');AUDIO.setTempo&&AUDIO.setTempo(150);note(`${D.n}：看到紅色的地方就快閃開！`);}
-  function bossHurt(d){if(!B||B.hp<=0)return;B.hp-=d*dmgMul();if(!(B.fcd>0)){B.flash=0.07;B.fcd=0.25;}   /* 最多每 0.25 秒閃一次（不然一直閃白、看不到變身的紅色） */if(!B.p2&&B.hp<B.max*0.5){B.p2=true;B.morph=true;AUDIO.sfx('heavy');}   /* 血剩一半：下次走路時變身 */if(B.hp<=0)bossDie();}
+  function bossHurt(d){if(!B||B.hp<=0)return;const dd=d*dmgMul();B.hp-=dd;if(dnB>=1&&dd>=0.5){dnB--;wp(B.a,B.b,TV);const o=DN[dnI=(dnI+1)%DN.length],bg=dd>=20;o.sp.material.map=dnTex(String(Math.round(dd)),bg);o.sp.material.needsUpdate=true;o.t=0;o.x=TV.x+rnd(-0.8,0.8);o.z=TV.z+rnd(-0.8,0.8);o.y=3.2;o.s=bg?1.4:1;o.sp.visible=true;}if(!(B.fcd>0)){B.flash=0.07;B.fcd=0.25;}   /* 最多每 0.25 秒閃一次（不然一直閃白、看不到變身的紅色） */if(!B.p2&&B.hp<B.max*0.5){B.p2=true;B.morph=true;AUDIO.sfx('heavy');}   /* 血剩一半：下次走路時變身 */if(B.hp<=0)bossDie();}
   function bossDie(){B.hp=0;B.st='dead';B.t=0;hideTele();hzClear();wp(B.a,B.b,TV);confetti(TV.x,3,TV.z,CCOL.boss,POWER.save?25:70,3);for(let k=0;k<30;k++)part(TV.x+rnd(-2,2),rnd(0.5,5),TV.z+rnd(-2,2),['#ffd23a','#ff6a3a','#ffffff'][k%3],rnd(1,2.2),0.8,rnd(-4,4),rnd(2,6),rnd(-4,4));ring(TV.x,TV.z,8,'#ffd23a',0.8);AUDIO.sfx('bigboom');AUDIO.sfx('bigcheer');
     for(let k=0;k<40;k++)dropGem(B.a+rnd(-3,3),B.b+rnd(-3,3),5);for(let k=0;k<3;k++){const an=k*2.1;dropReward(B.a+Math.cos(an)*1.6,B.b+Math.sin(an)*1.6);}K.kills+=1;if(K.mode==='stage')winStart();else if(K.esc){K.exitLocked=false;big(`打倒${B.D.n}！出口打開了！`);note('快跑到逃生點，站在圈圈裡撐 10 秒');}else{big(`打倒${B.D.n}！`);K.bossN++;}}
   function bossTick(dt){if(!B)return;B.t+=dt;B.flash=Math.max(0,B.flash-dt);B.fcd=Math.max(0,(B.fcd||0)-dt);if(B.st==='dead'){BOSSG.scale.setScalar(Math.max(0.01,1-B.t*1.2)*B.grow);BOSSG.rotation.z=B.t*2;if(K.mode!=='stage'&&B.t>1.5){BOSSG.visible=false;barSp.visible=false;BOSSG.scale.setScalar(1);BOSSG.rotation.z=0;B=null;}return;}   /* 無盡：倒下 1.5 秒後收掉（下一隻 150 秒後來） */
@@ -7623,11 +7643,11 @@ const CU=(()=>{
   // 掉落：打怪的經驗累積到原本升一級的量（×1.15）就在那隻怪的位置掉一個（×1.3，節奏比原本選卡稍慢，因為升級還會加能力）；菁英怪一定掉、大魔王掉 3 個；30 秒沒撿會消失
   const DROPK=1.3,ICOT={};   /* 1.15 時自動模式 10 場全勝（原本第 1 關 6 場 5 勝）→ 掉少一點 */
   const icoTex=s=>ICOT[s]||(ICOT[s]=textTex([s],128,128,null,'#fff',`80px ${FONT}`));
-  function addIcon(it,ico){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:icoTex(ico),depthWrite:false}));sp.scale.set(1.1,1.1,1);sp.position.y=1.1;it.m.add(sp);}
+  function addIcon(it,ico){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:icoTex(ico),depthWrite:false}));sp.scale.set(1.3,1.3,1);sp.position.y=1.2;it.m.add(sp);}
   function pickWeapon(){const own=Object.keys(K.wp),nw=own.length,c=[];for(const k of own)if(K.wp[k]<5)c.push([k,3+K.wp[k]*0.4]);if(nw<6)for(const k in WP)if(!K.wp[k])c.push([k,nw<3?3.2:1.8]);if(!c.length)return null;let t=0;for(const q of c)t+=q[1];let r=Math.random()*t;for(const q of c){r-=q[1];if(r<=0)return q[0];}return c[c.length-1][0];}
   function dropReward(a,b){const pk=Object.keys(PV).filter(k=>(K.pv[k]||0)<5),w=pickWeapon();if(!w&&!pk.length){dropItem('heart',a,b);items[items.length-1].drop=true;return;}
-    if(w&&(Math.random()<0.75||!pk.length)){dropItem('crate',a,b);const it=items[items.length-1];it.w=w;it.drop=true;addIcon(it,WP[w].ico);}
-    else{const k=pk[Math.floor(Math.random()*pk.length)];dropItem('pv',a,b);const it=items[items.length-1];it.p=k;it.drop=true;addIcon(it,PV[k].ico);}}
+    if(w&&(Math.random()<0.75||!pk.length)){dropItem('crate',a,b);const it=items[items.length-1];it.w=w;it.drop=true;addIcon(it,WP[w].ico);beam(it);}
+    else{const k=pk[Math.floor(Math.random()*pk.length)];dropItem('pv',a,b);const it=items[items.length-1];it.p=k;it.drop=true;addIcon(it,PV[k].ico);beam(it);}}
   function dropMeter(v,a,b){K.dAcc=(K.dAcc||0)+v*(K.xpM||1)*(K.esc?0.5:1);const nd=need(K.dLv||1)*DROPK;if(K.dAcc>=nd){K.dAcc-=nd;K.dLv=(K.dLv||1)+1;dropReward(a,b);}}
   const cardsEl=$('cuCards');
   function options(){const out=[],own=Object.keys(K.wp),nw=own.length;
@@ -7886,7 +7906,7 @@ const CU=(()=>{
     escTick(dt,live);
     if(live)spawnTick(dt);
     // ---- 怪物 ----
-    gridBuild();nN=0;K.touch=0;const pr=0.45,frz=K.frzAll>0;K.frzAll=Math.max(0,K.frzAll-dt);
+    gridBuild();nN=0;nN2=0;K.touch=0;const pr=0.45,frz=K.frzAll>0;K.frzAll=Math.max(0,K.frzAll-dt);
     for(let i=0;i<hiM;i++){if(!MAL[i])continue;const T=MT[TYPES[MTY[i]]];MFL[i]=Math.max(0,MFL[i]-dt);MSL[i]=Math.max(0,MSL[i]-dt);MFZ[i]=Math.max(0,MFZ[i]-dt);MBK[i]=Math.max(0,MBK[i]-dt);
       let da=K.pa-MA[i],db=K.pb-MB_[i];const d=Math.hypot(da,db)||1e-3;
       if(d>(stg?95:60)){killM(i,true);continue;}   // 太遠（被甩在後面）：直接收掉
@@ -7900,8 +7920,9 @@ const CU=(()=>{
         MKA[i]*=Math.exp(-dt*8);MKB[i]*=Math.exp(-dt*8);MPH[i]+=dt*(6+sp*1.6);}
       da=K.pa-MA[i];db=K.pb-MB_[i];const d2=da*da+db*db;
       if(d2<(pr+T.r)*(pr+T.r)){if(MFZ[i]<=0)K.touch+=T.dps;const dd=Math.sqrt(d2)||1e-3,push=(pr+T.r-dd),na=MA[i]-da/dd*push,nb=MB_[i]-db/dd*push;if(stg||!fgBlk(na,nb)){MA[i]=na;MB_[i]=nb;}}
-      if(!T.chest||d2<900){const ap=aimPen(-da,-db,d2);if(ap)nearIns(i,(T.chest?d2*0.6:d2)*ap);}}
-    if(B&&B.hp>0&&B.st!=='dead'){const da=B.a-K.pa,db=B.b-K.pb,d2=da*da+db*db;const ap=aimPen(da,db,d2);if(d2<900&&ap)nearIns(-5,d2*0.25*ap);}
+      if(!T.chest||d2<900){const ap=aimPen(-da,-db,d2);if(ap)nearIns(i,(T.chest?d2*0.6:d2)*ap);if(K.aim.on)nearIns2(i,T.chest?d2*0.6:d2);}}
+    if(B&&B.hp>0&&B.st!=='dead'){const da=B.a-K.pa,db=B.b-K.pb,d2=da*da+db*db;const ap=aimPen(da,db,d2);if(d2<900&&ap)nearIns(-5,d2*0.25*ap);if(K.aim.on&&d2<900)nearIns2(-5,d2*0.25);}
+    coneMon=nN>0;   /* 瞄準方向裡有沒有怪（-7 加進去之前） */
     if(K.aim.on&&!stg)nearIns(-7,144);
     K.fr=(K.fr||0)+1;
     if(K.shield>0)K.touch=0;
@@ -7909,7 +7930,7 @@ const CU=(()=>{
     if(live){K.hp=Math.min(K.hpMax,K.hp+(0.6*(K.pv.regen||0)+(K.regB||0))*dt);}
     K.hurtT=Math.max(0,K.hurtT-dt);
     // ---- 武器 ----
-    if(live){const rate=(1+0.1*(K.pv.rate||0)+(K.rateB||0))*(K.rage>0?2.5:1);for(const k in K.wp){if(k==='books')continue;K.wt[k]=(K.wt[k]||0)-dt*rate;if(K.wt[k]>0)continue;const cd=FIRE[k](K.wp[k]);if(cd===null){K.wt[k]=0.08;continue;}K.wt[k]+=cd;if(K.wt[k]<-0.3)K.wt[k]=0;}}
+    if(live){const rate=(1+0.1*(K.pv.rate||0)+(K.rateB||0))*(K.rage>0?2.5:1);for(const k in K.wp){if(k==='books')continue;K.wt[k]=(K.wt[k]||0)-dt*rate;if(K.wt[k]>0)continue;const sw=K.aim.on&&!coneMon&&SMART[k]&&nN2>0;if(sw)swapNear();const cd=FIRE[k](K.wp[k]);if(sw)swapNear();if(cd===null){K.wt[k]=0.08;continue;}K.wt[k]+=cd;if(K.wt[k]<-0.3)K.wt[k]=0;}}
     weaponsTick(dt,live);
     bossTick(dt);hzTick(dt);
     // 紙飛機（大魔王丟的）
@@ -7960,12 +7981,14 @@ const CU=(()=>{
   function draw(dt){const stg=K.mode==='stage',now=performance.now()/1000;
     // 怪物
     for(let t=0;t<TYPES.length;t++)MM[t].count=0;let sh=0;const SA=SHADOW.instanceMatrix.array;
+    hfB=Math.min(8,hfB+dt*45);dnB=Math.min(5,dnB+dt*30);
+    for(const o of DN){if(o.t>=0.7){if(o.sp.visible)o.sp.visible=false;continue;}o.t+=dt;const u=o.t;o.sp.position.set(o.x,o.y+u*1.4,o.z);const sc=o.s*(u<0.08?1+(0.08-u)*6:1);o.sp.scale.set(sc*1.3,sc*0.65,1);o.sp.material.opacity=u<0.4?1:Math.max(0,1-(u-0.4)/0.3);}
     for(let i=0;i<hiM;i++){if(!MAL[i])continue;const t=MTY[i],k=TYPES[t],T=MT[k],m=MM[t],j=m.count++;if(j>=T.cap){m.count--;continue;}
       wp(MA[i],MB_[i],TV);let yaw;if(stg){const ux=MP.tx,uz=MP.tz;const da=K.pa-MA[i],db=K.pb-MB_[i];const wx=ux*da-uz*db,wz=uz*da+ux*db;yaw=Math.atan2(wx,wz);}else yaw=Math.atan2(K.pa-MA[i],K.pb-MB_[i]);
       const ph=MPH[i],fz=MFZ[i]>0;let y=fz?0:Math.abs(Math.sin(ph))*(T.hop?0.28:0.1),tilt=fz?0:Math.sin(ph)*(T.shake?0.06:0.14);if(T.shake&&!fz)tilt+=Math.sin(now*40+i)*0.05;
-      const sc=T.elite?1.35:1,c=Math.cos(yaw),s=Math.sin(yaw),ct=Math.cos(tilt),st=Math.sin(tilt),e=m.instanceMatrix.array,o=j*16;
+      const sc=(T.elite?1.35:1)*(MFL[i]>0?1+MFL[i]*1.6:1),c=Math.cos(yaw),s=Math.sin(yaw),ct=Math.cos(tilt),st=Math.sin(tilt),e=m.instanceMatrix.array,o=j*16;   /* 打中：脹一下 */
       e[o]=c*ct*sc;e[o+1]=st*sc;e[o+2]=-s*ct*sc;e[o+3]=0;e[o+4]=-c*st*sc;e[o+5]=ct*sc;e[o+6]=s*st*sc;e[o+7]=0;e[o+8]=s*sc;e[o+9]=0;e[o+10]=c*sc;e[o+11]=0;e[o+12]=TV.x;e[o+13]=y;e[o+14]=TV.z;e[o+15]=1;
-      const cc=m.instanceColor.array;if(MFL[i]>0){cc[j*3]=3;cc[j*3+1]=3;cc[j*3+2]=3;}else if(fz){cc[j*3]=0.6;cc[j*3+1]=0.9;cc[j*3+2]=1.6;}else if(MSL[i]>0){cc[j*3]=0.75;cc[j*3+1]=0.95;cc[j*3+2]=1.3;}else{cc[j*3]=cc[j*3+1]=cc[j*3+2]=1;}
+      const cc=m.instanceColor.array;if(MFL[i]>0){cc[j*3]=2.6;cc[j*3+1]=0.75;cc[j*3+2]=0.4;}else if(fz){cc[j*3]=0.6;cc[j*3+1]=0.9;cc[j*3+2]=1.6;}else if(MSL[i]>0){cc[j*3]=0.75;cc[j*3+1]=0.95;cc[j*3+2]=1.3;}else{cc[j*3]=cc[j*3+1]=cc[j*3+2]=1;}
       if(sh<1700){const r=T.r*1.25*sc,q=sh*16;SA[q]=r;SA[q+1]=0;SA[q+2]=0;SA[q+3]=0;SA[q+4]=0;SA[q+5]=1;SA[q+6]=0;SA[q+7]=0;SA[q+8]=0;SA[q+9]=0;SA[q+10]=r;SA[q+11]=0;SA[q+12]=TV.x;SA[q+13]=0.05;SA[q+14]=TV.z;SA[q+15]=1;sh++;}}
     for(const m of MM){m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;}SHADOW.count=sh;SHADOW.instanceMatrix.needsUpdate=true;
     // 子彈
@@ -7978,6 +8001,7 @@ const CU=(()=>{
       GEMM.count=nG;GEMM.instanceMatrix.needsUpdate=true;GEMM.instanceColor.needsUpdate=true;}
     // 道具
     for(const it of items){wp(it.a,it.b,TV);it.m.position.set(TV.x,0.7+Math.sin(it.t*3)*0.15,TV.z);it.m.rotation.y=it.t*2;if(it.drop)it.m.visible=it.t<25||Math.floor(it.t*6)%2===0;}   /* 快消失的時候閃 */
+    {const pu=0.2+0.09*Math.sin(now*5);BEAMM.crate.opacity=pu;BEAMM.pv.opacity=pu;for(const it of items)if(it.beam)it.beam.visible=Math.hypot(it.a-K.pa,it.b-K.pb)>4;}   /* 走到旁邊光柱就收起來（不擋畫面） */
     // 雷射
     LASERS.forEach((L,k)=>{const b=K.beams[k];if(!b){L.o.visible=L.c.visible=false;return;}const ua=Math.cos(b.ang),ub=Math.sin(b.ang);wp(K.pa+ua*0.7,K.pb+ub*0.7,TV);wp(K.pa+ua*30,K.pb+ub*30,TV2);
       const len=Math.hypot(TV2.x-TV.x,TV2.z-TV.z),yaw=Math.atan2(TV2.x-TV.x,TV2.z-TV.z),fl=1+0.15*Math.sin(now*50);for(const [m,w] of [[L.o,b.w*0.95*fl],[L.c,b.w*0.22]]){m.visible=true;m.position.set((TV.x+TV2.x)/2,1.15,(TV.z+TV2.z)/2);m.rotation.set(0,yaw,0);m.scale.set(w,w,len);}});
@@ -11188,6 +11212,40 @@ addEventListener('popstate',()=>{if(!started)return;const now=performance.now();
      const u=new URL(location.href);if(m&&m[1]!==APP_VERSION&&u.searchParams.get('v')!==m[1]){u.searchParams.set('v',m[1]);location.replace(u.toString());}}catch(_){}}
  checkUpdate();document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate();});}
 
+/* ---------------- 遊戲入口標誌（2026-10-14 使用者：目前遊戲入口就一個小小圓圈，大家不會知道那裡可以玩遊戲） ----------------
+   每個遊戲入口上方一塊會面向你的大招牌（圖示＋名字＋怎麼開始，顏色跟選單的遊戲按鈕一樣）＋同色光柱從地面打上去；
+   離得越遠招牌越大（遠遠也看得清楚、不受霧影響）；走到 15 m 內跳一次提示；玩任何遊戲時全部收起來（不擋畫面）。 */
+const GATES=(()=>{const G={list:[]},grp=new THREE.Group();scene.add(grp);
+  const beamG=new THREE.CylinderGeometry(0.3,0.55,1,16,1,true).translate(0,0.5,0);
+  const how=isTouch?'走到光圈裡，點下方按鈕開始':'走到光圈裡，按 F 開始';
+  function signTex(ico,n,col,sub){const W=640,H=230,[c,g]=cvs(W,H);const gr=g.createLinearGradient(0,0,W,0);gr.addColorStop(0,col);gr.addColorStop(1,'#ffffff');
+    g.fillStyle='rgba(0,0,0,0.35)';g.beginPath();g.roundRect(10,16,W-20,H-22,36);g.fill();
+    g.fillStyle=col;g.beginPath();g.roundRect(8,6,W-16,H-22,36);g.fill();g.globalAlpha=0.25;g.fillStyle=gr;g.beginPath();g.roundRect(8,6,W-16,(H-22)/2,[36,36,0,0]);g.fill();g.globalAlpha=1;
+    g.lineWidth=8;g.strokeStyle='#ffffff';g.beginPath();g.roundRect(8,6,W-16,H-22,36);g.stroke();
+    g.textAlign='center';g.textBaseline='middle';g.font=`900 78px ${FONT}`;g.lineWidth=10;g.strokeStyle='rgba(0,0,0,0.45)';const tt=`${ico} ${n}`;g.strokeText(tt,W/2,86);g.fillStyle='#ffffff';g.fillText(tt,W/2,86);
+    g.font=`800 34px ${FONT}`;g.fillStyle='#fff7c2';g.fillText(sub,W/2,165);
+    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;}
+  function add(o){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:signTex(o.ico,o.n,o.col,o.sub||how),transparent:true,depthWrite:false,toneMapped:false,fog:false}));sp.renderOrder=4;
+    const bm=new THREE.Mesh(beamG,new THREE.MeshBasicMaterial({color:o.col,transparent:true,opacity:0.3,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,toneMapped:false,fog:false}));bm.userData.noCull=true;bm.renderOrder=3;
+    grp.add(sp,bm);G.list.push({...o,sp,bm,told:false,ph:Math.random()*6});}
+  const VS=RACE.VS,vr=VS?VS.find(q=>q.kind==='run'):null,mh=CAMPUS.music.b;
+  add({n:'跳舞機',ico:'🕺',col:'#d81b60',pos:()=>({x:STORE.x1+1.2,z:STORE.z0+0.9}),h:6.6});   /* 比便利商店屋頂（4.2 m）高 */
+  add({n:'夜市套圈大進擊',ico:'🎪',col:'#d6336c',pos:()=>({x:100.6,z:160})});
+  add({n:'套圈圈攤',ico:'⭕',col:'#f0782a',pos:()=>({x:NM.BOOTH.x,z:NM.BOOTH.zl-0.6}),h:4.2});
+  add({n:'機器人擂台',ico:'🤖',col:'#4b52c8',pos:()=>({x:175-8.9,z:89})});
+  add({n:'街頭鬥牛',ico:'⛹️',col:'#e0731f',pos:()=>({x:33,z:124.3})});
+  add({n:'校園大逃亡',ico:'🎓',col:'#23885a',pos:()=>({x:CAMPUS.pad.x,z:CAMPUS.pad.z}),h:6});
+  add({n:'音樂教室',ico:'🎵',col:'#8a3fc8',pos:()=>({x:(mh.x0+mh.x1)/2,z:mh.z0-1.8}),h:7.4,sub:'走進音樂館，站到黑板前的光圈'});
+  if(RACE.ME)add({n:'賽車',ico:'🏎️',col:'#1f6fd8',pos:()=>({x:RACE.ME.root.position.x,z:RACE.ME.root.position.z}),sub:isTouch?'走到車子旁邊，點下方按鈕坐進去':'走到車子旁邊，按 F 坐進去'});
+  if(vr)add({n:'大漩渦挑戰',ico:'🌀',col:'#0097a7',pos:()=>({x:vr.p.x,z:vr.p.z}),h:6,sub:isTouch?'走到入口，點下方按鈕開始':'走到入口，按 F 開始'});
+  const playing=()=>GAME.on||RACE.on||NM.on||RB.on||SB.on||CU.on||MU.on||DD.on;
+  G.tick=dt=>{const t=performance.now()/1000,hide=!started||playing(),cp=camera.position;
+    for(const q of G.list){const p=q.pos(),d=Math.hypot(cp.x-p.x,cp.z-p.z),vis=!hide&&d<190;q.sp.visible=q.bm.visible=vis;if(!vis)continue;
+      const h=q.h||5,k=Math.max(1,Math.min(5,d*0.034));q.sp.position.set(p.x,h+0.25*Math.sin(t*2+q.ph)+1.2*(k-1),p.z);q.sp.scale.set(4.6*k,1.65*k,1);
+      q.bm.position.set(p.x,0,p.z);q.bm.scale.set(1,h-0.6+1.2*(k-1),1);q.bm.material.opacity=0.2+0.1*Math.sin(t*3+q.ph);
+      const pd=Math.hypot(player.pos.x-p.x,player.pos.y-p.z);if(mode==='walk'&&pd<15&&!q.told){q.told=true;toast(`${q.ico} ${q.n}：${q.sub||how}`);}if(pd>40)q.told=false;}};
+  return G;})();
+
 /* ---------------- 主迴圈 ---------------- */
 const clock=new THREE.Clock();
 function step(dt){
@@ -11275,6 +11333,7 @@ function step(dt){
   CU.tick(dt);
   MU.tick(dt);
   DD.tick(dt);
+  GATES.tick(dt);
   {let t=0;if(CALM.on&&mode==='walk'&&started){const sp=RACE.on?Math.abs(RACE.v)*0.05:SKATE.on?SKATE.vel.length():player.vel.length();let dy=player.yaw-CALM.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
      t=Math.min(0.85,sp*0.08+Math.abs(dy)/Math.max(dt,1e-3)*0.22+(player.ground?0:0.2));}   // 防暈：越快、轉越快、在空中，四周越暗
    CALM.yaw=player.yaw;CALM.v+=(t-CALM.v)*Math.min(1,dt*6);if(Math.abs(CALM.v-CALM.last)>0.01||(CALM.v<0.01&&CALM.last)){CALM.last=CALM.v<0.01?0:CALM.v;document.getElementById('calmVig').style.opacity=CALM.last.toFixed(2);}}
@@ -11317,7 +11376,7 @@ NM.applyPrizes();
 function warmNow(){const hid=[],lay=[];scene.traverse(o=>{if(!o.visible&&!o.isLight){hid.push(o);o.visible=true;}if(o.isMesh&&o.layers.mask===2){lay.push(o);o.layers.set(0);}});
   try{renderer.compile(scene,camera);}catch(_){}for(const o of hid)o.visible=false;for(const o of lay)o.layers.set(1);}
 for(const [obj,fn] of [[NM,'start'],[NM,'startArmy'],[SB,'start'],[RB,'start'],[RACE,'pick'],[GAME,'start'],[TN,'start'],[BB,'start'],[MU,'start']]){const f=obj[fn];if(typeof f!=='function')continue;obj[fn]=(...a)=>{const r=f(...a);try{warmNow();}catch(_){}return r;};}
-window.__dbg={dcull,DCULL,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+window.__dbg={dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
