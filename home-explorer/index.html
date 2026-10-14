@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-14.24"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-14.28"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -644,7 +644,7 @@
   <button id="sbMenu">⛹️ 街頭鬥牛（籃球比賽 5 關）</button>
   <button id="cuMenu">🎓 校園大逃亡（大學・5 關＋無盡）</button>
   <button id="muMenu">🎵 音樂教室（中音直笛）</button>
-  <button id="ddMenu">🕺 跳舞機（便利商店門口・18 首）</button>
+  <button id="ddMenu">🕺 跳舞機（便利商店門口・21 首）</button>
   <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。開始後畫面下方才會出現技能按鈕，按了馬上往前方放：氣功炮（J）、超級氣功波（L）、旋風腿（U）、如來神掌（I）、足球（O）、按住蓄力氣功彈（H）。視角往上抬就往上打（打飛到空中的殭屍可以接著打）。車子、鄰居的房子、周邊建築、便利商店都打得壞（我家不會壞），遊戲結束會復原。</p>
   <h3 style="margin-top:14px">舒適設定</h3>
   <label><span>視角轉動靈敏度</span><span id="sensVal">100%</span></label>
@@ -718,7 +718,7 @@
   <button data-x="exit">離開跳舞機</button></div>
 <div id="ddUI" hidden><canvas id="ddCv"></canvas><div id="ddTop" hidden></div><div id="ddPad" hidden><div class="l"><button data-d="0">◀</button><button data-d="1">▼</button></div><div class="r"><button data-d="2">▲</button><button data-d="3">▶</button></div></div></div>
 <div id="cuPanel" class="panel" hidden><h3>🎓 校園大逃亡</h3><div class="res"></div><div class="auto"></div><p class="lbl">選科系（起始武器、能力不一樣；會穿上系服背心）</p><div class="chars"></div><p class="chd note"></p><p class="lbl">逃生模式（跟著地上的箭頭走到逃生點：撿道具、打倒擋住出口的大魔王，站在逃生點撐 10 秒）</p><div class="stages"></div><p class="lbl">無盡模式</p><div class="endless"></div><p class="prize note"></p>
-  <p class="note">小人會自動往後退、自動開槍（打最近的怪物）。手指左右拖（或搖桿、A D）閃躲；無盡模式用搖桿／WASD 在整個校園跑。打倒的怪物掉經驗寶石，靠近會吸過來；升級時選一張卡：新武器（加特林、霰彈槍、雷射、火箭砲、閃電鏈、環繞飛書、冰凍彈、無人機）或升級（5 級會進化），也有被動（攻擊力、射速、跑步鞋、磁鐵、營養午餐、咖啡）。右下大招：空襲、冰河期、狂暴。寶箱怪打倒會連升兩級；愛心補血、磁鐵吸全部寶石、炸彈清全場。大魔王出招前地上會有紅色範圍，快閃開！血剩一半會變身（變大、發紅光、多一招新招）。無盡模式每隔 1 分多鐘有校園事件：午餐時間、下課鐘、考試週、校慶煙火、社團博覽會。</p>
+  <p class="note">小人會自動往後退、自動開槍（打最近的怪物）。手指左右拖（或搖桿、A D）閃躲；無盡模式用搖桿／WASD 在整個校園跑。打倒的怪物掉經驗寶石，靠近會吸過來；升級會自動加一種能力（攻擊力、射速、跑步鞋、磁鐵、營養午餐、咖啡）。打怪會掉武器箱（新武器：加特林、霰彈槍、雷射、火箭砲、閃電鏈、環繞飛書、冰凍彈、無人機；或身上的武器升一級，5 級會進化）和紫色能力水晶，走過去碰到就拿到（30 秒沒撿會消失）；菁英怪一定掉、大魔王掉 3 個。右下大招：空襲、冰河期、狂暴。寶箱怪打倒＝一把武器＋一個能力；愛心補血、磁鐵吸全部寶石、炸彈清全場。大魔王出招前地上會有紅色範圍，快閃開！血剩一半會變身（變大、發紅光、多一招新招）。無盡模式每隔 1 分多鐘有校園事件：午餐時間、下課鐘、考試週、校慶煙火、社團博覽會。</p>
   <button data-x="exit">離開</button></div>
 <div id="nmHud" class="panel" hidden></div><div id="nmNote"></div>
 <div id="nmBtns" hidden><button data-k="auto">自動<small>P</small></button><button data-k="big">巨大圈<small>1</small></button><button data-k="rapid">連發<small>2</small></button><button data-k="gold">黃金<small>3</small></button><button data-k="exit">離開<small>Esc</small></button></div>
@@ -7376,7 +7376,7 @@ const CU=(()=>{
   function spawnM(k,a,b){const t=TI[k];if(TCNT[t]>=MT[k].cap||!FREE.length)return -1;if(!MT[k].elite&&!MT[k].chest&&nAlive>=capOf())return -1;const i=FREE.pop();
     MA[i]=a;MB_[i]=b;MH[i]=MT[k].hp*(MT[k].chest?1:K.hpS);MSP[i]=rnd(0.86,1.14);MSL[i]=0;MFZ[i]=0;MFL[i]=0;MKA[i]=MKB[i]=0;MPH[i]=Math.random()*6;MBK[i]=0;MYW[i]=0;MTY[i]=t;MAL[i]=1;TCNT[t]++;nAlive++;if(i>=hiM)hiM=i+1;return i;}
   function killM(i,silent){if(!MAL[i])return;MAL[i]=0;FREE.push(i);TCNT[MTY[i]]--;nAlive--;if(silent)return;const k=TYPES[MTY[i]],T=MT[k];K.kills++;
-    if(T.chest)dropItem('chest',MA[i],MB_[i]);else{dropGem(MA[i],MB_[i],T.xp);const r=Math.random();if(r<0.0015)dropItem('heart',MA[i],MB_[i]);else if(r<0.0025)dropItem('magnet',MA[i],MB_[i]);else if(r<0.0033)dropItem('bomb',MA[i],MB_[i]);}
+    if(T.chest)dropItem('chest',MA[i],MB_[i]);else{dropGem(MA[i],MB_[i],T.xp);if(T.elite)dropReward(MA[i]+0.8,MB_[i]);dropMeter(T.xp,MA[i],MB_[i]);const r=Math.random();if(r<0.0015)dropItem('heart',MA[i],MB_[i]);else if(r<0.0025)dropItem('magnet',MA[i],MB_[i]);else if(r<0.0033)dropItem('bomb',MA[i],MB_[i]);}
     wp(MA[i],MB_[i],TV);confetti(TV.x,0.9,TV.z,CCOL[k],POWER.save?(T.elite?6:1):T.elite?18:nC<420?3:1,T.elite?1.6:1);for(let k2=0;k2<(T.elite?10:2);k2++)part(TV.x+rnd(-0.3,0.3),rnd(0.4,1.2),TV.z+rnd(-0.3,0.3),T.elite?'#ffd23a':'#ffffff',T.elite?0.8:0.35,0.45,rnd(-2,2),rnd(1,3),rnd(-2,2));
     if(T.elite){AUDIO.sfx('heavy',TV);big(`擊倒${T.n}！`);}else soft('pop',0.06);}
   function clearM(){for(let i=0;i<hiM;i++)if(MAL[i])killM(i,true);hiM=0;for(const m of MM)m.count=0;SHADOW.count=0;}
@@ -7448,12 +7448,12 @@ const CU=(()=>{
   // 道具：愛心、磁鐵、炸彈、寶箱
   const ITG={heart:(()=>{const g=mergeGeometries([new THREE.SphereGeometry(0.22,10,8).translate(-0.15,0.1,0),new THREE.SphereGeometry(0.22,10,8).translate(0.15,0.1,0),new THREE.ConeGeometry(0.32,0.45,10).rotateX(Math.PI).translate(0,-0.18,0)].map(q=>q.toNonIndexed()));return g;})(),
     magnet:new THREE.TorusGeometry(0.3,0.1,8,16,Math.PI),bomb:new THREE.SphereGeometry(0.32,12,10),chest:new THREE.BoxGeometry(0.7,0.5,0.5),
-    crate:new THREE.BoxGeometry(0.9,0.9,0.9),shield:new THREE.IcosahedronGeometry(0.42,0),
+    crate:new THREE.BoxGeometry(0.9,0.9,0.9),shield:new THREE.IcosahedronGeometry(0.42,0),pv:new THREE.OctahedronGeometry(0.4,0),
     bento:(()=>{const a=new THREE.BoxGeometry(0.62,0.2,0.44),b=new THREE.BoxGeometry(0.66,0.07,0.48).translate(0,0.13,0),c=new THREE.BoxGeometry(0.08,0.075,0.5).translate(0,0.135,0);   /* 便當盒＋蓋子＋綁帶 */
       const col=(g,h)=>{const n=g.attributes.position.count,arr=new Float32Array(n*3);TC.set(h);for(let i=0;i<n;i++){arr[i*3]=TC.r;arr[i*3+1]=TC.g;arr[i*3+2]=TC.b;}g.setAttribute('color',new THREE.BufferAttribute(arr,3));return g.toNonIndexed();};
       return mergeGeometries([col(a,'#3a2a22'),col(b,'#e8402e'),col(c,'#ffd23a')]).scale(1.35,1.35,1.35);})()};
   const ITM={heart:new THREE.MeshBasicMaterial({color:'#ff3b5c',toneMapped:false}),magnet:new THREE.MeshBasicMaterial({color:'#ff4a4a',toneMapped:false}),bomb:new THREE.MeshLambertMaterial({color:'#1d1f22',emissive:'#3a0a0a'}),chest:new THREE.MeshLambertMaterial({color:'#e8b43a',emissive:'#5a4010'}),bento:new THREE.MeshLambertMaterial({vertexColors:true,emissive:'#5a2a1a'}),crate:new THREE.MeshLambertMaterial({map:(()=>{const [c,g]=cvs(64,64);g.fillStyle='#c98a3a';g.fillRect(0,0,64,64);g.strokeStyle='#7a4a18';g.lineWidth=6;g.strokeRect(3,3,58,58);g.beginPath();g.moveTo(3,3);g.lineTo(61,61);g.stroke();g.fillStyle='#ffd23a';g.fillRect(0,26,64,12);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;})(),emissive:'#4a3010'}),
-    shield:new THREE.MeshBasicMaterial({color:'#5fe0ff',transparent:true,opacity:0.85,toneMapped:false})};
+    shield:new THREE.MeshBasicMaterial({color:'#5fe0ff',transparent:true,opacity:0.85,toneMapped:false}),pv:new THREE.MeshBasicMaterial({color:'#b98aff',transparent:true,opacity:0.85,toneMapped:false})};
   const items=[];
   function dropItem(k,a,b){const m=add(ITG[k],ITM[k]);items.push({k,a,b,m,t:0});}
   // 大魔王的攻擊預告（紅圈、紅色長條）
@@ -7510,16 +7510,16 @@ const CU=(()=>{
   // 目標：前 24 隻裡附近最多同伴的那隻（雷射、火箭用）
   function crowdT(r){let best=-1,bs=-1;for(let k=0;k<nN;k++){const i=NI[k];let s=i===-5?6:0;for(let q=0;q<nN;q++){const j=NI[q];const da=TA(j)-TA(i),db=TB(j)-TB(i);if(da*da+db*db<r*r)s++;}if(s>bs){bs=s;best=i;}}return best;}
   const FIRE={
-    pistol:lv=>{const i=tgt();if(i<0||ND[0]>26*26)return null;const evo=lv>=5,n=evo?2:lv>=3?2:1;for(let k=0;k<n;k++){const j=evo?tgt(k):i;dirTo(j,D1);const sp=(n>1&&!evo)?(k?0.06:-0.06):0,c=Math.cos(sp),s=Math.sin(sp),va=D1.x*c-D1.z*s,vb=D1.x*s+D1.z*c;
+    pistol:lv=>{const i=tgt();if(i===-1||ND[0]>26*26)return null;   /* 只有 -1 才是沒目標（2026-10-14 使用者：右手瞄準之後都不會發射——原本 i<0 把 -7 瞄準方向、-5 大魔王都當成沒目標；大魔王因此變難打，血量另外調回來，見 BOSS_HPM） */const evo=lv>=5,n=evo?2:lv>=3?2:1;for(let k=0;k<n;k++){const j=evo?tgt(k):i;dirTo(j,D1);const sp=(n>1&&!evo)?(k?0.06:-0.06):0,c=Math.cos(sp),s=Math.sin(sp),va=D1.x*c-D1.z*s,vb=D1.x*s+D1.z*c;
         shoot(K.pa+va*0.6,K.pb+vb*0.6,va*30,vb*30,1.0,(4+1.2*(lv-1))*(evo?1.5:1),evo?'#ffd23a':'#ffe08a',{pierce:lv>=4?1:0});}soft('gun',0.07);return 0.46*Math.pow(0.9,lv-1);},
-    gatling:lv=>{const i=tgt(Math.floor(Math.random()*3));if(i<0||ND[0]>24*24)return null;const evo=lv>=5;dirTo(i,D1);const sp=rnd(-0.08,0.08),c=Math.cos(sp),s=Math.sin(sp),va=D1.x*c-D1.z*s,vb=D1.x*s+D1.z*c;
+    gatling:lv=>{const i=tgt(Math.floor(Math.random()*3));if(i===-1||ND[0]>24*24)return null;const evo=lv>=5;dirTo(i,D1);const sp=rnd(-0.08,0.08),c=Math.cos(sp),s=Math.sin(sp),va=D1.x*c-D1.z*s,vb=D1.x*s+D1.z*c;
       shoot(K.pa+va*0.6,K.pb+vb*0.6,va*34,vb*34,0.85,(1.5+0.45*(lv-1))*(evo?1.6:1),evo?'#ff5a2a':'#ffb347',{pierce:evo?2:0,s:evo?1.5:1});soft('gat',0.06);return 0.095*Math.pow(0.94,lv-1);},
-    shotgun:lv=>{const i=tgt();if(i<0||ND[0]>13*13)return null;const evo=lv>=5;dirTo(i,D1);const n=6+lv;for(let k=0;k<n;k++){const sp=(k/(n-1)-0.5)*0.85+rnd(-0.04,0.04),c=Math.cos(sp),s=Math.sin(sp),va=D1.x*c-D1.z*s,vb=D1.x*s+D1.z*c,v=rnd(22,27);
+    shotgun:lv=>{const i=tgt();if(i===-1||ND[0]>13*13)return null;const evo=lv>=5;dirTo(i,D1);const n=6+lv;for(let k=0;k<n;k++){const sp=(k/(n-1)-0.5)*0.85+rnd(-0.04,0.04),c=Math.cos(sp),s=Math.sin(sp),va=D1.x*c-D1.z*s,vb=D1.x*s+D1.z*c,v=rnd(22,27);
         shoot(K.pa+va*0.6,K.pb+vb*0.6,va*v,vb*v,0.55,2.6+0.9*(lv-1),'#ffffff',{kb:1.4,ex:evo?1.3:0,s:0.8});}soft('shotgun',0.2);return 1.05*Math.pow(0.93,lv-1);},
     laser:lv=>{if(!nN||ND[0]>28*28)return null;if(K.beams.length>=3)return 0.3;const evo=lv>=5,i=crowdT(1.2);dirTo(i,D1);const base=Math.atan2(D1.z,D1.x),n=evo?3:1;
       for(let k=0;k<n;k++)K.beams.push({ang:base+(k-(n-1)/2)*0.36,t:0,dur:0.8+0.12*lv,dps:30+12*(lv-1),w:0.5+0.1*lv,tick:0,trk:i});AUDIO.sfx('laser');return 2.8*Math.pow(0.92,lv-1);},
     rocket:lv=>{if(!nN||ND[0]>30*30)return null;const evo=lv>=5,n=evo?5:1;for(let k=0;k<n;k++){const i=k?tgt(Math.floor(Math.random()*nN)):crowdT(2.6+0.3*lv);rockets.push({a:K.pa,b:K.pb,ta:TA(i),tb:TB(i),t:0,T:Math.max(0.35,Math.sqrt(ND[0])/17),dmg:24+9*(lv-1),r:2.6+0.3*(lv-1),arc:rnd(1.5,3)});}soft('rocket',0.15);return 1.9*Math.pow(0.92,lv-1);},
-    chain:lv=>{const i=tgt();if(i<0||ND[0]>18*18)return null;const evo=lv>=5;for(let c=0;c<(evo?2:1);c++){let cur=c?tgt(Math.min(nN-1,3)):i,pa=K.pa,pb=K.pb,hit=new Set();const jumps=evo?10:3+lv;
+    chain:lv=>{let k0=0;while(k0<nN&&NI[k0]===-7)k0++;const i=k0<nN?NI[k0]:-1;if(i===-1||ND[k0]>18*18)return null;   /* 閃電要打在怪物身上：瞄準時找瞄準方向裡最近的怪 */const evo=lv>=5;for(let c=0;c<(evo?2:1);c++){let cur=c?tgt(Math.min(nN-1,3)):i,pa=K.pa,pb=K.pb,hit=new Set();const jumps=evo?10:3+lv;
         for(let k=0;k<jumps&&(cur>=0||cur===-5);k++){hit.add(cur);wp(pa,pb,TV);TV.y=1;wp(TA(cur),TB(cur),TV2);TV2.y=cur===-5?2.5:0.8;bolt(TV,TV2);if(cur===-5)bossHurt(9+4*(lv-1));else hurt(cur,9+4*(lv-1),0,0,0);pa=TA(cur);pb=TB(cur);let nx=-1,nd=36;forNear(pa,pb,6,j=>{if(hit.has(j))return;const d=(MA[j]-pa)**2+(MB_[j]-pb)**2;if(d<nd){nd=d;nx=j;}});cur=nx;}}
       soft('zap',0.12);return 1.5*Math.pow(0.92,lv-1);},
     books:()=>null,
@@ -7537,11 +7537,14 @@ const CU=(()=>{
   let B=null;const BOSSG=new THREE.Group();G.add(BOSSG);BOSSG.visible=false;let bossMesh=null;
   const barSp=(()=>{const [c,g]=cvs(256,40),t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthWrite:false,depthTest:false}));s.scale.set(5,0.8,1);s.renderOrder=6;s.visible=false;scene.add(s);s.userData={c,g,t};return s;})();
   function drawBar(){const {g,t}=barSp.userData,k=Math.max(0,B.hp/B.max);g.clearRect(0,0,256,40);g.fillStyle='rgba(0,0,0,.6)';g.beginPath();g.roundRect(2,8,252,26,13);g.fill();g.fillStyle=k>0.5?'#ff4a4a':k>0.25?'#ff8a2a':'#ffd23a';g.beginPath();g.roundRect(5,11,246*k,20,10);g.fill();t.needsUpdate=true;}
-  function bossSpawn(k,a,b,hp){const D=BOSS[k];if(bossMesh){BOSSG.remove(bossMesh);bossMesh.geometry.dispose();}bossMesh=new THREE.Mesh(D.mk(),MMAT);BOSSG.add(bossMesh);BOSSG.visible=true;
+  // 大魔王血量倍率（2026-10-14.27）：原本手槍、加特林、霰彈槍、閃電鏈打不到大魔王（編號 -5 被當成沒目標），修好後大魔王變好打 → 血量乘回來（使用者：改，但難度維持）。
+  // 大魔王站在旁邊固定測：每秒傷害 1.1～5.8 倍；可是實際打（自動模式會跑開，手槍、霰彈槍常常打不到）只多約 1.1～1.2 倍，×2.3 時第 1 關從 6 場 5 勝變 2 勝 → 用實戰的數字
+  const BOSS_HPM=1.3;
+  function bossSpawn(k,a,b,hp){hp*=BOSS_HPM;const D=BOSS[k];if(bossMesh){BOSSG.remove(bossMesh);bossMesh.geometry.dispose();}bossMesh=new THREE.Mesh(D.mk(),MMAT);BOSSG.add(bossMesh);BOSSG.visible=true;
     B={k,D,a,b,hp,max:hp,r:D.r,st:'walk',t:0,cool:2.5,atk:null,ai:0,yaw:0,flash:0,p2:false,morph:false,grow:1};hzClear();barSp.visible=true;drawBar();big(`⚠ ${D.n} 出現了！`);AUDIO.sfx('slam');AUDIO.sfx('wave');AUDIO.setTempo&&AUDIO.setTempo(150);note(`${D.n}：看到紅色的地方就快閃開！`);}
   function bossHurt(d){if(!B||B.hp<=0)return;B.hp-=d*dmgMul();if(!(B.fcd>0)){B.flash=0.07;B.fcd=0.25;}   /* 最多每 0.25 秒閃一次（不然一直閃白、看不到變身的紅色） */if(!B.p2&&B.hp<B.max*0.5){B.p2=true;B.morph=true;AUDIO.sfx('heavy');}   /* 血剩一半：下次走路時變身 */if(B.hp<=0)bossDie();}
   function bossDie(){B.hp=0;B.st='dead';B.t=0;hideTele();hzClear();wp(B.a,B.b,TV);confetti(TV.x,3,TV.z,CCOL.boss,POWER.save?25:70,3);for(let k=0;k<30;k++)part(TV.x+rnd(-2,2),rnd(0.5,5),TV.z+rnd(-2,2),['#ffd23a','#ff6a3a','#ffffff'][k%3],rnd(1,2.2),0.8,rnd(-4,4),rnd(2,6),rnd(-4,4));ring(TV.x,TV.z,8,'#ffd23a',0.8);AUDIO.sfx('bigboom');AUDIO.sfx('bigcheer');
-    for(let k=0;k<40;k++)dropGem(B.a+rnd(-3,3),B.b+rnd(-3,3),5);K.kills+=1;if(K.mode==='stage')winStart();else if(K.esc){K.exitLocked=false;big(`打倒${B.D.n}！出口打開了！`);note('快跑到逃生點，站在圈圈裡撐 10 秒');}else{big(`打倒${B.D.n}！`);K.bossN++;}}
+    for(let k=0;k<40;k++)dropGem(B.a+rnd(-3,3),B.b+rnd(-3,3),5);for(let k=0;k<3;k++){const an=k*2.1;dropReward(B.a+Math.cos(an)*1.6,B.b+Math.sin(an)*1.6);}K.kills+=1;if(K.mode==='stage')winStart();else if(K.esc){K.exitLocked=false;big(`打倒${B.D.n}！出口打開了！`);note('快跑到逃生點，站在圈圈裡撐 10 秒');}else{big(`打倒${B.D.n}！`);K.bossN++;}}
   function bossTick(dt){if(!B)return;B.t+=dt;B.flash=Math.max(0,B.flash-dt);B.fcd=Math.max(0,(B.fcd||0)-dt);if(B.st==='dead'){BOSSG.scale.setScalar(Math.max(0.01,1-B.t*1.2)*B.grow);BOSSG.rotation.z=B.t*2;if(K.mode!=='stage'&&B.t>1.5){BOSSG.visible=false;barSp.visible=false;BOSSG.scale.setScalar(1);BOSSG.rotation.z=0;B=null;}return;}   /* 無盡：倒下 1.5 秒後收掉（下一隻 150 秒後來） */
     const da=K.pa-B.a,db=K.pb-B.b,d=Math.hypot(da,db)||1,stg=K.mode==='stage',p2=B.p2?0.7:1;
     if(B.st==='walk'&&stg&&B.a>K.pa-3){B.st='hop';B.t=0;B.h0a=B.a;B.h0b=B.b;B.h1a=K.pa-9;B.h1b=cl(K.pb*0.3,-K.R.W+1.5,K.R.W-1.5);AUDIO.sfx('whoosh');}   /* 闖關：跑到你身上／後面就跳回你前面 */
@@ -7611,7 +7614,21 @@ const CU=(()=>{
   const hurtEl=$('cuHurt');
   function hit(d,bigHit,src){if(K.st!=='run'&&K.st!=='boss'&&K.st!=='endless')return;if(K.shield>0){AUDIO.sfx('pock');return;}K.hp-=d;K.dl[src||'?']=(K.dl[src||'?']||0)+d;K.hurtT=0.35;if(bigHit){AUDIO.sfx('hurt');}if(K.hp<=0){K.hp=0;die();}}
   const need=L=>Math.round(6+L*5+L*L*0.42);
-  function gainXp(v){K.xp+=v*(K.xpM||1)*(K.ev&&K.ev.k==='exam'?2:1)*(K.esc?0.5:1);   /* 逃生：怪物很多，經驗少一點（不然一下子就滿級） */while(K.xp>=need(K.lv)){K.xp-=need(K.lv);K.lv++;K.pend++;}}
+  // 2026-10-14 使用者：升級選獎勵太煩 → 升級慢一點（經驗 ×2.5）、不跳卡片、自動加一種能力；武器和能力改成打怪掉在地上自己去撿（dropReward）
+  const LVK=2.5,needL=L=>need(L)*LVK;
+  function gainXp(v){K.xp+=v*(K.xpM||1)*(K.ev&&K.ev.k==='exam'?2:1)*(K.esc?0.5:1);   /* 逃生：怪物很多，經驗少一點（不然一下子就滿級） */while(K.xp>=needL(K.lv)){K.xp-=needL(K.lv);K.lv++;autoLv();}}
+  function autoLv(){const ks=Object.keys(PV).filter(k=>(K.pv[k]||0)<5);if(!ks.length){K.hp=Math.min(K.hpMax,K.hp+20);note(`⬆ Lv ${K.lv}：生命 +20`);AUDIO.sfx('lvup');return;}
+    let bk=ks[0],bs=-1;for(const k of ks){const sc=autoScore({t:'p',k})-(K.pv[k]||0)*0.9+Math.random()*0.6;if(sc>bs){bs=sc;bk=k;}}givePassive(bk,`⬆ Lv ${K.lv}：`);}   /* 攻擊力、射速優先，同一種加越多分數越低（會輪流） */
+  function givePassive(k,pre){K.pv[k]=(K.pv[k]||0)+1;if(k==='hp'){K.hpMax+=20;K.hp=Math.min(K.hpMax,K.hp+20);}const P=PV[k];note(`${pre||''}${P.ico} ${P.n} Lv${K.pv[k]}（${P.d}）`);AUDIO.sfx('lvup');}
+  // 掉落：打怪的經驗累積到原本升一級的量（×1.15）就在那隻怪的位置掉一個（×1.3，節奏比原本選卡稍慢，因為升級還會加能力）；菁英怪一定掉、大魔王掉 3 個；30 秒沒撿會消失
+  const DROPK=1.3,ICOT={};   /* 1.15 時自動模式 10 場全勝（原本第 1 關 6 場 5 勝）→ 掉少一點 */
+  const icoTex=s=>ICOT[s]||(ICOT[s]=textTex([s],128,128,null,'#fff',`80px ${FONT}`));
+  function addIcon(it,ico){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:icoTex(ico),depthWrite:false}));sp.scale.set(1.1,1.1,1);sp.position.y=1.1;it.m.add(sp);}
+  function pickWeapon(){const own=Object.keys(K.wp),nw=own.length,c=[];for(const k of own)if(K.wp[k]<5)c.push([k,3+K.wp[k]*0.4]);if(nw<6)for(const k in WP)if(!K.wp[k])c.push([k,nw<3?3.2:1.8]);if(!c.length)return null;let t=0;for(const q of c)t+=q[1];let r=Math.random()*t;for(const q of c){r-=q[1];if(r<=0)return q[0];}return c[c.length-1][0];}
+  function dropReward(a,b){const pk=Object.keys(PV).filter(k=>(K.pv[k]||0)<5),w=pickWeapon();if(!w&&!pk.length){dropItem('heart',a,b);items[items.length-1].drop=true;return;}
+    if(w&&(Math.random()<0.75||!pk.length)){dropItem('crate',a,b);const it=items[items.length-1];it.w=w;it.drop=true;addIcon(it,WP[w].ico);}
+    else{const k=pk[Math.floor(Math.random()*pk.length)];dropItem('pv',a,b);const it=items[items.length-1];it.p=k;it.drop=true;addIcon(it,PV[k].ico);}}
+  function dropMeter(v,a,b){K.dAcc=(K.dAcc||0)+v*(K.xpM||1)*(K.esc?0.5:1);const nd=need(K.dLv||1)*DROPK;if(K.dAcc>=nd){K.dAcc-=nd;K.dLv=(K.dLv||1)+1;dropReward(a,b);}}
   const cardsEl=$('cuCards');
   function options(){const out=[],own=Object.keys(K.wp),nw=own.length;
     for(const k of own)if(K.wp[k]<5)out.push({t:'w',k,w:3+K.wp[k]*0.4});
@@ -7657,7 +7674,7 @@ const CU=(()=>{
   function evStart(k){const ks=Object.keys(EVS).filter(q=>q!==K.evLast);k=k||ks[Math.floor(Math.random()*ks.length)];K.evLast=k;K.ev={k,t:0,T:EVS[k].T,acc:0};big(EVS[k].n);note(EVS[k].d);AUDIO.sfx('chime');
     if(k==='lunch'){for(let q=0;q<7;q++){const p=freeSpot(3,11);if(p)dropItem('bento',p[0],p[1]);}}
     else if(k==='bell'){for(let i=0;i<hiM;i++)if(MAL[i])MFZ[i]=Math.max(MFZ[i],5);if(B&&B.hp>0)B.cool+=3;wp(K.pa,K.pb,TV);ring(TV.x,TV.z,20,'#ffe08a',0.9);}
-    else if(k==='fair'){const v=Math.max(3,Math.round(need(K.lv)/30));for(let q=0;q<45;q++){const p=freeSpot(1.5,9);if(p){dropGem(p[0],p[1],v);wp(p[0],p[1],TV);if(q%3===0)part(TV.x,rnd(3,6),TV.z,'#c86bff',0.7,0.6,0,-2,0);}}for(let q=0;q<2;q++){const p=freeSpot(9,13);if(p)spawnM('chest',p[0],p[1]);}AUDIO.sfx('combo');}}
+    else if(k==='fair'){const v=Math.max(3,Math.round(needL(K.lv)/30));for(let q=0;q<45;q++){const p=freeSpot(1.5,9);if(p){dropGem(p[0],p[1],v);wp(p[0],p[1],TV);if(q%3===0)part(TV.x,rnd(3,6),TV.z,'#c86bff',0.7,0.6,0,-2,0);}}for(let q=0;q<2;q++){const p=freeSpot(9,13);if(p)spawnM('chest',p[0],p[1]);}AUDIO.sfx('combo');}}
   function evTick(dt){const E=K.ev;E.t+=dt;
     if(E.k==='fire'){E.acc+=dt;while(E.acc>=0.35){E.acc-=0.35;const p=freeSpot(4,13);if(!p)continue;const col=['#ff5fa2','#7fe0ff','#ffd23a','#7fff8a','#c86bff'][Math.floor(Math.random()*5)];expl(p[0],p[1],3.2,30*K.hpS+15,col,0.8);wp(p[0],p[1],TV);
         for(let q=0;q<10;q++){const an=q/10*Math.PI*2;part(TV.x,rnd(5,7),TV.z,col,0.6,0.9,Math.cos(an)*4,rnd(-1,2),Math.sin(an)*4);}}}
@@ -7704,7 +7721,7 @@ const CU=(()=>{
     E.sign=new THREE.Sprite(new THREE.SpriteMaterial({map:(()=>{const [c,g]=cvs(512,128);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;E.sc=c;E.sg=g;return t;})(),depthWrite:false,depthTest:false}));E.sign.scale.set(8,2,1);E.sign.position.set(K.ex,6.5,K.ez);E.sign.renderOrder=6;ESCG.add(E.sign);E.signK='';
     // 道具：沿路線、左右錯開
     S.items.forEach(([f,k,w],i)=>{const p=pathAt(K.L*f),off=(i%2?1:-1)*2.4;let x=p.x-p.dz*off,z=p.z+p.dx*off;if(C.blocked(x,z)){x=p.x;z=p.z;}dropItem(k,x,z);const it=items[items.length-1];it.w=w;
-      if(k==='crate'){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:textTex([WP[w].ico],128,128,null,'#fff',`80px ${FONT}`),depthWrite:false}));sp.scale.set(1.1,1.1,1);sp.position.y=1.1;it.m.add(sp);}});
+      if(k==='crate')addIcon(it,WP[w].ico);});
     K.escT=0;K.exitLocked=true;K.escWin=0;K.stall=0;}   /* 出口一開始就鎖著：要等大魔王出現、打倒才打開 */
   function escClear(){for(const o of [...ESCG.children]){ESCG.remove(o);o.traverse(q=>{if(q.isMesh||q.isSprite){if(q.geometry)q.geometry.dispose();if(q.material!==ARROWM){if(q.material.map&&q.material.map!==ARROWT)q.material.map.dispose();q.material.dispose();}}});}}
   function escSign(t,col){if(EX.signK===t)return;EX.signK=t;const g=EX.sg;g.clearRect(0,0,512,128);g.fillStyle=col;g.beginPath();g.roundRect(8,10,496,108,30);g.fill();g.fillStyle='#fff';g.font=`900 52px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText(t,256,66);EX.sign.material.map.needsUpdate=true;}
@@ -7741,7 +7758,7 @@ const CU=(()=>{
     {const D0=DEPT[SAVE.ch]||DEPT.fresh;panel.querySelector('.chars').innerHTML=Object.entries(DEPT).map(([k,D])=>{const w=Object.keys(D.wp)[0];return `<button data-c="${k}" class="${D===D0?'on':''}" style="--c:${D.col}">${D.ico} ${D.n}<small>${WP[w].ico}<span> ${WP[w].n}</span></small></button>`;}).join('');
      panel.querySelector('.chd').innerHTML=`<b style="color:${D0.col}">${D0.n}</b>：${D0.d}`;
      for(const b of panel.querySelectorAll('[data-c]'))b.onclick=e=>{e.stopPropagation();SAVE.ch=b.dataset.c;save();drawPanel();};}
-    panel.querySelector('.auto').innerHTML=`<button data-a="1" class="${K.auto?'on':''}">${K.auto?'✅':'⬜'} 自動模式（自己走位、自己選卡，你只按大招）</button>`;
+    panel.querySelector('.auto').innerHTML=`<button data-a="1" class="${K.auto?'on':''}">${K.auto?'✅':'⬜'} 自動模式（自己走位、自己撿道具，你只按大招）</button>`;
     panel.querySelector('.prize').innerHTML=`獎勵：每過一關得到一張獎狀（大門口的榮譽榜）；第 5 關過了就畢業，得到<b>學士服</b>（衣櫃）。${SAVE.grad?'　🎓 已經畢業！':''}`;
     for(const b of panel.querySelectorAll('[data-s]'))b.onclick=e=>{e.stopPropagation();K.start('stage',+b.dataset.s);};
     panel.querySelector('[data-e]').onclick=e=>{e.stopPropagation();K.start('endless',0);};
@@ -7758,7 +7775,7 @@ const CU=(()=>{
     if(mode==='aerial')toggleAerial();panel.hidden=true;if(avatar.morph)GAME.morph(false);   /* 死亡騎士：先變回人類（不然拿著大劍又拿槍） */
     K.esc=md==='stage';K.mode='endless';K.stage=i;K.S=K.esc?STG[i]:null;K.R=null;K.hpS=1;   /* 逃生模式：內部跟無盡模式一樣自由走 */
     fgInit();if(K.esc){K.pa=K.S.path[0][0];K.pb=K.S.path[0][1];}else{K.pa=C.pad.x-14;K.pb=C.pad.z;}
-    K.on=true;K.st='count';K.cd=2.6;K.lastCd=4;K.t=0;K.prog=0;K.kills=0;K.lv=1;K.xp=0;K.pend=0;K.hpMax=100;K.hp=100;K.hurtT=0;K.touch=0;K.spAcc=0;K.waveT=24;K.evt={};K.elT=45;K.chT=50;K.bsT=150;K.bossN=0;
+    K.on=true;K.st='count';K.cd=2.6;K.lastCd=4;K.t=0;K.prog=0;K.kills=0;K.lv=1;K.xp=0;K.pend=0;K.dAcc=0;K.dLv=1;K.hpMax=100;K.hp=100;K.hurtT=0;K.touch=0;K.spAcc=0;K.waveT=24;K.evt={};K.elT=45;K.chT=50;K.bsT=150;K.bossN=0;
     {const D=DEPT[SAVE.ch]||DEPT.fresh;K.dept=D;K.wp={...D.wp};K.hpMax=D.hp||100;K.hp=K.hpMax;K.xpM=D.xp||1;K.spdB=D.spd||0;K.atkB=D.atk||0;K.rateB=D.rate||0;K.regB=D.reg||0;}K.evT=K.esc?1e9:60;K.ev=null;K.evLast=null;K.shield=0;nC=0;CONFM.count=0;hzClear();
     K.wt={};K.dl={};K.pv={};K.beams=[];K.rage=0;K.frzAll=0;K.cdn={air:8,ice:10,rage:6};K.manT=0;K.vb=0;K.camP=null;K.dronePos=[{a:K.pa,b:K.pb},{a:K.pa,b:K.pb}];K.fr=0;K.prevSt=null;K.cards=null;K.winT=0;K.dead=false;K.score=0;
     nB=0;nG=0;nP=0;nR=0;bolts.length=0;rockets.length=0;bombs.length=0;ices.length=0;planes.length=0;for(const it of items)G.remove(it.m);items.length=0;B=null;BOSSG.visible=false;barSp.visible=false;hideTele();
@@ -7766,7 +7783,7 @@ const CU=(()=>{
     document.body.classList.add('cu');hud.hidden=false;btns.hidden=false;syncBtns();K.aim.on=false;aimId=null;mAim=null;aimKn.style.transform='';{let z=0;try{z=+localStorage.getItem('home-cucam')||0;}catch(_){}K.cz=z>=0&&z<3?z:0;}syncCam();savedView=view;if(view!=='third'){view='third';syncViewUI();}
     if(!GUN)GUN=gunBuild();avatar.root.add(GUN);GUN.position.set(0.11,1.52,0.43);gunColor();vestOn(K.dept);
     AUDIO.sfx('chime');AUDIO.musicStart();AUDIO.setTempo&&AUDIO.setTempo(126);place(true);warmUp();
-    if(!K.told){K.told=true;note(isTouch?(K.auto?'自動模式：自己沿著箭頭走、撿道具、選卡；你按右下的大招。推搖桿＝自己走':'搖桿走：跟著地上的箭頭到逃生點；升級時點一張卡；右下是大招'):(K.auto?'自動模式：自己沿著箭頭走、撿道具、選卡；你按 1 空襲、2 冰河期、3 狂暴。WASD＝自己走':'WASD 走：跟著地上的箭頭到逃生點；升級時按 1～3 選卡；Q 空襲、E 冰河期、R 狂暴；P 自動'));}else note(`${K.dept.ico} ${K.dept.n}：${K.dept.d}`);};
+    if(!K.told){K.told=true;note(isTouch?(K.auto?'自動模式：自己沿著箭頭走、撿掉下來的武器箱和能力水晶；你按右下的大招。推搖桿＝自己走':'搖桿走：跟著地上的箭頭到逃生點；打怪掉的武器箱、能力水晶走過去撿；右下是大招'):(K.auto?'自動模式：自己沿著箭頭走、撿掉下來的武器箱和能力水晶；你按 1 空襲、2 冰河期、3 狂暴。WASD＝自己走':'WASD 走：跟著地上的箭頭到逃生點；打怪掉的武器箱、能力水晶走過去撿；Q 空襲、E 冰河期、R 狂暴；P 自動'));}else note(`${K.dept.ico} ${K.dept.n}：${K.dept.d}`);};
   K.stop=(quiet)=>{if(!K.on)return;K.on=false;K.st='idle';clearM();nB=0;nG=0;nP=0;nR=0;bolts.length=0;rockets.length=0;bombs.length=0;ices.length=0;planes.length=0;for(const it of items)G.remove(it.m);items.length=0;
     for(const m of [BULM,GEMM,PARTM,RINGM,BOLTM,ROCKM,BOMBM,ICEM,PLANEM,BOOKM,CONFM])m.count=0;for(const L of LASERS)L.o.visible=L.c.visible=false;for(const d of DRONES)d.visible=false;
     B=null;BOSSG.visible=false;barSp.visible=false;hideTele();document.body.classList.remove('cu','cuaim');aimEl.hidden=true;K.aim.on=false;AIMAR.visible=false;hud.hidden=true;$('cuNote').style.top='';btns.hidden=true;cardsEl.hidden=true;hurtEl.style.opacity=0;
@@ -7840,7 +7857,7 @@ const CU=(()=>{
     if(!stgM()&&!K.esc&&K.st==='endless')K.hpS=1+(K.t/80)**1.6+(K.t/160)**2.5;   /* 無盡：越撐越硬 */
     if(K.esc){const q=escK();K.hpS=1+(K.S.ed.h-1)*Math.min(1,q*q*1.15);}   /* 逃生：越玩越硬 */
     if(stgM())K.hpS=1+(K.S.hp-1)*Math.min(1,K.prog*K.prog*1.15+(K.st==='boss'?1:0));   /* 關卡一開始怪物比較弱（只有手槍），越走越硬 */
-    if(K.st==='count'){K.cd-=dt;const c=Math.ceil(K.cd);if(c!==K.lastCd&&c>0){K.lastCd=c;big(String(c));AUDIO.sfx('beep');}if(K.cd<=0){K.st=K.mode==='stage'?'run':'endless';big(K.mode==='stage'?'往後退！開火！':'活下去！');AUDIO.sfx('go');if((K.mode==='stage'||K.esc)&&K.stage>0){K.pend+=K.stage;K.lv+=K.stage;note(`第 ${K.stage+1} 關：先送你 ${K.stage} 張卡（高年級了！）`);}}}
+    if(K.st==='count'){K.cd-=dt;const c=Math.ceil(K.cd);if(c!==K.lastCd&&c>0){K.lastCd=c;big(String(c));AUDIO.sfx('beep');}if(K.cd<=0){K.st=K.mode==='stage'?'run':'endless';big(K.mode==='stage'?'往後退！開火！':'活下去！');AUDIO.sfx('go');if((K.mode==='stage'||K.esc)&&K.stage>0){for(let q=0;q<K.stage;q++){const w=pickWeapon();if(w)giveWeapon(w);}note(`第 ${K.stage+1} 關：先送你 ${K.stage} 樣武器（高年級了！）`);}}}
     const live=K.st==='run'||K.st==='boss'||K.st==='endless';
     if(live)K.t+=dt;
     for(const k in K.cdn)K.cdn[k]=Math.max(0,K.cdn[k]-dt);K.rage=Math.max(0,K.rage-dt);K.shield=Math.max(0,(K.shield||0)-dt);
@@ -7855,8 +7872,8 @@ const CU=(()=>{
         if(B&&B.hp>0){const dx=K.pa-B.a,dz=K.pb-B.b,dd=Math.sqrt(dx*dx+dz*dz)+0.1,k=dd<9?2.2/dd:dd>14?-0.6/dd:0;ax+=dx*k;az+=dz*k;if(B.st==='tele'&&(B.atk==='slam'||B.atk==='morph')){let ex=K.pa-B.sa,ez=K.pb-B.sb;const e=Math.hypot(ex,ez);if(e<B.sr+1.5){if(e<0.5){ex=K.pa-B.a;ez=K.pb-B.b;}const l=Math.hypot(ex,ez)||1;ax+=ex/l*5;az+=ez/l*5;}}}   /* 2026-10-13：砸地瞄準你站的地方＝你在圓心，原本推力是 0 不會閃 → 固定往外（在圓心就往遠離大魔王的方向）跑 */
         if(B&&B.hp>0&&B.atk==='charge'&&(B.st==='tele'||B.st==='act')){const px=K.pa-B.ca,pz=K.pb-B.cb,t=px*B.ua+pz*B.ub,pd=-px*B.ub+pz*B.ua;if(t>-1.5&&t<B.len+1.5&&Math.abs(pd)<2.8){const sg=pd>=0?1:-1;ax+=-B.ub*sg*5;az+=B.ua*sg*5;}}   /* 衝撞：往旁邊閃 */
         for(const h of HZ){if(h.t<0)continue;if(h.c){const ex=K.pa-h.a,ez=K.pb-h.b,e2=ex*ex+ez*ez+0.3;if(e2<(h.r+1.5)**2){ax+=ex*20/e2;az+=ez*20/e2;}}else if(inHz(h,K.pa,K.pb,1)){ax+=h.pa*4;az+=h.pb*4;}}
-        let gx=0,gz=0,gd=1e9;for(let g=0;g<nG;g+=2){const dx=GA[g]-K.pa,dz=GB[g]-K.pb,d2=dx*dx+dz*dz;if(d2<gd&&d2<225){gd=d2;gx=dx;gz=dz;}}for(const it of items){const dx=it.a-K.pa,dz=it.b-K.pb,d2=dx*dx+dz*dz;if(d2<400&&d2<gd*1.5){gd=d2;gx=dx;gz=dz;}}
-        if(gd<1e9){const l2=Math.sqrt(gd)||1;ax+=gx/l2*0.12;az+=gz/l2*0.12;}
+        let gx=0,gz=0,gd=1e9;for(let g=0;g<nG;g+=2){const dx=GA[g]-K.pa,dz=GB[g]-K.pb,d2=dx*dx+dz*dz;if(d2<gd&&d2<225){gd=d2;gx=dx;gz=dz;}}let gw=0.12;for(const it of items){const dx=it.a-K.pa,dz=it.b-K.pb,d2=dx*dx+dz*dz;if(d2<(it.drop?225:400)&&d2<gd*(it.drop?9:1.5)){gd=d2;gx=dx;gz=dz;gw=it.drop?0.9:0.12;}}
+        if(gd<1e9){const l2=Math.sqrt(gd)||1;ax+=gx/l2*gw;az+=gz/l2*gw;}
         if(!K.esc){const ex=Math.min(K.pa-C.x0,C.x1-K.pa,K.pb-C.z0,C.z1-K.pb);if(ex<30){const cx=-470-K.pa,cz=115-K.pb,l3=Math.hypot(cx,cz)||1;ax+=cx/l3*0.25*(1-ex/30);az+=cz/l3*0.25*(1-ex/30);}}   /* 不要一直躲在校園角落 */
         if(K.esc){const tg=escTarget(),dx=tg.x-K.pa,dz=tg.z-K.pb,l=Math.hypot(dx,dz)||1;if(l>0.6||!K.atExit){ax+=dx/l*tg.w;az+=dz/l*tg.w;}}   /* 逃生：沿著路線往前、到出口就待在圈圈裡 */
         const la=Math.hypot(ax,az);if(la>0.02){mx=ax/la;mz=az/la;}else{mx=0;mz=0;}
@@ -7901,7 +7918,7 @@ const CU=(()=>{
     const mag=3.2*(1+0.35*(K.pv.mag||0));   /* 闖關：人一直往後退、寶石掉在前面，所以寶石掉下來 0.4 秒後就自己飛過來；無盡模式 2.2 秒後（磁鐵範圍內馬上） */
     for(let g=nG-1;g>=0;g--){const da=K.pa-GA[g],db=K.pb-GB[g],d=Math.hypot(da,db);if(GF[g]||d<mag||GT[g]>(stg?0.4:2.2)){GF[g]=1;const v=Math.max(10,24-d*0.8);GA[g]+=da/(d||1)*v*dt;GB[g]+=db/(d||1)*v*dt;}GT[g]+=dt;
       if(d<0.6){gainXp(GV[g]);soft('gem',0.05);nG--;GA[g]=GA[nG];GB[g]=GB[nG];GV[g]=GV[nG];GF[g]=GF[nG];GT[g]=GT[nG];}}
-    for(let k=items.length-1;k>=0;k--){const it=items[k];it.t+=dt;let da=K.pa-it.a,db=K.pb-it.b,d=Math.hypot(da,db);if(stg&&it.t>0.6){const v=Math.max(9,20-d*0.6);it.a+=da/(d||1)*v*dt;it.b+=db/(d||1)*v*dt;da=K.pa-it.a;db=K.pb-it.b;d=Math.hypot(da,db);}   /* 闖關：人一直往後退撿不到，道具也會飛過來 */if(d<1.3&&live){collect(it);G.remove(it.m);items.splice(k,1);continue;}if((it.t>40&&stg&&it.a>K.pa+5)||(it.k==='bento'&&it.t>35)){G.remove(it.m);items.splice(k,1);}}
+    for(let k=items.length-1;k>=0;k--){const it=items[k];it.t+=dt;let da=K.pa-it.a,db=K.pb-it.b,d=Math.hypot(da,db);if(stg&&it.t>0.6){const v=Math.max(9,20-d*0.6);it.a+=da/(d||1)*v*dt;it.b+=db/(d||1)*v*dt;da=K.pa-it.a;db=K.pb-it.b;d=Math.hypot(da,db);}   /* 闖關：人一直往後退撿不到，道具也會飛過來 */if(it.drop&&d<Math.max(8,mag*1.3)&&live&&it.t>0.4){const v=Math.max(7,16-d);it.a+=da/(d||1)*v*dt;it.b+=db/(d||1)*v*dt;d=Math.hypot(K.pa-it.a,K.pb-it.b);}   /* 掉落物：靠近會飛過來 */if(d<1.3&&live){collect(it);G.remove(it.m);items.splice(k,1);continue;}if((it.t>40&&stg&&it.a>K.pa+5)||(it.k==='bento'&&it.t>35)||(it.drop&&it.t>30)){G.remove(it.m);items.splice(k,1);}}
     if(live&&K.pend>0)openCards();
     // ---- 過關 ----
     if(K.st==='win'){K.winT+=dt;if(K.winT<1.4){let n=0;for(let i=0;i<hiM&&n<40;i++)if(MAL[i]){killM(i);n++;}}for(let g=0;g<nG;g++)GF[g]=1;if(K.winT>2.6&&K.st==='win'){K.st='done';result(true);return;}}
@@ -7909,7 +7926,8 @@ const CU=(()=>{
   function collect(it){wp(it.a,it.b,TV);if(it.k==='heart'){K.hp=Math.min(K.hpMax,K.hp+30);note('❤ 生命 +30');AUDIO.sfx('chime');}
     else if(it.k==='magnet'){for(let g=0;g<nG;g++)GF[g]=1;note('🧲 寶石全部吸過來！');AUDIO.sfx('combo');}
     else if(it.k==='bomb'){big('💣 全場炸彈！');AUDIO.sfx('bigboom');for(let i=0;i<hiM;i++)if(MAL[i]&&!MT[TYPES[MTY[i]]].elite&&(MA[i]-K.pa)**2+(MB_[i]-K.pb)**2<900)killM(i);ring(TV.x,TV.z,14,'#ffb347',0.6);}
-    else if(it.k==='chest'){K.pend+=2;K.lv+=2;big('💰 寶箱！連升兩級');AUDIO.sfx('bigcheer');}
+    else if(it.k==='chest'){const w=pickWeapon();if(w)giveWeapon(w);const pk=Object.keys(PV).filter(k=>(K.pv[k]||0)<5);if(pk.length)givePassive(pk[Math.floor(Math.random()*pk.length)],'💰 寶箱：');big('💰 寶箱！武器＋能力');AUDIO.sfx('bigcheer');}
+    else if(it.k==='pv')givePassive(it.p);
     else if(it.k==='bento'){K.hp=Math.min(K.hpMax,K.hp+15);note('🍱 便當：生命 +15');AUDIO.sfx('gem');}
     else if(it.k==='crate')giveWeapon(it.w);
     else if(it.k==='shield'){K.shield=8;big('🛡 護盾 8 秒！');AUDIO.sfx('chime');}}
@@ -7959,7 +7977,7 @@ const CU=(()=>{
         e[o]=c*sc;e[o+1]=0;e[o+2]=-s*sc;e[o+3]=0;e[o+4]=0;e[o+5]=sc*1.3;e[o+6]=0;e[o+7]=0;e[o+8]=s*sc;e[o+9]=0;e[o+10]=c*sc;e[o+11]=0;e[o+12]=TV.x;e[o+13]=0.45+Math.sin(GT[g]*4)*0.1;e[o+14]=TV.z;e[o+15]=1;TC.set(GCOL(GV[g]));cc[g*3]=TC.r;cc[g*3+1]=TC.g;cc[g*3+2]=TC.b;}
       GEMM.count=nG;GEMM.instanceMatrix.needsUpdate=true;GEMM.instanceColor.needsUpdate=true;}
     // 道具
-    for(const it of items){wp(it.a,it.b,TV);it.m.position.set(TV.x,0.7+Math.sin(it.t*3)*0.15,TV.z);it.m.rotation.y=it.t*2;}
+    for(const it of items){wp(it.a,it.b,TV);it.m.position.set(TV.x,0.7+Math.sin(it.t*3)*0.15,TV.z);it.m.rotation.y=it.t*2;if(it.drop)it.m.visible=it.t<25||Math.floor(it.t*6)%2===0;}   /* 快消失的時候閃 */
     // 雷射
     LASERS.forEach((L,k)=>{const b=K.beams[k];if(!b){L.o.visible=L.c.visible=false;return;}const ua=Math.cos(b.ang),ub=Math.sin(b.ang);wp(K.pa+ua*0.7,K.pb+ub*0.7,TV);wp(K.pa+ua*30,K.pb+ub*30,TV2);
       const len=Math.hypot(TV2.x-TV.x,TV2.z-TV.z),yaw=Math.atan2(TV2.x-TV.x,TV2.z-TV.z),fl=1+0.15*Math.sin(now*50);for(const [m,w] of [[L.o,b.w*0.95*fl],[L.c,b.w*0.22]]){m.visible=true;m.position.set((TV.x+TV2.x)/2,1.15,(TV.z+TV2.z)/2);m.rotation.set(0,yaw,0);m.scale.set(w,w,len);}});
@@ -7983,7 +8001,7 @@ const CU=(()=>{
       PARTM.count=nP;PARTM.instanceMatrix.needsUpdate=true;PARTM.instanceColor.needsUpdate=true;}
     {const cc=RINGM.instanceColor.array;for(let i=nR-1;i>=0;i--){RT[i]+=dt;if(RT[i]>=RL[i]){nR--;RX_[i]=RX_[nR];RZ_[i]=RZ_[nR];RT[i]=RT[nR];RL[i]=RL[nR];RR[i]=RR[nR];RCc[i]=RCc[nR];}}
       for(let i=0;i<nR;i++){const k=RT[i]/RL[i];T4.makeScale(RR[i]*(0.3+0.7*sm(k)),1,RR[i]*(0.3+0.7*sm(k)));T4.setPosition(RX_[i],0.12,RZ_[i]);RINGM.setMatrixAt(i,T4);TC.set(RCc[i]).multiplyScalar(1-k);cc[i*3]=TC.r;cc[i*3+1]=TC.g;cc[i*3+2]=TC.b;}RINGM.count=nR;RINGM.instanceMatrix.needsUpdate=true;RINGM.instanceColor.needsUpdate=true;}}
-  function hudDraw(){K.hudT=(K.hudT||0)-1/60;if(K.hudT>0)return;K.hudT=0.1;const stg=K.mode==='stage',hp=Math.max(0,K.hp/K.hpMax),xp=K.xp/need(K.lv);
+  function hudDraw(){K.hudT=(K.hudT||0)-1/60;if(K.hudT>0)return;K.hudT=0.1;const stg=K.mode==='stage',hp=Math.max(0,K.hp/K.hpMax),xp=K.xp/needL(K.lv);
     const ws=Object.keys(K.wp).map(k=>`<span class="w${K.wp[k]>=5?' evo':''}">${WP[k].ico}<sub>${K.wp[k]>=5?'MAX':K.wp[k]}</sub></span>`).join('');
     const st2=stg||K.esc;hud.innerHTML=`<div class="t"><b>${st2?K.S.n.split('・')[0]:'無盡'}</b>${st2?`<span>${K.S.n.split('・')[1]}</span>`:''}<span>⏱ ${fmt(K.t)}</span><span>💀 ${K.kills}</span><span class="lv">Lv ${K.lv}</span></div>`+
       `<div class="bar hp"><i style="width:${hp*100}%"></i><em>${Math.ceil(K.hp)}</em></div><div class="bar xp"><i style="width:${Math.min(1,xp)*100}%"></i></div>`+
@@ -8041,7 +8059,7 @@ const CU=(()=>{
     if(inC&&!K.on)K.padM.material.opacity=0.55+0.35*Math.sin(performance.now()/1000*3);
     const want=inC?TV.set(Math.round(player.pos.x/30)*30,0,Math.round(player.pos.y/30)*30):TV.set(22,0,-2);if(shadowCenter.distanceTo(want)>1){shadowCenter.copy(want);placeSun();}};
   K.inArea=(x,z)=>C.inside(x,z);
-  K.dbg=()=>({K,B,nAlive,hiM,nB,nG,nP,nC,TCNT,MM,FG,spawnM,bossSpawn,MA,MB_,MAL,MFZ,BOSSG,items,HZ,planes});   /* 測試用 */
+  K.dbg=()=>({K,B,nAlive,hiM,nB,nG,nP,nC,TCNT,MM,FG,spawnM,bossSpawn,MA,MB_,MAL,MFZ,BOSSG,items,HZ,planes,near:()=>({nN,ND:[...ND.slice(0,nN)],NI:[...NI.slice(0,nN)]})});   /* 測試用 */
   return K;})();
 
 /* ---------------- 音樂教室・中音直笛（2026-10-12 使用者：增加一個音樂教室，在這邊吹奏中音笛，可以選常聽的歌（聖誕歌、平安夜），順便學指法、學 do re mi） ----------------
@@ -8677,6 +8695,11 @@ const DD=(()=>{
   // k＝簡譜 1 的音高（MIDI）；rep＝旋律重複幾次；kc＝最後一次升幾個半音（舞曲的轉調）；ch＝自己給和弦（每 2 拍一個）；minor＝小調
   const DEG=[0,2,4,5,7,9,11];
   const SONGS=[
+    // 原創（2026-10-14 使用者：老歌小孩可能不喜歡 → 自己寫；快、好跳、遊戲音樂風格。小孩喜歡的歌只參考感覺，旋律全部重寫）：
+    // parts＝主歌（e 0、第二次 1）／副歌（e 2）的段落、ch 每 2 拍一個和弦；sty 鼓的打法（drift＝嘻哈）；lead 主旋律音色；riff 伴奏（和弦音順序：0 根音 1 三音 2 五音 3 高八度根音，x 休息）、r16 十六分音符、rt 音色、ro 音高
+    {id:'rainbow',n:'彩虹衝刺',lv:'原創・開朗遊戲舞曲',bpm:132,vol:0.7,k:62,bar:4,lead:'sq',riff:'0 2 3 2 1 2 3 2',rt:'chip',ro:74,parts:[{s:"1/0.5 3/0.5 5/0.5 6/0.75 5/0.75 3/0.5 2/0.5 | 2/0.5 3/0.5 2/0.5 ,7/0.5 ,5/2 | 1/0.5 3/0.5 5/0.5 6/0.75 1'/0.75 6/0.5 5/0.5 | 6/1.5 5/0.5 3/2 | 1/0.5 3/0.5 5/0.5 6/0.75 5/0.75 3/0.5 2/0.5 | 2/0.5 3/0.5 5/0.5 7/0.5 5/2 | 6/0.5 5/0.5 6/0.5 1'/0.5 2'/1 1'/0.5 6/0.5 | 5/1 4/0.5 3/0.5 2/2",ch:'1 1 5 5 6m 6m 4 4 1 1 5 5 6m 6m 4 5',e:0,tr:0},{s:"3'/0.5 3'/0.5 2'/0.5 1'/0.5 2'/0.75 3'/0.75 6/0.5 | 2'/0.5 2'/0.5 1'/0.5 7/0.5 1'/0.75 2'/0.75 5/0.5 | 7/0.5 7/0.5 5/0.5 3/0.5 5/0.75 7/0.75 3'/0.5 | 3'/2.5 0/0.5 5/0.5 6/0.5 | 3'/0.5 3'/0.5 2'/0.5 1'/0.5 2'/0.75 3'/0.75 5'/0.5 | 5'/0.5 4'/0.5 3'/0.5 2'/0.5 3'/0.75 2'/0.75 1'/0.5 | 7/0.5 1'/0.5 2'/0.5 3'/0.5 6'/1 5'/0.5 3'/0.5 | 2'/1 1'/0.5 2'/0.5 1'/2",ch:'4 4 5 5 3m 3m 6m 6m 4 4 5 5 3m 6m 5 1',e:2,tr:0},{s:"1/0.5 3/0.5 5/0.5 6/0.75 5/0.75 3/0.5 2/0.5 | 2/0.5 3/0.5 2/0.5 ,7/0.5 ,5/2 | 1/0.5 3/0.5 5/0.5 6/0.75 1'/0.75 6/0.5 5/0.5 | 6/1.5 5/0.5 3/2 | 1/0.5 3/0.5 5/0.5 6/0.75 5/0.75 3/0.5 2/0.5 | 2/0.5 3/0.5 5/0.5 7/0.5 5/2 | 6/0.5 5/0.5 6/0.5 1'/0.5 2'/1 1'/0.5 6/0.5 | 5/1 4/0.5 3/0.5 2/2",ch:'1 1 5 5 6m 6m 4 4 1 1 5 5 6m 6m 4 5',e:1,tr:0},{s:"3'/0.5 3'/0.5 2'/0.5 1'/0.5 2'/0.75 3'/0.75 6/0.5 | 2'/0.5 2'/0.5 1'/0.5 7/0.5 1'/0.75 2'/0.75 5/0.5 | 7/0.5 7/0.5 5/0.5 3/0.5 5/0.75 7/0.75 3'/0.5 | 3'/2.5 0/0.5 5/0.5 6/0.5 | 3'/0.5 3'/0.5 2'/0.5 1'/0.5 2'/0.75 3'/0.75 5'/0.5 | 5'/0.5 4'/0.5 3'/0.5 2'/0.5 3'/0.75 2'/0.75 1'/0.5 | 7/0.5 1'/0.5 2'/0.5 3'/0.5 6'/1 5'/0.5 3'/0.5 | 2'/1 1'/0.5 2'/0.5 1'/2",ch:'4 4 5 5 3m 3m 6m 6m 4 4 5 5 3m 6m 5 1',e:2,tr:0},{s:"3'/0.5 3'/0.5 2'/0.5 1'/0.5 2'/0.75 3'/0.75 6/0.5 | 2'/0.5 2'/0.5 1'/0.5 7/0.5 1'/0.75 2'/0.75 5/0.5 | 7/0.5 7/0.5 5/0.5 3/0.5 5/0.75 7/0.75 3'/0.5 | 3'/2.5 0/0.5 5/0.5 6/0.5 | 3'/0.5 3'/0.5 2'/0.5 1'/0.5 2'/0.75 3'/0.75 5'/0.5 | 5'/0.5 4'/0.5 3'/0.5 2'/0.5 3'/0.75 2'/0.75 1'/0.5 | 7/0.5 1'/0.5 2'/0.5 3'/0.5 6'/1 5'/0.5 3'/0.5 | 2'/1 1'/0.5 2'/0.5 1'/2",ch:'4 4 5 5 3m 3m 6m 6m 4 4 5 5 3m 6m 5 1',e:2,tr:2}]},
+    {id:'drift',n:'午夜甩尾',lv:'原創・酷酷的嘻哈',bpm:128,k:60,bar:4,minor:true,sty:'drift',lead:'saw',riff:'3 x x 2 x x 3 x x 2 x x 0 x 1 x',r16:true,rt:'bell',ro:60,parts:[{s:"6/0.5 6/0.5 0/0.5 6/0.5 1'/0.5 6/0.5 5/0.5 3/0.5 | 4/0.5 4/0.5 0/0.5 4/0.5 6/0.5 4/0.5 3/0.5 2/0.5 | 5/0.5 5/0.5 0/0.5 5/0.5 7/0.5 5/0.5 6/0.5 7/0.5 | 3/1.5 0/0.5 3/0.5 5/0.5 6/0.5 7/0.5 | 6/0.5 6/0.5 0/0.5 6/0.5 1'/0.5 6/0.5 5/0.5 3/0.5 | 4/0.5 4/0.5 0/0.5 4/0.5 6/0.5 4/0.5 3/0.5 2/0.5 | 5/0.5 5/0.5 0/0.5 5/0.5 7/0.5 5/0.5 6/0.5 7/0.5 | 3 #5 7 2'",ch:'6m 6m 4 4 5 5 3m 3m 6m 6m 4 4 5 5 3 3',e:0,tr:0},{s:"1'/1.5 7/0.5 6 1' | 2'/1.5 1'/0.5 7 5 | 3'/1.5 2'/0.5 7 5 | 6/3 0 | 1'/0.5 1'/0.5 7/0.5 6/0.5 1' 3' | 2'/0.5 2'/0.5 1'/0.5 7/0.5 2' 5' | 3' 2'/0.5 1'/0.5 7 #5 | 6/4",ch:'4 4 5 5 3m 3m 6m 6m 4 4 5 5 3 3 6m 6m',e:2,tr:0},{s:"6/0.5 6/0.5 0/0.5 6/0.5 1'/0.5 6/0.5 5/0.5 3/0.5 | 4/0.5 4/0.5 0/0.5 4/0.5 6/0.5 4/0.5 3/0.5 2/0.5 | 5/0.5 5/0.5 0/0.5 5/0.5 7/0.5 5/0.5 6/0.5 7/0.5 | 3/1.5 0/0.5 3/0.5 5/0.5 6/0.5 7/0.5 | 6/0.5 6/0.5 0/0.5 6/0.5 1'/0.5 6/0.5 5/0.5 3/0.5 | 4/0.5 4/0.5 0/0.5 4/0.5 6/0.5 4/0.5 3/0.5 2/0.5 | 5/0.5 5/0.5 0/0.5 5/0.5 7/0.5 5/0.5 6/0.5 7/0.5 | 3 #5 7 2'",ch:'6m 6m 4 4 5 5 3m 3m 6m 6m 4 4 5 5 3 3',e:1,tr:0},{s:"1'/1.5 7/0.5 6 1' | 2'/1.5 1'/0.5 7 5 | 3'/1.5 2'/0.5 7 5 | 6/3 0 | 1'/0.5 1'/0.5 7/0.5 6/0.5 1' 3' | 2'/0.5 2'/0.5 1'/0.5 7/0.5 2' 5' | 3' 2'/0.5 1'/0.5 7 #5 | 6/4",ch:'4 4 5 5 3m 3m 6m 6m 4 4 5 5 3 3 6m 6m',e:2,tr:0},{s:"1'/1.5 7/0.5 6 1' | 2'/1.5 1'/0.5 7 5 | 3'/1.5 2'/0.5 7 5 | 6/3 0 | 1'/0.5 1'/0.5 7/0.5 6/0.5 1' 3' | 2'/0.5 2'/0.5 1'/0.5 7/0.5 2' 5' | 3' 2'/0.5 1'/0.5 7 #5 | 6/4",ch:'4 4 5 5 3m 3m 6m 6m 4 4 5 5 3 3 6m 6m',e:2,tr:0}]},
+    {id:'wings',n:'風之翼',lv:'原創・熱血快版',bpm:156,k:65,bar:4,lead:'saw',riff:'0 1 2 3 2 1 2 3',rt:'pluck',ro:65,parts:[{s:"6 1' 2' 3' | 1'/1.5 6/0.5 4/2 | 5 6/0.5 5/0.5 3 5 | 2/3 0 | 6 1' 2' 3' | 4'/1.5 3'/0.5 1'/2 | 3' 2'/0.5 1'/0.5 5 1' | 2'/2 5 7",ch:'6m 6m 4 4 1 1 5 5 6m 6m 4 4 1 1 5 5',e:0,tr:0},{s:"4'/0.5 3'/0.5 4'/0.5 5'/1.5 3'/0.5 1'/0.5 | 2'/0.5 1'/0.5 2'/0.5 7/1.5 2'/0.5 5/0.5 | 1'/0.5 7/0.5 1'/0.5 3' 5' 3'/0.5 | 2' 1'/0.5 6/0.5 6/2 | 4'/0.5 3'/0.5 4'/0.5 5'/1.5 6'/0.5 5'/0.5 | 5'/0.5 4'/0.5 3'/0.5 2'/1.5 3'/0.5 5'/0.5 | 5'/1.5 3'/0.5 1' 2' | 1'/4",ch:'4 4 5 5 3m 3m 6m 6m 4 4 5 5 1 5 1 1',e:2,tr:0},{s:"6 1' 2' 3' | 1'/1.5 6/0.5 4/2 | 5 6/0.5 5/0.5 3 5 | 2/3 0 | 6 1' 2' 3' | 4'/1.5 3'/0.5 1'/2 | 3' 2'/0.5 1'/0.5 5 1' | 2'/2 5 7",ch:'6m 6m 4 4 1 1 5 5 6m 6m 4 4 1 1 5 5',e:1,tr:0},{s:"4'/0.5 3'/0.5 4'/0.5 5'/1.5 3'/0.5 1'/0.5 | 2'/0.5 1'/0.5 2'/0.5 7/1.5 2'/0.5 5/0.5 | 1'/0.5 7/0.5 1'/0.5 3' 5' 3'/0.5 | 2' 1'/0.5 6/0.5 6/2 | 4'/0.5 3'/0.5 4'/0.5 5'/1.5 6'/0.5 5'/0.5 | 5'/0.5 4'/0.5 3'/0.5 2'/1.5 3'/0.5 5'/0.5 | 5'/1.5 3'/0.5 1' 2' | 1'/4",ch:'4 4 5 5 3m 3m 6m 6m 4 4 5 5 1 5 1 1',e:2,tr:0},{s:"4'/0.5 3'/0.5 4'/0.5 5'/1.5 3'/0.5 1'/0.5 | 2'/0.5 1'/0.5 2'/0.5 7/1.5 2'/0.5 5/0.5 | 1'/0.5 7/0.5 1'/0.5 3' 5' 3'/0.5 | 2' 1'/0.5 6/0.5 6/2 | 4'/0.5 3'/0.5 4'/0.5 5'/1.5 6'/0.5 5'/0.5 | 5'/0.5 4'/0.5 3'/0.5 2'/1.5 3'/0.5 5'/0.5 | 5'/1.5 3'/0.5 1' 2' | 1'/4",ch:'4 4 5 5 3m 3m 6m 6m 4 4 5 5 1 5 1 1',e:2,tr:2}]},
     {id:'bee',n:'小蜜蜂',bpm:120,k:72,bar:4,rep:2,s:"5 3 3/2 | 4 2 2/2 | 1 2 3 4 | 5 5 5/2 | 5 3 3/2 | 4 2 2/2 | 1 3 5 5 | 3/4 | 2 2 2 2 | 2 3 4/2 | 3 3 3 3 | 3 4 5/2 | 5 3 3/2 | 4 2 2/2 | 1 3 5 5 | 1/4"},
     {id:'tiger',n:'兩隻老虎',bpm:124,k:72,bar:4,rep:3,kc:2,s:"1 2 3 1 | 1 2 3 1 | 3 4 5/2 | 3 4 5/2 | 5/0.5 6/0.5 5/0.5 4/0.5 3 1 | 5/0.5 6/0.5 5/0.5 4/0.5 3 1 | 1 ,5 1/2 | 1 ,5 1/2"},
     {id:'star',n:'小星星',bpm:126,k:72,bar:4,rep:2,s:"1 1 5 5 | 6 6 5/2 | 4 4 3 3 | 2 2 1/2 | 5 5 4 4 | 3 3 2/2 | 5 5 4 4 | 3 3 2/2 | 1 1 5 5 | 6 6 5/2 | 4 4 3 3 | 2 2 1/2"},
@@ -8699,7 +8722,7 @@ const DD=(()=>{
       let oc=0,acc=0;while(n[0]===','){oc--;n=n.slice(1);}if(n[0]==='#'){acc=1;n=n.slice(1);}else if(n[0]==='b'){acc=-1;n=n.slice(1);}while(n.endsWith("'")){oc++;n=n.slice(0,-1);}
       const q=+n;if(q>0)out.push({t:Math.round(t*1e6)/1e6,d,m:k+DEG[q-1]+acc+12*oc});t+=d;}
     return {notes:out,len:Math.round(t*1e6)/1e6};}
-  SONGS.forEach(S=>{Object.assign(S,parse(S.s,S.k));if(S.intro)S.introN=parse(S.intro,S.k).notes;});   /* intro：前奏裡的旋律（孟德爾頌的開場小號），ib＝前奏幾小節 */
+  SONGS.forEach(S=>{if(S.s)Object.assign(S,parse(S.s,S.k));else{S.notes=[];S.len=0;}if(S.intro)S.introN=parse(S.intro,S.k).notes;});   /* intro：前奏裡的旋律（孟德爾頌的開場小號），ib＝前奏幾小節 */
   D.SONGS=SONGS;
   // 和弦：每 2 拍（三拍子每小節）挑一個跟旋律最合的（I IV V vi ii iii，旋律有升 Sol 才用 III＝給愛麗絲的 E 和弦）
   const CHD={'1':[0,4,7],'2m':[2,5,9],'3m':[4,7,11],'4':[5,9,0],'5':[7,11,2],'6m':[9,0,4],'3':[4,8,11],'7':[11,3,6,9]};   /* 7＝B7（土耳其進行曲） */
@@ -8711,54 +8734,74 @@ const DD=(()=>{
         if(s>bs){bs=s;best=c;}}
       out.push(best);prev=best;}
     out[n-1]=S.minor?'6m':'1';if(S.minor)out[0]='6m';return out;}
-  // 歌的段落：前奏 4 小節 → 旋律 rep 次（第 2 次以後比較熱鬧）→ 尾奏 2 小節（拍數）
-  function layout(S){if(S.L)return S.L;const bar=S.bar,len=Math.ceil(S.len/bar-1e-6)*bar,intro=(S.ib||4)*bar,seg=bar===3?3:2,passes=[];
-    for(let r=0;r<S.rep;r++)passes.push({b0:intro+r*len,tr:S.kc&&S.rep>=3&&r===S.rep-1?S.kc:0,i:r});
-    S.L={bar,len,intro,seg,passes,end:intro+S.rep*len,total:intro+S.rep*len+2*bar,chords:harmonize(S,seg,Math.ceil(len/seg))};return S.L;}
+  // 歌的段落：前奏（ib 小節，預設 4）→ 老歌：旋律重複 rep 次（第 2 次以後比較熱鬧）；原創：parts 一段一段（主歌、副歌…）→ 尾奏 2 小節（拍數）
+  // 每一段：b0 開始、len 長度、notes 旋律、chords 和弦（每 seg 拍一個）、tr 升幾個半音、e 熱鬧程度（0 安靜、1 加 16 分鈸、2 全部：反拍和弦、伴奏大聲、旋律加高八度）
+  function layout(S){if(S.L)return S.L;const bar=S.bar,intro=(S.ib||4)*bar,seg=bar===3?3:2,passes=[];let b0=intro;
+    if(S.parts)S.parts.forEach((q,i)=>{const P2=parse(q.s,S.k),len=Math.ceil(P2.len/bar-1e-6)*bar;passes.push({b0,len,notes:P2.notes,chords:q.ch.split(/\s+/),tr:q.tr||0,e:q.e||0,i});b0+=len;});
+    else{const len=Math.ceil(S.len/bar-1e-6)*bar,chords=harmonize(S,seg,Math.ceil(len/seg));for(let r=0;r<S.rep;r++){passes.push({b0,len,notes:S.notes,chords,tr:S.kc&&S.rep>=3&&r===S.rep-1?S.kc:0,e:r>=1?2:0,i:r});b0+=len;}}
+    S.L={bar,intro,seg,passes,end:b0,total:b0+2*bar,len:passes[0].len,chords:passes[0].chords};return S.L;}
 
-  // ================= 音樂（自己合成：四拍大鼓、拍手、反拍開鈸、反拍貝斯、和弦、琶音、主旋律） =================
+  // ================= 音樂（自己合成：鼓、貝斯、和弦、伴奏、主旋律） =================
   const ac=()=>AUDIO.A&&AUDIO.A.ctx&&AUDIO.A.sfx?AUDIO.A.ctx:null;
   const mf=m=>440*Math.pow(2,(m-69)/12);
-  function buildMusic(S){const L=layout(S),spb=60/S.bpm,bar=L.bar,Y=AUDIO.syn,ev=[],add=(b,fn)=>ev.push({t:b*spb,fn});
-    const K=S.k%12,chordAt=(pb,tr)=>CHD[L.chords[Math.min(L.chords.length-1,Math.floor(pb/L.seg+1e-6))]].map(x=>x+K+tr);
+  const pcOf=x=>((x%12)+12)%12;
+  function buildMusic(S){const L=layout(S),spb=60/S.bpm,bar=L.bar,Y=AUDIO.syn,ev=[],add=(b,fn)=>ev.push({t:b*spb,fn}),sty=S.sty||'four';
+    const K=S.k%12,P0=L.passes[0],last=L.passes[L.passes.length-1];
+    const chordOf=(p,pb)=>CHD[p.chords[Math.floor(pb/L.seg+1e-6)%p.chords.length]].map(x=>x+K+p.tr);
+    const RIFF=S.riff?S.riff.split(/\s+/):null,rStep=S.r16?1:2;
     const steps=Math.round(L.total*4);
-    for(let i=0;i<steps;i++){const b=i/4,sub=i%4,inBar=b%bar,beatI=Math.floor(inBar+1e-6),onBeat=sub===0;
-      let sec='in',pi=-1,pb=0,tr=0;if(b>=L.intro&&b<L.end){pi=Math.floor((b-L.intro)/L.len+1e-6);pb=b-L.passes[pi].b0;tr=L.passes[pi].tr;sec='p';}else if(b>=L.end)sec='out';
-      const barI=Math.floor(b/bar+1e-6),ch=pi>=1,lastBar=sec==='p'&&pb>=L.len-bar-1e-6&&pi<L.passes.length-1,introBar=barI-(L.intro/bar-4);
-      const ob=b-L.end,cs=sec==='p'?chordAt(pb,tr):sec==='out'?CHD[S.minor?'6m':'1'].map(x=>x+K+L.passes[L.passes.length-1].tr):chordAt(0,0);
-      // 鼓
-      if(sec!=='out'||ob<bar){if(onBeat&&!(lastBar&&beatI===bar-1&&sec==='p'&&pi%2===1))add(b,(t,o)=>Y.drum('k',t,o,0.85));}
-      else if(ob<bar+0.01&&onBeat)add(b,(t,o)=>Y.drum('k',t,o,0.85));
-      if(sec==='out'&&ob<0.01)add(b,(t,o)=>Y.drum('c',t,o,1));
-      const clapOn=bar===3?(beatI===1||beatI===2):(beatI===1||beatI===3);
-      if(onBeat&&clapOn&&(sec==='p'||(sec==='in'&&introBar>=2)||(sec==='out'&&ob<bar)))add(b,(t,o)=>Y.drum('s',t,o,bar===3&&beatI===2?0.6:0.9));
-      if(sub===2&&(sec==='p'||sec==='in'||(sec==='out'&&ob<bar)))add(b,(t,o)=>Y.drum(sec==='in'&&introBar<2?'h':'oh',t,o,0.75));
-      if(ch&&sec==='p'&&sub!==2)add(b,(t,o)=>Y.drum('h',t,o,sub===0?0.55:0.35));
+    for(let i=0;i<steps;i++){const b=i/4,sub=i%4,inBar=b%bar,beatI=Math.floor(inBar+1e-6),onBeat=sub===0,s16=Math.round(inBar*4);
+      let sec='in',p=null,pb=0;if(b>=L.intro&&b<L.end){p=L.passes.find(q=>b<q.b0+q.len-1e-6);pb=b-p.b0;sec='p';}else if(b>=L.end)sec='out';
+      const barI=Math.floor(b/bar+1e-6),e=p?p.e:0,ch=e>=2,busy=e>=1,pi=p?p.i:-1,lastBar=sec==='p'&&pb>=p.len-bar-1e-6&&p!==last,introBar=barI-(L.intro/bar-4);
+      const ob=b-L.end,cs=sec==='p'?chordOf(p,pb):sec==='out'?CHD[S.minor?'6m':'1'].map(x=>x+K+last.tr):chordOf(P0,b%P0.len);
+      const live=sec==='p'||(sec==='out'&&ob<bar);
+      // 鼓、貝斯
+      if(sty==='drift'){   // 嘻哈：大鼓切分、2 4 拍手、閉鈸（熱鬧段 16 分＋三連音滾奏）、跟著大鼓的 808 長低音（往下滑）
+        const KP=ch?[0,3,6,10,14]:[0,3,10],kick=KP.includes(s16)&&(live||(sec==='in'&&introBar>=1))&&!(lastBar&&beatI===bar-1);
+        if(kick)add(b,(t,o)=>Y.drum('k',t,o,0.95));
+        if(sec==='out'&&ob<0.01)add(b,(t,o)=>Y.drum('c',t,o,1));
+        if(onBeat&&(beatI===1||beatI===3)&&(live||(sec==='in'&&introBar>=2)))add(b,(t,o)=>Y.drum('s',t,o,0.95));
+        if(live||sec==='in'){if(busy&&beatI===bar-1&&barI%2===1&&sub===0){for(let r=0;r<6;r++)add(b+r/6,(t,o)=>Y.drum('h',t,o,0.3+0.05*r));}
+          else if(!(busy&&beatI===bar-1&&barI%2===1)&&(busy||sub%2===0))add(b,(t,o)=>Y.drum('h',t,o,sub===0?0.6:sub===2?0.45:0.3));}
+        if(kick&&(live||(sec==='in'&&introBar>=2))){let m=24+pcOf(cs[0]);if(m<28)m+=12;const f=mf(m),len=spb*(s16===0?1.5:0.75);
+          add(b,(t,o)=>{Y.tone('sine',f*1.8,f,t,len,0.3,o,null,{glide:0.05});Y.tone('triangle',f*2,0,t,len*0.5,0.05,o,['lowpass',800,1]);});}}
+      else{   // 舞曲：四拍大鼓、2 4 拍手、反拍開鈸、反拍貝斯
+        if(sec!=='out'||ob<bar){if(onBeat&&!(lastBar&&beatI===bar-1&&sec==='p'&&pi%2===1))add(b,(t,o)=>Y.drum('k',t,o,0.85));}
+        else if(ob<bar+0.01&&onBeat)add(b,(t,o)=>Y.drum('k',t,o,0.85));
+        if(sec==='out'&&ob<0.01)add(b,(t,o)=>Y.drum('c',t,o,1));
+        const clapOn=bar===3?(beatI===1||beatI===2):(beatI===1||beatI===3);
+        if(onBeat&&clapOn&&(sec==='p'||(sec==='in'&&introBar>=2)||(sec==='out'&&ob<bar)))add(b,(t,o)=>Y.drum('s',t,o,bar===3&&beatI===2?0.6:0.9));
+        if(sub===2&&(sec==='p'||sec==='in'||(sec==='out'&&ob<bar)))add(b,(t,o)=>Y.drum(sec==='in'&&introBar<2?'h':'oh',t,o,0.75));
+        if(busy&&sec==='p'&&sub!==2)add(b,(t,o)=>Y.drum('h',t,o,sub===0?0.55:0.35));
+        const bassOn=sec==='p'||(sec==='in'&&introBar>=2)||(sec==='out'&&ob<0.01);
+        if(bassOn&&(sub===2||(sec==='out'))&&!(sec==='out'&&sub!==0)){let m=36+pcOf(cs[0]);if(m<40)m+=12;const f=mf(m),len=sec==='out'?bar*spb:spb*0.42;
+          add(b,(t,o)=>{Y.tone('sawtooth',f,0,t,len,0.11,o,['lowpass',1000,5,180]);Y.tone('sine',f,0,t,len*1.05,0.17,o);});}}
       if(sec==='p'&&pb<0.01)add(b,(t,o)=>Y.drum('c',t,o,0.85));
-      // 過門：每次旋律的最後一拍小鼓 16 分音符＋最後一小節「咻——」往上掃
+      // 過門：每段最後一拍小鼓 16 分音符＋最後一小節「咻——」往上掃
       const fillBeat=(lastBar&&beatI===bar-1)||(sec==='in'&&introBar===3&&beatI===bar-1);
       if(fillBeat)add(b,(t,o)=>Y.drum('s',t,o,0.35+0.15*sub));
-      if((lastBar||(sec==='in'&&introBar===3))&&inBar<0.01)add(b,(t,o)=>Y.noise(t,0.12,0.07,o,'bandpass',300,6000,1.2,{a:bar*spb*0.95,sweep:bar*spb,col:'p'}));
-      // 貝斯：反拍（前奏第 3 小節開始）
-      const bassOn=sec==='p'||(sec==='in'&&introBar>=2)||(sec==='out'&&ob<0.01);
-      if(bassOn&&(sub===2||(sec==='out'))&&!(sec==='out'&&sub!==0)){let m=36+((cs[0]%12)+12)%12;if(m<40)m+=12;const f=mf(m),len=sec==='out'?bar*spb:spb*0.42;
-        add(b,(t,o)=>{Y.tone('sawtooth',f,0,t,len,0.11,o,['lowpass',1000,5,180]);Y.tone('sine',f,0,t,len*1.05,0.17,o);});}
-      // 和弦：熱鬧段反拍短和弦；每段開頭一個長音
-      if(ch&&sec==='p'&&sub===2){const fs=cs.map(x=>mf(60+((x%12)+12)%12));add(b,(t,o)=>{for(const f of fs)Y.tone('sawtooth',f,0,t,0.11,0.026,o,['lowpass',2600,1,900]);});}
-      if((sec==='p'||(sec==='in'&&introBar>=2))&&(pb%L.seg<0.01||sec==='in')&&onBeat&&(sec!=='in'||beatI%L.seg===0)){const fs=cs.map(x=>mf(60+((x%12)+12)%12)),dur=L.seg*spb;add(b,(t,o)=>Y.pad(t,fs,dur,ch?0.009:0.013,o));}
-      if(sec==='out'&&ob<0.01){const fs=cs.map(x=>mf(60+((x%12)+12)%12));add(b,(t,o)=>Y.pad(t,fs,bar*spb*2,0.02,o));}
-      // 琶音（熱鬧段，8 分音符：根音、三音、五音、八度）
-      if(ch&&sec==='p'&&sub%2===0){const k=(i/2)%4,base=72+((cs[0]%12)+12)%12,m=k===3?base+12:base+(((cs[k]-cs[0])%12)+12)%12;const f=mf(m);add(b,(t,o)=>Y.tone('square',f,0,t,spb*0.22,0.016,o,['lowpass',3600,1]));}}
+      if((lastBar||(sec==='in'&&introBar===3))&&inBar<0.01&&(!p||p.e>=1||L.passes[pi+1]&&L.passes[pi+1].e>=2))add(b,(t,o)=>Y.noise(t,0.12,0.07,o,'bandpass',300,6000,1.2,{a:bar*spb*0.95,sweep:bar*spb,col:'p'}));
+      // 和弦：熱鬧段反拍短和弦（嘻哈不要）；每段開頭一個長音
+      if(ch&&sec==='p'&&sub===2&&sty!=='drift'){const fs=cs.map(x=>mf(60+pcOf(x)));add(b,(t,o)=>{for(const f of fs)Y.tone('sawtooth',f,0,t,0.11,0.026,o,['lowpass',2600,1,900]);});}
+      if((sec==='p'||(sec==='in'&&introBar>=2))&&(sec==='in'?inBar%L.seg<0.01:pb%L.seg<0.01)&&onBeat){const fs=cs.map(x=>mf(60+pcOf(x))),dur=L.seg*spb;add(b,(t,o)=>Y.pad(t,fs,dur,ch?0.009:0.013,o));}
+      if(sec==='out'&&ob<0.01){const fs=cs.map(x=>mf(60+pcOf(x)));add(b,(t,o)=>Y.pad(t,fs,bar*spb*2,0.02,o));}
+      // 伴奏：原創曲用自己的 riff（遊戲音樂那種一直轉的分解和弦）；老歌熱鬧段用 8 分音符琶音
+      if(RIFF){if((sec==='p'||(sec==='in'&&introBar>=2))&&s16%rStep===0){const tk=RIFF[(s16/rStep)%RIFF.length];
+          if(tk!=='x'){const n=+tk,idx=n%3,oc=Math.floor(n/3),m=(S.ro||72)+pcOf(cs[0])+pcOf(cs[idx]-cs[0])+12*oc,f=mf(m),v=sec==='in'?0.7:ch?1:0.75,rt=S.rt;
+            add(b,(t,o)=>{if(rt==='bell')Y.fm(t,f,2,1.6,spb*0.9,0.06*v,o);else if(rt==='pluck')Y.tone('sawtooth',f,0,t,spb*0.32,0.04*v,o,['lowpass',3000,3,600]);else Y.tone('square',f,0,t,spb*0.2,0.03*v,o,['lowpass',4200,1]);});}}}
+      else if(ch&&sec==='p'&&sub%2===0){const k=(i/2)%4,base=72+pcOf(cs[0]),m=k===3?base+12:base+pcOf(cs[k]-cs[0]);const f=mf(m);add(b,(t,o)=>Y.tone('square',f,0,t,spb*0.22,0.016,o,['lowpass',3600,1]));}}
     if(S.introN)for(const n of S.introN){const f=mf(n.m),dur=n.d*spb;add(n.t,(t,o)=>{Y.tone('sawtooth',f,0,t,dur*0.35,0.07,o,['lowpass',3200,2,1400],{a:0.018,hold:dur*0.55});Y.tone('sawtooth',f*1.006,0,t,dur*0.35,0.04,o,['lowpass',2400,1],{a:0.02,hold:dur*0.55});Y.tone('square',f/2,0,t,dur*0.35,0.03,o,['lowpass',1500,1],{a:0.02,hold:dur*0.5});});}   /* 開場小號 */
-    // 主旋律（第 2 次以後加高八度）
-    for(const p of L.passes)for(const n of S.notes){const m=n.m+p.tr,f=mf(m),dur=n.d*spb,ch=p.i>=1;
-      add(p.b0+n.t,(t,o)=>{Y.tone('square',f,0,t,dur*0.35,0.05,o,['lowpass',2800,1.5],{a:0.006,hold:dur*0.5,vib:[5.5,2.5]});Y.tone('sawtooth',f*1.004,0,t,dur*0.35,0.03,o,['lowpass',2200,1],{a:0.006,hold:dur*0.5});
+    // 主旋律（熱鬧段加高八度）：sq＝方波（電玩感）、saw＝三層鋸齒（比較厚、比較有感情）
+    const lead=S.lead||'sq',lp=S.sty==='drift'?2000:3000;
+    for(const p of L.passes)for(const n of p.notes){const m=n.m+p.tr,f=mf(m),dur=n.d*spb,ch=p.e>=2;
+      add(p.b0+n.t,(t,o)=>{if(lead==='saw'){for(const d of [-11,0,11])Y.tone('sawtooth',f,0,t,dur*0.35,0.026,o,['lowpass',lp,1.5],{a:0.01,hold:dur*0.5,det:d});Y.tone('triangle',f,0,t,dur*0.35,0.03,o,null,{a:0.01,hold:dur*0.5,vib:[5.5,2.5]});}
+        else{Y.tone('square',f,0,t,dur*0.35,0.05,o,['lowpass',2800,1.5],{a:0.006,hold:dur*0.5,vib:[5.5,2.5]});Y.tone('sawtooth',f*1.004,0,t,dur*0.35,0.03,o,['lowpass',2200,1],{a:0.006,hold:dur*0.5});}
         if(ch)Y.tone('triangle',f*2,0,t,dur*0.3,0.03,o,null,{a:0.005,hold:dur*0.4});});}
-    {const lp=L.passes[L.passes.length-1],tm=S.k+lp.tr+(S.minor?-3:0),f=mf(tm);add(L.end,(t,o)=>{Y.tone('square',f,0,t,1.4,0.05,o,['lowpass',2600,1.5],{a:0.006,hold:0.5});Y.tone('triangle',f*2,0,t,1.4,0.03,o);});}
+    {const tm=S.k+last.tr+(S.minor?-3:0),f=mf(tm);add(L.end,(t,o)=>{Y.tone('square',f,0,t,1.4,0.05,o,['lowpass',2600,1.5],{a:0.006,hold:0.5});Y.tone('triangle',f*2,0,t,1.4,0.03,o);});}
     ev.sort((a,b)=>a.t-b.t);return ev;}
   const MZ={ev:[],i:0,out:null,timer:null};
   function mzStart(S){const c=ac();MZ.ev=c&&AUDIO.syn?buildMusic(S):[];MZ.i=0;if(MZ.out){try{MZ.out.disconnect();}catch(_){}MZ.out=null;}if(!c)return;
-    MZ.out=c.createGain();MZ.out.gain.value=0.9;MZ.out.connect(AUDIO.A.sfx);clearInterval(MZ.timer);MZ.timer=setInterval(mzPump,40);}
+    MZ.v=0.9*(S.vol||1);MZ.out=c.createGain();MZ.out.gain.value=MZ.v;MZ.out.connect(AUDIO.A.sfx);clearInterval(MZ.timer);MZ.timer=setInterval(mzPump,40);}
   function mzPump(){if(!D.play||D.paused||!MZ.out)return;const c=ac();if(!c||c.state!=='running')return;const now=c.currentTime,hz=now+0.25;
     while(MZ.i<MZ.ev.length){const e=MZ.ev[MZ.i],at=D.t0+e.t;if(at>hz)break;MZ.i++;if(at<now-0.03)continue;try{e.fn(Math.max(at,now),MZ.out);}catch(_){}}}
   function mzStop(fade=0.08){clearInterval(MZ.timer);MZ.timer=null;const c=ac(),o=MZ.out;MZ.out=null;if(!o||!c)return;const g=o.gain,now=c.currentTime;g.cancelScheduledValues(now);g.setValueAtTime(g.value,now);g.linearRampToValueAtTime(0,now+fade);setTimeout(()=>{try{o.disconnect();}catch(_){}},fade*1000+500);}
@@ -8772,7 +8815,7 @@ const DD=(()=>{
     const onGrid=(b,g)=>Math.abs(b/g-Math.round(b/g))<0.01;
     let sel=[];
     if(S.introN){let last=-9;for(const n of S.introN){const b=n.t;if(dv===0&&!onGrid(b,0.5))continue;if(dv===1&&!onGrid(b,0.5)&&!onGrid(b,1/3))continue;if(b-last<minGap-1e-6)continue;sel.push({b,d:n.d,fill:true});last=b;}}
-    for(const p of L.passes){let last=-9;for(const n of S.notes){const b=p.b0+n.t;if(dv===0&&!onGrid(b,0.5))continue;if(dv===1&&!onGrid(b,0.5)&&!onGrid(b,1/3))continue;if(b-last<minGap-1e-6)continue;
+    for(const p of L.passes){let last=-9;for(const n of p.notes){const b=p.b0+n.t;if(dv===0&&!onGrid(b,0.5))continue;if(dv===1&&!onGrid(b,0.5)&&!onGrid(b,1/3))continue;if(b-last<minGap-1e-6)continue;
       sel.push({b,d:n.d,m:n.m+p.tr,pi:p.i,mel:true});last=b;}}
     // 長按：旋律長音（前 4 拍內沒有別的長按）
     let lastHold=-9;for(const q of sel){if(q.d>=holdMin&&q.b-lastHold>=4){q.hb=q.b+q.d-(q.d>=2?0.5:0.25);lastHold=q.hb;}}
@@ -8784,7 +8827,7 @@ const DD=(()=>{
         for(let b=Math.ceil((from+0.01)/fillStep)*fillStep;b<c.b-Math.max(0.49,fillStep*0.9);b+=fillStep)add.push({b,fill:true});}
       sel=sel.concat(add).sort((a,b)=>a.b-b.b);}
     // 地獄：每次旋律最後一拍 16 分音符
-    if(dv===3)for(const p of L.passes.slice(0,-1)){const b0=p.b0+L.len-1;sel=sel.filter(q=>q.b<b0-1e-6||q.b>=b0+1-1e-6||q.hb);for(let k=0;k<4;k++)sel.push({b:b0+k*0.25,fill:true});}
+    if(dv===3)for(const p of L.passes.slice(0,-1)){const b0=p.b0+p.len-1;sel=sel.filter(q=>q.b<b0-1e-6||q.b>=b0+1-1e-6||q.hb);for(let k=0;k<4;k++)sel.push({b:b0+k*0.25,fill:true});}
     sel.sort((a,b)=>a.b-b.b);
     // 方向：旋律越高越往右（每 2 小節一組，照音高排名分到 ← ↓ ↑ →）；每次重複換一種排法；同一個音連續＝左右（上下）交替
     const PERM=[[0,1,2,3],[0,2,1,3],[1,0,3,2],[0,1,2,3]];
@@ -8798,8 +8841,8 @@ const DD=(()=>{
       if(lane===prevLane&&q.b-prevB<0.5&&dv<3)lane=OPP[lane];
       q.lane=lane;prevLane=lane;prevB=q.hb||q.b;}
     // 雙踩（兩個箭頭一起）：普通每 4 小節、困難每 2 小節、地獄每小節的第一拍（長按不配）；最後一下
-    const jumps=[];if(dv>=1)for(const q of sel){if(q.hb||q.b<L.intro-1e-6)continue;const pb=(q.b-L.intro)%L.len,every=[0,4,2,1][dv]*bar;
-      if(onGrid(pb,every)&&(dv>=2||q.pi>=1||pb<0.01))jumps.push({b:q.b,lane:OPP[q.lane],fill:true});}
+    const jumps=[];if(dv>=1)for(const q of sel){if(q.hb||q.b<L.intro-1e-6||q.b>=L.end-1e-6)continue;const P=L.passes.find(x=>q.b<x.b0+x.len-1e-6),pb=q.b-P.b0,every=[0,4,2,1][dv]*bar;
+      if(onGrid(pb,every)&&(dv>=2||P.i>=1||pb<0.01))jumps.push({b:q.b,lane:OPP[q.lane],fill:true});}
     sel=sel.concat(jumps);sel.push({b:L.end,lane:0,fill:true});if(dv>=1)sel.push({b:L.end,lane:3,fill:true});
     // 長按期間：簡單／普通不要有別的箭頭；困難以上同一個方向不要有
     const holds=sel.filter(q=>q.hb);sel=sel.filter(q=>!holds.some(h=>h!==q&&q.b>h.b+1e-6&&q.b<h.hb+0.49&&(dv<2||q.lane===h.lane)));
@@ -8977,7 +9020,7 @@ const DD=(()=>{
   const now=()=>{const c=ac();return D.useCtx&&c?c.currentTime:performance.now()/1000;};
   const songT=()=>D.paused?D.pSong:now()-D.t0-D.lat;
   function abort(quiet){mzStop(0.15);D.play=false;D.paused=false;for(let l=0;l<4;l++)D.down&&(D.down[l]=false);if(!quiet)showPanel();}
-  function pause(on){if(on===D.paused||!D.play)return;if(on){D.pSong=songT();D.pT=now();D.paused=true;mzGain(0);}else{D.t0+=now()-D.pT;D.paused=false;mzGain(0.9);}}
+  function pause(on){if(on===D.paused||!D.play)return;if(on){D.pSong=songT();D.pT=now();D.paused=true;mzGain(0);}else{D.t0+=now()-D.pT;D.paused=false;mzGain(MZ.v||0.9);}}
 
   // ================= 按、放開、判定 =================
   function press(l){if(!D.on)return;if(D.down&&D.down[l])return;if(!D.down)D.down=[false,false,false,false];D.down[l]=true;if(D.flash)D.flash[l]=1;PADB[l].classList.add('on');stepFoot(l);
