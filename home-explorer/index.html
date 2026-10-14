@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-14.17"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-14.20"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -5097,6 +5097,7 @@ const RACE=(()=>{
     for(const sd of [-1,1])box(0.05,0.28,sd*0.3,0.16,0.56,0.06,mDark,wing);
     box(-0.1,0.6,0,0.55,0.05,2.25,mWing,wing);box(-0.28,0.78,0,0.45,0.045,2.25,mWing,wing);
     for(const sd of [-1,1]){box(-0.2,0.58,sd*1.14,0.85,0.66,0.045,mLow,wing);box(-0.2,0.8,sd*1.143,0.82,0.12,0.04,mAcc,wing);}
+    bake(wing);   /* 效能：尾翼整組一起動，零件合併 */
     // 紅色加速噴嘴（左右各一）＋噴出的火焰
     const flames=[];
     for(const sd of [-1,1]){const g=new THREE.CylinderGeometry(0.17,0.19,1.0,16);g.rotateZ(Math.PI/2);g.translate(-1.8,0.6,sd*0.8);add(g,mPod);
@@ -5113,6 +5114,7 @@ const RACE=(()=>{
       const t=new THREE.CylinderGeometry(0.36,0.36,0.36,22);t.rotateX(Math.PI/2);const tm=new THREE.Mesh(t,mTire);tm.castShadow=true;w.add(tm);
       const r=new THREE.CylinderGeometry(0.25,0.25,0.37,16);r.rotateX(Math.PI/2);w.add(new THREE.Mesh(r,mGold));
       for(let k=0;k<5;k++){const sp=new THREE.Mesh(new THREE.BoxGeometry(0.42,0.05,0.38),mGold);sp.rotation.z=k*Math.PI/5;w.add(sp);}
+      bake(w);   /* 效能：輪胎＋輪框＋5 根輪輻 7 個 → 2 個（一起轉，不影響） */
       wheels.push(w);if(front)steers.push(pv);};
     for(const sd of [-1,1]){wheel(1.6,sd*0.97,true);wheel(-1.0,sd*1.02,false);wheel(-1.72,sd*1.02,false);}
     for(const sd of [-1,1]){const g=new THREE.CylinderGeometry(0.03,0.03,0.6,6);g.rotateX(Math.PI/2);g.translate(1.6,0.36,sd*0.68);add(g,mDark);}   // 前輪懸吊
@@ -6085,7 +6087,7 @@ const NM=(()=>{
   const AX=117,WL=120.2,SPX=188,TW=LW-0.35,GS=3.0;   // 我方前排 x、警戒線 x、敵人出生 x、可以站的半寬、門往你這邊移動的速度
   const vcol=(g,c)=>{g=g.index?g.toNonIndexed():g;const n=g.attributes.position.count,arr=new Float32Array(n*3);TC.set(c);for(let i=0;i<n;i++){arr[i*3]=TC.r;arr[i*3+1]=TC.g;arr[i*3+2]=TC.b;}g.setAttribute('color',new THREE.BufferAttribute(arr,3));if(g.attributes.uv)g.deleteAttribute('uv');return g;};
   const EMX=2400,EX=new Float32Array(EMX),EZ=new Float32Array(EMX),EHP=new Float32Array(EMX),EPD=new Float32Array(EMX),ESP=new Float32Array(EMX),EPH=new Float32Array(EMX),EAL=new Uint8Array(EMX);let eHi=0,eN=0;const eFree=[];
-  const REDM=im(mergeGeometries([vcol(new THREE.CapsuleGeometry(0.15,0.26,3,6).translate(0,0.29,0),'#d8262c'),vcol(new THREE.SphereGeometry(0.14,8,6).translate(0,0.64,0),'#f2c9a0'),vcol(new THREE.CylinderGeometry(0.17,0.17,0.08,8).translate(0,0.75,0),'#7a0c0c'),vcol(new THREE.BoxGeometry(0.05,0.5,0.05).translate(0.18,0.45,0),'#c9ccce')]),new THREE.MeshBasicMaterial({vertexColors:true}),EMX);
+  const REDM=im(mergeGeometries([vcol(new THREE.CapsuleGeometry(0.15,0.26,2,5).translate(0,0.29,0),'#d8262c'),vcol(new THREE.SphereGeometry(0.14,6,4).translate(0,0.64,0),'#f2c9a0'),vcol(new THREE.CylinderGeometry(0.17,0.17,0.08,6,1).translate(0,0.75,0),'#7a0c0c'),vcol(new THREE.BoxGeometry(0.05,0.5,0.05).translate(0.18,0.45,0),'#c9ccce')]),new THREE.MeshBasicMaterial({vertexColors:true}),EMX);
   REDM.instanceMatrix.setUsage(THREE.DynamicDrawUsage);REDM.frustumCulled=false;
   const CANM=im(mergeGeometries([vcol(new THREE.BoxGeometry(0.9,0.42,0.72).translate(0,0.42,0),'#2f6fe0'),vcol(new THREE.BoxGeometry(0.5,0.3,0.5).translate(-0.1,0.78,0),'#1f4fb0'),vcol(new THREE.CylinderGeometry(0.1,0.12,0.9,10).rotateZ(Math.PI/2).translate(0.55,0.8,0),'#c9ccce'),
     ...[-0.3,0,0.3].flatMap(x=>[-0.4,0.4].map(z=>vcol(new THREE.CylinderGeometry(0.17,0.17,0.12,10).rotateX(Math.PI/2).translate(x,0.17,z),'#22262c')))]),new THREE.MeshBasicMaterial({vertexColors:true}),40);CANM.frustumCulled=false;   /* 砲車（50 人合成一台） */
@@ -6097,15 +6099,31 @@ const NM=(()=>{
   // 前面的敵人（每格按 x 分桶，給瞄準用）
   const FRONT=[];function frontList(){FRONT.length=0;const B=A.bk||(A.bk=[]);for(let k=0;k<80;k++)(B[k]||(B[k]=[])).length=0;for(let i=0;i<eHi;i++){if(!EAL[i])continue;const k=Math.floor(EX[i]-WL);if(k>=0&&k<80)B[k].push(i);}for(let k=0;k<80&&FRONT.length<90;k++)for(const i of B[k]){FRONT.push(i);if(FRONT.length>=90)break;}}
   // 牌子
-  function agDraw(g){const c=g.ctx,W2=g.cw,H2=g.ch;c.setTransform(2,0,0,2,0,0);c.clearRect(0,0,W2,H2);const q=g.op==='?',x=g.op==='x';
+  // 效能（使用者問）：門的形狀、材質共用；小牌子同一個數字共用一張貼圖（原本每塊都新做一張，新的一排出現時會卡 0.1～0.2 秒）
+  const AGG=new THREE.Group();scene.add(AGG);const AGS={geo:{},mat:{},small:{}};
+  const agGeo=(k,f)=>AGS.geo[k]||(AGS.geo[k]=f());
+  const AGPOST=std({color:'#f5f5f2',roughness:0.4}),AGPAN={};for(const [k,c] of [['p','#3aa0ff'],['x','#9b7bff'],['q','#ffd23a'],['n','#ff4a4a']])AGPAN[k]=new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:0.3,side:THREE.DoubleSide,depthWrite:false});
+  const panKey=g=>g.op==='?'?'q':g.op==='x'?'x':g.v>=0?'p':'n';
+  function agDraw(g){const c=g.ctx,W2=g.cw,H2=g.ch,sc=g.sc||1;if(!g.noClear){c.setTransform(sc,0,0,sc,0,0);c.clearRect(0,0,W2,H2);}const q=g.op==='?',x=g.op==='x';
     c.fillStyle=q?'#e8a000':x?'#7a4fd8':g.v>=0?'#1f8fd8':'#d8262c';c.fillRect(0,0,W2,H2);c.strokeStyle='#fff';c.lineWidth=7;c.strokeRect(3.5,3.5,W2-7,H2-7);
     const t=q?'❓ ×2／歸零':x?`×${g.v}`:(g.v>=0?'+':'')+g.v,px=Math.min(H2*0.72,W2*0.9/Math.max(1.6,t.length*0.62));c.font=`900 ${px}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=px*0.14;c.strokeStyle='rgba(0,0,0,.7)';c.strokeText(t,W2/2,H2*0.54);c.fillStyle='#fff';c.fillText(t,W2/2,H2*0.54);g.tex.needsUpdate=true;
-    if(g.panel)g.panel.material.color.set(q?'#ffd23a':x?'#9b7bff':g.v>=0?'#3aa0ff':'#ff4a4a');}
-  function aGate(x,z0,z1,op,v,small){const grp=new THREE.Group();grp.position.set(x,0,(z0+z1)/2);CG.add(grp);const w=z1-z0,cw=small?256:512,ch=small?128:150,[c,ctx]=cvs(cw*2,ch*2),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;
-    const sm=new THREE.MeshBasicMaterial({map:tex,toneMapped:false,side:THREE.DoubleSide});sm.userData.own=true;const sh=(w-0.2)*ch/cw;const sign=mk(new THREE.PlaneGeometry(w-0.2,sh),sm,0,small?1.25:2.3,0,grp);sign.rotation.y=-Math.PI/2;
-    let panel=null;if(!small){panel=mk(new THREE.PlaneGeometry(w-0.25,1.85),new THREE.MeshBasicMaterial({color:'#3aa0ff',transparent:true,opacity:0.3,side:THREE.DoubleSide,depthWrite:false}),0,0.93,0,grp);panel.rotation.y=Math.PI/2;}
-    const post=std({color:'#f5f5f2',roughness:0.4});for(const s of [-1,1])mk(new THREE.BoxGeometry(0.12,small?1.6:2.9,0.12),post,0,small?0.8:1.45,s*(w/2-0.06),grp);
-    const g={x,z0,z1,op,v,acc:0,grp,ctx,tex,cw,ch,panel,used:false,small,fade:0};agDraw(g);A.gates.push(g);return g;}
+    if(g.panel)g.panel.material=AGPAN[panKey(g)];}
+  const ATL=(()=>{const [c,g]=cvs(2048,2048),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;let drawn=false;
+    const mat=new THREE.MeshBasicMaterial({map:tex,toneMapped:false,side:THREE.DoubleSide});
+    mat.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>'+String.fromCharCode(10)+'attribute vec2 uvOff;').replace('#include <uv_vertex>',['#include <uv_vertex>','#ifdef USE_MAP','vMapUv=vMapUv*vec2(0.125,0.0625)+uvOff;','#endif'].join(String.fromCharCode(10)));};   /* 每塊牌子取大圖裡自己那一格 */
+    const geo=new THREE.PlaneGeometry(1.6,0.8).rotateY(-Math.PI/2),UO=new THREE.InstancedBufferAttribute(new Float32Array(300*2),2);geo.setAttribute('uvOff',UO);
+    const m=im(geo,mat,300);m.frustumCulled=false;const post=im(new THREE.BoxGeometry(0.12,1.6,0.12),AGPOST,600);post.frustumCulled=false;
+    return {m,post,UO,init(){if(drawn)return;drawn=true;for(let v=0;v<128;v++){const col=v%8,row=Math.floor(v/8);g.save();g.translate(col*256,row*128);agDraw({ctx:g,tex,cw:256,ch:128,sc:1,op:'+',v,noClear:true});g.restore();}tex.needsUpdate=true;}};})();
+  function smallTex(v){const k='+'+v;if(AGS.small[k])return AGS.small[k];const [c,ctx]=cvs(256,128),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;
+    agDraw({ctx,tex,cw:256,ch:128,sc:1,op:'+',v});return AGS.small[k]=new THREE.MeshBasicMaterial({map:tex,toneMapped:false,side:THREE.DoubleSide});}
+  function aGate(x,z0,z1,op,v,small){if(small){const g={x,z0,z1,op,v:Math.min(127,v),acc:0,used:false,small:true,fade:0,sc:1};A.gates.push(g);return g;}   /* 小牌子不做 mesh，在 armyDraw 一次畫完 */
+    const grp=new THREE.Group();grp.position.set(x,0,(z0+z1)/2);AGG.add(grp);const w=z1-z0,cw=small?256:512,ch=small?128:150,wk=w.toFixed(2);
+    let ctx=null,tex=null,sm;if(small&&op==='+')sm=smallTex(v);else{const cc=cvs(cw,ch);ctx=cc[1];tex=new THREE.CanvasTexture(cc[0]);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;sm=new THREE.MeshBasicMaterial({map:tex,toneMapped:false,side:THREE.DoubleSide});sm.userData.own=true;}
+    const sh=(w-0.2)*ch/cw;const sign=mk(agGeo('s'+wk+cw,()=>new THREE.PlaneGeometry(w-0.2,sh)),sm,0,small?1.25:2.3,0,grp);sign.rotation.y=-Math.PI/2;
+    let panel=null;if(!small){panel=mk(agGeo('p'+wk,()=>new THREE.PlaneGeometry(w-0.25,1.85)),AGPAN.p,0,0.93,0,grp);panel.rotation.y=Math.PI/2;}
+    const pg=agGeo(small?'ps':'pb',()=>new THREE.BoxGeometry(0.12,small?1.6:2.9,0.12));for(const s of [-1,1])mk(pg,AGPOST,0,small?0.8:1.45,s*(w/2-0.06),grp);
+    const g={x,z0,z1,op,v,acc:0,grp,ctx,tex,cw,ch,sc:1,panel,used:false,small,fade:0};if(ctx)agDraw(g);A.gates.push(g);return g;}
+  function agFree(g){if(!g.grp)return;AGG.remove(g.grp);if(g.tex){g.tex.dispose();g.grp.traverse(o=>{if(o.material&&o.material.userData.own)o.material.dispose();});}}   /* 只丟自己的貼圖（共用的形狀、材質留著） */
   // 巨大倍數石柱：上面的數字＝血量，打倒會往前倒、壓扁一大片，人數 ×N
   function aPillar(x,z,mul,hp){const piv=new THREE.Group();piv.position.set(x,0,z);CG.add(piv);const stone=std({color:'#9aa1a8',roughness:0.9,emissive:'#2a2d33'});mk(new THREE.BoxGeometry(1.5,8,1.5),stone,0,4,0,piv);
     const [c,g]=cvs(256,640),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;g.fillStyle='#8a9098';g.fillRect(0,0,256,640);g.font=`900 150px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.lineWidth=14;g.strokeStyle='#3a1a6a';g.fillStyle='#b98aff';
@@ -6118,14 +6136,15 @@ const NM=(()=>{
     else{const z=LC+side*-(TW-1.2)*Math.random();aPillar(SPX+2,z,2,Math.round((140+t*9+t*t*0.6)*(N.D.pump||1)));}}
   // 開始
   N.startArmy=()=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(RB.on)RB.stop();if(SB.on)SB.stop();if(RACE.on)RACE.stop();if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
-    if(N.on)N.stop();clearCourse();panel.hidden=true;N.mode='army';N.D=DIFF[SAVE.diff]||DIFF[1];N.dk=SAVE.diff;N.S={mhp:1,name:'大軍團'};N.on=true;N.st='count';N.cd=2.4;N.lastCd=4;N.n=12;N.cz=LC;N.cx=AX;N.kills=0;N.manT=0;N.sk={big:0,rapid:0,gold:0};N.cdn={big:0,rapid:0,gold:0};N.camP=null;N.bossOn=null;
+    if(N.on)N.stop();clearCourse();panel.hidden=true;N.mode='army';ATL.init();N.D=DIFF[SAVE.diff]||DIFF[1];N.dk=SAVE.diff;N.S={mhp:1,name:'大軍團'};N.on=true;N.st='count';N.cd=2.4;N.lastCd=4;N.n=12;N.cz=LC;N.cx=AX;N.kills=0;N.manT=0;N.sk={big:0,rapid:0,gold:0};N.cdn={big:0,rapid:0,gold:0};N.camP=null;N.bossOn=null;
     A.run=(A.run||0)+1;Object.assign(A,{on:true,t:0,ev:0,evT:1,wave:0,waveT:2,boss:null,bossT:95,kills:0,maxN:12,bul:[],gates:[],pills:[],sprites:[],fxT:0,acc:0,accC:0,over:false});EAL.fill(0);eHi=0;eN=0;eFree.length=0;
     // 警戒線
     const ln=mk(new THREE.PlaneGeometry(0.35,LW*2).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#ff2a2a',transparent:true,opacity:0.85,toneMapped:false}),WL,0.07,LC,CG);A.line=ln;
     const lt=new THREE.MeshBasicMaterial({map:textTex(['⚠ 警戒線'],512,96,null,'#ff5a5a',`900 60px ${FONT}`),transparent:true,toneMapped:false});lt.userData.own=true;mk(new THREE.PlaneGeometry(3.2,0.6).rotateX(-Math.PI/2).rotateY(-Math.PI/2),lt,WL-0.6,0.075,LC,CG);
     document.body.classList.add('nm');hud.hidden=false;btns.hidden=false;mySign.visible=true;night(true);syncBtns();if(view!=='third'){view='third';syncViewUI();}player.yaw=-Math.PI/2;AUDIO.sfx('chime');
+    try{const ar=[ATL.m,ATL.post,REDM,CANM,ABM,ASM];for(const m of ar)m.count=Math.max(m.count,1);renderer.compile(scene,camera);for(const m of ar)m.count=0;}catch(_){}   /* 先把著色程式編好 */
     toast(isTouch?'大軍團：大軍站著自動射，左右推搖桿（或手指左右拖）換位置吃門；紅色大軍或大魔王闖過紅色警戒線就輸了！':'大軍團：A D／滑鼠左右拖換位置吃門，士兵自動射；紅色大軍或大魔王闖過紅色警戒線就輸了！1 巨大圈、2 連發、3 黃金');};
-  function armyEnd(){A.on=false;mySign.scale.set(2.2,0.82,1);REDM.count=CANM.count=ABM.count=ASM.count=0;for(const s of A.sprites){scene.remove(s);s.material.map.dispose();s.material.dispose();}A.sprites=[];if(A.boss&&A.boss.bar){scene.remove(A.boss.bar);A.boss.bar.material.map.dispose();A.boss.bar.material.dispose();}A.boss=null;A.gates=[];A.pills=[];A.bul=[];EAL.fill(0);eHi=eN=0;eFree.length=0;N.mode=null;}
+  function armyEnd(){A.on=false;ATL.m.count=ATL.post.count=0;mySign.scale.set(2.2,0.82,1);REDM.count=CANM.count=ABM.count=ASM.count=0;for(const s of A.sprites){scene.remove(s);s.material.map.dispose();s.material.dispose();}A.sprites=[];if(A.boss&&A.boss.bar){scene.remove(A.boss.bar);A.boss.bar.material.map.dispose();A.boss.bar.material.dispose();}A.boss=null;for(const g of A.gates)agFree(g);A.gates=[];A.pills=[];A.bul=[];EAL.fill(0);eHi=eN=0;eFree.length=0;N.mode=null;}
   N.armyEnd=armyEnd;
   const AF=[1,1.15,1.7,2.4];   /* 大軍團另外再加的難度（人數會翻倍，要比跑道關卡更硬） */
   const armyHW=()=>cl(0.9+Math.sqrt(N.n)*0.09,1.0,3.3);   // 大軍半寬（人越多越寬，吃門的範圍也越寬）
@@ -6180,12 +6199,12 @@ const NM=(()=>{
       if(B.hp<=0&&live){N.st='done';for(let i=0;i<eHi;i++)if(EAL[i])eKill(i,Math.random()<0.2);big('🏆 打倒大魔王！');AUDIO.sfx('bigcheer');ring3(B.x,B.z);B.g.visible=false;{const id=A.run;setTimeout(()=>{if(N.on&&N.mode==='army'&&A.run===id)armyResult(true);},1800);}}}
     if(cross&&live){N.st='over';big('闖過警戒線了…');AUDIO.sfx('over');{const id=A.run;setTimeout(()=>{if(N.on&&N.mode==='army'&&A.run===id)armyResult(false);},1700);}}
     // 門、連續小門：往你這邊移動，到前排時你站在那一排就吃到
-    for(let k=A.gates.length-1;k>=0;k--){const g=A.gates[k];if(live)g.x-=GS*dt;g.grp.position.x=g.x;if(g.dirty){g.dirty=false;agDraw(g);}
+    for(let k=A.gates.length-1;k>=0;k--){const g=A.gates[k];if(live)g.x-=GS*dt;if(g.grp)g.grp.position.x=g.x;if(g.dirty&&g.ctx){g.dirty=false;agDraw(g);}
       if(!g.used&&g.x<=AX+0.4){g.used=true;if(g.small?!(g.z1<N.cz-hw||g.z0>N.cz+hw):(N.cz>=g.z0&&N.cz<g.z1)){const n0=N.n;   /* 大門：看大軍中心站在哪一扇；旁邊的連續小門：碰到就算 */
           if(g.op==='+')N.n=Math.max(1,N.n+g.v);else if(g.op==='x')N.n=N.n*g.v;else{if(Math.random()<0.5){N.n*=2;big('❓ 翻倍！');AUDIO.sfx('bigcheer');}else{N.n=1;big('❓ 歸零…剩 1 人');AUDIO.sfx('over');}}
           if(g.op!=='?'){if(!g.small)big(g.op==='x'?`×${g.v}`:(g.v>=0?'+':'')+g.v);soft(N.n>=n0?'combo':'thud');}g.fade=1;}}
-      if(g.used){g.fade=Math.max(0,g.fade-dt*3);g.grp.scale.setScalar(g.fade>0?1+(1-g.fade)*0.4:1);if(g.fade<=0&&g.x<AX-1)g.grp.visible=false;}
-      if(g.x<AX-6){g.grp.parent&&g.grp.parent.remove(g.grp);g.grp.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(o.material.map&&o.material.userData.own)o.material.map.dispose();o.material.dispose();}});A.gates.splice(k,1);}}
+      if(g.used){g.fade=Math.max(0,g.fade-dt*3);g.sc=g.fade>0?1+(1-g.fade)*0.4:1;if(g.fade<=0&&g.x<AX-1)g.hide=true;if(g.grp){g.grp.scale.setScalar(g.sc);g.grp.visible=!g.hide;}}
+      if(g.x<AX-6){agFree(g);A.gates.splice(k,1);}}
     // 石柱：往你這邊移動；打倒會往前倒（壓扁前面一大片敵人）、人數 ×N
     for(let k=A.pills.length-1;k>=0;k--){const p=A.pills[k];if(p.fall<0){if(live)p.x-=GS*0.7*dt;p.piv.position.x=p.x;p.bar.position.set(p.x,8.9,p.z);if(p.x<AX-2){p.bar.visible=false;CG.remove(p.piv);A.pills.splice(k,1);}continue;}
       p.fall+=dt;const u=Math.min(1,p.fall/0.75);p.piv.rotation.z=-Math.PI/2*u*u;p.bar.visible=false;
@@ -6207,6 +6226,8 @@ const NM=(()=>{
     mySign.position.set(AX+0.6,1.9+Math.min(0.8,nc*0.08),N.cz);mySign.scale.set(1.5,0.56,1);setCount(mySign,N.n);
     player.pos.set(A.backX-1.2,N.cz);player.yaw=-Math.PI/2;player.y=0;player.vel.set(0,0);
     if(A.line)A.line.material.opacity=FRONT.length&&EX[FRONT[0]]<WL+10?0.55+0.45*Math.sin(t*12):0.85;   /* 敵人很近：警戒線閃 */
+    {let si=0,pi=0;const U=ATL.UO.array;for(const g of A.gates){if(!g.small||g.hide||si>=300)continue;const zc=(g.z0+g.z1)/2;put(ATL.m,si,g.x,1.25,zc,0,g.sc,g.sc,g.sc);U[si*2]=(g.v%8)/8;U[si*2+1]=1-(Math.floor(g.v/8)+1)/16;si++;if(pi<598){put(ATL.post,pi++,g.x,0.8,g.z0+0.06);put(ATL.post,pi++,g.x,0.8,g.z1-0.06);}}
+      ATL.m.count=si;ATL.post.count=pi;ATL.m.instanceMatrix.needsUpdate=ATL.post.instanceMatrix.needsUpdate=true;ATL.UO.needsUpdate=true;}   /* 連續小門：一次畫完 */
     ringsDraw();fxTick(dt);}
   function armyHud(){N.hudT=(N.hudT||0)-1/60;if(N.hudT>0)return;N.hudT=0.1;const B=A.boss,near=FRONT.length?Math.max(0,EX[FRONT[0]]-WL):99;
     hud.innerHTML=`<b>大軍團</b>・<span style="color:${N.D.c}">${N.D.n}</span>　<span>👥</span><b>${N.n}</b>${nCan()?`<span>（🚜${nCan()}）</span>`:''}　<span>💀</span><b>${A.kills}</b>　<span>第</span><b>${A.wave}</b><span>波</span>　${B?`<span style="color:#ff8a8a">大魔王 ${Math.max(0,Math.ceil(B.hp))}</span>`:`<span>大魔王 ${Math.max(0,Math.ceil(A.bossT-A.t))} 秒後</span>`}　<span style="color:${near<8?'#ff6a6a':'#ffe08a'}">離警戒線 ${near.toFixed(0)} m</span>`;
@@ -7701,6 +7722,9 @@ const CU=(()=>{
   panel.querySelector('[data-x=exit]').onclick=e=>{e.stopPropagation();panel.hidden=true;if(K.on)K.stop();};
   const fmt=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
   let savedView=null;
+  // 效能（使用者問）：倒數的時候先把所有特效（雷射、火箭、閃電、冰、護盾…）的著色程式編好，第一次出現時才不會卡 0.3～0.5 秒
+  function warmUp(){const hid=[];G.traverse(o=>{if(!o.visible){hid.push(o);o.visible=true;}});for(const o of [barSp,SHB])if(o&&!o.visible){hid.push(o);o.visible=true;}const tmp=[];for(const o of [barSp,SHB])if(o&&!o.parent){scene.add(o);tmp.push(o);}
+    try{renderer.compile(scene,camera);}catch(_){}for(const o of hid)o.visible=false;for(const o of tmp)scene.remove(o);}
   K.start=(md,i)=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(K.on)K.stop(true);if(RB.on)RB.stop();if(NM.on)NM.stop();if(SB.on)SB.stop();if(RACE.on)RACE.stop();if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
     if(mode==='aerial')toggleAerial();panel.hidden=true;if(avatar.morph)GAME.morph(false);   /* 死亡騎士：先變回人類（不然拿著大劍又拿槍） */
     K.esc=md==='stage';K.mode='endless';K.stage=i;K.S=K.esc?STG[i]:null;K.R=null;K.hpS=1;   /* 逃生模式：內部跟無盡模式一樣自由走 */
@@ -7712,7 +7736,7 @@ const CU=(()=>{
     if(K.esc)escBuild(K.S);else{escClear();EX.g=null;}
     document.body.classList.add('cu');hud.hidden=false;btns.hidden=false;syncBtns();K.aim.on=false;aimId=null;mAim=null;aimKn.style.transform='';{let z=0;try{z=+localStorage.getItem('home-cucam')||0;}catch(_){}K.cz=z>=0&&z<3?z:0;}syncCam();savedView=view;if(view!=='third'){view='third';syncViewUI();}
     if(!GUN)GUN=gunBuild();avatar.root.add(GUN);GUN.position.set(0.11,1.52,0.43);gunColor();vestOn(K.dept);
-    AUDIO.sfx('chime');AUDIO.musicStart();AUDIO.setTempo&&AUDIO.setTempo(126);place(true);
+    AUDIO.sfx('chime');AUDIO.musicStart();AUDIO.setTempo&&AUDIO.setTempo(126);place(true);warmUp();
     if(!K.told){K.told=true;note(isTouch?(K.auto?'自動模式：自己沿著箭頭走、撿道具、選卡；你按右下的大招。推搖桿＝自己走':'搖桿走：跟著地上的箭頭到逃生點；升級時點一張卡；右下是大招'):(K.auto?'自動模式：自己沿著箭頭走、撿道具、選卡；你按 1 空襲、2 冰河期、3 狂暴。WASD＝自己走':'WASD 走：跟著地上的箭頭到逃生點；升級時按 1～3 選卡；Q 空襲、E 冰河期、R 狂暴；P 自動'));}else note(`${K.dept.ico} ${K.dept.n}：${K.dept.d}`);};
   K.stop=(quiet)=>{if(!K.on)return;K.on=false;K.st='idle';clearM();nB=0;nG=0;nP=0;nR=0;bolts.length=0;rockets.length=0;bombs.length=0;ices.length=0;planes.length=0;for(const it of items)G.remove(it.m);items.length=0;
     for(const m of [BULM,GEMM,PARTM,RINGM,BOLTM,ROCKM,BOMBM,ICEM,PLANEM,BOOKM,CONFM])m.count=0;for(const L of LASERS)L.o.visible=L.c.visible=false;for(const d of DRONES)d.visible=false;
@@ -8620,7 +8644,17 @@ for(const r of ROOMS){if(r.stair||r.nolabel)continue;const s2=labelSprite(r.name
 /* ---------------- 天空與光線 ---------------- */
 const sky=new Sky();sky.scale.setScalar(2500);scene.add(sky);
 const su=sky.material.uniforms;su.turbidity.value=5.5;su.rayleigh.value=1.4;su.mieCoefficient.value=0.005;su.mieDirectionalG.value=0.8;
-const sun=new THREE.DirectionalLight('#fff4e5',3);sun.castShadow=true;
+// 效能（使用者問：其他遊戲效能）：依距離不畫小東西。每 0.25 秒看一次，物件越小、離鏡頭越遠就移到圖層 1（鏡頭只看圖層 0；不動 visible，遊戲自己的顯示／隱藏照舊）
+// 0.3 m 的小東西約 70 m 外、1 m 約 100 m、3 m 約 190 m、8 m 約 415 m 外才不畫；霧很濃（300 m 外大多看不到），看起來差不多。物件可以設 userData.noCull 不參加
+const DCULL={t:0,list:[],rt:0,v:new THREE.Vector3(),on:true};
+function dcull(dt){if(!DCULL.on)return;DCULL.t-=dt;DCULL.rt-=dt;if(DCULL.t>0)return;DCULL.t=0.25;
+  if(DCULL.rt<=0){DCULL.rt=2;DCULL.list.length=0;scene.traverse(o=>{if(o.isMesh&&!o.isInstancedMesh&&!o.isSkinnedMesh&&o.geometry&&!o.userData.noCull)DCULL.list.push(o);});}
+  const cp=camera.position,v=DCULL.v,far=mode==='aerial'?1.8:1;
+  for(const o of DCULL.list){const g=o.geometry;if(!g.boundingSphere){g.computeBoundingSphere();if(!g.boundingSphere)continue;}
+    const R=g.boundingSphere.radius*o.matrixWorld.getMaxScaleOnAxis();if(!(R<12)){if(o.layers.mask!==1)o.layers.set(0);continue;}
+    v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld);const lim=(55+R*45)*far,show=v.distanceTo(cp)-R<lim;
+    if(show){if(o.layers.mask!==1)o.layers.set(0);}else if(o.layers.mask!==2)o.layers.set(1);}}
+const sun=new THREE.DirectionalLight('#fff4e5',3);sun.castShadow=true;sun.shadow.camera.layers.enable(1);   /* 距離隱藏的東西照樣有影子（見 dcull） */
 sun.shadow.mapSize.set(4096,4096);const sc=sun.shadow.camera;sc.left=-75;sc.right=75;sc.top=75;sc.bottom=-75;sc.near=1;sc.far=500;sc.updateProjectionMatrix();
 sun.shadow.bias=-0.0003;sun.shadow.normalBias=0.04;
 scene.add(sun);scene.add(sun.target);
@@ -10725,6 +10759,7 @@ function loop(){
     if(s.userData.room)o=mode==='walk'&&s.userData.floor===pf&&indoors()?THREE.MathUtils.smoothstep(d,1.0,2.0)*(1-THREE.MathUtils.smoothstep(d,5,7.5)):0;
     else o=(mode==='aerial'||s.userData.always)?1:THREE.MathUtils.smoothstep(d,8,18);
     s.material.opacity=o;s.visible=o>0.01;}}
+  dcull(dt);
   renderer.render(scene,camera);
   drawMinimap();
   placeTimer-=dt;if(placeTimer<=0){updatePlace();placeTimer=0.25;}
@@ -10733,10 +10768,18 @@ function loop(){
 camera.position.set(START.x,1.6,START.y+3);camera.rotation.set(0.12,0,0,'YXZ');
 syncViewUI();
 loop();
-const startBtn=document.getElementById('start');startBtn.disabled=false;startBtn.textContent='進入';
+const startBtn=document.getElementById('start');
+// 效能（使用者問：其他遊戲效能）：載入時把所有遊戲裡「還沒出現」的東西（特效、賽車、擂台、鬥牛、夜市…）的著色程式先編好，玩的時候第一次出現才不會卡 0.2～0.6 秒（燈不動：燈的數量會影響著色程式）
+(async()=>{const hid=[];scene.traverse(o=>{if(!o.visible&&!o.isLight){hid.push(o);o.visible=true;}});
+  try{if(renderer.compileAsync)await renderer.compileAsync(scene,camera);else renderer.compile(scene,camera);}catch(_){}
+  for(const o of hid)o.visible=false;startBtn.disabled=false;startBtn.textContent='進入';})();
 startBtn.onclick=()=>{document.getElementById('overlay').style.display='none';started=true;guardBack();hintUntil=performance.now()+9000;syncHint();setTimeout(syncHint,9100);};
 NM.applyPrizes();
-window.__dbg={MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+// 效能：每個遊戲按開始時（倒數中）先把場景裡所有東西（含隱藏的、距離隱藏的）的著色程式編好，第一次出現特效才不會卡；第二次玩已經編好了，很快
+function warmNow(){const hid=[],lay=[];scene.traverse(o=>{if(!o.visible&&!o.isLight){hid.push(o);o.visible=true;}if(o.isMesh&&o.layers.mask===2){lay.push(o);o.layers.set(0);}});
+  try{renderer.compile(scene,camera);}catch(_){}for(const o of hid)o.visible=false;for(const o of lay)o.layers.set(1);}
+for(const [obj,fn] of [[NM,'start'],[NM,'startArmy'],[SB,'start'],[RB,'start'],[RACE,'pick'],[GAME,'start'],[TN,'start'],[BB,'start'],[MU,'start']]){const f=obj[fn];if(typeof f!=='function')continue;obj[fn]=(...a)=>{const r=f(...a);try{warmNow();}catch(_){}return r;};}
+window.__dbg={dcull,DCULL,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
