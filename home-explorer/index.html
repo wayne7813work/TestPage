@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-13.5"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-14.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -428,8 +428,8 @@
   #skModPanel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:21;padding:14px 16px;width:min(400px,92vw);display:flex;flex-direction:column;gap:10px}
   #skModPanel[hidden]{display:none!important}#skModPanel h3{margin:0;font-size:16px;text-align:center}
   #skModPanel .opt{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;cursor:pointer}#skModPanel .opt input{width:20px;height:20px;flex:none;margin-top:1px}
-  #skModPanel .wh{display:flex;align-items:center;gap:8px;font-size:13px}#skModPanel .wh button{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:var(--c);padding:0}#skModPanel .wh button[hidden],#skModPanel .opt[hidden]{display:none}#skModPanel .wh button.on{border-color:#fff;box-shadow:0 0 0 2px #ffb454}
-  #skModPanel .note{font-size:11px;opacity:.75;margin:0}#skModPanel #smClose{padding:10px;border-radius:10px;border:1px solid var(--line);background:linear-gradient(90deg,#e94f8a,#ff9a3a);color:#fff;font-size:15px;font-weight:800}
+  #skModPanel .wh{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:13px}#skModPanel .wh>span{min-width:5.2em}#skModPanel{max-height:calc(100vh - 16px);overflow-y:auto}@media (max-width:420px){#skModPanel .wh{gap:6px}#skModPanel .wh button{width:25px;height:25px}#skModPanel .wh>span{min-width:4.6em}}#skModPanel .wh .rnd{width:auto;height:28px;border-radius:14px;padding:0 10px;background:rgba(255,255,255,.12);color:#fff;font-size:12px}#skModPanel .wh button{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:var(--c);padding:0}#skModPanel .wh button[hidden],#skModPanel .opt[hidden]{display:none}#skModPanel .wh button.on{border-color:#fff;box-shadow:0 0 0 2px #ffb454}
+  #skModPanel .note{font-size:11px;opacity:.75;margin:0}#skModPanel #smClose{position:sticky;bottom:0;flex:none;padding:10px;border-radius:10px;border:1px solid var(--line);background:linear-gradient(90deg,#e94f8a,#ff9a3a);color:#fff;font-size:15px;font-weight:800}
   #skHud .gw{position:relative;display:inline-block;width:80px;height:9px;border-radius:5px;background:rgba(255,255,255,.18);overflow:hidden;vertical-align:middle}
   #skJetG{position:absolute;left:0;top:0;bottom:0;background:#38e1ff}#skJetG.s1{background:linear-gradient(90deg,#ffb347,#ffe08a)}#skJetG.s2{background:linear-gradient(90deg,#7fd8ff,#ffffff,#7fd8ff)}#skJetG.low{background:#6b7a88}
   #skBtns button[data-k=jet]{background:radial-gradient(circle,#ffb347,#d8262c);border-color:#ffe08a}#skBtns button[data-k=jet].s2{background:radial-gradient(circle,#dff6ff,#2f8fe8)}
@@ -662,6 +662,10 @@
   <label class="opt"><input type="checkbox" id="smJet"><span><b>推進器</b>：背上噴射背包＋鞋跟噴嘴，按「推進器」最快 150 km/h</span></label>
   <label class="opt"><input type="checkbox" id="smSup"><span><b>超級加速模式</b>：推進器開著再按一次，最快 400 km/h（要先裝推進器）</span></label>
   <div class="wh"><span>輪子顏色</span><button data-w="cyan" style="--c:#36c2d8"></button><button data-w="pink" style="--c:#ff5fa2"></button><button data-w="gold" style="--c:#f2c94c"></button><button data-w="lime" style="--c:#9be15d"></button><button data-w="black" style="--c:#2a2d33"></button><button data-w="rainbow" hidden title="夜市大獎" style="--c:conic-gradient(#ff3b3b,#ffb000,#ffe14a,#3fd36a,#3aa0ff,#9b6bff,#ff3b3b)"></button></div>
+  <div class="wh"><span>鞋身顏色</span><button data-c="shell:white" style="--c:#f4f5f7"></button><button data-c="shell:black" style="--c:#2a2d33"></button><button data-c="shell:pink" style="--c:#ff8cc0"></button><button data-c="shell:sky" style="--c:#7cc8ff"></button><button data-c="shell:purple" style="--c:#a98bff"></button><button data-c="shell:mint" style="--c:#7fe0c0"></button><button data-c="shell:red" style="--c:#e8434f"></button></div>
+  <div class="wh"><span>彩條扣帶</span><button data-c="acc:pink" style="--c:#e94f8a"></button><button data-c="acc:cyan" style="--c:#36c2d8"></button><button data-c="acc:gold" style="--c:#f2c94c"></button><button data-c="acc:lime" style="--c:#9be15d"></button><button data-c="acc:purple" style="--c:#8b5cf6"></button><button data-c="acc:white" style="--c:#f4f5f7"></button><button data-c="acc:black" style="--c:#23262c"></button></div>
+  <div class="wh"><span>輪架顏色</span><button data-c="frame:silver" style="--c:#c9ccce"></button><button data-c="frame:black" style="--c:#3a3d44"></button><button data-c="frame:gold" style="--c:#d9b24a"></button><button data-c="frame:pink" style="--c:#ff5fa2"></button><button data-c="frame:blue" style="--c:#3aa0ff"></button></div>
+  <div class="wh"><span></span><button class="rnd" id="smRnd">隨機搭配</button><button class="rnd" id="smDef">恢復原本</button></div>
   <label class="opt" hidden><input type="checkbox" id="smRf"><span><b>彩虹火焰</b>（夜市大獎）：推進器噴出彩虹色的火</span></label>
   <p class="note">用法：溜直排輪時按「推進器」（J）開噴射，再按一次＝超級加速，第三次關掉（能量條用完會自己關）。穿著直排輪走到賽車場起跑線，按「直排輪比賽」就能跟賽車比（有自動模式，只要按推進器和技能）。</p>
   <button id="smClose">完成</button></div>
@@ -3667,8 +3671,8 @@ const LIE=(()=>{const L={on:false,bed:null,z:0,roll:0,half:0};
   return L;})();
 
 // 直排輪改裝（使用者：直排輪要增加改裝模式，我想要推進器跟超級加速模式）：記在 home-skmod
-const SKMOD=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-skmod')||'{}')||{};}catch(_){}return {jet:!!o.jet,sup:!!o.jet&&!!o.sup,wheel:o.wheel||'cyan',rf:!!o.rf};})();
-SKMOD.save=()=>{try{localStorage.setItem('home-skmod',JSON.stringify({jet:SKMOD.jet,sup:SKMOD.sup,wheel:SKMOD.wheel,rf:SKMOD.rf}));}catch(_){}};
+const SKMOD=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-skmod')||'{}')||{};}catch(_){}return {jet:!!o.jet,sup:!!o.jet&&!!o.sup,wheel:o.wheel||'cyan',rf:!!o.rf,shell:o.shell||'white',acc:o.acc||'pink',frame:o.frame||'silver'};})();
+SKMOD.save=()=>{try{localStorage.setItem('home-skmod',JSON.stringify({jet:SKMOD.jet,sup:SKMOD.sup,wheel:SKMOD.wheel,rf:SKMOD.rf,shell:SKMOD.shell,acc:SKMOD.acc,frame:SKMOD.frame}));}catch(_){}};
 /* ---------------- 直排輪（使用者要求：甩尾、飆速、倒著溜、各種花式） ----------------
    運動場入口的直排輪架按 F 穿上（選單「人物」也能隨時穿上／脫下）。W 加速、S 煞車（停下來再拉＝往後退）、A D 轉彎；
    Shift／搖桿推到底＝飆速；按住 X＝甩尾（放開時甩夠久會加速）；B＝倒溜；T＝花式（地上輪流做 5 種、空中每按一次多轉 360°，落地時還沒轉完會摔倒）；空白鍵／跳＝跳；溜上跳台會飛起來。 */
@@ -3684,9 +3688,9 @@ const SKATE=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,back:false,ground:tru
   S.toggle=()=>{if(S.on)S.stop();else S.start();};
   S.start=quiet=>{if(S.on||GAME.on||BALLOON.riding||LIE.on)return;if(NM.on||RB.on||SB.on||CU.on||MU.on){toast('先離開遊戲再穿直排輪');return;}S.jet=0;S.gauge=100;if(BB.on)BB.stop();if(EMOTE.on)EMOTE.stop(true);S.on=true;S.vel.set(0,0);S.v=0;S.dir=player.yaw;S.back=false;S.ground=true;S.vy=0;S.gv=0;S.fallT=0;S.spin=S.spinT=0;S.trick=null;player.climb=false;
     avatar.setSkates(true);hud.hidden=false;btns.hidden=false;menuBtn.textContent='脫下直排輪';if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}
-    S.snd=AUDIO.skateLoop();S.syncMod();if(!quiet)toast('直排輪：往前推加速、往後拉煞車；Shift／推到底飆速、按住「甩尾」甩尾、「倒溜」倒著溜、「花式」做花式（跳起來按＝空中轉體）'+(SKMOD.jet?'；「推進器」（J）噴射，'+(SKMOD.sup?'再按一次超級加速':'')+'；到賽車場起跑線可以跟賽車比賽':'；選單「人物 → 直排輪改裝」可以裝推進器'));};
+    S.snd=AUDIO.skateLoop();if(!RACE.on)AUDIO.skateMusic(true);S.syncMod();if(!quiet)toast('直排輪：往前推加速、往後拉煞車；Shift／推到底飆速、按住「甩尾」甩尾、「倒溜」倒著溜、「花式」做花式（跳起來按＝空中轉體）'+(SKMOD.jet?'；「推進器」（J）噴射，'+(SKMOD.sup?'再按一次超級加速':'')+'；到賽車場起跑線可以跟賽車比賽':'；選單「人物 → 直排輪改裝」可以裝推進器'));};
   S.stop=()=>{if(!S.on)return;S.on=false;S.jet=0;if(S.eng){S.eng.stop();S.eng=null;}avatar.jetTick(0);avatar.setSkates(false);hud.hidden=true;btns.hidden=true;menuBtn.textContent='穿上直排輪';player.vel.set(0,0);player.vy=0;
-    if(S.snd){S.snd.stop();S.snd=null;}if(S.fov){S.fov=0;camera.fov=+document.getElementById('fov').value;camera.updateProjectionMatrix();}for(const b of btns.querySelectorAll('button'))b.classList.remove('on','hit');S.btnBoost=S.btnDrift=false;};
+    if(S.snd){S.snd.stop();S.snd=null;}AUDIO.skateMusic(false);if(S.fov){S.fov=0;camera.fov=+document.getElementById('fov').value;camera.updateProjectionMatrix();}for(const b of btns.querySelectorAll('button'))b.classList.remove('on','hit');S.btnBoost=S.btnDrift=false;};
   S.jump=()=>{if(!S.ground||S.fallT>0)return;S.ground=false;S.vy=5.6;S.gv=0;S.airT=0;S.lx=player.pos.x;S.lz=player.pos.y;AUDIO.sfx('whoosh');};
   // 推進器：按一次＝推進器（150 km/h）→ 再按一次＝超級加速（400 km/h，要裝超級加速模式）→ 再按一次關掉；能量：推進器每秒 5%、超級加速每秒 22%，沒開每秒充 7%
   const jetBtn=()=>btns.querySelector('[data-k=jet]');
@@ -3704,7 +3708,7 @@ const SKATE=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,back:false,ground:tru
   function fall(msg){S.fallT=1.3;S.trick=null;S.spin=S.spinT=0;S.vel.multiplyScalar(0.2);AUDIO.sfx('thud');big(msg);S.combo=0;cbEl.textContent='';}
   /* 落地：還沒轉完但剩不到半圈＝落地順勢轉完、照樣算分（使用者嫌失敗率太高）；剩超過半圈才摔倒 */
   function land(){const left=S.spinT-S.spin,n=Math.round(S.spinT/(Math.PI*2));
-    if(S.airT>0.3)AUDIO.sfx('thud');
+    if(S.airT>0.3)AUDIO.sfx('land');   /* 2026-10-14：落地改輕快的「嗒」（摔倒才用「咚」） */
     if(left>Math.PI){fall('摔倒了！');S.airT=0;return;}
     const dist=Math.round(Math.hypot(player.pos.x-(S.lx!=null?S.lx:player.pos.x),player.pos.y-(S.lz!=null?S.lz:player.pos.y))),far=S.airT>0.7&&dist>=6;
     let rec='';if(far&&dist>(S.best||0)){if(S.best)rec='（新紀錄！）';S.best=dist;}
@@ -3809,12 +3813,16 @@ for(const c of FIELD_CONES){if(c.tip<=0)continue;c.t+=dt;const k=c.t<0.3?c.t/0.3
   return S;})();
 // 改裝面板（選單「人物 → 直排輪改裝」）
 {const P=document.getElementById('skModPanel'),jet=document.getElementById('smJet'),sup=document.getElementById('smSup');
- const sync=()=>{jet.checked=SKMOD.jet;sup.checked=SKMOD.sup;document.getElementById('smRf').checked=SKMOD.rf;NM.applyPrizes();sup.disabled=!SKMOD.jet;for(const b of P.querySelectorAll('[data-w]'))b.classList.toggle('on',b.dataset.w===SKMOD.wheel);if(SKATE.on)SKATE.syncMod();};
+ const sync=()=>{jet.checked=SKMOD.jet;sup.checked=SKMOD.sup;document.getElementById('smRf').checked=SKMOD.rf;NM.applyPrizes();sup.disabled=!SKMOD.jet;for(const b of P.querySelectorAll('[data-w]'))b.classList.toggle('on',b.dataset.w===SKMOD.wheel);for(const b of P.querySelectorAll('[data-c]')){const [k,v]=b.dataset.c.split(':');b.classList.toggle('on',SKMOD[k]===v);}if(SKATE.on)SKATE.syncMod();};
  const apply=()=>{SKMOD.save();sync();if(avatar.skates)avatar.dress(charCfg);};
  for(const ev of ['click','mousedown','touchstart','pointerdown'])P.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
  jet.onchange=()=>{SKMOD.jet=jet.checked;if(!SKMOD.jet)SKMOD.sup=false;apply();toast(SKMOD.jet?'裝上推進器：背上噴射背包＋鞋跟噴嘴':'拆掉推進器');};
  sup.onchange=()=>{SKMOD.sup=sup.checked&&SKMOD.jet;apply();toast(SKMOD.sup?'超級加速模式：推進器開著再按一次，最快 400 km/h':'關掉超級加速模式');};
  for(const b of P.querySelectorAll('[data-w]'))b.onclick=()=>{SKMOD.wheel=b.dataset.w;apply();};
+ for(const b of P.querySelectorAll('[data-c]'))b.onclick=()=>{const [k,v]=b.dataset.c.split(':');SKMOD[k]=v;apply();};   // 鞋身／彩條扣帶／輪架顏色
+ document.getElementById('smRnd').onclick=()=>{const pick=k=>{const a=[...P.querySelectorAll('[data-c^="'+k+':"]')].map(b=>b.dataset.c.split(':')[1]).filter(v=>v!==SKMOD[k]);return a[Math.random()*a.length|0];};
+   SKMOD.shell=pick('shell');do SKMOD.acc=pick('acc');while(SKMOD.acc===SKMOD.shell);SKMOD.frame=pick('frame');const w=[...P.querySelectorAll('[data-w]')].filter(b=>!b.hidden).map(b=>b.dataset.w);SKMOD.wheel=w[Math.random()*w.length|0];apply();toast('隨機搭配！不喜歡再按一次');};
+ document.getElementById('smDef').onclick=()=>{Object.assign(SKMOD,{shell:'white',acc:'pink',frame:'silver',wheel:'cyan'});apply();};
  {const rf=document.getElementById('smRf');rf.onchange=()=>{SKMOD.rf=rf.checked;SKMOD.save();toast(SKMOD.rf?'彩虹火焰：開':'彩虹火焰：關');};}
  document.getElementById('skModBtn').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');sync();P.hidden=false;if(!avatar.skates&&!SKATE.on&&!GAME.on&&!BALLOON.riding&&!LIE.on&&!RACE.on&&mode==='walk')SKATE.start(true);   /* 打開改裝就穿上直排輪，看得到改裝的樣子 */
    if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}};
@@ -7032,7 +7040,7 @@ const CU=(()=>{
     {path:[[-445,52],[-445,187],[-405,187],[-405,203]],exit:'heli',items:[[0.08,'crate','gatling'],[0.18,'crate','books'],[0.3,'heart'],[0.42,'shield'],[0.52,'crate','ice'],[0.62,'bomb'],[0.74,'crate','rocket'],[0.86,'heart'],[0.93,'shield']]},
     {path:[[-300,187],[-532,187],[-532,150]],exit:'bus',items:[[0.08,'crate','gatling'],[0.18,'crate','laser'],[0.3,'heart'],[0.4,'shield'],[0.5,'crate','drone'],[0.6,'bomb'],[0.72,'crate','rocket'],[0.84,'heart'],[0.92,'shield']]},
     {path:[[-300,187],[-470,187],[-470,236]],exit:'heli',items:[[0.08,'crate','gatling'],[0.16,'crate','laser'],[0.26,'heart'],[0.36,'crate','rocket'],[0.46,'shield'],[0.56,'bomb'],[0.66,'crate','chain'],[0.76,'heart'],[0.86,'shield'],[0.93,'bomb']]}];
-  const ESCD=[{h:1.3,r0:2,r1:7,bh:850},{h:2,r0:2.5,r1:8.5,bh:1300},{h:2.8,r0:3,r1:10,bh:1900},{h:3.6,r0:3.5,r1:11.5,bh:2500},{h:4.5,r0:4,r1:13,bh:3200}];   /* 逃生模式的難度：怪物血量倍率（玩越久越接近）、每秒生怪、大魔王血 */
+  const ESCD=[{h:1,n0:80,n1:200,bh:550},{h:1.25,n0:100,n1:250,bh:850},{h:2,n0:140,n1:350,bh:1900},{h:2.4,n0:160,n1:400,bh:2500},{h:2.8,n0:180,n1:450,bh:3200}];   /* 2026-10-14 使用者：旁邊要有一堆怪物包圍 → 身邊 28 m 內維持 n0→n1 隻（玩越久越多），血量倍率調低（一大片掃掉） */   /* 逃生模式的難度：怪物血量倍率（玩越久越接近）、每秒生怪、大魔王血 */
   STG.forEach((S,i)=>{Object.assign(S,ESC[i]);S.ed=ESCD[i];});
   function stageRoute(S){if(!S.track)return mkRoute(S.pts,S.W,false);const T=C.track,rc=(T.r0+T.r1)/2-1,pts=[];   /* 往內 1 m：外側不要擦到南邊看台 */   // 田徑場：一整圈（從北側直道東端往西跑）
     for(let k=0;k<=40;k++)pts.push([T.cx+T.hs-2*T.hs*k/40,T.cz-rc]);for(let k=1;k<=30;k++){const a=-Math.PI/2-Math.PI*k/30;pts.push([T.cx-T.hs+rc*Math.cos(a),T.cz+rc*Math.sin(a)]);}
@@ -7342,7 +7350,7 @@ const CU=(()=>{
   const hurtEl=$('cuHurt');
   function hit(d,bigHit,src){if(K.st!=='run'&&K.st!=='boss'&&K.st!=='endless')return;if(K.shield>0){AUDIO.sfx('pock');return;}K.hp-=d;K.dl[src||'?']=(K.dl[src||'?']||0)+d;K.hurtT=0.35;if(bigHit){AUDIO.sfx('hurt');}if(K.hp<=0){K.hp=0;die();}}
   const need=L=>Math.round(6+L*5+L*L*0.42);
-  function gainXp(v){K.xp+=v*(K.xpM||1)*(K.ev&&K.ev.k==='exam'?2:1);while(K.xp>=need(K.lv)){K.xp-=need(K.lv);K.lv++;K.pend++;}}
+  function gainXp(v){K.xp+=v*(K.xpM||1)*(K.ev&&K.ev.k==='exam'?2:1)*(K.esc?0.5:1);   /* 逃生：怪物很多，經驗少一點（不然一下子就滿級） */while(K.xp>=need(K.lv)){K.xp-=need(K.lv);K.lv++;K.pend++;}}
   const cardsEl=$('cuCards');
   function options(){const out=[],own=Object.keys(K.wp),nw=own.length;
     for(const k of own)if(K.wp[k]<5)out.push({t:'w',k,w:3+K.wp[k]*0.4});
@@ -7375,8 +7383,8 @@ const CU=(()=>{
   // 闖關：出生點在建築裡（路的起點附近）就往你這邊挪
   const okSp=(a,b)=>{rmap(K.R,a,b);return !C.blocked(MP.x,MP.z);};
   const spA=(a,b)=>{for(let t=0;t<14&&!okSp(a,b)&&a<K.pa-18;t++)a+=2;return a;};
-  function spawnGroup(n,far){if(K.mode==='stage'){const W=K.R.W,b0=rnd(-W+1,W-1),a0=spA(K.pa-(far||rnd(30,38))-1.5,b0)+1.5;for(let k=0;k<n;k++)spawnM(pickType(),a0-rnd(0,3),cl(b0+rnd(-2.2,2.2),-W+0.3,W-0.3));}
-    else{for(let tr=0;tr<8;tr++){const an=Math.random()*Math.PI*2,r=rnd(24,32),a=K.pa+Math.cos(an)*r,b=K.pb+Math.sin(an)*r;if(fgBlk(a,b))continue;const c=fgc(a,b);if(c>=0&&FG.dist[c]===65535)continue;
+  function spawnGroup(n,far,r0,r1){if(K.mode==='stage'){const W=K.R.W,b0=rnd(-W+1,W-1),a0=spA(K.pa-(far||rnd(30,38))-1.5,b0)+1.5;for(let k=0;k<n;k++)spawnM(pickType(),a0-rnd(0,3),cl(b0+rnd(-2.2,2.2),-W+0.3,W-0.3));}
+    else{for(let tr=0;tr<8;tr++){const an=Math.random()*Math.PI*2,r=rnd(r0||24,r1||32),a=K.pa+Math.cos(an)*r,b=K.pb+Math.sin(an)*r;if(fgBlk(a,b))continue;const c=fgc(a,b);if(c>=0&&FG.dist[c]===65535)continue;
         for(let k=0;k<n;k++){const x=a+rnd(-2,2),z=b+rnd(-2,2);if(!fgBlk(x,z))spawnM(pickType(),x,z);}return;}}}
   function wave(n){note('📢 大量怪物來襲！');AUDIO.sfx('wave');if(K.mode==='stage'){const W=K.R.W;for(let k=0;k<n;k++){const b=rnd(-W+0.3,W-0.3);spawnM(pickType(),spA(K.pa-rnd(36,48),b),b);}}else{for(let k=0;k<n;k+=10)spawnGroup(10);}}
   function elite(k){if(K.mode==='stage'){const b=rnd(-K.R.W+1.5,K.R.W-1.5);spawnM(k,spA(K.pa-40,b),b);}else{for(let tr=0;tr<8;tr++){const an=Math.random()*Math.PI*2,a=K.pa+Math.cos(an)*26,b=K.pb+Math.sin(an)*26;if(!fgBlk(a,b)){spawnM(k,a,b);break;}}}note(`${MT[k].n}來了！血很厚，用火箭砲、雷射打它`);}
@@ -7453,8 +7461,11 @@ const CU=(()=>{
   function escTarget(){const bw=B&&B.hp>0&&(B.st==='tele'||B.st==='act')?0:1;   /* 大魔王出招時不要被拉向出口，專心閃 */
     const stw=Math.min(1.2,Math.max(0,(K.stall||0)-8)*0.1);if(!K.exitLocked&&(K.prog>0.85||K.atExit))return {x:K.ex,z:K.ez,w:(K.atExit?1.2:1.0+stw)*bw};const p=pathAt(K.ps+9);return {x:p.x,z:p.z,w:((B&&B.hp>0?0.15:0.42)+stw)*bw};}
   const escK=()=>Math.min(1,Math.max(K.prog*0.6,K.t/110));   /* 逃生：難度照「玩了多久」加（不然很快走完、等級還低就遇到最強的怪） */
-  function escSpawn(dt){const S=K.S,p=K.prog,q2=escK();const rate=(S.ed.r0+(S.ed.r1-S.ed.r0)*Math.pow(q2,1.2))*(K.escT>0?1.5:B&&B.hp>0?0.35:1);   /* 大魔王出現時小怪少一點（不然子彈都被小怪擋掉） */
-    K.spAcc+=rate*dt;while(K.spAcc>=1){const n=Math.min(Math.floor(K.spAcc),Math.floor(rnd(3,7)));K.spAcc-=n;spawnGroup(n);}
+  function escSpawn(dt){const S=K.S,p=K.prog,q2=escK();
+    // 包圍：數身邊 28 m 內有幾隻（每 0.25 秒），不夠就從畫面外 15～22 m 的四面八方補上來
+    K.nearT=(K.nearT||0)-dt;if(K.nearT<=0){K.nearT=0.25;let c=0;for(let i=0;i<hiM;i++)if(MAL[i]){const dx=MA[i]-K.pa,dz=MB_[i]-K.pb;if(dx*dx+dz*dz<784)c++;}K.nearN=c;}
+    const want=(S.ed.n0+(S.ed.n1-S.ed.n0)*q2)*(K.escT>0?1.35:B&&B.hp>0?0.7:1)*(POWER.save?0.6:1);
+    if(K.nearN<want){K.spAcc+=Math.min(70,(want-K.nearN)*2)*dt;while(K.spAcc>=1){const n=Math.min(Math.floor(K.spAcc),8);K.spAcc-=n;spawnGroup(n,0,13,19);K.nearN+=n;}}
     K.waveT-=dt;if(K.waveT<=0){K.waveT=rnd(20,26);if(!(B&&B.hp>0))wave(Math.round(20+(50+K.stage*30)*q2));}
     for(const [q,k] of [[0.25,'chest'],[0.38,'dict'],[0.72,'bag']])if(p>=q&&!K.evt[q]){K.evt[q]=1;if(k==='chest'){for(let tr=0;tr<6;tr++){const an=Math.random()*Math.PI*2,a=K.pa+Math.cos(an)*20,b=K.pb+Math.sin(an)*20;if(!fgBlk(a,b)){spawnM('chest',a,b);note('💰 寶箱怪！打倒它可以多升兩級');break;}}}else elite(k);if(K.stage>=3&&k!=='chest')elite(k==='dict'?'bag':'dict');}
     if(p>=0.55&&K.t>=45+10*K.stage&&!K.evt.boss){K.evt.boss=1;const q=pathAt(K.ps+22);let bx=q.x,bz=q.z;if(fgBlk(bx,bz)||Math.hypot(bx-K.pa,bz-K.pb)<15){for(let tr=0;tr<16;tr++){const an=Math.random()*Math.PI*2,a=K.pa+Math.cos(an)*18,b=K.pb+Math.sin(an)*18,c=fgc(a,b);if(!fgBlk(a,b)&&c>=0&&FG.dist[c]!==65535){bx=a;bz=b;break;}}}bossSpawn(S.boss,bx,bz,S.ed.bh*(0.7+0.3*escK()));K.exitLocked=true;note('大魔王擋住出口！打倒它才能逃生');}}
@@ -7558,7 +7569,7 @@ const CU=(()=>{
       if(live){if(Math.abs(s)>0.12){K.pb-=s*7*spdMul*dt;K.manT=0.5;}else if(K.auto&&K.manT<=0){const tb=autoB();K.pb+=cl(tb-K.pb,-5.5*spdMul*dt,5.5*spdMul*dt);}K.manT-=dt;}
       K.pb=cl(K.pb,-R.W+0.4,R.W-0.4);rmap(R,K.pa,K.pb);vxw=MP.tx*v;vzw=MP.tz*v;}
     else if(live){let mx=s,mz=-f;const l=Math.hypot(mx,mz);if(l>0.12){mx/=Math.max(1,l);mz/=Math.max(1,l);K.manT=0.4;}else if(K.auto&&K.manT<=0){   // 自動：躲開怪物、去撿寶石
-        let ax=0,az=0;for(let k=0;k<nN;k++){const i=NI[k];if(i<0)continue;const dx=K.pa-MA[i],dz=K.pb-MB_[i],d2=dx*dx+dz*dz+0.5;if(d2<100){const w=(MT[TYPES[MTY[i]]].elite?4:1)/d2;ax+=dx*w;az+=dz*w;}}
+        let ax=0,az=0;const rk=K.esc?(K.exitLocked?0.5:0.2):1;   /* 逃生：小怪很多又弱，不要一直被推回去（出口打開了就直接衝過去） */for(let k=0;k<nN;k++){const i=NI[k];if(i<0)continue;const dx=K.pa-MA[i],dz=K.pb-MB_[i],d2=dx*dx+dz*dz+0.5;if(d2<100){const w=(MT[TYPES[MTY[i]]].elite?4:1)/d2*rk;ax+=dx*w;az+=dz*w;}}
         if(B&&B.hp>0){const dx=K.pa-B.a,dz=K.pb-B.b,dd=Math.sqrt(dx*dx+dz*dz)+0.1,k=dd<9?2.2/dd:dd>14?-0.6/dd:0;ax+=dx*k;az+=dz*k;if(B.st==='tele'&&(B.atk==='slam'||B.atk==='morph')){let ex=K.pa-B.sa,ez=K.pb-B.sb;const e=Math.hypot(ex,ez);if(e<B.sr+1.5){if(e<0.5){ex=K.pa-B.a;ez=K.pb-B.b;}const l=Math.hypot(ex,ez)||1;ax+=ex/l*5;az+=ez/l*5;}}}   /* 2026-10-13：砸地瞄準你站的地方＝你在圓心，原本推力是 0 不會閃 → 固定往外（在圓心就往遠離大魔王的方向）跑 */
         if(B&&B.hp>0&&B.atk==='charge'&&(B.st==='tele'||B.st==='act')){const px=K.pa-B.ca,pz=K.pb-B.cb,t=px*B.ua+pz*B.ub,pd=-px*B.ub+pz*B.ua;if(t>-1.5&&t<B.len+1.5&&Math.abs(pd)<2.8){const sg=pd>=0?1:-1;ax+=-B.ub*sg*5;az+=B.ua*sg*5;}}   /* 衝撞：往旁邊閃 */
         for(const h of HZ){if(h.t<0)continue;if(h.c){const ex=K.pa-h.a,ez=K.pb-h.b,e2=ex*ex+ez*ez+0.3;if(e2<(h.r+1.5)**2){ax+=ex*20/e2;az+=ez*20/e2;}}else if(inHz(h,K.pa,K.pb,1)){ax+=h.pa*4;az+=h.pb*4;}}
@@ -7594,7 +7605,7 @@ const CU=(()=>{
     if(B&&B.hp>0&&B.st!=='dead'){const d2=(B.a-K.pa)**2+(B.b-K.pb)**2;if(d2<900)nearIns(-5,d2*0.25);}
     K.fr=(K.fr||0)+1;
     if(K.shield>0)K.touch=0;
-    if(live&&K.touch>0){const dps=Math.min(70,K.touch);K.hp-=dps*dt;K.dl.touch=(K.dl.touch||0)+dps*dt;K.hurtT=Math.max(K.hurtT,0.2);soft('hurt',0.6);if(K.hp<=0){K.hp=0;die();}}
+    if(live&&K.touch>0){const dps=Math.min(K.esc?45:70,K.touch);K.hp-=dps*dt;K.dl.touch=(K.dl.touch||0)+dps*dt;K.hurtT=Math.max(K.hurtT,0.2);soft('hurt',0.6);if(K.hp<=0){K.hp=0;die();}}
     if(live){K.hp=Math.min(K.hpMax,K.hp+(0.6*(K.pv.regen||0)+(K.regB||0))*dt);}
     K.hurtT=Math.max(0,K.hurtT-dt);
     // ---- 武器 ----
@@ -7711,7 +7722,7 @@ const CU=(()=>{
   const CP=new V3(),CL=new V3();
   K.camera=dt=>{const asp=camera.aspect||1.6,pw=asp<1?1-asp:0;
     if(K.mode==='stage'){const R=K.R,bossOn=B&&B.hp>0,back=8.5+pw*7+(bossOn?2:0),hgt=9.2+pw*7+(bossOn?1.5:0);rmap(R,K.pa+back,K.pb*0.5);CP.set(MP.x,hgt,MP.z);rmap(R,K.pa-11+pw*2,K.pb*0.6);CL.set(MP.x,0.6,MP.z);}
-    else{const h=19+pw*9;CP.set(K.pa,h,K.pb+6.5+pw*2);CL.set(K.pa,0,K.pb-0.8);}   /* 比較接近正上方往下看：北邊的大樓不會佔掉半個畫面 */
+    else{const h=(K.esc?25:19)+pw*9;CP.set(K.pa,h,K.pb+(K.esc?8.5:6.5)+pw*2);CL.set(K.pa,0,K.pb-0.8);}   /* 逃生：鏡頭高一點，看得到一大片怪物圍過來 */   /* 比較接近正上方往下看：北邊的大樓不會佔掉半個畫面 */
     if(!K.camP){K.camP=CP.clone();K.camL=CL.clone();}const k=1-Math.exp(-dt*(K.mode==='stage'?4:6));K.camP.lerp(CP,k);K.camL.lerp(CL,k);camera.position.copy(K.camP);camera.lookAt(K.camL);};
 
   // ================= 大門口：開始站位、榮譽榜 =================
@@ -8810,8 +8821,10 @@ const avatar=(()=>{
   A.jets=[];
   function flame(par,x,y,z,rx,r,len){const g=new THREE.Group();g.position.set(x,y,z);g.rotation.x=rx;par.add(g);
     const o=new THREE.Mesh(FLG,JM[0]),i=new THREE.Mesh(FLG,JM[1]);o.scale.set(r,len,r);i.scale.set(r*0.5,len*0.55,r*0.5);g.add(o,i);g.visible=false;A.jets.push({g,o,i,r,len});}
+  const FRM={};   // 輪架金屬材質（換顏色時共用）
   function skateGear(){A.jets=[];if(!A.skates||!A.footL)return;const WC={cyan:'#36c2d8',pink:'#ff5fa2',gold:'#f2c94c',lime:'#9be15d',black:'#2a2d33'};
-    const shell=M('#f4f5f7',0.35),dark=M('#23262c',0.55),acc=M('#e94f8a',0.4),fr=MAT.alu,wh=M(WC[SKMOD.wheel]||WC.cyan,0.45),hub=M('#d9b24a',0.3),mesh=(g,m,x,y,z,par)=>{const o=at(new THREE.Mesh(g,m),x,y,z,par);o.castShadow=true;return o;};
+    const SC={white:'#f4f5f7',black:'#2a2d33',pink:'#ff8cc0',sky:'#7cc8ff',purple:'#a98bff',mint:'#7fe0c0',red:'#e8434f'},AC={pink:'#e94f8a',cyan:'#36c2d8',gold:'#f2c94c',lime:'#9be15d',purple:'#8b5cf6',white:'#f4f5f7',black:'#23262c'},FC={black:'#3a3d44',gold:'#d9b24a',pink:'#ff5fa2',blue:'#3aa0ff'};   // 鞋身／彩條扣帶／輪架顏色（直排輪改裝）
+    const shell=M(SC[SKMOD.shell]||SC.white,0.35),dark=M(SKMOD.shell==='black'?'#14161a':'#23262c',0.55),acc=M(AC[SKMOD.acc]||AC.pink,0.4),fr=FC[SKMOD.frame]?(FRM[SKMOD.frame]||(FRM[SKMOD.frame]=std({color:FC[SKMOD.frame],roughness:0.35,metalness:0.6}))):MAT.alu,wh=M(WC[SKMOD.wheel]||WC.cyan,0.45),hub=M('#d9b24a',0.3),mesh=(g,m,x,y,z,par)=>{const o=at(new THREE.Mesh(g,m),x,y,z,par);o.castShadow=true;return o;};
     for(const [ft,sh,sd] of [[A.footL,A.shinL,-1],[A.footR,A.shinR,1]]){
       const toe=mesh(new THREE.CapsuleGeometry(0.068,0.17,6,14),shell,0,-0.075,0.045,ft);toe.rotation.x=Math.PI/2;toe.scale.set(1.02,1,0.85);   // 鞋身（圓頭）
       mesh(new THREE.BoxGeometry(0.13,0.026,0.3),dark,0,-0.135,0.045,ft);                                              // 鞋底
@@ -9478,6 +9491,7 @@ const AUDIO=(()=>{
       case 'unmorph':noise(t,0.7,0.4,o,'bandpass',2000,300,1,{col:'p',a:0.05,pan:0.4,pan1:-0.4});tone('sine',300,90,t,0.6,0.35,o);[1568,1175,784].forEach((f,i)=>fm(t+0.1+i*0.08,f,3.5,1,0.6,0.06,o));break;
       case 'chime':bell(t,1046.5,1.4,0.16,o,true);bell(t+0.38,830.6,1.8,0.16,o,true);break;   // 叮咚（鐘琴）
       case 'bounce':kick(t,0.9,o,rp(150),62,0.12,0);noise(t,0.03,0.5,o,'bandpass',rp(900),0,2.5);tone('sine',rp(330),280,t,0.06,0.12,o);noise(t,0.008,0.25,o,'highpass',2500);break;   // 運球「砰」：低音＋皮球拍地
+      case 'land':{tone('sine',300,150,t,0.12,0.22,o);noise(t,0.012,0.18,o,'highpass',3000);tone('triangle',1320,1320,t+0.02,0.05,0.05,o);break;}   // 直排輪落地：輕快的「嗒」
       case 'pock':{const r=rp(1);noise(t,0.006,0.8,o,'highpass',2200);tone('sine',1150*r,1080*r,t,0.04,0.55,o);tone('sine',560*r,540*r,t,0.07,0.38,o);tone('triangle',1720*r,0,t,0.025,0.18,o);tone('sine',190,140,t,0.04,0.3,o);noise(t,0.03,0.3,o,'bandpass',1400*r,0,3);break;}   // 網球「啵」：拍線＋球的共振
       case 'tbounce':tone('sine',rp(220),130,t,0.045,0.45,o);noise(t,0.025,0.35,o,'bandpass',rp(1300),0,2);noise(t,0.05,0.2,o,'lowpass',900,300,0,{col:'p'});break;   // 網球落地
       case 'tnet':noise(t,0.3,0.45,o,'lowpass',1400,280,0,{col:'p',a:0.01});kick(t,0.35,o,110,60,0.12,0);grains(t+0.02,5,0.15,tt=>noise(tt,0.02,0.12,o,'bandpass',rnd(1500,3000),0,4));break;   // 掛網：網子沙沙＋網帶
@@ -9584,22 +9598,62 @@ const AUDIO=(()=>{
    for(const [k,n] of L){const op=document.createElement('option');op.value=k;op.textContent=n;sel.appendChild(op);}
    btn.onclick=e=>{e.stopPropagation();init();const k=sel.value;
      if(k==='@beat'){A.beat(128);setTimeout(()=>A.beat(0),4000);}else if(k==='@music'){musicStart();setTimeout(musicStop,4000);}else sfx(k);};}
-  // 直排輪：輪子滾動聲（越快越大聲、越高）＋低沉的地面震動＋甩尾的摩擦聲
-  function skateLoop(){if(!ok())return {set(){},stop(){}};const c=A.ctx,mk=(buf,type,f,q)=>{const s=c.createBufferSource();s.buffer=buf;s.loop=true;const fl=c.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const g=c.createGain();g.gain.value=0;s.connect(fl);fl.connect(g);g.connect(A.sfx);s.start();return {s,fl,g};};
-    const roll=mk(A.pink,'bandpass',400,0.8),rum=mk(A.brown,'lowpass',120,0.7),skid=mk(A.noise,'bandpass',2600,4);
-    return {set(v,drift){const t=c.currentTime;roll.g.gain.setTargetAtTime(Math.min(0.5,v/15*0.5),t,0.08);roll.fl.frequency.setTargetAtTime(300+v*70,t,0.1);rum.g.gain.setTargetAtTime(Math.min(0.5,v/15*0.5),t,0.1);skid.g.gain.setTargetAtTime(drift?0.12:0,t,0.05);},
-      stop(){const t=c.currentTime;for(const n of [roll,rum,skid]){n.g.gain.setTargetAtTime(0,t,0.05);n.s.stop(t+0.3);}}};}
+  // 直排輪（2026-10-14 使用者：只要留好聽的，或是直接換音效，要讓人家覺得溜起來很愉快，而不是聽到一堆噪音）
+  // 原本三層雜訊（滾輪、地面震動、甩尾）一直轟轟響 → 很輕的「沙沙」滾輪聲＋一點輪子嗡聲；好聽的時刻：每推一步一聲輕輕的「咻」（有節奏）、
+  // 速度衝上去的清亮風聲、甩尾柔和的「刷——」；穿上直排輪時另外放一段輕快的小曲（skateMusic）
+  function skateLoop(){if(!ok())return {set(){},stop(){}};const c=A.ctx,out=c.createGain();out.gain.value=1;out.connect(A.sfx);
+    const mk=(buf,type,f,q)=>{const s=c.createBufferSource();s.buffer=buf;s.loop=true;const fl=c.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const g=c.createGain();g.gain.value=0;s.connect(fl);fl.connect(g);g.connect(out);s.start();return {s,fl,g};};
+    const roll=mk(A.pink,'lowpass',600,0.5),wind=mk(A.pink,'bandpass',2000,0.6),skid=mk(A.pink,'bandpass',1300,1.1);
+    const hum=c.createOscillator(),hg=c.createGain();hum.type='sine';hum.frequency.value=90;hg.gain.value=0;hum.connect(hg);hg.connect(out);hum.start();
+    let ph=0.5,lastT=c.currentTime,alt=0;
+    const swish=(t,v)=>{const s=c.createBufferSource();s.buffer=A.pink;const f=c.createBiquadFilter();f.type='bandpass';f.Q.value=1.4;const f0=(alt^=1)?900:1100;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f0*2.3,t+0.16);
+      const g=c.createGain(),a=0.05+0.03*Math.min(1,v/12);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(a,t+0.05);g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);s.connect(f);f.connect(g);g.connect(out);s.start(t,Math.random()*1.5);s.stop(t+0.22);};   /* 推一步的「咻」 */
+    return {set(v,drift){const t=c.currentTime,dt=Math.min(0.1,Math.max(0,t-lastT));lastT=t;
+        roll.g.gain.setTargetAtTime(Math.min(0.045,v/15*0.045),t,0.1);roll.fl.frequency.setTargetAtTime(450+v*25,t,0.1);
+        hum.frequency.setTargetAtTime(80+v*9,t,0.1);hg.gain.setTargetAtTime(Math.min(0.012,v*0.0009),t,0.1);
+        if(v>1.5&&!drift){ph+=dt*(0.85+Math.min(v,14)*0.045);if(ph>=1){ph-=1;swish(t,v);}}else ph=0.5;
+        wind.g.gain.setTargetAtTime(v>9?Math.min(0.035,(v-9)*0.005):0,t,0.2);skid.g.gain.setTargetAtTime(drift?0.045:0,t,0.06);},
+      stop(){const t=c.currentTime;out.gain.setTargetAtTime(0,t,0.05);for(const n of [roll,wind,skid])n.s.stop(t+0.3);hum.stop(t+0.3);}};}
+  // 直排輪的輕快小曲：C 大調 C–G–Am–F，112 拍，撥弦琶音＋柔的貝斯＋沙鈴，音量小
+  const SM={on:false,timer:null,step:0,next:0,g:null};
+  const SPROG=[[60,64,67],[55,59,62],[57,60,64],[53,57,60]],SPAT=[0,1,2,1,0,2,1,2,0,1,2,1,2,1,0,1];
+  function pluck(f,t,d,v){const c=A.ctx,o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+0.008);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(g);g.connect(SM.g);o.start(t);o.stop(t+d+0.05);}
+  function shaker(t,v){const c=A.ctx,s=c.createBufferSource();s.buffer=A.noise;const f=c.createBiquadFilter();f.type='highpass';f.frequency.value=6500;const g=c.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);s.connect(f);f.connect(g);g.connect(SM.g);s.start(t,Math.random()*1.5);s.stop(t+0.06);}
+  function skStep(s,t,spb){const ch=SPROG[Math.floor(s/16)%4],st=s%16,n=ch[SPAT[st]]+(st>=8?12:0);
+    if(st%2===0||st%4===3)pluck(midi(n),t,0.28,0.045);if(st%8===0)pluck(midi(ch[0]-24),t,spb*7,0.08);if(st===4||st===12)pluck(midi(ch[0]-12),t,spb*3,0.04);
+    if(st%4===2)shaker(t,0.025);else if(st%2===1)shaker(t,0.01);if(st===0&&Math.floor(s/16)%2===0)pluck(midi(ch[2]+12),t,0.7,0.025);}
+  function skSched(){const c=A.ctx;if(!c||!SM.on)return;const spb=60/112/4;while(SM.next<c.currentTime+0.12){skStep(SM.step,SM.next,spb);SM.step++;SM.next+=spb;}}
+  function skateMusic(on){init();if(!A.ctx)return;const c=A.ctx;if(on){if(SM.on||M.on)return;SM.on=true;if(!SM.g){SM.g=c.createGain();SM.g.connect(A.sfx);}SM.g.gain.cancelScheduledValues(c.currentTime);SM.g.gain.setValueAtTime(0,c.currentTime);SM.g.gain.setTargetAtTime(0.75,c.currentTime,0.6);
+      SM.step=0;SM.next=c.currentTime+0.15;SM.timer=setInterval(skSched,25);}
+    else if(SM.on){SM.on=false;clearInterval(SM.timer);SM.g.gain.setTargetAtTime(0,c.currentTime,0.3);}}
   // 賽車引擎：鋸齒波＋方波（失真）跟著轉速、渦輪的高音、加速器的噴射聲、輪胎摩擦聲、風切聲；set(轉速0～1, 油門, 加速器段數, 滑動0～1, 車速0～1)
-  function engine(){if(!ok())return {set(){},stop(){}};const c=A.ctx,t=c.currentTime,out=c.createGain();out.gain.value=0;out.connect(A.sfx);out.gain.setTargetAtTime(0.9,t,0.2);
-    const sh=sat(out,2.5),lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=900;lp.Q.value=2;lp.connect(sh);
-    const o1=c.createOscillator(),o2=c.createOscillator(),g1=c.createGain(),g2=c.createGain();o1.type='sawtooth';o2.type='square';g1.gain.value=0.14;g2.gain.value=0.08;o1.connect(g1);g1.connect(lp);o2.connect(g2);g2.connect(lp);
+  // 2026-10-14 使用者：賽車的聲音好吵，引擎聲音不是應該很好聽嗎，也許聲音不要一直持續？只要留好聽的部分、好聽的時刻
+  // → 音色變圓（兩個稍微走音的鋸齒波＋低音正弦、柔的低通、輕微失真，加上跟著點火頻率的「咕嚕」起伏）；平常定速時很小聲（約 6%），
+  //   「好聽的時刻」才大聲：起步／重踩油門、換檔（轉速往下掉＋一聲排氣「噗」）、開加速器，之後約 1 秒慢慢退回去。渦輪高音、輪胎、風聲也調小。
+  function engine(){if(!ok())return {set(){},stop(){}};const c=A.ctx,t0=c.currentTime,out=c.createGain();out.gain.value=0;out.connect(A.sfx);out.gain.setTargetAtTime(0.85,t0,0.3);
+    const sh=sat(out,1.2),eg=c.createGain();eg.gain.value=0.15;eg.connect(sh);
+    const trem=c.createGain();trem.gain.value=0.78;trem.connect(eg);const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=600;lp.Q.value=0.7;lp.connect(trem);
+    const o1=c.createOscillator(),o2=c.createOscillator(),sub=c.createOscillator(),g1=c.createGain(),g2=c.createGain(),gs=c.createGain();o1.type='sawtooth';o2.type='sawtooth';o2.detune.value=11;sub.type='sine';
+    g1.gain.value=0.075;g2.gain.value=0.06;gs.gain.value=0.2;o1.connect(g1);g1.connect(lp);o2.connect(g2);g2.connect(lp);sub.connect(gs);gs.connect(trem);
+    const am=c.createOscillator(),amg=c.createGain();am.frequency.value=25;amg.gain.value=0.22;am.connect(amg);amg.connect(trem.gain);   /* 點火的咕嚕聲 */
     const wh=c.createOscillator(),wg=c.createGain();wh.type='sine';wg.gain.value=0;wh.connect(wg);wg.connect(out);
     const mk=(buf,type,f,q)=>{const s=c.createBufferSource();s.buffer=buf;s.loop=true;const fl=c.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;const g=c.createGain();g.gain.value=0;s.connect(fl);fl.connect(g);g.connect(out);s.start();return {s,fl,g};};
-    const jet=mk(A.pink,'bandpass',900,0.8),skid=mk(A.noise,'bandpass',2400,3),air=mk(A.pink,'highpass',1200,0.5);for(const o of [o1,o2,wh])o.start();
-    return {set(rpm,thr,bst,slide,spd){const t=c.currentTime,f=55+rpm*170+(bst?30:0);o1.frequency.setTargetAtTime(f,t,0.04);o2.frequency.setTargetAtTime(f*0.5,t,0.04);lp.frequency.setTargetAtTime(500+thr*1800+rpm*1500,t,0.05);
-        g1.gain.setTargetAtTime(0.09+thr*0.1,t,0.05);wh.frequency.setTargetAtTime(1800+rpm*2600+bst*900,t,0.05);wg.gain.setTargetAtTime(0.01+rpm*0.018+bst*0.02,t,0.08);
-        jet.g.gain.setTargetAtTime(bst?0.3+bst*0.2:0,t,0.08);jet.fl.frequency.setTargetAtTime(bst===2?1800:900,t,0.1);skid.g.gain.setTargetAtTime((slide||0)*0.2,t,0.05);air.g.gain.setTargetAtTime((spd||0)*0.06+bst*0.03,t,0.1);},
-      stop(){const t=c.currentTime;out.gain.setTargetAtTime(0,t,0.08);for(const o of [o1,o2,wh,jet.s,skid.s,air.s])o.stop(t+0.5);}};}
+    const jet=mk(A.pink,'bandpass',900,0.8),skid=mk(A.noise,'bandpass',2400,3),air=mk(A.pink,'highpass',1200,0.5);for(const o of [o1,o2,sub,am,wh])o.start();
+    let pr=0,pt=0,pb=0,ex=1,lastT=t0,popT=0;
+    const pop=t=>{if(t-popT<0.25)return;popT=t;const s=c.createBufferSource();s.buffer=A.brown||A.pink;const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=380;const g=c.createGain();
+      g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.55,t+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);s.connect(f);f.connect(g);g.connect(out);s.start(t,Math.random()*1.5);s.stop(t+0.22);};   /* 換檔的排氣「噗」 */
+    return {set(rpm,thr,bst,slide,spd){const t=c.currentTime,dt=Math.min(0.1,Math.max(0,t-lastT));lastT=t;
+        if(thr>0.6&&pt<0.4)ex=Math.max(ex,0.9);   // 重踩油門
+        if(pr-rpm>0.22&&thr>0.4){ex=Math.max(ex,1);pop(t);}   // 換檔：轉速一下子往下掉
+        if(bst&&!pb)ex=1;   // 開加速器
+        ex*=Math.exp(-dt/1.1);pr=rpm;pt=thr;pb=bst;
+        const lv=0.06+0.94*ex,f=45+rpm*150+(bst?20:0);
+        eg.gain.setTargetAtTime(lv*(0.55+0.45*thr),t,0.08);
+        o1.frequency.setTargetAtTime(f,t,0.04);o2.frequency.setTargetAtTime(f,t,0.04);sub.frequency.setTargetAtTime(f*0.5,t,0.04);am.frequency.setTargetAtTime(f*0.5,t,0.04);
+        lp.frequency.setTargetAtTime(320+thr*600+rpm*800+ex*600,t,0.06);
+        wh.frequency.setTargetAtTime(1800+rpm*2200+bst*800,t,0.05);wg.gain.setTargetAtTime((0.002+rpm*0.005)*lv+(bst?0.005:0),t,0.08);
+        jet.g.gain.setTargetAtTime(bst?0.1+0.18*ex:0,t,0.08);jet.fl.frequency.setTargetAtTime(bst===2?1800:900,t,0.1);skid.g.gain.setTargetAtTime((slide||0)*0.12,t,0.05);air.g.gain.setTargetAtTime((spd||0)*0.018,t,0.1);},
+      stop(){const t=c.currentTime;out.gain.setTargetAtTime(0,t,0.08);for(const o of [o1,o2,sub,am,wh,jet.s,skid.s,air.s])o.stop(t+0.5);}};}
   // 測試用：離線算出一個音效（不用真的聽），回傳 {秒數、峰值、RMS}
   async function test(type,secs=4){const O=window.OfflineAudioContext||window.webkitOfflineAudioContext,c=new O(2,44100*secs,44100),save={...A};
     A.ctx=c;A.test=true;makeNoise(c);A.clap=makeClap(c);graph(c,c.destination);
@@ -9610,7 +9664,7 @@ const AUDIO=(()=>{
       else sfx(type);}catch(e){Object.assign(A,save);throw e;}const buf=await c.startRendering();Object.assign(A,save);
     let pk=0,ss=0,last=0;const n=buf.length;for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<n;i++){const v=Math.abs(d[i]);if(!(v<=10))return {type,err:'NaN'};if(v>pk)pk=v;ss+=v*v;if(v>0.003&&i>last)last=i;}}
     return {type,len:+(last/44100).toFixed(2),peak:+pk.toFixed(3),rms:+Math.sqrt(ss/(2*n)).toFixed(4)};}
-  return {sfx,chargeSound,musicStart,musicStop,setTempo,skateLoop,engine,A,test,beat:bpm=>A.beat(bpm)};
+  return {sfx,chargeSound,musicStart,musicStop,setTempo,skateLoop,skateMusic,engine,A,test,beat:bpm=>A.beat(bpm)};
 })();
 
 /* ---------------- 小遊戲：殭屍來襲（選單「小遊戲」開始） ----------------
