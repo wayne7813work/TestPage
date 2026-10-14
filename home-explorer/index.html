@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-14.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-14.5"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -685,6 +685,8 @@ import { Sky } from 'three/addons/objects/Sky.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 const V2 = THREE.Vector2, V3 = THREE.Vector3;
 const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
@@ -8726,8 +8728,32 @@ const avatar=(()=>{
     for(const o of list){let g=o.geometry.clone();g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv,o.matrixWorld));if(g.index)g=g.toNonIndexed();for(const k of Object.keys(g.attributes))if(k!=='position'&&k!=='normal')g.deleteAttribute(k);if(!g.attributes.normal)g.computeVertexNormals();
       if(!map.has(o.material))map.set(o.material,[]);map.get(o.material).push(g);o.parent.remove(o);}
     for(const [mat,arr] of map){const me=new THREE.Mesh(mergeGeometries(arr,false),mat);me.castShadow=true;me.userData.baked=true;grp.add(me);arr.forEach(g=>g.dispose());}}
+  // ---- 死亡騎士 Blender 模型（2026-10-14 使用者：舊的太醜，照參考圖重做）：models/dk.glb（Blender 檔 models/dk.blend，Draco 壓縮約 230 KB、4.8 萬三角形）----
+  // 14 個部位各一個節點（body、chest、head、armR/L、foreR/L、legR/L、shinR/L、footR/L、sword），頂點以各自的關節為原點。
+  // 掛上去時包一層外框群組，放在關節稍上／稍下，rig() 照原本的規則會把整組搬到對的關節（群組不會被 splitLimb 切開）。
+  // 還沒載入好時先用舊的程式盔甲，載入好且還在變身中就重蓋一次。
+  let DKG=null,dkLoading=false;
+  const DKMAT={DK_steel:std({color:'#737985',metalness:0.88,roughness:0.33}),DK_dark:std({color:'#16171c',metalness:0.75,roughness:0.42}),
+    DK_trim:std({color:'#c07a3e',metalness:1,roughness:0.24,emissive:'#4a1806',emissiveIntensity:0.5}),DK_glow:std({color:'#ff5020',emissive:'#ff3a0c',emissiveIntensity:4}),
+    DK_cloth:std({color:'#5c0a12',roughness:0.8,side:THREE.DoubleSide}),DK_leather:std({color:'#2c1b12',roughness:0.7}),DK_void:new THREE.MeshBasicMaterial({color:'#050506'}),
+    DK_blade:std({color:'#3a160c',emissive:'#ff5a14',emissiveIntensity:1.8,metalness:0.6,roughness:0.3})};
+  function loadDK(){if(DKG||dkLoading)return;dkLoading=true;const dr=new DRACOLoader();dr.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/libs/draco/gltf/');
+    const ld=new GLTFLoader();ld.setDRACOLoader(dr);const v=document.querySelector('meta[name=app-version]').content;
+    ld.load('models/dk.glb?v='+v,g=>{const segs={};g.scene.traverse(o=>{if(!o.isMesh)return;let n=o;while(n.parent&&n.parent!==g.scene)n=n.parent;(segs[n.name]=segs[n.name]||[]).push({geo:o.geometry,mat:DKMAT[o.material.name]||DKMAT.DK_steel});});
+      DKG=segs;dr.dispose();if(A.morph)A.dress(charCfg);},undefined,e=>{dkLoading=false;console.warn('dk.glb 載入失敗，先用舊的盔甲',e);});}
+  function buildDKglb(){const P=parts;
+    legL.position.set(-0.12,0.95,0);legR.position.set(0.12,0.95,0);armL.position.set(-0.31,1.47,0);armR.position.set(0.31,1.47,0);
+    const put=(name,par,y,dy)=>{const w=new THREE.Group();w.position.y=y;par.add(w);for(const s of DKG[name]||[]){const m=new THREE.Mesh(s.geo,s.mat);m.position.y=dy;m.castShadow=true;w.add(m);}return w;};
+    put('body',P,0,0);put('chest',P,1.10,-0.08);put('head',P,1.55,-0.05);   // 胸：外框在腰上 8 cm（rig 搬到 chest）；頭：外框在脖子上 5 cm（搬到 head）
+    for(const [a,lg,s] of [[armL,legL,'L'],[armR,legR,'R']]){put('arm'+s,a,0,0);put('fore'+s,a,-0.305,0.015);put('leg'+s,lg,0,0);put('shin'+s,lg,-0.465,0.015);put('foot'+s,lg,-0.815,0.015);}
+    const sw=new THREE.Group();sw.position.set(0,-0.6,0.01);sw.rotation.x=Math.PI/2-0.35;armR.add(sw);A.dkSword=sw;   // 握柄中心＝拳頭，劍身朝 +y（劍長約 1.6 m）
+    for(const s of DKG.sword||[]){const m=new THREE.Mesh(s.geo,s.mat);m.castShadow=true;sw.add(m);}
+    for(let k=0;k<6;k++){const f=spr(FLAME_TEX);f.material.color.set('#ff7a3a');f.position.set((k%2?1:-1)*0.03,0.32+k*0.2,0);sw.add(f);A.flames.push(f);}   // 火焰偏橘紅（參考圖）
+    {const g=new THREE.PlaneGeometry(0.6,1.3,4,12);g.translate(0,-0.65,0);g.userData.base=g.attributes.position.array.slice();const c=new THREE.Mesh(g,DKM.cape);c.castShadow=true;c.userData.keep=true;at(c,0,1.47,-0.165,P);A.cape=c;}}   // 披風（會飄）
   function buildDK(){for(const g of [parts,legL,legR,armL,armR]){g.traverse(o=>{if(o.userData&&o.userData.baked&&o.geometry)o.geometry.dispose();});g.clear();}A.flames=[];A.motes=[];A.stars=[];A.stride=1;const P=parts,K=DKM;
     if(A.ring){root.remove(A.ring);A.ring=null;}for(const m of root.children.filter(o=>o.userData.dk))root.remove(m);
+    if(!DKG)loadDK();
+    if(DKG)buildDKglb();else{   // 模型還沒載入好：先用舊的程式盔甲
     legL.position.set(-0.11,0.95,0);legR.position.set(0.11,0.95,0);armL.position.set(-0.29,1.47,0);armR.position.set(0.29,1.47,0);
     const bx=(w,h,d,m)=>{const me=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);me.castShadow=true;return me;};
     const tor=(r,tb,m,arc=Math.PI*2)=>{const me=new THREE.Mesh(new THREE.TorusGeometry(r,tb,8,36,arc),m);me.castShadow=true;return me;};
@@ -8773,11 +8799,13 @@ const avatar=(()=>{
       const ks=at(new THREE.Mesh(new THREE.ConeGeometry(0.025,0.1,8),K.gold2),0,-0.4,0.13,lg);ks.rotation.x=Math.PI/2;
       const gr=at(tor(0.092,0.012,K.gold),0,-0.74,0,lg);gr.rotation.x=Math.PI/2;
       at(bx(0.15,0.12,0.3,K.ob),0,-0.88,0.05,lg);at(bx(0.152,0.04,0.08,K.gold),0,-0.9,0.18,lg);}
-    // 光：腳下金色光暈、環繞的金色光點、盔甲上閃的星光
-    {const g=new THREE.CircleGeometry(1.0,40);g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:STAR_TEX,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.5}));m.position.y=0.04;m.userData.dk=true;root.add(m);A.ring=m;}
-    for(let k=0;k<16;k++){const m=spr(STAR_TEX);m.userData={dk:true,a:Math.random()*6.28,r:0.55+Math.random()*0.45,h:0.2+Math.random()*1.8,w:0.6+Math.random()*0.8,f:1+Math.random()*2};m.scale.setScalar(0.06);root.add(m);A.motes.push(m);}
-    for(let k=0;k<7;k++){const m=spr(STAR_TEX);m.userData={dk:true,t:Math.random(),life:0.5+Math.random()*0.6};m.scale.setScalar(0.01);root.add(m);A.stars.push(m);}
-    for(const g of [parts,legL,legR,armL,armR])bakeDK(g);bakeDK(A.dkSword);
+    }
+    // 光：腳下光暈、環繞的光點、盔甲上閃的星光（Blender 版改成紅橘色，配燃燒的大劍）
+    const tint=DKG?'#ff6a30':null;
+    {const g=new THREE.CircleGeometry(1.0,40);g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:STAR_TEX,color:tint||'#ffffff',transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.5}));m.position.y=0.04;m.userData.dk=true;root.add(m);A.ring=m;}
+    for(let k=0;k<16;k++){const m=spr(STAR_TEX);if(tint)m.material.color.set(tint);m.userData={dk:true,a:Math.random()*6.28,r:0.55+Math.random()*0.45,h:0.2+Math.random()*1.8,w:0.6+Math.random()*0.8,f:1+Math.random()*2};m.scale.setScalar(0.06);root.add(m);A.motes.push(m);}
+    for(let k=0;k<7;k++){const m=spr(STAR_TEX);if(tint)m.material.color.set('#ffb070');m.userData={dk:true,t:Math.random(),life:0.5+Math.random()*0.6};m.scale.setScalar(0.01);root.add(m);A.stars.push(m);}
+    if(!DKG){for(const g of [parts,legL,legR,armL,armR])bakeDK(g);bakeDK(A.dkSword);}
   }
   const tq=new THREE.Quaternion(),tq2=new THREE.Quaternion(),tq3=new THREE.Quaternion(),tE=new THREE.Euler(),tv=new V3();
   // 劍在人物座標裡的方向（不管手怎麼擺）：轉成相對右手的方向
@@ -8792,9 +8820,18 @@ const avatar=(()=>{
     if(A.ring)A.ring.material.opacity=0.35+0.15*Math.sin(t*2.2);
     const busy=(GAME.on&&GAME.G.act)||LIE.on||SKATE.on||player.climb||!player.ground;
     if(busy){A.dkSword.rotation.set(Math.PI/2-0.35,0,0);return;}
-    if(sp<0.3){armL.rotation.set(-1.15,0,0.42);armR.rotation.set(-1.15,0,-0.42);body.rotation.set(0,0,0);body.position.y=Math.sin(t*1.6)*0.012;
-      legL.rotation.set(0,0,-0.07);legR.rotation.set(0,0,0.07);swordTo(Math.PI-0.06);}   // 招牌姿勢：雙手握劍、劍尖朝下立在身前
-    else{armR.rotation.set(0.3+Math.sin(t*6)*0.05,0,0.12);swordTo(Math.PI+0.75);}};          // 走路：右手拖著大劍
+    if(sp<0.3){const br=Math.sin(t*1.6);   // 招牌姿勢（2026-10-14 照使用者給的參考圖）：壓低身子、兩腳張開一前一後、右手大劍斜指地面、左手握拳在腰前、上半身前傾抬頭瞪人
+      body.rotation.set(0,0,0);body.position.y=-0.05+br*0.008;
+      legR.rotation.set(-0.38,0,0.2);A.shinR.rotation.x=0.62;A.footR.rotation.x=-0.24;legL.rotation.set(0.12,0,-0.2);A.shinL.rotation.x=0.38;A.footL.rotation.x=-0.5;
+      A.chest.rotation.set(0.2+br*0.015,-0.12,0);A.head.rotation.set(-0.16,0.12,0);
+      armR.rotation.set(-0.22,0,0.42);A.foreR.rotation.x=-0.5;armL.rotation.set(-0.12,0,-0.34);A.foreL.rotation.x=-1.25;A.hand(-1,'fist');
+      swordAim(0.5,-0.62,0.6);}
+    else{legL.rotation.y=legL.rotation.z=legR.rotation.y=legR.rotation.z=0;armL.rotation.y=armL.rotation.z=0;
+      armR.rotation.set(0.3+Math.sin(t*6)*0.05,0,0.12);swordTo(Math.PI+0.75);}};          // 走路：右手拖著大劍
+  // 劍身指向（人物自己的座標：x＝右手那側、y＝上、z＝前），劍面橫放
+  const swX=new V3(),swY=new V3(),swZ=new V3(),swM=new THREE.Matrix4(),swQ=new THREE.Quaternion();
+  function swordAim(x,y,z){swY.set(x,y,z).normalize();swX.set(0,1,0).cross(swY).normalize();swZ.crossVectors(swX,swY);swM.makeBasis(swX,swY,swZ);swQ.setFromRotationMatrix(swM);
+    root.updateMatrixWorld(true);A.dkSword.parent.getWorldQuaternion(tq);root.getWorldQuaternion(tq2);A.dkSword.quaternion.copy(tq.invert().multiply(tq2).multiply(swQ));}
   // 變身演出：黑煙、金色光柱衝天、地上光圈擴散、金光四射、畫面閃金光
   const SMOKE=(()=>{const [c,x]=cvs(64,64),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(30,10,40,0.85)');g.addColorStop(1,'rgba(20,0,30,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
   A.morphFx=on=>{const p=new V3(player.pos.x,player.y,player.pos.y),add=(o,life,upd)=>{scene.add(o);A.fx.push({o,t:0,life,upd});};
