@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-14.5"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-14.8"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -405,14 +405,34 @@
   #muKeys{position:absolute;left:calc(8px + var(--sal));right:calc(8px + var(--sar));bottom:calc(10px + var(--sab));display:flex;flex-wrap:wrap;justify-content:center;gap:5px;pointer-events:auto}
   #muKeys button{width:60px;height:58px;padding:0;border-radius:12px;border:2px solid rgba(255,255,255,.75);color:#fff;font-weight:900;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;text-shadow:0 1px 2px rgba(0,0,0,.55);box-shadow:0 3px 0 rgba(0,0,0,.35);user-select:none;-webkit-user-select:none}
   #muKeys button b{font-size:17px}#muKeys button small{font-size:10px;opacity:.95}#muKeys kbd{font-size:9px;opacity:.7;font-family:inherit}body.touch #muKeys kbd{display:none}
+  #muKeys.sub button{width:calc((100% - (var(--k) - 1)*5px)/var(--k));max-width:86px;height:60px}#muKeys.sub button b{font-size:19px}
+  #muKeys.grid{display:grid;grid-template-columns:repeat(var(--k),minmax(0,62px));justify-content:center}#muKeys.grid button{width:auto;height:50px}#muKeys.grid button b{font-size:16px}
+  #muChart{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:23;padding:12px 14px;width:min(760px,96vw);max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:8px;text-align:center}#muChart[hidden]{display:none!important}
+  #muChart h3{margin:0;font-size:17px}#muChart .leg{font-size:12px;opacity:.85;margin:0;line-height:1.5}#muChart .cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}
+  #muChart .fc{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:10px;border:1px solid var(--line);background:rgba(255,250,240,.96);color:#333;font-weight:700}#muChart .fc canvas{width:76px;height:150px}
+  #muChart .fc b{font-size:19px;line-height:1.1}#muChart .fc small{font-size:11px;color:#555;line-height:1.25}#muChart .fc .fs{white-space:nowrap;font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:#222;letter-spacing:.5px}#muChart .fc.on{outline:3px solid #ffb454}
+  #muChart .row{display:flex;gap:6px;align-items:center}#muChart .row>span{font-size:12px;opacity:.8;min-width:30px;text-align:left}#muChart .row button,#muChart .x{flex:1;font-size:13px;padding:7px 4px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:inherit;font-weight:700}#muChart .row button.on{background:#7a4cc2;color:#fff;border-color:#c9a8ff}
+  #muPm{position:absolute;left:calc(6px + var(--sal));right:calc(92px + var(--sar));top:calc(var(--mt) + var(--mh) + 34px);bottom:calc(8px + var(--sab));display:flex;justify-content:center;align-items:stretch;gap:10px;pointer-events:none;--hb:min(76px,calc((100vh - var(--mt) - var(--mh) - 60px - var(--sab))/8.4))}
+  #muPm[hidden]{display:none!important}#muUI.pm #muSide,#muUI.pm #muKeys,#muUI.pm #muBlow{display:none!important}
+  #muPm .lc{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:8px;width:96px}
+  #muPm button{border-radius:50%;border:3px solid rgba(60,30,10,.9);background:#fffaf0;color:#7a4a24;font-weight:900;font-size:18px;touch-action:none;user-select:none;-webkit-user-select:none;pointer-events:auto;padding:0;box-shadow:inset 0 3px 6px rgba(0,0,0,.25)}
+  #muPm button.on{background:radial-gradient(circle,#2a1a10 55%,#4a3020);color:#ffe08a}#muPm button.need{outline:4px dashed #ffd23a;outline-offset:3px}#muPm button.need.on{outline-color:#3fbf7a;outline-style:solid}
+  #muPm .th{width:var(--hb);height:var(--hb)}#muPm .hf{width:calc(var(--hb)*0.78);height:calc(var(--hb)*0.78);font-size:14px}#muPm .hf.on{background:linear-gradient(90deg,#2a1a10 50%,#fffaf0 50%);color:#d33}
+  #muPm .hs{display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:10px 12px;background:linear-gradient(90deg,#7a4a24,#b07a45 45%,#7a4a24);border-radius:calc(var(--hb)*0.6);pointer-events:auto;touch-action:none}
+  #muPm .hs button{width:var(--hb);height:var(--hb)}#muPm .hs i{flex:0 0 calc(var(--hb)*0.35)}
+  #muPm .nm{color:#fff;text-align:center;text-shadow:0 1px 3px #000;line-height:1.2}#muPm .nm b{display:block;font-size:26px}#muPm .nm small{display:block;font-size:12px;opacity:.9}
+  @media (orientation:landscape){#muPm{top:auto;height:calc(var(--hb2) + 28px);right:calc(120px + var(--sar));--hb2:min(78px,calc((100vw - 260px)/10))}#muPm{--hb2:min(76px,calc((100vw - 290px)/10))}#muPm .th{font-size:13px;white-space:nowrap}#muPm .nm{min-width:72px}#muPm .nm b{font-size:22px}#muPm .hs{flex-direction:row;padding:8px 14px;gap:13px}#muPm .lc{padding-left:10px}#muPm .hf{font-size:12px;white-space:nowrap}#muPm .hs i{flex:0 0 22px}
+    #muPm .hs button,#muPm .th{width:var(--hb2);height:var(--hb2)}#muPm .hf{width:calc(var(--hb2)*0.7);height:calc(var(--hb2)*0.7)}#muPm .lc{flex-direction:row;padding-top:0;width:auto;align-items:center}#muPm .nm{min-width:90px}}
+  #muUI.pm #muTop{flex-direction:column;top:calc(var(--mt) + var(--mh) + 34px);bottom:auto}
+  #muPanel .ntx,#muChart .ntx{font-size:11px;opacity:.8;margin:-2px 0 0;text-align:left}
   #muKeys button.on{transform:translateY(3px) scale(.94);filter:brightness(1.35);box-shadow:none}#muKeys button.tg{box-shadow:0 0 0 3px #fff,0 0 16px #fff}
   #muBlow{position:absolute;right:calc(18px + var(--sar));bottom:calc(22px + var(--sab));width:110px;height:110px;border-radius:50%;border:3px solid #fff;background:radial-gradient(circle,#7fd4ff,#2f6fd8);color:#fff;font-size:24px;font-weight:900;pointer-events:auto;touch-action:none;box-shadow:0 4px 0 rgba(0,0,0,.35);user-select:none;-webkit-user-select:none}
   #muBlow.on{transform:scale(.93);filter:brightness(1.3)}
   body.mu #jumpBtn,body.mu #act,body.mu #skBtns,body.mu #bbBtns,body.mu #minimap,body.mu #joy{visibility:hidden}
   body.mu #bAerial,body.mu #bView,body.mu #hint,body.mu #bMap,body.mu #bEmote{display:none!important}
   @media (max-width:700px){#muUI{--mh:118px;--mt:calc(84px + var(--sat))}#muKeys button{width:calc((100vw - 64px)/7);height:52px}#muFlute{width:100px;height:300px}#muInfo b{font-size:24px}#muInfo{max-width:calc(100vw - 132px)}
-    #muTop{flex-direction:row;top:auto;bottom:calc(128px + var(--sab))}#muTop button{padding:7px 10px}#muUI.adv #muTop{bottom:calc(142px + var(--sab))}}   /* 手機直拿：五線譜在地點名稱下面；按鈕排成一排放在唱名鍵上面 */
-  @media (max-height:520px){#muUI{--mh:84px;--mt:calc(50px + var(--sat))}#muJudge{font-size:18px}#muSide{top:calc(var(--mt) + var(--mh) + 26px)}#muFlute{width:84px;height:calc(100vh - var(--mt) - var(--mh) - 36px - var(--sab))}#muKeys{left:calc(104px + var(--sal));gap:4px}#muKeys button{width:42px;height:44px;border-radius:10px}#muKeys button b{font-size:13px}#muKeys button small{font-size:9px}#muInfo{padding:5px 9px;max-width:290px}#muInfo b{font-size:18px}#muInfo small{font-size:10.5px;line-height:1.3}#muInfo .tip2{display:none}#muTop{top:calc(var(--mt) + var(--mh) + 26px)}#muTop button{padding:6px 10px}}
+    #muTop{flex-direction:row;top:auto;bottom:calc(var(--kh,118px) + 10px + var(--sab))}#muKeys.grid button{height:44px}#muKeys.sub button{height:56px}#muTop button{padding:7px 10px}#muUI.adv #muTop{bottom:calc(142px + var(--sab))}}   /* 手機直拿：五線譜在地點名稱下面；按鈕排成一排放在唱名鍵上面 */
+  @media (max-height:520px){#muUI{--mh:84px;--mt:calc(50px + var(--sat))}#muJudge{font-size:18px}#muSide{top:calc(var(--mt) + var(--mh) + 26px)}#muFlute{width:84px;height:calc(100vh - var(--mt) - var(--mh) - 36px - var(--sab))}#muKeys{left:calc(104px + var(--sal));gap:4px}#muKeys button{width:42px;height:44px;border-radius:10px}#muKeys.sub button{height:46px}#muKeys.grid button{height:36px}#muKeys.grid{grid-template-columns:repeat(var(--k),minmax(0,46px))}#muChart .fc canvas{width:60px;height:118px}#muKeys button b{font-size:13px}#muKeys button small{font-size:9px}#muInfo{padding:5px 9px;max-width:290px}#muInfo b{font-size:18px}#muInfo small{font-size:10.5px;line-height:1.3}#muInfo .tip2{display:none}#muTop{top:calc(var(--mt) + var(--mh) + 26px)}#muTop button{padding:6px 10px}}
   #cuHud .ws .ev{background:rgba(230,120,30,.85);border-radius:8px;padding:1px 7px;font-size:12px;font-weight:800;line-height:20px}
   body.cu #jumpBtn,body.cu #act,body.cu #skBtns,body.cu #bbBtns,body.cu #minimap{visibility:hidden}
   body.cu #bAerial,body.cu #bView,body.cu #hint,body.cu #bMap{display:none!important}   /* 遊戲中小地圖藏起來，地圖按鈕沒作用 */
@@ -642,14 +662,15 @@
 <div id="cuHud" hidden></div><div id="cuNote"></div><div id="cuHurt"></div>
 <div id="cuBtns" hidden><button data-k="air"><b>空襲</b><small>1／Q</small></button><button data-k="ice"><b>冰河期</b><small>2／E</small></button><button data-k="rage"><b>狂暴</b><small>3／R</small></button><button data-k="auto"><b>自動</b><small>P</small></button><button data-k="exit"><b>離開</b><small>Esc</small></button></div>
 <div id="cuCards" hidden><h3>升級！</h3><div class="cards"></div><p class="auto"></p></div>
-<div id="muPanel" class="panel" hidden><h3>🎵 音樂教室・中音直笛</h3><div class="res"></div><div class="opts"></div>
+<div id="muPanel" class="panel" hidden><h3>🎵 音樂教室・中音直笛</h3><div class="res"></div><div class="opts"></div><button class="chartB" data-x="chart">📖 基礎指法對照表</button>
   <p class="lbl">學指法（一課一課學 Do Re Mi）</p><div class="lessons"></div>
   <p class="lbl">跟著歌曲吹（👂 先聽示範、▶ 換你吹）</p><div class="songs"></div>
   <p class="lbl">自由吹奏</p><button class="free" data-x="free">🎶 自由吹奏（想吹什麼就吹什麼）</button>
   <p class="prize note"></p>
-  <p class="note">唱名用固定唱名（C＝Do）；中音直笛全部按住是最低的「低音 Fa」。左邊的笛子圖：黑色＝按住、半黑＝拇指半開，拇指的洞在背面（畫在左邊）。簡單模式按下面的唱名按鈕（電腦：A S D F G H J K L ; ' [ ]）；進階模式點笛子的洞蓋住／放開，按住「吹」（電腦：A＝拇指、Q＝拇指半開、S D F＝左手 1 2 3、J K L ;＝右手 4 5 6 7、空白鍵＝吹）。歌曲都是沒有版權的老歌，畫面上只有唱名。</p>
+  <p class="note">笛子可以換中音直笛（主要）或高音直笛，兩種指法一樣（巴洛克式），只是音名差五度。唱名寫法可以換：首調（每首歌的主音＝Do，跟簡譜一樣）、固定（C＝Do；中音直笛全按＝低音 Fa、高音直笛全按＝Do）、簡譜數字、音名。左邊的笛子圖：黑色＝按住、半黑＝拇指半開，拇指的洞在背面（畫在左邊）。簡單模式按下面的唱名按鈕：跟歌曲、學指法只出現要用到的音（電腦：A S D F G H J K L ; ' [ ]），自由吹奏像木琴分排、同一個唱名上下對齊（電腦：Q 排＝高音、A 排＝中音、Z 排＝低音）；進階模式點笛子的洞蓋住／放開，按住「吹」（電腦：A＝拇指、Q＝拇指半開、S D F＝左手 1 2 3、J K L ;＝右手 4 5 6 7、空白鍵＝吹）。歌曲都是沒有版權的老歌，畫面上只有唱名。</p>
   <button data-x="exit">關閉</button></div>
-<div id="muUI" hidden><canvas id="muStaff"></canvas><div id="muJudge"></div><div id="muSide"><canvas id="muFlute"></canvas><div id="muInfo"></div></div><div id="muTop"></div><div id="muKeys"></div><button id="muBlow">吹</button></div>
+<div id="muChart" class="panel" hidden><h3>📖 基礎指法對照表</h3><div class="opts"></div><p class="leg"></p><div class="cg"></div><button class="x" data-x="close">關閉</button></div>
+<div id="muUI" hidden><canvas id="muStaff"></canvas><div id="muJudge"></div><div id="muSide"><canvas id="muFlute"></canvas><div id="muInfo"></div></div><div id="muTop"></div><div id="muKeys"></div><button id="muBlow">吹</button><div id="muPm" hidden><div class="lc"><button class="th" data-h="0">拇指</button><button class="hf" data-h="h">半開</button><div class="nm"></div></div><div class="hs"><button data-h="1">1</button><button data-h="2">2</button><button data-h="3">3</button><i></i><button data-h="4">4</button><button data-h="5">5</button><button data-h="6">6</button><button data-h="7">7</button></div></div></div>
 <div id="cuPanel" class="panel" hidden><h3>🎓 校園大逃亡</h3><div class="res"></div><div class="auto"></div><p class="lbl">選科系（起始武器、能力不一樣；會穿上系服背心）</p><div class="chars"></div><p class="chd note"></p><p class="lbl">逃生模式（跟著地上的箭頭走到逃生點：撿道具、打倒擋住出口的大魔王，站在逃生點撐 10 秒）</p><div class="stages"></div><p class="lbl">無盡模式</p><div class="endless"></div><p class="prize note"></p>
   <p class="note">小人會自動往後退、自動開槍（打最近的怪物）。手指左右拖（或搖桿、A D）閃躲；無盡模式用搖桿／WASD 在整個校園跑。打倒的怪物掉經驗寶石，靠近會吸過來；升級時選一張卡：新武器（加特林、霰彈槍、雷射、火箭砲、閃電鏈、環繞飛書、冰凍彈、無人機）或升級（5 級會進化），也有被動（攻擊力、射速、跑步鞋、磁鐵、營養午餐、咖啡）。右下大招：空襲、冰河期、狂暴。寶箱怪打倒會連升兩級；愛心補血、磁鐵吸全部寶石、炸彈清全場。大魔王出招前地上會有紅色範圍，快閃開！血剩一半會變身（變大、發紅光、多一招新招）。無盡模式每隔 1 分多鐘有校園事件：午餐時間、下課鐘、考試週、校慶煙火、社團博覽會。</p>
   <button data-x="exit">離開</button></div>
@@ -7773,7 +7794,7 @@ const MU=(()=>{
   const $=id=>document.getElementById(id),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),sm=t=>t*t*(3-2*t),rnd=(a,b)=>a+Math.random()*(b-a);
   const big=t=>{const el=$('gBig');el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');};
   const H=CAMPUS.music,G=new THREE.Group();scene.add(G);
-  const SAVE=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-mu')||'{}')||{};}catch(_){}return {ls:o.ls||[0,0,0,0,0],ss:o.ss||{},ws:o.ws||{},adv:!!o.adv,spd:o.spd||0.8,wait:!!o.wait,gold:!!o.gold};})();
+  const SAVE=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-mu')||'{}')||{};}catch(_){}return {ls:o.ls||[0,0,0,0,0],ss:o.ss||{},ws:o.ws||{},adv:!!o.adv,spd:o.spd||0.8,wait:!!o.wait,gold:!!o.gold,fs:o.fs==='g'?'g':'b',nt:o.nt||'mov',inst:o.inst||'alto',pm:!!o.pm};})();
   const save=()=>{try{localStorage.setItem('home-mu',JSON.stringify(SAVE));}catch(_){}};
   M.SAVE=SAVE;
 
@@ -7781,20 +7802,39 @@ const MU=(()=>{
   // 固定唱名：C＝Do。[唱名, 音名, 八度（-1 低音、0、1 高音）]
   const NN={65:['Fa','F',-1],67:['Sol','G',-1],69:['La','A',-1],70:['Si♭','B♭',-1],71:['Si','B',-1],72:['Do','C',0],74:['Re','D',0],76:['Mi','E',0],77:['Fa','F',0],79:['Sol','G',0],81:['La','A',0],82:['Si♭','B♭',0],84:['Do','C',1]};
   const NOTES=Object.keys(NN).map(Number);
-  const pre=m=>NN[m][2]<0?'低音 ':NN[m][2]>0?'高音 ':'';
-  const nName=m=>pre(m)+NN[m][0];
+  // 笛子（使用者：主要中音笛，也可以切換高音笛）：裡面一律用中音直笛的音（＝指法）記，高音直笛同一個指法高五度（全按＝Do），聲音再高八度（真的高音直笛就是這樣）
+  const INSTN={alto:'中音直笛',sop:'高音直笛'},TR=()=>SAVE.inst==='sop'?7:0,pOf=m=>m+TR();
+  // 唱名寫法（使用者選「可以切換」）：mov＝首調（歌的主音＝Do，跟簡譜一樣）、fix＝固定唱名（C＝Do）、num＝簡譜數字、let＝音名
+  const NT={mov:'首調 Do Re Mi',fix:'固定 Do Re Mi',num:'簡譜 1 2 3',let:'音名 C D E'};
+  const SOLF=['Do','Do♯','Re','Mi♭','Mi','Fa','Fa♯','Sol','Sol♯','La','Si♭','Si'],NUMF=['1','♯1','2','♭3','3','4','♯4','5','♯5','6','♭7','7'],LETS=['C','C♯','D','E♭','E','F','F♯','G','G♯','A','B♭','B'];
+  const COLD=['#e8453c','#e8453c','#f08a24','#d4a90c','#d4a90c','#43a047','#2e9e7a','#1e88e5','#3949ab','#5c6bc0','#b04fc8','#8e24aa'];   /* 每個唱名一個顏色（彩虹），跟著寫法算 */
+  const tonic=()=>M.on&&M.kind==='song'&&M.S?KEYS[M.S.key]:72-TR();   /* 首調的 Do（中音直笛的音）：歌曲＝那首歌的調，其他＝C */
+  function nm(m,T){const rel=SAVE.nt==='mov'||SAVE.nt==='num',x=rel?m:pOf(m),b=rel?(T===undefined?tonic():T):72,d=((x-b)%12+12)%12;
+    return {t:SAVE.nt==='num'?NUMF[d]:SAVE.nt==='let'?LETS[pOf(m)%12]:SOLF[d],o:Math.floor((x-b)/12),c:COLD[d]};}
+  const pre=(m,T)=>{const o=nm(m,T).o;return o<0?'低音 ':o>0?'高音 ':'';};
+  const nName=(m,T)=>pre(m,T)+nm(m,T).t;
+  const nList=(ms,T)=>{const ps=ms.map(m=>pre(m,T));return ps.every(x=>x===ps[0])?ps[0]+ms.map(m=>nm(m,T).t).join('、'):ms.map(m=>nName(m,T)).join('、');};
+  const sciName=m=>LETS[pOf(m)%12]+(Math.floor(pOf(m)/12)-1);   /* 音名＋八度：F4、C5… */
+  const fixName=m=>{const p=pOf(m),o=Math.floor((p-72)/12);return (o<0?'低音 ':o>0?'高音 ':'')+SOLF[p%12];};
+  const keyName=S=>LETS[(KEYS[S.key]+TR())%12];
+  const showFix=()=>(SAVE.nt==='mov'||SAVE.nt==='num')&&tonic()!==72-TR();   /* 首調跟固定不一樣時（F 調的歌）才另外寫固定唱名 */
   // 指法（中音直笛、巴洛克式）：[拇指, 左手 1 2 3, 右手 4 5 6 7]；1＝按住、0＝放開、0.5＝拇指半開
   const FING={65:[1,1,1,1,1,1,1,1],67:[1,1,1,1,1,1,1,0],69:[1,1,1,1,1,1,0,0],70:[1,1,1,1,1,0,1,1],71:[1,1,1,1,0,1,1,0],72:[1,1,1,1,0,0,0,0],74:[1,1,1,0,0,0,0,0],76:[1,1,0,0,0,0,0,0],
     77:[1,0,1,0,0,0,0,0],79:[0,0,1,0,0,0,0,0],81:[0.5,1,1,1,1,1,0,0],82:[0.5,1,1,1,1,0,1,0],84:[0.5,1,1,1,0,0,0,0]};
-  const fKey=f=>f.join(','),BYF={};for(const m of NOTES)BYF[fKey(FING[m])]=m;
+  // 德式指法（使用者：不知道課本是哪一種 → 英式／德式都可以選，SAVE.fs）：只差三個音（中音直笛的音；高音直笛＝Fa、Fa♯、高音 Fa）
+  const FING_B={70:FING[70],71:FING[71],82:FING[82]},FING_G={70:[1,1,1,1,1,0,0,0],71:[1,1,1,1,0,1,1,1],82:[0.5,1,1,1,1,0,0,0]};
+  const TIP_G={70:'德式：拇指＋1 2 3 4，照順序按（不用叉指）',71:'德式叉指：4 放開，5 6 7 按住',82:'德式：拇指半開＋1 2 3 4'};
+  const fKey=f=>f.join(','),BYF={};
+  function applyFS(){Object.assign(FING,SAVE.fs==='g'?FING_G:FING_B);for(const k in BYF)delete BYF[k];for(const m of NOTES)BYF[fKey(FING[m])]=m;if(TIP_B)Object.assign(TIP,SAVE.fs==='g'?TIP_G:TIP_B);}
   const COL={Do:'#e8453c',Re:'#f08a24',Mi:'#d4a90c',Fa:'#43a047',Sol:'#1e88e5',La:'#5c6bc0',Si:'#8e24aa','Si♭':'#b04fc8'};   /* 每個唱名一個顏色（彩虹） */
-  const colOf=m=>COL[NN[m][0]];
+  const colOf=m=>nm(m).c,colFix=m=>COL[NN[m][0]];   /* colFix：教室牆上（中音直笛、固定唱名） */
   const LET={C:0,D:1,E:2,F:3,G:4,A:5,B:6};
-  const stepOf=m=>LET[NN[m][1][0]]+7*(Math.floor(m/12)-1)-30;   /* 五線譜位置：0＝最下面那條線（E4），1＝第一間（F4）… */
+  const stepOf=m=>{const p=pOf(m);return LET[LETS[p%12][0]]+7*(Math.floor(p/12)-1)-30;},accOf=m=>LETS[pOf(m)%12][1]||'';   /* 五線譜位置：0＝最下面那條線（E4），1＝第一間（F4）… */
   function fingText(m){const f=FING[m],L=[],R=[];if(f[0]===1)L.push('拇指');else if(f[0]===0.5)L.push('拇指半開');for(let i=1;i<=3;i++)if(f[i])L.push(i);for(let i=4;i<=7;i++)if(f[i])R.push(i);
     return `左手：${L.length?L.join('、'):'不按'}　右手：${R.length?R.join('、'):'不按'}`;}
   const TIP={65:'八個洞全部按緊，輕輕吹',67:'只有 7 放開',69:'6、7 放開',70:'叉指：5 放開、6 7 按住',71:'叉指：4 放開、5 6 按住',72:'拇指＋左手 1、2、3',74:'拇指＋1、2',76:'拇指＋1',77:'拇指＋2（1 放開）',
-    79:'拇指放開，只按 2',81:'拇指往下挪，留一條小縫（半開）',82:'拇指半開，右手 4 和 6',84:'拇指半開＋左手 1、2、3'};
+    79:'拇指放開，只按 2',81:'拇指往下挪，留一條小縫（半開）',82:'拇指半開，右手 4 和 6',84:'拇指半開＋左手 1、2、3（＝Do 的按法，拇指半開）'};
+  var TIP_B={70:TIP[70],71:TIP[71],82:TIP[82]};applyFS();
 
   // ================= 歌曲（都是沒有版權的老歌；簡譜：1～7，前面 , 低八度、後面 ' 高八度，/拍數） =================
   const KEYS={C:72,F:65},DEG=[0,2,4,5,7,9,11];
@@ -7815,18 +7855,19 @@ const MU=(()=>{
   SONGS.forEach(S=>{Object.assign(S,parse(S.s,S.key));S.used=[...new Set(S.notes.map(n=>n.m))].sort((a,b)=>a-b);});
   M.SONGS=SONGS;
   const LESSONS=[
-    {n:'第 1 課・左手 Do Re Mi',nw:[72,74,76],tip:'左手在上面：拇指蓋住背面的洞，食指＝1、中指＝2、無名指＝3'},
-    {n:'第 2 課・Fa、Sol',nw:[77,79],tip:'Fa：拇指＋2；Sol：拇指放開，只按 2'},
-    {n:'第 3 課・右手 低音 La、Sol、Fa',nw:[69,67,65],tip:'右手在下面：食指＝4、中指＝5、無名指＝6、小指＝7；越低越要輕輕吹'},
-    {n:'第 4 課・低音 Si♭、Si（叉指）',nw:[70,71],tip:'叉指：中間空一個洞，下面再按'},
-    {n:'第 5 課・拇指半開（高音）',nw:[81,82,84],tip:'拇指往下挪一點、留一條小縫，再稍微用力吹'}];
+    {b:'第 1 課・左手 %',nw:[72,74,76],tip:'左手在上面：拇指蓋住背面的洞，食指＝1、中指＝2、無名指＝3'},
+    {b:'第 2 課・%',nw:[77,79],get tip(){return `${nName(77,72-TR())}：拇指＋2；${nName(79,72-TR())}：拇指放開，只按 2`;}},
+    {b:'第 3 課・右手 %',nw:[69,67,65],tip:'右手在下面：食指＝4、中指＝5、無名指＝6、小指＝7；越低越要輕輕吹'},
+    {get b(){return SAVE.fs==='g'?'第 4 課・%':'第 4 課・%（叉指）';},nw:[70,71],get tip(){return SAVE.fs==='g'?`${nName(70,72-TR())}：照順序按到 4；${nName(71,72-TR())}：叉指，4 放開、5 6 7 按住`:'叉指：中間空一個洞，下面再按';}},
+    {b:'第 5 課・拇指半開 %',nw:[81,82,84],tip:'拇指往下挪一點、留一條小縫，再稍微用力吹'}];
+  for(const L of LESSONS)Object.defineProperty(L,'n',{get(){return this.b.replace('%',nList(this.nw,72-TR()));}});   /* 課名跟著唱名寫法、笛子換 */
   M.LESSONS=LESSONS;
   const goldOk=()=>SAVE.ls.every(v=>v>0)&&SONGS.filter(S=>(SAVE.ss[S.id]||0)>=2).length>=5;
 
   // ================= 聲音：直笛（單音，換音時頻率滑過去） =================
   const V={on:false,m:0};
   const ac=()=>AUDIO.A&&AUDIO.A.ctx&&AUDIO.A.sfx?AUDIO.A.ctx:null;
-  function vOn(m){const c=ac();if(!c)return;const f=440*Math.pow(2,(m-69)/12),now=c.currentTime;
+  function vOn(m){const c=ac();if(!c)return;const f=440*Math.pow(2,(pOf(m)+(SAVE.inst==='sop'?12:0)-69)/12),now=c.currentTime;
     if(!V.on){V.g=c.createGain();V.g.gain.value=0;V.g.connect(AUDIO.A.sfx);V.lp=c.createBiquadFilter();V.lp.type='lowpass';V.lp.Q.value=0.5;V.lp.connect(V.g);
       V.o1=c.createOscillator();V.o1.type='triangle';V.o1.connect(V.lp);V.o2=c.createOscillator();V.o2.type='sine';const g2=c.createGain();g2.gain.value=0.22;V.o2.connect(g2);g2.connect(V.g);
       V.vib=c.createOscillator();V.vib.frequency.value=5.3;V.vg=c.createGain();V.vg.gain.value=0;V.vib.connect(V.vg);V.vg.connect(V.o1.detune);V.vg.connect(V.o2.detune);
@@ -7864,8 +7905,8 @@ const MU=(()=>{
    g.fillStyle='#f4f1e6';g.font=`900 46px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText('中音直笛　固定唱名　Do Re Mi',800,46);
    const y0=290,gap=26;g.strokeStyle='#e9e6dc';g.lineWidth=3;for(let k=0;k<5;k++){g.beginPath();g.moveTo(60,y0-k*gap);g.lineTo(1540,y0-k*gap);g.stroke();}
    g.font=`${gap*6.2}px "Segoe UI Symbol","Noto Music","Noto Sans Symbols 2","Apple Symbols",serif`;g.fillStyle='#f4f1e6';g.textAlign='left';g.fillText('𝄞',62,y0-gap*1.6);
-   NOTES.forEach((m,i)=>{const x=210+i*102,s=stepOf(m),y=y0-s*gap/2;g.strokeStyle='#e9e6dc';g.lineWidth=3;for(let L=10;L<=s;L+=2){g.beginPath();g.moveTo(x-30,y0-L*gap/2);g.lineTo(x+30,y0-L*gap/2);g.stroke();}
-     g.fillStyle=colOf(m);g.beginPath();g.ellipse(x,y,17,13,-0.35,0,Math.PI*2);g.fill();if(NN[m][0]==='Si♭'){g.font=`900 34px ${FONT}`;g.textAlign='center';g.fillText('♭',x-32,y+2);}
+   NOTES.forEach((m,i)=>{const x=210+i*102,s=LET[NN[m][1][0]]+7*(Math.floor(m/12)-1)-30,y=y0-s*gap/2;g.strokeStyle='#e9e6dc';g.lineWidth=3;for(let L=10;L<=s;L+=2){g.beginPath();g.moveTo(x-30,y0-L*gap/2);g.lineTo(x+30,y0-L*gap/2);g.stroke();}
+     g.fillStyle=colFix(m);g.beginPath();g.ellipse(x,y,17,13,-0.35,0,Math.PI*2);g.fill();if(NN[m][0]==='Si♭'){g.font=`900 34px ${FONT}`;g.textAlign='center';g.fillText('♭',x-32,y+2);}
      g.textAlign='center';g.fillStyle='#f4f1e6';g.font=`900 30px ${FONT}`;g.fillText(NN[m][0],x,y0+58);g.font=`700 20px ${FONT}`;g.fillStyle='#cfe0d6';g.fillText((NN[m][2]<0?'低音 ':NN[m][2]>0?'高音 ':'')+NN[m][1],x,y0+92);});
    const t=canvasTex(c),bw=8.4,bh=bw*440/1600,z=H.iz1-0.035;const fr=std({color:'#8a5a34',roughness:0.6});
    const fm=new THREE.Mesh(new THREE.BoxGeometry(bw+0.24,bh+0.24,0.06),fr);fm.position.set(H.cx,1.1+bh/2,z-0.01);G.add(fm);
@@ -7874,7 +7915,7 @@ const MU=(()=>{
   // 西牆：中音直笛指法表
   {const W2=2600,H2=640,[c,g]=cvs(W2,H2);g.fillStyle='#fffaf0';g.fillRect(0,0,W2,H2);g.fillStyle='#7a2a1a';g.fillRect(0,0,W2,86);g.fillStyle='#ffe9a8';g.font=`900 56px ${FONT}`;g.textAlign='center';g.textBaseline='middle';
    g.fillText('中音直笛指法表（● 按住　○ 放開　◐ 拇指半開；左邊單獨的洞＝背面拇指）',W2/2,46);
-   NOTES.forEach((m,i)=>{const x=110+i*(W2-180)/12;drawMini(g,x+22,120,360,m);g.fillStyle=colOf(m);g.font=`900 44px ${FONT}`;g.textAlign='center';g.fillText(NN[m][0],x+10,535);g.fillStyle='#555';g.font=`700 28px ${FONT}`;g.fillText((NN[m][2]<0?'低音 ':NN[m][2]>0?'高音 ':'')+NN[m][1],x+10,585);});
+   NOTES.forEach((m,i)=>{const x=110+i*(W2-180)/12;drawMini(g,x+22,120,360,m);g.fillStyle=colFix(m);g.font=`900 44px ${FONT}`;g.textAlign='center';g.fillText(NN[m][0],x+10,535);g.fillStyle='#555';g.font=`700 28px ${FONT}`;g.fillText((NN[m][2]<0?'低音 ':NN[m][2]>0?'高音 ':'')+NN[m][1],x+10,585);});
    const t=canvasTex(c),pw=10.4,ph=pw*H2/W2,x=H.ix0+0.07,zc=H.iz0+3.4+pw/2;const p=new THREE.Mesh(new THREE.PlaneGeometry(pw,ph),new THREE.MeshBasicMaterial({map:t}));p.position.set(x,1.55+ph/2,zc);p.rotation.y=Math.PI/2;G.add(p);
    const fr=new THREE.Mesh(new THREE.BoxGeometry(0.04,ph+0.16,pw+0.16),std({color:'#7a2a1a',roughness:0.6}));fr.position.set(x-0.04,1.55+ph/2,zc);G.add(fr);}   /* 外框在畫面後面（不要疊在同一個面上） */
   // 北牆（門的西邊）：演奏紀錄
@@ -7907,11 +7948,22 @@ const MU=(()=>{
   const sctx=staff.getContext('2d'),fctx=flute.getContext('2d');
   for(const el of [panel,ui])for(const ev of ['click','mousedown','touchstart','pointerdown','wheel'])el.addEventListener(ev,e=>{if(el===ui&&e.target===ui)return;e.stopPropagation();},{passive:true});
   // 唱名按鈕（簡單模式）
-  const KEYMAP={KeyA:65,KeyS:67,KeyD:69,KeyF:70,KeyG:71,KeyH:72,KeyJ:74,KeyK:76,KeyL:77,Semicolon:79,Quote:81,BracketLeft:82,BracketRight:84};
-  const KEYOF={};for(const k in KEYMAP)KEYOF[KEYMAP[k]]=k.replace('Key','').replace('Semicolon',';').replace('Quote',"'").replace('BracketLeft','[').replace('BracketRight',']');
-  keysEl.innerHTML=NOTES.map(m=>`<button data-m="${m}" style="background:${colOf(m)}"><small>${pre(m).trim()||'&nbsp;'}</small><b>${NN[m][0]}</b><kbd>${KEYOF[m]}</kbd></button>`).join('');
-  const KB={};for(const b of keysEl.querySelectorAll('button')){const m=+b.dataset.m;KB[m]=b;const dn=e=>{e.preventDefault();e.stopPropagation();try{b.setPointerCapture(e.pointerId);}catch(_){}b.classList.add('on');press(m);};
-    const up=e=>{e.preventDefault();e.stopPropagation();b.classList.remove('on');if(M.cm===m)release();};b.addEventListener('pointerdown',dn);b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('contextmenu',e=>e.preventDefault());}
+  // 使用者：按鍵排法「兩種都要」→ 跟歌曲／學指法只出現要用到的音（一排，太多就兩排）；自由吹奏像木琴分排、同一個唱名上下對齊
+  const KEYMAP={},KEYOF={},KB={};
+  const SEQK=['KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Semicolon','Quote','BracketLeft','BracketRight'],ROWK=['QWERTYUI','ASDFGHJK','ZXCVBNM,'];
+  const kLab=c=>c.replace('Key','').replace('Semicolon',';').replace('Quote',"'").replace('BracketLeft','[').replace('BracketRight',']').replace('Comma',',');
+  function buildKeys(){for(const o of [KEYMAP,KEYOF,KB])for(const k in o)delete o[k];
+    const btn=(m,code,st)=>{KEYMAP[code]=m;KEYOF[m]=kLab(code);return `<button data-m="${m}" style="background:${colOf(m)};${st||''}"><small>${pre(m).trim()||'&nbsp;'}</small><b>${nm(m).t}</b><kbd>${KEYOF[m]}</kbd></button>`;};
+    let html='';
+    if(M.kind==='free'){const pcs=[...new Set(NOTES.map(m=>pOf(m)%12))].sort((a,b)=>a-b),os=[...new Set(NOTES.map(m=>Math.floor((pOf(m)-72)/12)))].sort((a,b)=>b-a);
+      keysEl.className='grid';keysEl.style.setProperty('--k',pcs.length);
+      html=NOTES.map(m=>{const c=pcs.indexOf(pOf(m)%12),r=os.indexOf(Math.floor((pOf(m)-72)/12)),ch=ROWK[r][c],code=ch===','?'Comma':'Key'+ch;return btn(m,code,`grid-row:${r+1};grid-column:${c+1}`);}).join('');}
+    else{const ms=M.kind==='song'?M.S.used:[...new Set(LESSONS.slice(0,M.L+1).flatMap(x=>x.nw))].sort((a,b)=>a-b);
+      keysEl.className='sub';keysEl.style.setProperty('--k',ms.length<=8?ms.length:Math.ceil(ms.length/2));html=ms.map((m,i)=>btn(m,SEQK[i])).join('');}
+    keysEl.innerHTML=html;
+    for(const b of keysEl.querySelectorAll('button')){const m=+b.dataset.m;KB[m]=b;const dn=e=>{e.preventDefault();e.stopPropagation();try{b.setPointerCapture(e.pointerId);}catch(_){}b.classList.add('on');press(m);};
+      const up=e=>{e.preventDefault();e.stopPropagation();b.classList.remove('on');if(M.cm===m)release();};b.addEventListener('pointerdown',dn);b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('contextmenu',e=>e.preventDefault());}
+    requestAnimationFrame(()=>ui.style.setProperty('--kh',(keysEl.hidden?118:keysEl.offsetHeight)+'px'));}
   // 進階：按笛子上的洞、按住「吹」
   const HY=[0.25,0.33,0.41,0.49,0.61,0.69,0.77,0.86];   /* 洞的高度（笛子圖的比例）：拇指（畫在左邊）、1～7 */
   M.holes=[0,0,0,0,0,0,0,0];M.kh=[0,0,0,0,0,0,0,0];M.blow=false;
@@ -7921,32 +7973,68 @@ const MU=(()=>{
     if(best<0||bd>Math.max(26,W*0.22))return;const v=M.holes[best];M.holes[best]=best===0?(v===0?1:v===1?0.5:0):(v?0:1);advEval();});
   const bdn=e=>{e.preventDefault();e.stopPropagation();try{blowB.setPointerCapture(e.pointerId);}catch(_){}M.blowP=true;blowB.classList.add('on');advEval();},bup=e=>{e.preventDefault();e.stopPropagation();M.blowP=false;blowB.classList.remove('on');advEval();};
   blowB.addEventListener('pointerdown',bdn);blowB.addEventListener('pointerup',bup);blowB.addEventListener('pointercancel',bup);
-  function advEval(){const blowing=M.blowP||M.blowK;const f=curF(),m=BYF[fKey(f)];M.advM=m||0;
+  // 手機直笛（使用者：手機假裝中音笛，直直的都是按鈕，按了就發音）：按住洞＝蓋住、放開＝打開；有按著洞就自動吹
+  const pmEl=$('muPm'),PMB={};
+  for(const b of pmEl.querySelectorAll('[data-h]')){const h=b.dataset.h;PMB[h]=b;
+    const set=(v,down)=>{if(!M.on||!SAVE.pm)return;if(h==='h')M.pmHalf=v;else M.kh[+h]=v;M.kh[0]=M.pmHalf?0.5:M.pmTh?1:0;pmEval(down);};
+    b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();try{b.setPointerCapture(e.pointerId);}catch(_){}if(h==='0')M.pmTh=1;set(1,true);});
+    const up=e=>{e.preventDefault();e.stopPropagation();if(h==='0')M.pmTh=0;set(0,false);};b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('contextmenu',e=>e.preventDefault());}
+  pmEl.addEventListener('pointerdown',e=>e.stopPropagation());
+  function pmEval(down){clearTimeout(M.pmT);pmDraw();if(!M.kh.some(v=>v>0)){advEval();return;}
+    const lag=down?35:60;M.pmT=setTimeout(()=>{const m=BYF[fKey(curF())];if(down&&m&&m===M.cm)release();M.pmLag=lag/1000;advEval();M.pmLag=0;},lag);}   /* 按下：35 ms（幾根手指一起按）；放開：60 ms（放開再按同一個洞＝同一個音再吹一次）；判定時扣掉這段等待 */
+  function pmDraw(tg){if(!SAVE.pm)return;if(tg===undefined)tg=target();const hide=M.demo||(M.kind==='lesson'&&M.ph==='quiz'&&!M.hint),f=tg&&!hide?FING[tg]:null,c=curF();
+    for(let i=0;i<8;i++){const b=PMB[i];b.classList.toggle('on',c[i]>=1||(i===0&&c[0]>0&&!M.pmHalf));b.classList.toggle('need',!!f&&f[i]>=1);}
+    PMB.h.classList.toggle('on',!!M.pmHalf);PMB.h.classList.toggle('need',!!f&&f[0]===0.5);
+    const n=M.cm;pmEl.querySelector('.nm').innerHTML=(n?`<b style="color:${colOf(n)}">${nName(n)}</b>`:'<b>♪</b>')+(tg&&!hide?`<small>要吹：${nName(tg)}</small>`:M.kind==='lesson'&&M.ph==='quiz'?'<small>看五線譜吹吹看</small>':'')+(M.wrongAir?'<small>這個指法吹不出音</small>':'');}
+  function advEval(){const blowing=M.blowP||M.blowK||(SAVE.pm&&M.kh.some(v=>v>0));const f=curF(),m=BYF[fKey(f)];M.advM=m||0;
     if(!blowing){if(M.cm)release();M.wrongAir=false;drawFlute();return;}
     if(m){if(m!==M.cm)press(m);M.wrongAir=false;}else{if(M.cm)release();if(!M.wrongAir){M.wrongAir=true;airy();judgeTxt('這個指法吹不出音','#c8282e');}}
     drawFlute();}
   topEl.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b)return;e.preventDefault();e.stopPropagation();const k=b.dataset.k;
-    if(k==='exit')M.stop();else if(k==='again')restart();else if(k==='demo')restart(true);else if(k==='play')restart(false);});
+    if(k==='exit')M.stop();else if(k==='chart')openChart();else if(k==='again')restart();else if(k==='demo')restart(true);else if(k==='play')restart(false);});
 
   // ================= 面板 =================
-  M.label=()=>{if(M.on||!started||mode!=='walk'||GAME.on||RACE.on||NM.on||RB.on||SB.on||CU.on||player.y>1)return null;return Math.hypot(player.pos.x-H.pad.x,player.pos.y-H.pad.z)<1.6?'吹中音直笛（音樂教室）':null;};
+  M.label=()=>{if(M.on||!started||mode!=='walk'||GAME.on||RACE.on||NM.on||RB.on||SB.on||CU.on||player.y>1)return null;return Math.hypot(player.pos.x-H.pad.x,player.pos.y-H.pad.z)<1.6?'吹直笛（音樂教室）':null;};
   M.toggle=()=>{if(M.on)M.stop();else M.pickPanel();};
   M.pickPanel=()=>{panel.querySelector('.res').innerHTML='';drawPanel();panel.hidden=false;};
   const stars=n=>n?'★'.repeat(n)+'☆'.repeat(3-n):'';
-  function drawPanel(){
-    panel.querySelector('.opts').innerHTML=`<div class="row"><span>操作</span><button data-o="simple" class="${SAVE.adv?'':'on'}">簡單：按唱名</button><button data-o="adv" class="${SAVE.adv?'on':''}">進階：按笛子的洞</button></div>`+
+  // 笛子、唱名寫法（面板和指法表共用）
+  const NTX={mov:'首調：每首歌的主音叫 Do（跟簡譜、唱歌一樣），例如小星星＝Do Do Sol Sol La La Sol',fix:'固定：C 永遠叫 Do（音樂課本指法表常用）；中音直笛全按＝低音 Fa，高音直笛全按＝Do',num:'簡譜：1 2 3 4 5 6 7，跟首調一樣每首歌的主音＝1',let:'音名：C D E F G A B，跟五線譜上的位置固定'};
+  const optRows=()=>`<div class="row"><span>指法</span><button data-f="b" class="${SAVE.fs==='b'?'on':''}">英式（巴洛克式）</button><button data-f="g" class="${SAVE.fs==='g'?'on':''}">德式</button></div><div class="row"><span>笛子</span>${Object.entries(INSTN).map(([k,t])=>`<button data-i="${k}" class="${SAVE.inst===k?'on':''}">${t}${k==='alto'?'（主要）':''}</button>`).join('')}</div>`+
+    `<div class="row"><span>唱名</span>${Object.entries(NT).map(([k,t])=>`<button data-n="${k}" class="${SAVE.nt===k?'on':''}">${t}</button>`).join('')}</div><p class="ntx">${NTX[SAVE.nt]}</p>`;
+  function bindOpt(root){for(const b of root.querySelectorAll('[data-f]'))b.onclick=e=>{e.stopPropagation();SAVE.fs=b.dataset.f;save();applyFS();refreshAll();toast(SAVE.fs==='g'?'德式指法：'+nName(70,72-TR())+' 照順序按（拇指＋1 2 3 4）':'英式（巴洛克式）指法：'+nName(70,72-TR())+' 是叉指（拇指＋1 2 3 4 6 7）');};
+for(const b of root.querySelectorAll('[data-n]'))b.onclick=e=>{e.stopPropagation();SAVE.nt=b.dataset.n;save();refreshAll();};
+    for(const b of root.querySelectorAll('[data-i]'))b.onclick=e=>{e.stopPropagation();SAVE.inst=b.dataset.i;save();refreshAll();toast(SAVE.inst==='sop'?'換成高音直笛：全按＝Do，聲音高八度':'換成中音直笛：全按＝低音 Fa');};}
+  function refreshAll(){if(!panel.hidden)drawPanel();if(!chartEl.hidden)drawChart();if(M.on){buildKeys();showInfo();drawFlute();if(FL)FL.scale.setScalar(SAVE.inst==='sop'?0.8:1);}}
+  function drawPanel(){panel.querySelector('h3').textContent=`🎵 音樂教室・${INSTN[SAVE.inst]}`;
+    panel.querySelector('.opts').innerHTML=optRows()+`<div class="row"><span>操作</span><button data-o="simple" class="${SAVE.adv||SAVE.pm?'':'on'}">簡單：按唱名</button><button data-o="adv" class="${SAVE.adv?'on':''}">進階：點洞＋吹</button><button data-o="pm" class="${SAVE.pm?'on':''}">📱 手機直笛</button></div>`+
       `<div class="row"><span>速度</span>${[[0.6,'慢 60%'],[0.8,'中 80%'],[1,'原速']].map(([v,t])=>`<button data-s="${v}" class="${SAVE.spd===v?'on':''}">${t}</button>`).join('')}</div>`+
       `<div class="row"><button data-o="wait" class="${SAVE.wait?'on':''}">${SAVE.wait?'✅':'⬜'} 等我模式（音符到了會停下來，等你吹對再繼續）</button></div>`;
-    panel.querySelector('.lessons').innerHTML=LESSONS.map((L,i)=>`<button data-l="${i}">${L.n}<small>${L.nw.map(nName).join('、')}　${stars(SAVE.ls[i])||'還沒過'}</small></button>`).join('');
-    panel.querySelector('.songs').innerHTML=SONGS.map((S,i)=>`<div class="song"><div><b>${S.xmas?'🎄 ':''}${S.n}</b><small>${S.lv}・${S.key} 調・${S.used.length} 個音　${stars(SAVE.ss[S.id]||0)||(SAVE.ws[S.id]?'練習過 ✓':'')}</small></div><button class="d" data-d="${i}">👂 示範</button><button class="p" data-p="${i}">▶ 吹</button></div>`).join('');
+    panel.querySelector('.lessons').innerHTML=LESSONS.map((L,i)=>`<button data-l="${i}">${L.n}<small>${L.nw.map(m=>sciName(m)).join(' ')}　${stars(SAVE.ls[i])||'還沒過'}</small></button>`).join('');
+    panel.querySelector('.songs').innerHTML=SONGS.map((S,i)=>`<div class="song"><div><b>${S.xmas?'🎄 ':''}${S.n}</b><small>${S.lv}・${keyName(S)} 調・${S.used.length} 個音　${stars(SAVE.ss[S.id]||0)||(SAVE.ws[S.id]?'練習過 ✓':'')}</small></div><button class="d" data-d="${i}">👂 示範</button><button class="p" data-p="${i}">▶ 吹</button></div>`).join('');
     panel.querySelector('.prize').innerHTML=SAVE.gold?'🏆 已經得到金色直笛（現在吹的就是金色的）':'🏆 5 課都過關＋5 首歌 2 星以上 → <b>金色直笛</b>（放進教室的展示櫃）';
-    for(const b of panel.querySelectorAll('[data-o]'))b.onclick=e=>{e.stopPropagation();const o=b.dataset.o;if(o==='wait')SAVE.wait=!SAVE.wait;else SAVE.adv=o==='adv';save();drawPanel();};
+    bindOpt(panel);panel.querySelector('[data-x=chart]').onclick=e=>{e.stopPropagation();openChart();};
+    for(const b of panel.querySelectorAll('[data-o]'))b.onclick=e=>{e.stopPropagation();const o=b.dataset.o;if(o==='wait')SAVE.wait=!SAVE.wait;else{SAVE.adv=o==='adv';SAVE.pm=o==='pm';if(SAVE.pm)toast('手機直笛：手機直拿，左手按上面拇指、1 2 3，右手按 4 5 6 7；按住洞就出聲，同一個音要再吹一次就把一根手指放開再按');}save();drawPanel();};
     for(const b of panel.querySelectorAll('[data-s]'))b.onclick=e=>{e.stopPropagation();SAVE.spd=+b.dataset.s;save();drawPanel();};
     for(const b of panel.querySelectorAll('[data-l]'))b.onclick=e=>{e.stopPropagation();M.start('lesson',+b.dataset.l);};
     for(const b of panel.querySelectorAll('[data-p]'))b.onclick=e=>{e.stopPropagation();M.start('song',+b.dataset.p,false);};
     for(const b of panel.querySelectorAll('[data-d]'))b.onclick=e=>{e.stopPropagation();M.start('song',+b.dataset.d,true);};
     panel.querySelector('[data-x=free]').onclick=e=>{e.stopPropagation();M.start('free',0);};}
   panel.querySelector('[data-x=exit]').onclick=e=>{e.stopPropagation();panel.hidden=true;if(M.on)M.stop();};
+  // 基礎指法對照表（使用者要求）：13 個音的指法圖＋唱名＋音名＋按法，點一下聽聲音；跟歌曲時用那首歌的調
+  const chartEl=$('muChart');
+  for(const ev of ['click','mousedown','touchstart','pointerdown','wheel'])chartEl.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
+  const fShort=m=>{const f=FING[m];return (f[0]===1?'0':f[0]===0.5?'Ø':'-')+' '+[1,2,3].map(i=>f[i]?i:'-').join('')+' '+[4,5,6,7].map(i=>f[i]?i:'-').join('');};
+  function drawChart(){chartEl.querySelector('h3').textContent=`📖 ${INSTN[SAVE.inst]} 基礎指法對照表`+(M.on&&M.kind==='song'&&(SAVE.nt==='mov'||SAVE.nt==='num')?`（${M.S.n}：${keyName(M.S)} 調）`:'');
+    chartEl.querySelector('.opts').innerHTML=optRows();bindOpt(chartEl);
+    chartEl.querySelector('.leg').innerHTML=`不知道是英式還是德式？看笛子背面拇指洞附近：刻 <b>B</b>（Baroque）＝英式、刻 <b>G</b>（German）＝德式；或看課本「${nName(70,72-TR())}」的按法：拇指＋1 2 3 4 6 7＝英式、拇指＋1 2 3 4＝德式<br>`+'● 按住　○ 放開　◐ 拇指半開（留一條小縫）<br>0＝背面的拇指、1 2 3＝左手（上面）、4 5 6 7＝右手（下面）；6、7 是兩個小洞，要一起蓋住。點一下格子可以聽聲音';
+    const tg=M.on?target():0;
+    chartEl.querySelector('.cg').innerHTML=NOTES.map(m=>`<button class="fc${m===tg?' on':''}" data-m="${m}"><canvas></canvas><b style="color:${colOf(m)}">${nName(m)}</b><small>${SAVE.nt==='let'?fixName(m):sciName(m)}${showFix()?'<br>固定 '+fixName(m):''}</small><span class="fs">${fShort(m)}</span></button>`).join('');
+    const dpr=Math.min(2,devicePixelRatio||1);
+    for(const b of chartEl.querySelectorAll('.fc')){const m=+b.dataset.m,cv=b.querySelector('canvas'),w=cv.clientWidth||76,h=cv.clientHeight||150;cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);drawMini(g,w*0.58,4,h-8,m,{body:SAVE.gold?'#d9b24a':undefined});
+      b.onclick=e=>{e.stopPropagation();AUDIO.init&&AUDIO.init();vOn(m);clearTimeout(chartEl.tm);chartEl.tm=setTimeout(()=>{if(!M.cm)vOff();},650);};}}
+  function openChart(){chartEl.hidden=false;drawChart();}
+  chartEl.querySelector('[data-x=close]').onclick=e=>{e.stopPropagation();chartEl.hidden=true;};
 
   // ================= 開始／結束 =================
   let FL=null,flGold=null,savedView=null;
@@ -7957,14 +8045,14 @@ const MU=(()=>{
     if(kind==='lesson'){M.L=i;const L=LESSONS[i];M.ph='intro';M.q=[...L.nw];M.cur=M.q.shift();M.need=3;M.miss=0;M.qn=0;M.hint=false;M.trail=[];M.demoT=0.6;M.done=false;}
     else if(kind==='song'){const S=SONGS[i];M.S=S;M.si=i;M.demo=!!demo;M.wait=!demo&&SAVE.wait;M.bps=S.bpm/60*SAVE.spd;M.b=-S.bar-0.0001;M.J=new Uint8Array(S.notes.length);M.ji=0;M.di=0;M.paused=false;M.res=[0,0,0];M.wrong=0;M.endT=0;}
     else{M.hist=[];}
-    document.body.classList.add('mu');ui.hidden=false;ui.classList.toggle('adv',!!SAVE.adv);ui.dataset.kind=kind;blowB.hidden=!SAVE.adv;keysEl.hidden=!!SAVE.adv;
-    topEl.innerHTML=kind==='song'?(M.demo?'<button data-k="play">▶ 換我吹</button>':'<button data-k="demo">👂 聽示範</button>')+'<button data-k="again">↺ 重來</button><button data-k="exit">✕ 離開</button>':kind==='lesson'?'<button data-k="again">↺ 重來</button><button data-k="exit">✕ 離開</button>':'<button data-k="exit">✕ 離開</button>';
+    document.body.classList.add('mu');ui.hidden=false;ui.classList.toggle('adv',!!SAVE.adv);ui.classList.toggle('pm',!!SAVE.pm);pmEl.hidden=!SAVE.pm;ui.dataset.kind=kind;blowB.hidden=!SAVE.adv;keysEl.hidden=!!(SAVE.adv||SAVE.pm);buildKeys();
+    topEl.innerHTML=(kind==='song'?(M.demo?'<button data-k="play">▶ 換我吹</button>':'<button data-k="demo">👂 聽示範</button>')+'<button data-k="again">↺ 重來</button>':kind==='lesson'?'<button data-k="again">↺ 重來</button>':'')+'<button data-k="chart">📖 指法表</button><button data-k="exit">✕ 離開</button>';
     savedView=view;if(view!=='third'){view='third';syncViewUI();}
-    const gold=SAVE.gold;if(!FL||flGold!==gold){FL=fluteBuild(gold);flGold=gold;}avatar.root.add(FL);FL.position.set(0,1.605,0.13);FL.rotation.set(-0.52,0,0);
+    const gold=SAVE.gold;if(!FL||flGold!==gold){FL=fluteBuild(gold);flGold=gold;}avatar.root.add(FL);FL.position.set(0,1.605,0.13);FL.rotation.set(-0.52,0,0);FL.scale.setScalar(SAVE.inst==='sop'?0.8:1);   /* 高音直笛短一點 */
     resizeCv();drawFlute();showInfo();AUDIO.sfx('chime');
-    if(kind==='lesson')note(LESSONS[i].tip);else if(kind==='song')note(M.demo?`👂 示範：${M.S.n}（看左邊的指法）`:M.wait?'等我模式：音符到黃線會停下來，吹對了才繼續':`音符碰到黃線的時候吹！（${Math.round(SAVE.spd*100)}% 速度）`);else note(SAVE.adv?'點笛子的洞蓋住／放開，按住「吹」':'按下面的唱名按鈕吹，五線譜上會留下你吹的音');};
+    if(kind==='lesson')note(LESSONS[i].tip);else if(kind==='song')note(M.demo?`👂 示範：${M.S.n}（看左邊的指法）`:M.wait?'等我模式：音符到黃線會停下來，吹對了才繼續':`音符碰到黃線的時候吹！（${Math.round(SAVE.spd*100)}% 速度）`);else note(SAVE.pm?'手指按住洞（拇指在左邊），指法對了就會出聲':SAVE.adv?'點笛子的洞蓋住／放開，按住「吹」':'按下面的唱名按鈕吹，五線譜上會留下你吹的音');};
   function restart(demo){if(M.kind==='song')M.start('song',M.si,demo===undefined?M.demo:demo);else if(M.kind==='lesson')M.start('lesson',M.L);}
-  M.stop=quiet=>{if(!M.on)return;M.on=false;release();vOff();document.body.classList.remove('mu');ui.hidden=true;judgeEl.textContent='';
+  M.stop=quiet=>{if(!M.on)return;M.on=false;chartEl.hidden=true;clearTimeout(M.pmT);M.pmTh=0;M.pmHalf=0;pmEl.hidden=true;release();vOff();document.body.classList.remove('mu');ui.hidden=true;judgeEl.textContent='';
     if(FL&&FL.parent)FL.parent.remove(FL);const A=avatar;A.body.rotation.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);A.zeroJoints();
     if(savedView&&savedView!==view){view=savedView;syncViewUI();}savedView=null;avatar.root.visible=view==='third';
     for(const b of Object.values(KB))b.classList.remove('on');blowB.classList.remove('on');
@@ -7980,10 +8068,10 @@ const MU=(()=>{
   function release(){if(M.cm){M.cm=0;vOff();drawFlute();showInfo();}}
   function judgeTxt(t,c){judgeEl.textContent=t;judgeEl.style.color=c||'#fff';judgeEl.classList.remove('pop');void judgeEl.offsetWidth;judgeEl.classList.add('pop');}
   // 歌曲：按下的時間跟音符差多少（換算成秒）
-  function judge(m){const S=M.S,win=0.3*M.bps;
-    if(M.wait){const i=M.ji;if(i>=S.notes.length)return;const n=S.notes[i];if(n.t-M.b>win)return;if(n.m===m){M.J[i]=1;M.res[0]++;M.combo++;M.maxCombo=Math.max(M.maxCombo,M.combo);judgeTxt('對了！','#3fbf7a');M.paused=false;advJ();}
+  function judge(m){const S=M.S,win=0.3*M.bps,B=M.b-(M.pmLag||0)*M.bps;   /* 手機直笛：扣掉等手指的時間 */
+    if(M.wait){const i=M.ji;if(i>=S.notes.length)return;const n=S.notes[i];if(n.t-B>win)return;if(n.m===m){M.J[i]=1;M.res[0]++;M.combo++;M.maxCombo=Math.max(M.maxCombo,M.combo);judgeTxt('對了！','#3fbf7a');M.paused=false;advJ();}
       else{M.wrong++;M.combo=0;judgeTxt(`不對喔，是 ${nName(n.m)}`,'#c8282e');}return;}
-    let best=-1,bd=1e9;for(let i=M.ji;i<S.notes.length;i++){const n=S.notes[i];if(n.t-M.b>win)break;if(M.J[i])continue;const d=Math.abs(n.t-M.b);if(d<=win&&d<bd){bd=d;best=i;}}
+    let best=-1,bd=1e9;for(let i=M.ji;i<S.notes.length;i++){const n=S.notes[i];if(n.t-B>win)break;if(M.J[i])continue;const d=Math.abs(n.t-B);if(d<=win&&d<bd){bd=d;best=i;}}
     if(best<0)return;const n=S.notes[best];
     if(n.m!==m){M.wrong++;judgeTxt(`音不對（是 ${nName(n.m)}）`,'#c8282e');return;}
     const sec=bd/M.bps,pf=sec<0.1;M.J[best]=pf?1:2;M.res[pf?0:1]++;M.combo++;M.maxCombo=Math.max(M.maxCombo,M.combo);judgeTxt(pf?(M.combo>=5?`完美！${M.combo} 連擊`:'完美！'):'不錯',pf?'#ffd23a':'#7fd4ff');advJ();}
@@ -8001,7 +8089,7 @@ const MU=(()=>{
 
   // ================= 每格 =================
   const menuEl=$('menu');
-  M.step=dt=>{if(!M.on)return;player.vel.set(0,0);player.pos.set(H.pad.x,H.pad.z);player.y=0;if(!menuEl.hidden)return;   /* 選單打開時暫停 */
+  M.step=dt=>{if(!M.on)return;player.vel.set(0,0);player.pos.set(H.pad.x,H.pad.z);player.y=0;if(!menuEl.hidden||!chartEl.hidden)return;   /* 指法表打開時也暫停 */   /* 選單打開時暫停 */
     M.time+=dt;M.sway=Math.max(0,M.sway-dt*1.5);
     if(M.kind==='song')songStep(dt);else if(M.kind==='lesson')lessonStep(dt);
     drawStaff();};
@@ -8025,17 +8113,17 @@ const MU=(()=>{
   // ================= 五線譜 =================
   function resizeCv(){const dpr=Math.min(2,devicePixelRatio||1);for(const cv of [staff,flute]){const w=Math.round(cv.clientWidth*dpr),h=Math.round(cv.clientHeight*dpr);if(w&&h&&(cv.width!==w||cv.height!==h)){cv.width=w;cv.height=h;}}}
   addEventListener('resize',()=>{if(M.on){resizeCv();drawFlute();}});
-  function head(g,x,y,gap,col,flat){g.fillStyle=col;g.beginPath();g.ellipse(x,y,gap*0.62,gap*0.46,-0.35,0,Math.PI*2);g.fill();if(flat){g.font=`900 ${gap*1.5}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText('♭',x-gap*1.25,y-gap*0.2);}}
+  function head(g,x,y,gap,col,acc){g.fillStyle=col;g.beginPath();g.ellipse(x,y,gap*0.62,gap*0.46,-0.35,0,Math.PI*2);g.fill();if(acc){g.font=`900 ${gap*1.5}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText(acc,x-gap*1.25,y-gap*0.2);}}   /* acc：♭／♯ */
   function ledger(g,x,s,y0,gap){g.strokeStyle='#555';g.lineWidth=Math.max(1,gap*0.08);for(let L=10;L<=s;L+=2){g.beginPath();g.moveTo(x-gap*1.05,y0-L*gap/2);g.lineTo(x+gap*1.05,y0-L*gap/2);g.stroke();}for(let L=-2;L>=s;L-=2){g.beginPath();g.moveTo(x-gap*1.05,y0-L*gap/2);g.lineTo(x+gap*1.05,y0-L*gap/2);g.stroke();}}
   function drawStaff(){resizeCv();const dpr=staff.width/Math.max(1,staff.clientWidth),W=staff.clientWidth,Hh=staff.clientHeight;if(!W)return;const g=sctx;g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,Hh);
-    const gap=Hh*0.085,y0=Hh*0.6,hitX=Math.max(70,W*0.2),lab=y0+gap*1.75;
+    const sop=SAVE.inst==='sop',gap=Hh*(sop?0.072:0.085),y0=Hh*(sop?0.74:0.6),hitX=Math.max(70,W*0.2),lab=y0+gap*1.75;   /* 高音直笛的音比較高（到高音 Sol），五線譜往下移 */
     g.fillStyle='rgba(255,252,242,0.95)';g.beginPath();g.roundRect(0,0,W,Hh,14);g.fill();
     g.strokeStyle='#8a8478';g.lineWidth=Math.max(1,gap*0.07);for(let k=0;k<5;k++){g.beginPath();g.moveTo(8,y0-k*gap);g.lineTo(W-8,y0-k*gap);g.stroke();}
     g.fillStyle='#4a4438';g.font=`${gap*6}px "Segoe UI Symbol","Noto Music","Noto Sans Symbols 2","Apple Symbols",serif`;g.textAlign='left';g.textBaseline='alphabetic';g.fillText('𝄞',6,y0+gap*1.3);
     const drawNote=(x,m,d,ppb,st,big,hide)=>{const s=stepOf(m),y=y0-s*gap/2,c=colOf(m),k=big?1.35:1;
       if(d&&ppb){g.globalAlpha=st===3?0.15:0.28;g.fillStyle=c;g.beginPath();g.roundRect(x,y-gap*0.28,Math.max(2,d*ppb-gap*0.5),gap*0.56,gap*0.28);g.fill();g.globalAlpha=1;}
-      ledger(g,x,s,y0,gap*k);g.globalAlpha=st===3?0.3:1;head(g,x,y,gap*k,st===3?'#9aa1a8':c,NN[m][0]==='Si♭');
-      g.fillStyle=st===3?'#9aa1a8':c;g.textAlign='center';g.textBaseline='middle';g.font=`900 ${gap*(big?1.5:1.15)}px ${FONT}`;g.fillText(hide?'？':NN[m][0],x,lab);if(NN[m][2]&&!hide){g.font=`700 ${gap*0.75}px ${FONT}`;g.fillText(NN[m][2]<0?'低':'高',x,lab+gap*1.05);}
+      ledger(g,x,s,y0,gap*k);g.globalAlpha=st===3?0.3:1;head(g,x,y,gap*k,st===3?'#9aa1a8':c,accOf(m));
+      g.fillStyle=st===3?'#9aa1a8':c;g.textAlign='center';g.textBaseline='middle';g.font=`900 ${gap*(big?1.5:1.15)}px ${FONT}`;const nn=nm(m);g.fillText(hide?'？':nn.t,x,lab);if(nn.o&&!hide){g.font=`700 ${gap*0.75}px ${FONT}`;g.fillText(nn.o<0?'低':'高',x,lab+gap*1.05);}
       if(st===1||st===2){g.fillStyle=st===1?'#e8a000':'#2a9fd8';g.font=`900 ${gap*1.1}px ${FONT}`;g.fillText(st===1?'★':'✓',x,y-gap*1.4);}g.globalAlpha=1;};
     if(M.kind==='song'){const S=M.S,ppb=cl(W/9,46,92),b=M.b;
       g.strokeStyle='rgba(0,0,0,0.25)';g.lineWidth=1.5;for(let bt=S.off+Math.ceil((b-S.off-hitX/ppb)/S.bar)*S.bar;bt<b+W/ppb;bt+=S.bar){const x=hitX+(bt-b)*ppb;if(x<40||bt>S.len+0.01)continue;g.beginPath();g.moveTo(x,y0);g.lineTo(x,y0-4*gap);g.stroke();}
@@ -8072,13 +8160,13 @@ const MU=(()=>{
     g.fillStyle='#6a5a4a';g.font=`700 ${Math.max(10,r*0.75)}px ${FONT}`;g.fillText('左手',W*0.22,(HY[1]+HY[3])/2*Hh+r*2.4);g.fillText('右手',W*0.22,(HY[4]+HY[7])/2*Hh);
     if(M.kind==='lesson'&&M.ph==='quiz'&&!M.hint){g.fillStyle='rgba(255,252,242,0.85)';g.fillRect(4,Hh*0.2,W-8,Hh*0.72);g.fillStyle='#8a7a6a';g.font=`900 ${W*0.4}px ${FONT}`;g.fillText('?',W/2,Hh*0.55);g.font=`700 ${Math.max(10,W*0.09)}px ${FONT}`;g.fillText('自己想想看',W/2,Hh*0.78);}}
   M.drawFlute=drawFlute;
-  function showInfo(){const tg=target()||M.cm||(SAVE.adv?M.advM:0);let h='';
-    if(M.kind==='lesson'&&M.ph==='quiz'&&!M.hint){h=SAVE.adv?`<b style="color:${colOf(M.cur)}">${nName(M.cur)}</b><small>想想看指法，吹吹看</small>`:`<b>？</b><small>看五線譜：這個音是什麼？</small>`;}
-    else if(tg){h=`<b style="color:${colOf(tg)}">${nName(tg)}</b><small>音名 ${NN[tg][1]}${NN[tg][2]<0?'（低）':NN[tg][2]>0?'（高）':''}</small><small>${fingText(tg)}</small>${TIP[tg]?`<small class="tip">💡 ${TIP[tg]}</small>`:''}`;}
+  function showInfo(){const tg=target()||M.cm||(SAVE.adv||SAVE.pm?M.advM:0);let h='';
+    if(M.kind==='lesson'&&M.ph==='quiz'&&!M.hint){h=SAVE.adv||SAVE.pm?`<b style="color:${colOf(M.cur)}">${nName(M.cur)}</b><small>想想看指法，吹吹看</small>`:`<b>？</b><small>看五線譜：這個音是什麼？</small>`;}
+    else if(tg){h=`<b style="color:${colOf(tg)}">${nName(tg)}</b><small>${SAVE.nt==='let'?'固定唱名 '+fixName(tg):'音名 '+sciName(tg)}${showFix()?'・固定 '+fixName(tg):''}</small><small>${fingText(tg)}</small>${TIP[tg]?`<small class="tip">💡 ${TIP[tg]}</small>`:''}`;}
     else h=`<b>♪</b><small>${SAVE.adv?'點笛子的洞、按住「吹」':'按下面的唱名'}</small>`;
     if(M.kind==='song'&&!M.demo&&M.cm&&M.cm!==tg)h+=`<small>你吹的：${nName(M.cm)}</small>`;
     if(M.tip)h+=`<small class="tip2">${M.tip}</small>`;
-    info.innerHTML=h;for(const m in KB)KB[m].classList.toggle('tg',+m===tg&&!M.demo&&!(M.kind==='lesson'&&M.ph==='quiz'&&!M.hint));}
+    info.innerHTML=h;pmDraw(target());for(const m in KB)KB[m].classList.toggle('tg',+m===tg&&!M.demo&&!(M.kind==='lesson'&&M.ph==='quiz'&&!M.hint));}
 
   // ================= 人物：雙手拿直笛（兩隻手臂用簡單的反覆逼近找角度，開始時算一次） =================
   const TW=new V3(),HW=new V3();
@@ -8102,9 +8190,9 @@ const MU=(()=>{
 
   // ================= 鍵盤 =================
   const HOLEK={KeyQ:'h',KeyA:0,KeyS:1,KeyD:2,KeyF:3,KeyJ:4,KeyK:5,KeyL:6,Semicolon:7};
-  M.key=(e,down)=>{if(!M.on)return false;if(down&&e.code==='Escape'){M.stop();M.pickPanel();return true;}
-    if(SAVE.adv){if(e.code==='Space'){M.blowK=down;blowB.classList.toggle('on',down);advEval();return true;}const h=HOLEK[e.code];if(h!==undefined){if(h==='h')M.kh[0]=down?0.5:0;else M.kh[h]=down?1:0;advEval();return true;}}
-    else{const m=KEYMAP[e.code];if(m){if(down&&!e.repeat){KB[m].classList.add('on');press(m);}else if(!down){KB[m].classList.remove('on');if(M.cm===m)release();}return true;}}
+  M.key=(e,down)=>{if(!M.on)return false;if(!chartEl.hidden){if(down&&e.code==='Escape')chartEl.hidden=true;return true;}if(down&&e.code==='Escape'){M.stop();M.pickPanel();return true;}
+    if(SAVE.adv||SAVE.pm){if(e.code==='Space'&&SAVE.adv){M.blowK=down;blowB.classList.toggle('on',down);advEval();return true;}const h=HOLEK[e.code];if(h!==undefined){if(e.repeat)return true;if(h==='h')M.kh[0]=down?0.5:0;else M.kh[h]=down?1:0;if(SAVE.pm)pmEval(down);else advEval();return true;}}
+    else{const m=KEYMAP[e.code];if(m&&KB[m]){if(down&&!e.repeat){KB[m].classList.add('on');press(m);}else if(!down){KB[m].classList.remove('on');if(M.cm===m)release();}return true;}}
     return ['Space','KeyF','KeyV','KeyC','KeyM','KeyW','KeyE','KeyR','Tab'].includes(e.code);};
 
   // ================= 不管有沒有在玩：發光圈、演奏紀錄、金色直笛上架、窗外天色 =================
@@ -8125,7 +8213,7 @@ const MU=(()=>{
   M.fx=dt=>{if(!SPD.length&&!SP.count)return;for(let i=SPD.length-1;i>=0;i--){const p=SPD[i];p.t+=dt;if(p.t>1.2){SPD.splice(i,1);continue;}p.vy-=6*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;}
     SPD.forEach((p,i)=>{T4.makeRotationY(p.t*8);T4.setPosition(p.x,p.y,p.z);SP.setMatrixAt(i,T4);SP.setColorAt(i,TC.set(p.c));});SP.count=SPD.length;SP.instanceMatrix.needsUpdate=true;if(SP.instanceColor)SP.instanceColor.needsUpdate=true;};
   function note(t){M.tip=t;showInfo();}
-  M.dbg=()=>({M,V,FING,BYF,NN,SONGS,LESSONS,REC,CASE,press,release,advEval,judge,stepOf});   /* 測試用 */
+  M.dbg=()=>({applyFS,TIP,pmEval,pmDraw,PMB,M,V,FING,BYF,NN,SONGS,LESSONS,REC,CASE,press,release,advEval,judge,stepOf,nm,nName,buildKeys,KEYMAP,KB,openChart,drawChart,chartEl,SAVE});   /* 測試用 */
   // 選單「小遊戲 → 音樂教室」
   $('muMenu').onclick=()=>{menuEl.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(H.pad.x,H.pad.z-1.6,Math.PI);setTimeout(()=>M.pickPanel(),400);};
   return M;})();
