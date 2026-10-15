@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-15.12"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-15.13"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -577,7 +577,20 @@
   #netFx{position:fixed;left:50%;top:calc(42px + var(--sat));transform:translateX(-50%);z-index:13;background:#e0408a;color:#fff;border:2px solid #fff;border-radius:18px;padding:5px 14px;font-size:14px;font-weight:900;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.35)}
   #netFx.near{animation:netPulse 1s ease-in-out infinite;font-size:16px;padding:7px 18px}@keyframes netPulse{50%{transform:translateX(-50%) scale(1.1)}}
   body.gaming #netFx,body.sb #netFx,body.rb #netFx,body.nm #netFx,body.rc #netFx,body.tn #netFx,body.cu #netFx,body.dd #netFx,body.mu #netFx{display:none}
-  #netFx[hidden],#netFxP[hidden]{display:none!important}
+  #netFx[hidden],#netFxP[hidden],#netChatB[hidden],#netChat[hidden],#netChatB i[hidden]{display:none!important}
+  #netChatB{position:fixed;left:50%;top:calc(80px + var(--sat));transform:translateX(-50%);z-index:13;background:#1f6fe0;color:#fff;border:2px solid #fff;border-radius:18px;padding:4px 14px;font-size:14px;font-weight:900;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+  #netChatB i{position:absolute;right:-6px;top:-7px;min-width:20px;height:20px;border-radius:10px;background:#e0262c;color:#fff;font-style:normal;font-size:12px;line-height:20px;text-align:center;border:2px solid #fff;padding:0 3px}
+  body.gaming #netChatB,body.sb #netChatB,body.rb #netChatB,body.nm #netChatB,body.rc #netChatB,body.tn #netChatB,body.cu #netChatB,body.dd #netChatB,body.mu #netChatB{display:none}
+  body.touch #netChatB{left:auto;right:calc(12px + var(--sar));top:calc(132px + var(--sat));transform:none}
+  #netChat{position:fixed;right:calc(12px + var(--sar));top:calc(56px + var(--sat));z-index:41;width:min(380px,94vw);height:min(520px,70vh);padding:10px 12px;display:flex;flex-direction:column;gap:8px;color:#fff;background:rgba(18,24,30,.95)!important}
+  body.touch #netChat{left:50%;right:auto;transform:translateX(-50%);top:calc(8px + var(--sat));height:min(470px,56vh)}   /* 手機：放上半部，鍵盤跳出來也看得到 */
+  #netChat .hd{display:flex;align-items:center;gap:8px;font-size:17px}#netChat .hd .cnt{flex:1;font-size:12px;opacity:.75}#netChat .hd button{width:34px;height:34px;padding:0;border-radius:50%;background:#2b3440;color:#fff;border:1.5px solid #6c7a8a;font-size:16px}
+  #netChat .log{flex:1;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;-webkit-user-select:text;user-select:text;touch-action:pan-y}
+  #netChat .m{background:rgba(255,255,255,.08);border-radius:10px;padding:5px 9px;max-width:88%;align-self:flex-start}#netChat .m.me{align-self:flex-end;background:rgba(217,144,0,.22)}
+  #netChat .m b{font-size:13px}#netChat .m .t{font-size:11px;opacity:.6;margin-left:6px}#netChat .m .tx{font-size:16px;line-height:1.35;word-break:break-word}#netChat .sys{align-self:center;font-size:12px;opacity:.7}
+  #netChat .quick{display:flex;gap:5px;overflow-x:auto;flex:none;padding-bottom:2px}#netChat .quick button{flex:none;background:#2b3440;color:#fff;border:1.5px solid #6c7a8a;border-radius:14px;padding:5px 10px;font-size:13px;font-weight:800}
+  #netChat .in,#netFxP .in{display:flex;gap:6px;flex:none}#netChat .in input,#netFxP .in input{flex:1;min-width:0;background:#0f1418;color:#fff;border:1.5px solid #6c7a8a;border-radius:10px;padding:9px 10px;font-size:16px;-webkit-user-select:text;user-select:text}
+  #netChat .in button{background:#e0408a;color:#fff;border:1.5px solid #ffb3d4;border-radius:10px;padding:8px 14px;font-size:15px;font-weight:900}#netFxP .in button{background:#e0408a!important;border-color:#ffb3d4!important}#netFxP button.chat{background:#1f6fe0!important;border-color:#9fc4ff!important}
   #netPanel label.row{flex-wrap:nowrap;font-size:14px;align-items:flex-start}#netPanel label.row input{flex:none;margin-top:3px}
   body.touch #netChip{left:auto;right:calc(12px + var(--sar));top:calc(62px + var(--sat));transform:none}   /* 手機：放在上面那排按鈕下面（原本在正中間會蓋到按鈕） */
   body.touch #netFx{left:auto;right:calc(12px + var(--sar));top:calc(94px + var(--sat));transform:none}body.touch #netFx.near{animation:netPulse2 1s ease-in-out infinite}@keyframes netPulse2{50%{transform:scale(1.08)}}
@@ -604,6 +617,11 @@
   #netInv .row{display:flex;gap:10px;justify-content:center}#netInv button{flex:1;border-radius:10px;padding:10px;font-size:16px;font-weight:800;border:1px solid var(--line);background:var(--panel-2);color:inherit}#netInv button.ok{background:#e0408a!important;border-color:#ffb3d4!important;color:#fff}
   #ddVs{position:absolute;left:50%;top:calc(46px + var(--sat));transform:translateX(-50%);z-index:3;background:rgba(10,14,30,.75);border:1px solid rgba(255,255,255,.35);border-radius:12px;padding:5px 12px;color:#fff;font-size:13px;font-weight:800;text-align:center;white-space:nowrap;pointer-events:none}
   #ddVs b{font-size:16px;color:#ffd23a}#ddVs .me b{color:#7fe0ff}#ddVs .res{font-size:18px;color:#ffe14a}
+  #ddVs{white-space:normal;max-width:min(96vw,640px)}body.touch.dd #netChip{display:none!important}@media (max-width:600px) and (orientation:portrait){#ddVs{top:calc(4px + var(--sat));font-size:12px;padding:3px 8px;max-width:calc(100vw - 120px)}#ddVs b{font-size:13px}#ddUI #ddVs .rk{display:grid;grid-template-columns:auto auto;gap:0 10px;justify-items:start}#ddVs .rk i{min-width:15px;height:15px;line-height:15px;font-size:11px}#ddVs .res{font-size:14px}}   /* 手機直拿：名次列放最上面、小一點 */
+  #ddVs.side{top:auto;bottom:calc(64px + var(--sab));padding:6px 10px}#ddVs.side .rk{flex-direction:column;align-items:flex-start;gap:2px}#ddVs.side .res{font-size:15px}#ddVs .rk{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center}#ddVs .rk span{white-space:nowrap}#ddVs .rk span.q{opacity:.55}
+  #ddVs .rk i{font-style:normal;display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:50%;background:#ffd23a;color:#222;font-size:12px;text-align:center;margin-right:4px}#ddVs .rk span.me{color:#7fe0ff}
+  #ddVs .rk em{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:3px;border:1px solid #fff}#ddVs .rk small{margin-left:3px;color:#ffb27f}
+  #netInv .who{display:flex;flex-direction:column;gap:4px;text-align:left;margin:0 auto}#netInv .who i{display:inline-block;width:10px;height:10px;border-radius:50%;border:1px solid #fff;margin-right:6px}
 </style>
 </head>
 <body>
@@ -9269,9 +9287,13 @@ const DD=(()=>{
   function resize(){dpr=Math.min(2,devicePixelRatio||1);const W=innerWidth,H=innerHeight,por=H>W*1.1;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
     const cs=getComputedStyle(document.documentElement),sv=n=>parseFloat(cs.getPropertyValue(n))||0,sat=sv('--sat'),sal=sv('--sal'),sab=sv('--sab');
     const ph=por?Math.round(Math.min(130,H*0.16)):Math.round(Math.min(96,H*0.22)),padH=isTouch&&por?ph+14:0;
-    const lw=por?Math.min(W*0.215,118):Math.min(H*0.15,W*0.095,110);
+    let lw=por?Math.min(W*0.215,118):Math.min(H*0.15,W*0.095,110);const K=D.ops?D.ops.length:0,opOn=K>0&&(por?W>=700:W>=900);
+    if(opOn&&por)lw=Math.min(lw,(W-sal-40-W*(K>1?0.46:0.36))/4);   /* 平板直拿：自己的跑道縮一點，右邊留給別人 */
     LY.W=W;LY.H=H;LY.por=por;LY.lw=lw;LY.x0=por?(W-4*lw)/2:sal+Math.max(12,W*0.03);LY.top=sat+(por?100:62);LY.ry=LY.top+30+lw*0.55;LY.by=H-(por?padH+sab:0);
-    LY.op=!!D.op&&(por?W>=700:W>=900);if(LY.op){const sar=sv('--sar');if(por)LY.x0=sal+16;LY.olw=por?Math.min(lw*0.55,(W-LY.x0-4*lw-sar-40)/4):lw*0.62;LY.ox0=W-sar-Math.max(12,W*0.03)-4*LY.olw;}topEl.style.right=LY.op?`${Math.round(W-LY.ox0+14)}px`:'';   /* 「重來／結束」移到對方跑道左邊，不要蓋到對方的名字、血條 */
+    LY.op=opOn;if(LY.op){const sar=sv('--sar'),m=Math.max(12,W*0.03);if(por)LY.x0=sal+16;   /* 別人的跑道從右邊往左排（1～3 條） */
+      const room=por?W-sar-m-(LY.x0+4*lw)-24:W-sar-m-(LY.x0+4*lw)-(K>1?150:220);LY.olw=Math.min(lw*(por?0.55:0.62),room/(4*K+0.6*(K-1)));
+      LY.oxs=[];let x=W-sar-m;for(let k=0;k<K;k++){x-=4*LY.olw;LY.oxs.push(x);x-=0.6*LY.olw;}LY.ox0=LY.oxs[K-1];}{const side=LY.op&&!por,mid=(LY.x0+4*lw+(LY.ox0||W))/2,room=(LY.ox0||W)-(LY.x0+4*lw);topEl.style.right=LY.op?`${Math.round(W-LY.ox0+14)}px`:'';topEl.style.top=side?'auto':'';topEl.style.bottom=side?`${Math.round(14+sab)}px`:'';   /* 「重來／結束」移到對方跑道左邊（橫的放下面），不要蓋到名字、分數 */
+      const vs=document.getElementById('ddVs');if(vs){vs.classList.toggle('side',side);vs.style.left=side?`${Math.round(mid)}px`:'';vs.style.maxWidth=side?`${Math.round(Math.max(150,room-16))}px`:'';}}   /* 名次列：橫的時候放在中間舞台的下面，直的一個一個排 */   /* 「重來／結束」移到對方跑道左邊，不要蓋到對方的名字、血條 */
     LY.avU=por?0:((LY.x0+4*lw+(LY.op?LY.ox0:W))/2)/W*2-1;padEl.style.setProperty('--pw',por?`${Math.floor((W-sal-36)/4)}px`:`${ph}px`);padEl.style.setProperty('--ph',`${ph}px`);
     makeSprites();}
   addEventListener('resize',()=>{if(D.on)resize();});
@@ -9363,7 +9385,7 @@ const DD=(()=>{
     for(let l=0;l<4;l++)if(D.flash)D.flash[l]=Math.max(0,D.flash[l]-dt*6);
     if(!D.play){D.idleT+=dt;D.beat=D.idleT*2;bgTick(dt);draw();return;}
     pause(!menuEl.hidden&&!(D.vsLive&&D.vsLive()));if(D.paused){draw();return;}   /* 連線對戰中：選單打開也不暫停（兩邊才不會不同步） */
-    if(D.op){for(const q of D.op.boom)q.t+=dt;D.op.boom=D.op.boom.filter(q=>q.t<0.25);if(D.op.jd)D.op.jd.t+=dt;}
+    if(D.ops)for(const o of D.ops){for(const q of o.boom)q.t+=dt;o.boom=o.boom.filter(q=>q.t<0.25);if(o.jd)o.jd.t+=dt;}
     const T=songT();D.beat=T*D.bps;mzPump();
     if(D.auto){for(let l=0;l<4;l++)if(D.autoUp[l]&&T>=D.autoUp[l]){D.autoUp[l]=0;release(l);}
       for(let i=D.ji;i<NT.length;i++){const n=NT[i];if(n.t>T)break;if(!n.j){if(D.down[n.lane])release(n.lane);D.autoP=true;press(n.lane);D.autoP=false;if(!n.j)hit(n,1,0);D.autoUp[n.lane]=n.hb?n.ht+0.03:T+0.09;}}}   /* 示範：一定 PERFECT（手機卡一下也不會漏） */
@@ -9427,26 +9449,27 @@ const DD=(()=>{
       if(D.combo>=4&&q.j<=3){const f2=Math.round(fs*0.62);g.font=`italic 900 ${f2}px ${FONT}`;g.lineWidth=4;g.strokeText(`${D.combo} COMBO`,cxm,jy+fs*0.9);g.fillStyle='#ffd23a';g.fillText(`${D.combo} COMBO`,cxm,jy+fs*0.9);}g.globalAlpha=1;}
     // 開始：READY? → GO!
     const fa=Math.min(8,NT.length?NT[0].b:4);if(b<fa){const txt=b<fa-2?'READY?':'GO!';g.font=`italic 900 ${Math.round(Math.min(lw*0.7,54))}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.lineWidth=6;g.strokeStyle='#000';g.strokeText(txt,cxm,ry+lw*3.6);g.fillStyle=txt==='GO!'?'#35ff7a':'#ffe14a';g.fillText(txt,cxm,ry+lw*3.6);}
-    if(D.op&&LY.op)drawOp(g,T);
+    if(D.ops&&LY.op)D.ops.forEach((o,k)=>drawOp(g,T,o,LY.oxs[k]));
     // 進度
     {const p=cl(T/(DL.total/D.bps),0,1);g.fillStyle='rgba(255,255,255,0.2)';g.fillRect(x0,LY.top+19,lw*4,3);g.fillStyle='#ff5fb0';g.fillRect(x0,LY.top+19,lw*4*p,3);}}
 
 
   // ================= 連線對戰：對方的跑道（寬螢幕才畫；2026-10-15.11） =================
   // 兩邊同一首同一難度，譜面一樣：只要知道對方的時間點（ddSc 送來的 T）＋對方每次的判定（ddLn），就能在這邊畫出對方的跑道
-  D.opStart=name=>{if(!D.play)return;D.op={name,J:new Uint8Array(NT.length),ji:0,boom:[],jd:null,dT:null};resize();};
-  D.opStop=()=>{if(!D.op)return;D.op=null;if(D.on)resize();};
-  D.opJudge=a=>{const o=D.op;if(!o||!a)return;const i=a[0]|0,j=a[1]|0;if(i<0||i>=NT.length)return;o.J[i]=j;if(j<=3)o.boom.push({l:NT[i].lane,t:0,j});o.jd={j,t:0};};
-  D.opSpot=()=>({x:P.x+1.1,y:P.y+0.03,z:P.z-0.25});   /* 對方的人物站在舞台旁邊 */
-  function drawOp(g,T){const o=D.op,lw=LY.olw,x0=LY.ox0,ry=LY.ry,H=LY.H,s=SPR.s*lw/LY.lw,info=(D.opInfo&&D.opInfo())||{},w=lw*4;
+  D.opStart=list=>{if(!D.play||!list||!list.length)return;D.ops=list.slice(0,3).map(p=>({id:p.id,name:p.name,col:p.col,J:new Uint8Array(NT.length),ji:0,boom:[],jd:null,dT:null}));resize();};   /* 2026-10-15.13：最多 3 個對手 */
+  D.opStop=()=>{if(!D.ops)return;D.ops=null;if(D.on)resize();};
+  D.opJudge=(id,a)=>{const o=D.ops&&D.ops.find(x=>x.id===id);if(!o||!a)return;const i=a[0]|0,j=a[1]|0;if(i<0||i>=NT.length)return;o.J[i]=j;if(j<=3)o.boom.push({l:NT[i].lane,t:0,j});o.jd={j,t:0};};
+  const SPOTS=[[1.1,-0.25],[-1.1,-0.25],[2.2,-0.55]];D.opSpot=k=>{const s=SPOTS[k]||SPOTS[0];return {x:P.x+s[0],y:P.y+0.03,z:P.z+s[1]};};   /* 別人的人物站在舞台兩邊 */
+  const opCx=()=>{const K=D.ops?D.ops.length:0;if(!K)return 0;let s=0;for(let k=0;k<K;k++)s+=SPOTS[k][0];return s/(K+1);};   /* 鏡頭對準大家的中間 */
+  function drawOp(g,T,o,x0){const lw=LY.olw,ry=LY.ry,H=LY.H,s=SPR.s*lw/LY.lw,info=(D.opInfo&&D.opInfo(o.id))||{},w=lw*4,fs=Math.round(cl(lw*0.34,10,14));
     g.fillStyle='rgba(0,0,0,0.3)';g.fillRect(x0-5,0,w+10,H);
     {const y=LY.top,lf=info.lf!=null?info.lf:0.5;g.fillStyle='#111';g.fillRect(x0-2,y-2,w+4,14);const gr=g.createLinearGradient(x0,0,x0+w,0);gr.addColorStop(0,'#ff2a6a');gr.addColorStop(0.5,'#ffd23a');gr.addColorStop(1,'#35ff7a');g.fillStyle=gr;g.fillRect(x0,y,w*cl(lf,0,1),10);
-      g.font=`900 14px ${FONT}`;g.textBaseline='bottom';g.textAlign='left';g.lineWidth=3;g.strokeStyle='#000';g.fillStyle='#7fe0ff';const nm='🆚 '+o.name;g.strokeText(nm,x0,y-4);g.fillText(nm,x0,y-4);
-      g.textBaseline='top';g.textAlign='right';g.fillStyle='#ffe14a';g.font=`900 13px ${FONT}`;const sc=String(info.sc||0).padStart(7,'0');g.strokeText(sc,x0+w,y+14);g.fillText(sc,x0+w,y+14);}
+      g.font=`900 ${fs}px ${FONT}`;g.textBaseline='bottom';g.textAlign='left';g.lineWidth=3;g.strokeStyle='#000';g.fillStyle=o.col||'#7fe0ff';const nm=o.name;g.strokeText(nm,x0,y-4,w);g.fillStyle='#fff';g.fillText(nm,x0,y-4,w);g.fillStyle=o.col||'#7fe0ff';g.fillRect(x0,y-3,w,2);
+      g.textBaseline='top';g.textAlign='right';g.fillStyle='#ffe14a';g.font=`900 ${fs-1}px ${FONT}`;const sc=info.quit?'離開了':String(info.sc||0).padStart(7,'0');g.strokeText(sc,x0+w,y+14,w);g.fillText(sc,x0+w,y+14,w);}
     for(let l=0;l<4;l++){g.save();g.translate(x0+lw*(l+0.5),ry);g.rotate(ROT[l]);g.drawImage(SPR.rec,-s/2,-s/2,s,s);g.restore();}
     let To=T;if(info.T&&info.at&&!info.end){const est=info.T+(performance.now()-info.at)/1000,d=cl(est-T,-0.6,0.6);o.dT=o.dT==null?d:o.dT*0.92+d*0.08;To=T+o.dT;}
     const pps=(LY.by-ry)/(2.6/SAVE.spd);while(o.ji<NT.length&&NT[o.ji].t<To-1)o.ji++;
-    for(let i=o.ji;i<NT.length;i++){const n=NT[i],y=ry+(n.t-To)*pps;if(y>H+s)break;const j=o.J[i];if(j&&j<5)continue;if(y<-s)continue;
+    if(!info.end)for(let i=o.ji;i<NT.length;i++){   /* 跳完／失敗／離開了：箭頭不用再跑 */const n=NT[i],y=ry+(n.t-To)*pps;if(y>H+s)break;const j=o.J[i];if(j&&j<5)continue;if(y<-s)continue;
       g.save();g.translate(x0+lw*(n.lane+0.5),y);g.rotate(ROT[n.lane]);if(j===5||(!j&&n.t<To-0.3))g.globalAlpha=0.35;g.drawImage(n.hb?SPR.n[4]:SPR.n[n.col],-s/2,-s/2,s,s);g.restore();}
     for(const q of o.boom){const x=x0+lw*(q.l+0.5),k=q.t/0.25,c=q.j===1?'255,230,80':q.j===2?'80,255,120':'80,180,255';g.globalAlpha=1-k;g.strokeStyle=`rgb(${c})`;g.lineWidth=4*(1-k)+2;g.beginPath();g.arc(x,ry,s*(0.45+0.5*k),0,Math.PI*2);g.stroke();g.globalAlpha=1;}
     const cxm=x0+w/2,jy=ry+lw*2.3;
@@ -9481,9 +9504,9 @@ const DD=(()=>{
     a.hand(1,'fist');a.hand(-1,'fist');BLOB.scale.setScalar(1-0.25*hop);};
   // 鏡頭：從機台這邊看人物正面；橫的時候人物放在右邊（左邊是箭頭）
   const CP=new V3(),CL=new V3();
-  D.camera=dt=>{const asp=camera.aspect||1.6,tf=Math.tan(camera.fov*Math.PI/360),b=D.beat||0,sw=Math.sin(b*Math.PI/4)*0.12+(D.op&&LY.op?0.55:0),dip=Math.pow(1-(((b%1)+1)%1),3)*(D.play?1:0);
-    if(LY.por){CP.set(P.x+sw,1.65,P.z+4.4-0.06*dip);CL.set(P.x+(D.op&&LY.op?0.55:0),1.2,P.z);}
-    else{const dist=3.3,off=(LY.avU||0)*asp*tf*dist,oo=D.op&&LY.op?0.55:0;CP.set(P.x-off+sw,1.5,P.z+dist-0.06*dip);CL.set(P.x-off+oo,1.0,P.z);}
+  D.camera=dt=>{const asp=camera.aspect||1.6,tf=Math.tan(camera.fov*Math.PI/360),b=D.beat||0,oo=opCx(),far=D.ops&&D.ops.length>1?1:0,sw=Math.sin(b*Math.PI/4)*0.12+oo,dip=Math.pow(1-(((b%1)+1)%1),3)*(D.play?1:0);   /* 有別人在舞台上：鏡頭對準大家的中間，3 個人以上再退後一點 */
+    if(LY.por){CP.set(P.x+sw,1.65+0.2*far,P.z+4.4+1.4*far-0.06*dip);CL.set(P.x+oo,1.2,P.z);}
+    else{const dist=3.3+0.9*far,off=(LY.avU||0)*asp*tf*dist;CP.set(P.x-off+sw,1.5+0.15*far,P.z+dist-0.06*dip);CL.set(P.x-off+oo,1.0,P.z);}
     if(!D.camP){D.camP=CP.clone();D.camL=CL.clone();}const k=1-Math.exp(-dt*5);D.camP.lerp(CP,k);D.camL.lerp(CL,k);camera.position.copy(D.camP);camera.lookAt(D.camL);};
 
   // ================= 鍵盤 =================
@@ -11613,11 +11636,14 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   document.body.appendChild(P);
   const chip=document.createElement('div');chip.id='netChip';chip.hidden=true;document.body.appendChild(chip);chip.onclick=()=>open();
   const FXB=document.createElement('button');FXB.id='netFx';FXB.hidden=true;FXB.textContent='😜 互動';document.body.appendChild(FXB);
+  const CHB=document.createElement('button');CHB.id='netChatB';CHB.hidden=true;CHB.innerHTML='💬 聊天<i hidden></i>';document.body.appendChild(CHB);   /* 2026-10-15.13 聊天室 */
+  const CHP=document.createElement('div');CHP.id='netChat';CHP.className='panel';CHP.hidden=true;
+  CHP.innerHTML=`<div class="hd"><b>💬 聊天室</b><span class="cnt"></span><button data-x="1">✕</button></div><div class="log"></div><div class="quick"></div><form class="in"><input type="text" maxlength="60" placeholder="打字聊天…（按 Enter 送出）" enterkeyhint="send" autocomplete="off"><button type="submit">送出</button></form>`;document.body.appendChild(CHP);
   const FXP=document.createElement('div');FXP.id='netFxP';FXP.className='panel';FXP.hidden=true;document.body.appendChild(FXP);
   const WET=document.createElement('div');WET.id='netWet';document.body.appendChild(WET);
   const INV=document.createElement('div');INV.id='netInv';INV.className='panel';INV.hidden=true;document.body.appendChild(INV);
   const VS=document.createElement('div');VS.id='ddVs';VS.hidden=true;$n('ddUI').appendChild(VS);
-  for(const el of [P,INV,FXP,FXB,chip])for(const ev of ['keydown','keyup','pointerdown','touchstart','wheel'])el.addEventListener(ev,e=>e.stopPropagation());   /* 打字時不要走路、點面板不要轉鏡頭 */
+  for(const el of [P,INV,FXP,FXB,chip,CHB,CHP])for(const ev of ['keydown','keyup','pointerdown','touchstart','wheel'])el.addEventListener(ev,e=>e.stopPropagation());   /* 打字時不要走路、點面板不要轉鏡頭 */
   const nm=$n('netName');nm.value=NAME;nm.oninput=()=>{NAME=nm.value.trim().slice(0,8);try{localStorage.setItem('home-netname',NAME);}catch(_){}nameChanged();};
   let nmT=0;function nameChanged(){myTagName();clearTimeout(nmT);nmT=setTimeout(()=>{if(N.on)bc({t:'name',name:myName()});},300);}
   const myName=()=>NAME||'玩家';
@@ -11628,7 +11654,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   const tgt=()=>N.P.has(N.sel)?N.sel:N.P.size?[...N.P.keys()][0]:null;   /* 邀請的對象：選的人；沒選就第一個 */
   const dist=q=>q&&q.s?Math.hypot(player.pos.x-q.s.a[0],player.pos.y-q.s.a[2]):Infinity;
   function ui(){const s=N.on?'live':N.peer&&N.host&&N.code?'wait':N.peer?'busy':'idle';P.querySelector('.idle').hidden=s!=='idle';P.querySelector('.wait').hidden=s!=='wait';P.querySelector('.live').hidden=s!=='live';
-    P.querySelector('.code').textContent=N.code;P.querySelector('.off').hidden=s==='idle';$n('netDD').checked=N.ddVs;chip.hidden=!N.on;FXB.hidden=!N.on;if(!N.on)FXP.hidden=true;
+    P.querySelector('.code').textContent=N.code;P.querySelector('.off').hidden=s==='idle';$n('netDD').checked=N.ddVs;chip.hidden=!N.on;FXB.hidden=!N.on;CHB.hidden=!N.on;if(!N.on){FXP.hidden=true;CHP.hidden=true;}
     const rc=P.querySelector('.roomc');rc.hidden=!(N.host&&N.code&&N.on);rc.querySelector('.code2').textContent=N.code;rc.querySelector('.left').textContent=Math.max(0,3-N.conns.size);
     if(s==='live')pplDraw();}
   function pplDraw(){const t=tgt();let h='';for(const q of N.P.values()){const d=dist(q);h+=`<div class="pp${q.id===t?' on':''}" data-p="${q.id}"><i style="background:${PC[q.id]||'#888'}"></i><b>${esc(q.name||'…')}</b><small>${d<1e9?Math.round(d)+' m':''}${q.ra?'・離開畫面':''}${q.s&&q.s.dd?'・跳舞中':''}</small><button data-go="${q.id}">📍 過去</button></div>`;}
@@ -11676,14 +11702,14 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       setTimeout(()=>{if(N.peer===p&&!N.on){st('連不上：代號對嗎？朋友的網頁要開著。如果一直連不上，可能是網路擋住了（換 Wi-Fi／行動網路試試）');clean();ui();}},15000);});
     p.on('error',e=>{if(N.peer!==p)return;if(e.type==='peer-unavailable'){st('找不到這個房間（代號錯了，或對方關掉了）');clean();ui();}else st('出錯了：'+(e.type||e.message||e));});}
   function setOn(){const was=N.on;N.on=N.host?N.conns.size>0:!!(N.conn&&N.conn.open);if(N.on&&!was){toast('👥 連線成功！');AUDIO.sfx('chime');}myTag();ui();}
-  function lostAll(why){const was=N.on;for(const k of [...N.P.keys()])drop(k,true);pGone();N.on=false;clean();st(why||'連線中斷了');if(was){toast('👥 '+(why||'連線中斷了'));AUDIO.sfx('over');}myTag();ui();}
+  function lostAll(why){const was=N.on;vsEnd('連線中斷了');for(const k of [...N.P.keys()])drop(k,true);pGone();N.on=false;clean();st(why||'連線中斷了');if(was){toast('👥 '+(why||'連線中斷了'));AUDIO.sfx('over');}myTag();ui();}
   // 一起玩遊戲的人走了：遊戲收掉
   function pGone(msg){if(RACE.net)RACE.stop();if(SB.net)SB.stop();if(CU.coop){CU.coop=false;if(!CU.chost){CU.stop();toast('連線中斷：合作結束');}}if(TN.net){TN.net=false;document.body.classList.remove('tnnet');TN.netEnd();TN.stop();}
-    vsEnd(msg===undefined?'對方斷線了':msg);if(N.tnWait||N.gWait){N.tnWait=false;N.gWait=null;INV.hidden=true;}N.pid=null;}
-  function drop(id,quiet){const q=N.P.get(id);if(!q)return;const name=q.name||'對方';if(id===N.pid)pGone(`${name} 離開了`);remKill(q);N.P.delete(id);if(N.sel===id)N.sel=null;if(N.ipid===id){INV.hidden=true;N.ipid=null;}
-    if(!quiet){toast('👥 '+name+' 離開了／斷線了');AUDIO.sfx('over');}ui();}
+    if(N.tnWait||N.gWait){N.tnWait=false;N.gWait=null;INV.hidden=true;}N.pid=null;}
+  function drop(id,quiet){const q=N.P.get(id);if(!q)return;const name=q.name||'對方';if(id===N.pid)pGone(`${name} 離開了`);vsLeft(id,'離開了');remKill(q);N.P.delete(id);if(N.sel===id)N.sel=null;if(N.ipid===id){INV.hidden=true;N.ipid=null;}
+    if(!quiet){toast('👥 '+name+' 離開了／斷線了');AUDIO.sfx('over');chatAdd(id,`${name} 離開了`,true);}ui();}
   function bye(){bc({t:'bye'});const cs=[...N.conns.values()],c=N.conn,p=N.peer;N.conns.clear();N.conn=null;N.peer=null;N.on=false;N.code='';N.host=false;N.id='';
-    for(const k of [...N.P.keys()])drop(k,true);pGone('');myTag();ui();setTimeout(()=>{for(const x of [...cs,c])try{x&&x.close();}catch(_){}try{p&&p.destroy();}catch(_){}},400);}   /* 等「bye」送出去再關 */
+    vsEnd();for(const k of [...N.P.keys()])drop(k,true);pGone('');myTag();ui();setTimeout(()=>{for(const x of [...cs,c])try{x&&x.close();}catch(_){}try{p&&p.destroy();}catch(_){}},400);}   /* 等「bye」送出去再關 */
   // ---- 別人的人物 ----
   function tagTex(t,col){const [c,g]=cvs(256,64);g.font=`900 34px ${FONT}`;g.textAlign='center';g.textBaseline='middle';const w=Math.min(250,g.measureText(t).width+28);
     g.fillStyle=col||'rgba(20,90,200,0.85)';g.globalAlpha=0.92;g.beginPath();g.roundRect(128-w/2,6,w,52,24);g.fill();g.globalAlpha=1;g.lineWidth=3;g.strokeStyle='rgba(255,255,255,0.85)';g.stroke();
@@ -11735,8 +11761,8 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     o.visible=!s.hid;}
   function goTo(id){const q=N.P.get(id);if(!q||!q.s){st('還不知道 '+(q&&q.name||'對方')+' 在哪裡');return;}const a=q.s.a;P.hidden=true;teleport(a[0]+1.3,a[2]+1.3,undefined,a[1]>0.5?a[1]:0);toast('📍 到 '+(q.name||'對方')+' 旁邊了');}
   // ---- 收到資料（f＝誰送的） ----
-  const busy=f=>f!==N.pid&&(RACE.net||SB.net||CU.coop||TN.net||(N.vs&&(N.vs.wait||(N.vs.go&&!(N.vs.me&&N.vs.op&&N.vs.op.end))))||N.tnWait||!!N.gWait);   /* 正在跟別人玩（或等別人回覆）；同一個人再邀請（再來一局）可以 */
-  const GAME_MSG=new Set(['rS','rA','rFin','rQ','sbS','sbT','sbEnd','sbQ','sbI','sbK','cuM','cuS','cuP','cuD','cuBD','cuX','cuH','cuG','cuEnd','cuQ','tH','tP','tQ','tB','tW','tPath','tSam','ddSc','ddEnd','ddQuit','ddOk','ddNo','tOk','tNo','gOk','gNo','po','ddLn']);
+  const busy=f=>(f!==N.pid&&(RACE.net||SB.net||CU.coop||TN.net||N.tnWait||!!N.gWait))||!!(N.vs&&(N.vs.wait||(N.vs.go&&!vsDone(N.vs))));   /* 正在跟別人玩（或等別人回覆）；同一個人再邀請（再來一局）可以 */
+  const GAME_MSG=new Set(['rS','rA','rFin','rQ','sbS','sbT','sbEnd','sbQ','sbI','sbK','cuM','cuS','cuP','cuD','cuBD','cuX','cuH','cuG','cuEnd','cuQ','tH','tP','tQ','tB','tW','tPath','tSam','tOk','tNo','gOk','gNo','po']);   /* 跳舞機的訊息另外看是不是同一群（可以多人） */
   function rx(d,f){if(!d||typeof d!=='object'||f==null)return;f=String(f);
     if(GAME_MSG.has(d.t)&&f!==N.pid){if((d.t==='tNo'||d.t==='gNo')&&f===N.ipid){INV.hidden=true;N.ipid=null;}return;}   /* 遊戲的資料只收一起玩的那個人的 */
     if(d.t==='wel'){N.id=String(d.id);return;}
@@ -11745,16 +11771,17 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     if(d.t==='left'){drop(f);return;}
     const q=peer(f);
     switch(d.t){case 's':q.s=d;break;
-      case 'hi':q.name=String(d.name||'對方').slice(0,8);q.hi={t:'hi',name:q.name,ver:d.ver,cfg:d.cfg,sk:d.sk};remName(q);remDress(q,d.cfg,d.sk);ui();if(!d.quiet){toast(`👥 ${q.name} 加入了！`);AUDIO.sfx('chime');}if(d.ver&&d.ver!==VER)toast('⚠ 大家的網頁版本不一樣，請全部重新整理');break;
+      case 'hi':q.name=String(d.name||'對方').slice(0,8);q.hi={t:'hi',name:q.name,ver:d.ver,cfg:d.cfg,sk:d.sk};remName(q);remDress(q,d.cfg,d.sk);ui();if(!d.quiet){toast(`👥 ${q.name} 加入了！`);AUDIO.sfx('chime');chatAdd(f,`${q.name} 加入了`,true);}if(d.ver&&d.ver!==VER)toast('⚠ 大家的網頁版本不一樣，請全部重新整理');break;
       case 'name':q.name=String(d.name||'對方').slice(0,8);if(q.hi)q.hi.name=q.name;remName(q);ui();break;
       case 'cfg':if(q.hi){q.hi.cfg=d.cfg;q.hi.sk=d.sk;}remDress(q,d.cfg,d.sk);break;
       case 'p':break;
       case 'away':q.ra=!!d.v;break;
       case 'fx':fxRun(d.k,f,d.to,d.v,d);break;
-      case 'ddInv':if(busy(f)){out(f,{t:'ddNo',why:'正在跟別人玩'});break;}N.ipid=f;invited(d);break;
+      case 'ddInv':if(busy(f)){out(f,{t:'ddNo',why:'正在跟別人玩'});break;}N.ipid=f;invited(d,f);break;
+      case 'ddGo':if(N.vs&&N.vs.wait&&N.vs.org===f)startVs((d.ids||[]).map(String));break;
       case 'tInv':if(busy(f)){out(f,{t:'tNo',why:'正在跟別人玩'});break;}N.ipid=f;tnInvited();break;
       case 'gInv':if(busy(f)){out(f,{t:'gNo',g:d.g,why:'正在跟別人玩'});break;}N.ipid=f;gInvited(d.g,d.x);break;
-      case 'ddNo2':if(f===N.ipid){INV.hidden=true;N.ipid=null;toast(`${q.name||'對方'} 取消了邀請`);}break;
+      case 'ddNo2':if(N.vs&&N.vs.wait&&N.vs.org===f){INV.hidden=true;N.vs=null;toast(`${q.name||'對方'} 取消了`);}else if(f===N.ipid){INV.hidden=true;N.ipid=null;toast(`${q.name||'對方'} 取消了邀請`);}break;
       case 'tOk':if(N.tnWait){N.tnWait=false;INV.hidden=true;tnGo('p');}break;
       case 'tNo':if(N.tnWait){N.tnWait=false;INV.hidden=true;toast(`${N.rname||'對方'} ${d.why||'現在不想打網球'}`);}else INV.hidden=true;break;
       case 'gOk':if(N.gWait===d.g){N.gWait=null;INV.hidden=true;GAMES[d.g].go(true,d.x);}break;
@@ -11765,38 +11792,56 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       case 'tH':case 'tP':case 'tQ':case 'tB':case 'tW':case 'tPath':case 'tSam':TN.netRx(d);break;
       case 'pi':out(f,{t:'po',a:d.a});break;
       case 'po':{const r=performance.now()-d.a;N.rtt=N.rtt?N.rtt*0.7+r*0.3:r;}break;
-      case 'ddOk':if(N.vs&&N.vs.wait){INV.hidden=true;N.vs.wait=false;startVs();}break;
-      case 'ddNo':if(N.vs&&N.vs.wait){INV.hidden=true;N.vs=null;N.pid=null;toast(`${N.rname||'對方'} ${d.why||'現在不想跳'}`);}break;
-      case 'ddSc':if(N.vs&&!(N.vs.op&&N.vs.op.end)){N.vs.op=N.vs.op||{};Object.assign(N.vs.op,{sc:d.sc,cb:d.cb,lf:d.lf,T:d.T,at:performance.now()});vsDraw();}break;
-      case 'ddLn':if(N.vs&&DD.opJudge)DD.opJudge(d.j);break;
-      case 'ddEnd':if(N.vs){N.vs.op={sc:d.sc,g:d.g,failed:d.failed,end:true};vsDraw();}break;
-      case 'ddQuit':if(N.vs){vsEnd(`${N.rname||'對方'} 不跳了`);}break;}}
-  // ---- 跳舞機對戰 ----
+      case 'ddOk':{const v=N.vs;if(v&&v.wait&&v.org===myId()&&v.inv.has(f)){v.inv.set(f,'ok');invDraw();}}break;
+      case 'ddNo':{const v=N.vs;if(v&&v.wait&&v.org===myId()&&v.inv.has(f)){v.inv.set(f,'no');if(d.why)toast(`${q.name||'對方'} ${d.why}`);invDraw();}}break;
+      case 'ddSc':{const v=N.vs;if(v&&v.go&&v.ids.includes(f)){const o=v.op[f]||(v.op[f]={});if(!o.end){Object.assign(o,{sc:d.sc,cb:d.cb,lf:d.lf,T:d.T,at:performance.now()});vsDraw();}}}break;
+      case 'ddLn':{const v=N.vs;if(v&&v.go&&v.ids.includes(f)&&DD.opJudge)DD.opJudge(f,d.j);}break;
+      case 'ddEnd':{const v=N.vs;if(v&&v.go&&v.ids.includes(f)){v.op[f]={sc:d.sc,g:d.g,failed:d.failed,end:true};vsDraw();}}break;
+      case 'ddQuit':vsLeft(f);break;}}
+  // ---- 跳舞機對戰（2026-10-15.13 起最多 4 個人：選歌的人邀請大家，同一首同一難度一起跳、比名次） ----
+  // N.vs＝{i,dv,org 選歌的人,wait 等回覆中,inv Map(id→wait/ok/no 只有選歌的人有),ids 其他一起跳的人,me 自己的結果,op {id→分數、連擊、血、時間點、結果}}
   const DIFF=['簡單','普通','困難','地獄'];
-  DD.vsRow=()=>N.on?`<div class="row"><button data-o="vs" class="${N.ddVs?'on':''}">${N.ddVs?'✅':'⬜'} 跟 ${esc(pn(tgt())||'對方')} 對戰（選歌後邀請對方一起跳）</button></div>`:'';
+  const vsSend=o=>{const v=N.vs;if(v&&v.ids)for(const id of v.ids)out(id,o);};
+  DD.vsRow=()=>N.on?`<div class="row"><button data-o="vs" class="${N.ddVs?'on':''}">${N.ddVs?'✅':'⬜'} 邀請大家一起跳（${N.P.size} 個人，選歌後邀請）</button></div>`:'';
   DD.vsToggle=()=>{N.ddVs=!N.ddVs;ui();};
-  DD.vsInvite=(i,dv)=>{if(!N.on||!N.ddVs||tgt()==null)return false;N.pid=tgt();const S=DD.SONGS[i];N.vs={i,dv,wait:true,me:null,op:null};send({t:'ddInv',i,dv,id:S.id,n:S.n});
-    INV.innerHTML=`<b>邀請 ${esc(N.rname||'對方')} 一起跳</b><div>《${S.n}》・${DIFF[dv]}</div><div class="note" style="font-size:12px">等對方按「好」…</div><div class="row"><button data-k="cancel">取消</button><button data-k="solo">不等了，自己跳</button></div>`;INV.hidden=false;
-    INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;const w=N.vs;N.vs=null;send({t:'ddNo2'});N.pid=null;if(b.dataset.k==='solo'&&w)DD.startSong(w.i,w.dv);};
-    clearTimeout(N.invT);N.invT=setTimeout(()=>{if(N.vs&&N.vs.wait){INV.hidden=true;N.vs=null;N.pid=null;toast('對方沒有回應');}},30000);return true;};
-  DD.vsLive=()=>!!(N.vs&&N.vs.go&&!N.vs.me);   /* 對戰中：打開選單不暫停（兩邊才不會不同步） */
-  function invited(d){const S=DD.SONGS[d.i];if(!S||S.id!==d.id){out(N.ipid,{t:'ddNo',why:'的網頁版本不一樣（請兩邊重新整理）'});return;}
-    INV.innerHTML=`<b>💃 ${esc(pn(N.ipid)||'對方')} 邀請你跳跳舞機！</b><div>《${S.n}》・${DIFF[d.dv]}</div><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">好！一起跳</button></div>`;INV.hidden=false;AUDIO.sfx('chime');
-    INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;const f=N.ipid;N.ipid=null;if(b.dataset.k==='no'){out(f,{t:'ddNo'});return;}
+  DD.vsInvite=(i,dv)=>{if(!N.on||!N.ddVs||!N.P.size)return false;const S=DD.SONGS[i],inv=new Map();for(const id of N.P.keys()){inv.set(id,'wait');out(id,{t:'ddInv',i,dv,id:S.id,n:S.n});}
+    N.vs={i,dv,org:myId(),wait:true,inv,ids:null,me:null,op:{}};invDraw();
+    clearTimeout(N.invT);N.invT=setTimeout(()=>{const v=N.vs;if(v&&v.wait&&v.org===myId()){if([...v.inv.values()].includes('ok'))vsGo();else{INV.hidden=true;N.vs=null;toast('大家都沒有回應');}}},20000);return true;};   /* 20 秒還有人沒回：有人說好就先開始 */
+  function invDraw(){const v=N.vs;if(!v||!v.wait||v.org!==myId())return;const S=DD.SONGS[v.i],n=[...v.inv.values()].filter(x=>x==='ok').length;
+    if(![...v.inv.values()].includes('wait')){if(n){vsGo();return;}INV.hidden=true;N.vs=null;toast('大家都不想跳');return;}   /* 每個人都回覆了：有人說好就直接開始 */
+    INV.innerHTML=`<b>💃 邀請大家一起跳</b><div>《${S.n}》・${DIFF[v.dv]}</div><div class="who">${[...v.inv].map(([id,s])=>`<div><i style="background:${PC[id]}"></i>${esc(pn(id)||'…')}：${s==='ok'?'✅ 好！':s==='no'?'❌ 不跳':'⏳ 等回覆…'}</div>`).join('')}</div><div class="row"><button data-k="cancel">取消</button>${n?`<button data-k="go" class="ok">不等了，開始（${n+1} 人）</button>`:'<button data-k="solo">不等了，自己跳</button>'}</div>`;INV.hidden=false;
+    INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k,w=N.vs;if(k==='go'){vsGo();return;}INV.hidden=true;N.vs=null;if(w)for(const id of w.inv.keys())out(id,{t:'ddNo2'});if(k==='solo'&&w)DD.startSong(w.i,w.dv);};}
+  function vsGo(){const v=N.vs;if(!v||!v.wait)return;clearTimeout(N.invT);const ok=[...v.inv].filter(([,s])=>s==='ok').map(([id])=>id);for(const [id,s] of v.inv)if(s!=='ok')out(id,{t:'ddNo2'});
+    const ids=[myId(),...ok];for(const id of ok)out(id,{t:'ddGo',ids});INV.hidden=true;startVs(ids);}
+  DD.vsLive=()=>!!(N.vs&&N.vs.go&&!N.vs.me);   /* 對戰中：打開選單不暫停（大家才不會不同步） */
+  function invited(d,f){const S=DD.SONGS[d.i];if(!S||S.id!==d.id){out(f,{t:'ddNo',why:'的網頁版本不一樣（請大家重新整理）'});return;}
+    INV.innerHTML=`<b>💃 ${esc(pn(f)||'對方')} 邀請你一起跳跳舞機！</b><div>《${S.n}》・${DIFF[d.dv]}</div><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">好！一起跳</button></div>`;INV.hidden=false;AUDIO.sfx('chime');
+    INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;N.ipid=null;if(b.dataset.k==='no'){out(f,{t:'ddNo'});return;}
       if(GAME.on){out(f,{t:'ddNo',why:'正在打殭屍，不能跳'});toast('先結束殭屍遊戲');return;}
-      N.pid=f;if(!DD.on)DD.enter();N.vs={i:d.i,dv:d.dv,wait:false,me:null,op:null};send({t:'ddOk'});startVs();};}
-  function startVs(){const v=N.vs;if(!v)return;N.vsStart=true;DD.startSong(v.i,v.dv);N.vsStart=false;v.go=true;v.me=null;v.op={sc:0,cb:0};vsDraw();toast('🆚 對戰開始！');if(DD.opStart)DD.opStart(N.rname||'對方');}
-  {const s0=DD.startSong;DD.startSong=(i,dv)=>{if(!N.vsStart&&N.vs&&N.vs.go){send({t:'ddQuit'});N.vs=null;VS.hidden=true;if(DD.opStop)DD.opStop();}s0(i,dv);};}   /* 自己另外選歌＝離開對戰 */
-  DD.onAbort=()=>{if(N.vs&&N.vs.go&&!N.vs.me){send({t:'ddQuit'});vsEnd();}};
-  DD.onEnd=r=>{if(!N.vs||!N.vs.go)return;N.vs.me=r;send({t:'ddEnd',sc:r.sc,g:r.g,failed:r.failed});vsDraw();};
-  DD.onJudge=j=>{if(N.vs&&N.vs.go&&!N.vs.me)send({t:'ddLn',j});};   /* 每次判定送給對方（對方畫我的跑道用） */
-  function vsEnd(msg){const was=N.vs&&N.vs.go&&!(N.vs.me&&N.vs.op&&N.vs.op.end);N.vs=null;INV.hidden=true;if(DD.opStop)DD.opStop();if(was&&msg){VS.innerHTML=`<span class="res">${esc(msg)}</span>`;VS.hidden=false;setTimeout(()=>{if(!N.vs)VS.hidden=true;},4000);}else if(!msg)VS.hidden=true;}
-  function vsDraw(){const v=N.vs;if(!v||!v.go){return;}const op=v.op||{},meS=v.me?v.me.sc:Math.round(1e6*(DD.score||0)/Math.max(1,DD.nSteps||1)),f=x=>(x||0).toLocaleString(),rn=esc(N.rname||'對方');
-    let res='';if(v.me&&op.end){const a=v.me.failed?-1:v.me.sc,b=op.failed?-1:op.sc;res=a>b?'🏆 你贏了！':a<b?`${rn} 贏了！`:'平手！';
-      if(!v.told){v.told=true;AUDIO.sfx(a>=b?'bigcheer':'cheer');toast(`🆚 你 ${f(v.me.sc)}（${v.me.g}）：${N.rname||'對方'} ${f(op.sc)}（${op.g}）`);}}
-    else if(v.me)res='等對方跳完…';else if(op.end)res=`${rn} 跳完了：${op.failed?'失敗':op.g}`;
-    VS.innerHTML=`<span class="me">你 <b>${f(meS)}</b></span>　🆚　${rn} <b>${f(op.sc)}</b>${op.cb?`<small>（${op.cb} 連擊）</small>`:''}${res?`<div class="res">${res}</div>`:''}`;VS.hidden=false;}
-  DD.opInfo=()=>N.vs&&N.vs.go?N.vs.op:null;   /* 跳舞機畫對方跑道用：對方的分數、連擊、血量、時間點 */
+      if(!DD.on)DD.enter();N.vs={i:d.i,dv:d.dv,org:f,wait:true,ids:null,me:null,op:{}};out(f,{t:'ddOk'});
+      INV.innerHTML=`<b>💃 等 ${esc(pn(f)||'對方')} 開始…</b><div class="note" style="font-size:12px">其他人回覆之後就會一起開始</div><div class="row"><button data-k="x">不跳了</button></div>`;INV.hidden=false;
+      INV.onclick=e2=>{if(!e2.target.closest('[data-k]'))return;INV.hidden=true;const v=N.vs;if(v&&v.wait){out(v.org,{t:'ddNo'});N.vs=null;}};};}
+  function startVs(ids){const v=N.vs;if(!v)return;v.wait=false;v.ids=ids.map(String).filter(x=>x!==myId()&&N.P.has(x));v.n=v.ids.length+1;N.vsStart=true;DD.startSong(v.i,v.dv);N.vsStart=false;v.go=true;v.me=null;v.told=false;v.op={};for(const id of v.ids)v.op[id]={sc:0,cb:0};
+    INV.hidden=true;vsDraw();toast(`🆚 ${v.n} 個人一起跳！`);if(DD.opStart)DD.opStart(v.ids.map(id=>({id,name:pn(id)||'…',col:PC[id]})));}
+  {const s0=DD.startSong;DD.startSong=(i,dv)=>{if(!N.vsStart&&N.vs&&N.vs.go){vsSend({t:'ddQuit'});N.vs=null;VS.hidden=true;if(DD.opStop)DD.opStop();}s0(i,dv);};}   /* 自己另外選歌＝離開對戰 */
+  DD.onAbort=()=>{if(N.vs&&N.vs.go&&!N.vs.me){vsSend({t:'ddQuit'});vsEnd();}};
+  DD.onEnd=r=>{if(!N.vs||!N.vs.go)return;N.vs.me=r;vsSend({t:'ddEnd',sc:r.sc,g:r.g,failed:r.failed});vsDraw();};
+  DD.onJudge=j=>{if(N.vs&&N.vs.go&&!N.vs.me)vsSend({t:'ddLn',j});};   /* 每次判定送給大家（大家畫我的跑道用） */
+  const vsDone=v=>!!(v&&v.go&&v.me&&v.ids.every(id=>v.op[id]&&v.op[id].end));
+  function vsEnd(msg){const v=N.vs,was=v&&v.go&&!vsDone(v);N.vs=null;INV.hidden=true;if(DD.opStop)DD.opStop();if(was&&msg){VS.innerHTML=`<span class="res">${esc(msg)}</span>`;VS.hidden=false;setTimeout(()=>{if(!N.vs)VS.hidden=true;},4000);}else if(!msg)VS.hidden=true;}
+  // 有人離開、不跳了：選歌前＝從邀請名單劃掉；跳的時候＝標成「離開了」，其他人繼續跳
+  function vsLeft(id,why){const v=N.vs;if(!v)return;
+    if(v.wait){if(v.org===myId()&&v.inv&&v.inv.has(id)){v.inv.set(id,'no');invDraw();}else if(v.org===id){INV.hidden=true;N.vs=null;toast(`${pn(id)||'對方'} 取消了邀請`);}return;}
+    if(!v.go||!v.ids.includes(id))return;const o=v.op[id]||(v.op[id]={});if(o.end)return;o.end=true;o.quit=true;o.failed=true;toast(`${pn(id)||'對方'} ${why||'不跳了'}`);
+    if(v.ids.every(x=>v.op[x]&&v.op[x].quit)&&!v.me){vsEnd('大家都不跳了');return;}vsDraw();}
+  function vsDraw(){const v=N.vs;if(!v||!v.go)return;const f=x=>(x||0).toLocaleString(),fs=x=>innerWidth<600&&v.n>2?((x||0)>=1000?Math.round(x/1000)+'k':String(x||0)):f(x),meS=v.me?v.me.sc:Math.round(1e6*(DD.score||0)/Math.max(1,DD.nSteps||1));
+    const L=[{id:myId(),n:'你',sc:meS,end:!!v.me,failed:!!(v.me&&v.me.failed),g:v.me&&v.me.g,me:true},...v.ids.map(id=>{const o=v.op[id]||{};return {id,n:pn(id)||'…',sc:o.sc||0,end:!!o.end,failed:!!o.failed,quit:!!o.quit,g:o.g};})];
+    const key=e=>e.quit?-2:e.end&&e.failed?-1+e.sc*1e-8:e.sc;L.sort((a,b)=>key(b)-key(a));
+    let res='';if(vsDone(v)){const r=L.findIndex(e=>e.me)+1;res=r===1?'🏆 你是第 1 名！':`你是第 ${r} 名`;
+      if(!v.told){v.told=true;AUDIO.sfx(r===1?'bigcheer':'cheer');toast('🆚 '+L.map((e,k)=>`${k+1}. ${e.n} ${e.quit?'離開了':f(e.sc)}`).join('　'));}}
+    else if(v.me)res='等大家跳完…';
+    VS.innerHTML=`<div class="rk">${L.map((e,k)=>`<span class="${e.me?'me':''}${e.quit?' q':''}"><i>${k+1}</i>${e.me?'':`<em style="background:${PC[e.id]}"></em>`}${esc(e.n)} <b>${e.quit?'離開':fs(e.sc)}</b>${e.end&&!e.quit?`<small>${e.failed?'失敗':e.g||''}</small>`:''}</span>`).join('')}</div>${res?`<div class="res">${res}</div>`:''}`;VS.hidden=false;}
+  DD.opInfo=id=>N.vs&&N.vs.go?N.vs.op[id]:null;   /* 跳舞機畫別人跑道用：分數、連擊、血量、時間點 */
   // ---- 網球對打 ----
   TN.netSend=send;TN.owd=()=>Math.min(0.25,(N.rtt||120)/2000);
   let tnTag=null;
@@ -11842,10 +11887,11 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     h+=q?`<div class="note">對象：<b style="color:${PC[q.id]}">${esc(q.name||'對方')}</b>（${d<1e9?Math.round(d*10)/10+' m':'不知道在哪'}）</div>`:'<div class="note">還沒有人</div>';
     h+=`<div class="grid pr">${PR.map(([k,ic,t,r])=>{const far=r>0&&(!q||d>r);return `<button data-k="${k}" class="${far?'far':''}">${ic}<span>${t}</span>${far?`<small>${r} m 內</small>`:''}</button>`;}).join('')}</div>`;
     h+=`<div class="grid emo">${EMO.map(e=>`<button data-e="${e}">${e}</button>`).join('')}</div><div class="grid say">${SAY.map(s=>`<button data-s="${s}">${s}</button>`).join('')}</div>`;
-    FXP.innerHTML=h;FXP.hidden=false;P.hidden=true;}
+    h+=`<form class="in"><input type="text" maxlength="60" placeholder="打字說話…" enterkeyhint="send" autocomplete="off"><button type="submit">送出</button></form><button data-chat="1" class="chat">💬 打開聊天室（看全部對話）</button>`;
+    FXP.innerHTML=h;FXP.hidden=false;P.hidden=true;CHP.hidden=true;FXP.querySelector('form').onsubmit=e=>{e.preventDefault();const inp=FXP.querySelector('form input'),tx=inp.value.trim().slice(0,60);if(!tx)return;FXP.hidden=true;doFx('say',null,tx);};}
   FXB.onclick=()=>{if(FXP.hidden)fxOpen();else FXP.hidden=true;};
   FXP.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-    if(b.dataset.x){FXP.hidden=true;return;}if(b.dataset.sel){fxSel=b.dataset.sel;fxOpen();return;}
+    if(b.dataset.chat){chatOpen();return;}if(b.type==='submit')return;if(b.dataset.x){FXP.hidden=true;return;}if(b.dataset.sel){fxSel=b.dataset.sel;fxOpen();return;}
     if(b.dataset.e){FXP.hidden=true;doFx('emo',null,b.dataset.e);return;}if(b.dataset.s){FXP.hidden=true;doFx('say',null,b.dataset.s);return;}
     const k=b.dataset.k;if(!k)return;const q=N.P.get(fxSel),r=PR.find(x=>x[0]===k)[3];
     if(k==='fart'){FXP.hidden=true;doFx('fart',null);return;}
@@ -11864,7 +11910,9 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   const posOf=(id,o)=>{const r=rootOf(id);if(id===myId())return o.set(player.pos.x,player.y,player.pos.y);if(r)return o.copy(r.position);return null;};
   const FX=[];   /* {o 物件, t, d 秒, u(f,t) 每格, end()} */
   function fxAdd(o,parent,d,u,end){parent.add(o);FX.push({o,parent,t:0,d,u,end});return o;}
-  function bubbleTex(txt,big){const [c,g]=cvs(256,128);g.font=big?`64px ${FONT}`:`900 40px ${FONT}`;const w=Math.min(250,g.measureText(txt).width+40);
+  function bubbleTex(txt,big){const [c,g]=cvs(256,128);let fs=40;g.font=big?`64px ${FONT}`:`900 ${fs}px ${FONT}`;
+    if(!big){while(fs>22&&g.measureText(txt).width>212){fs-=2;g.font=`900 ${fs}px ${FONT}`;}if(g.measureText(txt).width>212){while(txt.length>1&&g.measureText(txt+'…').width>212)txt=txt.slice(0,-1);txt+='…';}}   /* 字多：縮小字，還是太長就截掉（全文看聊天室） */
+    const w=Math.min(250,g.measureText(txt).width+40);
     g.fillStyle='rgba(255,255,255,0.96)';g.strokeStyle='#333';g.lineWidth=4;g.beginPath();g.roundRect(128-w/2,8,w,84,30);g.fill();g.stroke();g.beginPath();g.moveTo(112,90);g.lineTo(128,118);g.lineTo(144,90);g.closePath();g.fill();g.stroke();g.fillStyle='#fff';g.fillRect(114,86,28,8);
     g.fillStyle='#222';g.textAlign='center';g.textBaseline='middle';g.fillText(txt,128,52);const x=new THREE.CanvasTexture(c);x.colorSpace=THREE.SRGBColorSpace;return x;}
   function bubble(id,txt,big,d=2.8){const r=rootOf(id);if(!r)return;for(const f of FX)if(f.bub&&f.parent===r)f.t=f.d;   /* 同一個人只留最新的泡泡 */
@@ -11896,8 +11944,8 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     fxAdd(o,scene,d,(f,t)=>{const u=Math.min(1,t/d);o.position.lerpVectors(a,b,u);o.position.y+=Math.sin(u*Math.PI)*2.2;o.rotation.x+=0.2;o.rotation.z+=0.13;},()=>{done(b);if(o.userData.own){o.geometry.dispose();o.material.dispose();}});}
   function fxRun(k,from,to,v,m){const me=myId(),self=to===me,fn=esc(nameOf(from));
     switch(k){
-      case 'emo':bubble(from,v,true);if(from!==me)toast(`${nameOf(from)}：${v}`);break;
-      case 'say':bubble(from,v,false,3.5);if(from!==me)toast(`💬 ${nameOf(from)}：${v}`);AUDIO.sfx('click');break;
+      case 'emo':bubble(from,v,true);chatAdd(from,v);if(from!==me&&CHP.hidden)toast(`${nameOf(from)}：${v}`);break;
+      case 'say':{const tx=String(v||'').slice(0,60);if(!tx)break;bubble(from,tx,false,Math.min(7,3.5+tx.length*0.12));chatAdd(from,tx);if(from!==me&&CHP.hidden)toast(`💬 ${nameOf(from)}：${tx}`);AUDIO.sfx('click');break;}
       case 'poke':bubble(to,'❗',true,1.4);AUDIO.sfx('boing');if(self){shk=Math.max(shk,0.35);toast(`👉 ${nameOf(from)} 戳了你一下！`);}break;
       case 'push':bubble(to,'💢',true,1.4);AUDIO.sfx('whoosh');if(self){shk=Math.max(shk,0.3);toast(`🫸 ${nameOf(from)} 推了你一下！`);if(free()&&v){let dx=player.pos.x-v[0],dz=player.pos.y-v[1];const l=Math.hypot(dx,dz)||1;if(l<0.05){dx=Math.sin(player.yaw);dz=Math.cos(player.yaw);}pushV={x:dx/l*17,z:dz/l*17,t:0};}}break;
       case 'five':bubble(from,'🙌',true,4);if(self){N.fiveFrom=from;N.fiveT=performance.now();AUDIO.sfx('chime');
@@ -11978,12 +12026,28 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     if(shk>0){shk=Math.max(0,shk-dt);if(!CALM.on){const s=shk*0.18;camera.position.x+=(Math.random()-0.5)*s;camera.position.y+=(Math.random()-0.5)*s;}}
     // 互動按鈕：有人在旁邊時亮起來
     if(N.on){const n=nearest(),nr=!!(n&&n.d<=NEAR);if(nr!==FXB._nr||(nr&&FXB._who!==n.q.id)){FXB._nr=nr;FXB._who=nr?n.q.id:null;FXB.classList.toggle('near',nr);FXB.textContent=nr?`😜 跟 ${n.q.name||'對方'} 互動`:'😜 互動';if(nr&&FXP.hidden)fxSel=n.q.id;}}}
+  // ================= 聊天室（2026-10-15.13） =================
+  // 打字或快速聊天、表情都會記下來（最多 200 句；新加入的人看不到加入之前的）；頭上冒泡泡、視窗關著時跳提示＋按鈕紅點
+  const LOG=[];let unread=0;
+  const hm=t=>{const d=new Date(t);return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;};
+  function chatAdd(id,text,sys){LOG.push({id,name:sys?'':nameOf(id),col:id===myId()?MYC:PC[id]||'#888',text:String(text),sys:!!sys,t:Date.now()});if(LOG.length>200)LOG.shift();
+    if(CHP.hidden){if(!sys&&id!==myId()){unread++;badge();}}else chatDraw(true);}
+  function badge(){const i=CHB.querySelector('i');i.hidden=!unread;i.textContent=unread>9?'9+':unread;}
+  function chatDraw(stick){const lg=CHP.querySelector('.log'),atEnd=lg.scrollTop+lg.clientHeight>=lg.scrollHeight-30;
+    lg.innerHTML=LOG.length?LOG.map(m=>m.sys?`<div class="sys">${esc(m.text)}</div>`:`<div class="m${m.id===myId()?' me':''}"><b style="color:${m.col}">${esc(m.id===myId()?m.name+'（你）':m.name)}</b><span class="t">${hm(m.t)}</span><div class="tx">${esc(m.text)}</div></div>`).join(''):'<div class="sys">還沒有人說話，打個招呼吧！</div>';
+    if(stick||atEnd)lg.scrollTop=lg.scrollHeight;CHP.querySelector('.cnt').textContent=`${N.P.size+1} 人`;}
+  function chatOpen(){CHP.hidden=false;FXP.hidden=true;P.hidden=true;unread=0;badge();chatDraw(true);if(!isTouch)setTimeout(()=>CHP.querySelector('input').focus(),50);}
+  CHB.onclick=()=>{if(CHP.hidden)chatOpen();else CHP.hidden=true;};
+  CHP.querySelector('.quick').innerHTML=[...SAY,'😂','👍','❤️'].map(s=>`<button type="button" data-s="${s}">${s}</button>`).join('');
+  CHP.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.x){CHP.hidden=true;return;}if(b.dataset.s){const s=b.dataset.s;doFx([...s].length<=2&&!/[\u4e00-\u9fff]/.test(s)?'emo':'say',null,s);}});
+  CHP.querySelector('form').onsubmit=e=>{e.preventDefault();const inp=CHP.querySelector('input'),tx=inp.value.trim().slice(0,60);if(!tx)return;inp.value='';if(!N.on){toast('還沒連線');return;}doFx('say',null,tx);};
+  N.chat=()=>LOG;
   // ---- 每格 ----
   let sT=0,cT=0,lastCfg='',vT=0,pT=0;
   N.tick=dt=>{fxTick(dt);if(!N.on){return;}sT-=dt;cT-=dt;vT-=dt;
     if(sT<=0){sT=1/12;bc(pack());}
     if(cT<=0){cT=1;const c=JSON.stringify([charCfg,avatar.skates]);if(c!==lastCfg){lastCfg=c;bc({t:'cfg',cfg:charCfg,sk:avatar.skates});}
-      const pq=N.P.get(N.pid),n=N.P.size+1;chip.textContent=`👥 ${n} 人連線中`+(TN.net?`・跟 ${N.rname} 打網球`:RACE.net?`・跟 ${N.rname} 賽車`:SB.net?`・跟 ${N.rname} 鬥牛`:CU.coop?`・跟 ${N.rname} 合作打怪`:N.vs&&N.vs.go?`・跟 ${N.rname} 跳舞`:N.P.size===1&&pq==null?(()=>{const q=[...N.P.values()][0];return `・${q.name}${q.ra?'（離開畫面）':''}${q.s?`・${Math.round(dist(q))} m`:''}`;})():'');
+      const pq=N.P.get(N.pid),n=N.P.size+1;chip.textContent=`👥 ${n} 人連線中`+(TN.net?`・跟 ${N.rname} 打網球`:RACE.net?`・跟 ${N.rname} 賽車`:SB.net?`・跟 ${N.rname} 鬥牛`:CU.coop?`・跟 ${N.rname} 合作打怪`:N.vs&&N.vs.go?`・${N.vs.n} 人一起跳舞`:N.P.size===1&&pq==null?(()=>{const q=[...N.P.values()][0];return `・${q.name}${q.ra?'（離開畫面）':''}${q.s?`・${Math.round(dist(q))} m`:''}`;})():'');
       if(!P.hidden&&!P.querySelector('.live').hidden)pplDraw();
       const now=performance.now();
       const dead=(c,q)=>{const pc=c.peerConnection,cs=pc&&pc.connectionState;return cs==='failed'||cs==='closed'||now-c._rx>(q&&q.ra?180000:30000);};   /* 30 秒沒收到東西＝斷了（對方切到別的 App 時等 3 分鐘）；連線已經壞掉也算 */
@@ -11992,10 +12056,11 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     for(const q of N.P.values())remApply(q,dt);
     const pq=N.P.get(N.pid),pr=pq&&pq.rem;if((RACE.net||SB.net)&&pr)pr.A.root.visible=false;   /* 一起賽車／鬥牛：對方的人物藏起來（看車子／球員就好） */
     if(TN.net){if(pr){pr.A.root.visible=false;if(pq.s)TN.netOpp(pq.s.a[0],pq.s.a[2]);}pT-=dt;if(pT<=0){pT=2;send({t:'pi',a:performance.now()});}}   /* 網球對打：對方的人物藏起來，改用網球對手的模型站在對面 */
-    {const sp=DD.on&&N.vs&&N.vs.go&&DD.op&&pr?DD.opSpot():null;for(const q of N.P.values()){const R=q.rem;if(!R)continue;const o=R.A.root;if(sp&&R===pr){if(o.parent!==DD.scene)DD.scene.add(o);o.position.set(sp.x,sp.y,sp.z);o.rotation.set(0,0,0);o.visible=true;}else if(o.parent!==scene)scene.add(o);}}   /* 跳舞機對戰：對方的人物站在舞台旁邊跟著跳 */
-    if(N.vs&&N.vs.go&&!N.vs.me&&DD.play&&vT<=0){vT=0.25;send({t:'ddSc',sc:Math.round(1e6*DD.score/Math.max(1,DD.nSteps)),cb:DD.combo,lf:Math.round((DD.life||0)*100)/100,T:DD.songT?Math.round(DD.songT()*1000)/1000:0});vsDraw();}};
+    {const v=N.vs,stg=DD.on&&v&&v.go&&DD.ops?v.ids:null;for(const q of N.P.values()){const R=q.rem;if(!R)continue;const o=R.A.root,k=stg?stg.indexOf(q.id):-1;   /* 跳舞機對戰：一起跳的人站在舞台兩邊跟著跳 */
+      if(k>=0&&k<3){const sp=DD.opSpot(k);if(o.parent!==DD.scene)DD.scene.add(o);o.position.set(sp.x,sp.y,sp.z);o.rotation.set(0,0,0);o.visible=!(v.op[q.id]&&v.op[q.id].quit);}else if(o.parent!==scene)scene.add(o);}}
+    if(N.vs&&N.vs.go&&!N.vs.me&&DD.play&&vT<=0){vT=0.25;vsSend({t:'ddSc',sc:Math.round(1e6*DD.score/Math.max(1,DD.nSteps)),cb:DD.combo,lf:Math.round((DD.life||0)*100)/100,T:DD.songT?Math.round(DD.songT()*1000)/1000:0});vsDraw();}};
   N.drawMM=(g,w2m)=>{if(!N.on)return;for(const q of N.P.values()){if(!q.s)continue;const [x,y]=w2m(q.s.a[0],q.s.a[2]);g.fillStyle=PC[q.id]||'#2f8fff';g.strokeStyle='#fff';g.lineWidth=1.5;g.beginPath();g.arc(x,y,5,0,Math.PI*2);g.fill();g.stroke();}};
-  N.dbg=()=>({N,pack,rx,rem,peer,fxRun,doFx,BAN,FX,hostRx,out,setOn,myTag,nearest,fxOpen});   /* 測試用 */
+  N.dbg=()=>({chatOpen,chatAdd,N,pack,rx,rem,peer,fxRun,doFx,BAN,FX,hostRx,out,setOn,myTag,nearest,fxOpen});   /* 測試用 */
   addEventListener('pagehide',()=>{if(N.on)bc({t:'bye'});});
   setInterval(()=>{if(N.on)bc({t:'p'});},4000);   /* 畫面迴圈停住（切到背景）時也告訴大家「我還在」 */
   document.addEventListener('visibilitychange',()=>{if(N.on)bc({t:'away',v:document.hidden});});
