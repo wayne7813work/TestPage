@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-15.3"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-15.7"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -562,6 +562,19 @@
   body.dk #gSkills .norm,body:not(.dk) #gSkills .dk{display:none!important}
   #gSkills button[data-s=morph]{background:rgba(70,20,90,.75)}
   #gSkills button.dk{background:rgba(150,40,20,.7);font-size:14px}
+  /* 連線（NET） */
+  #netPanel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:40;width:min(390px,92vw);max-height:88vh;overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:9px;color:var(--ink,#fff)}
+  #netPanel[hidden],#netInv[hidden],#netChip[hidden],#ddVs[hidden]{display:none!important}
+  #netPanel h3{margin:0;font-size:17px}#netPanel .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  #netPanel input[type=text]{flex:1;min-width:0;background:var(--panel-2);color:inherit;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:16px}
+  #netPanel button{background:var(--panel-2);color:inherit;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:15px;font-weight:700}
+  #netPanel button.main{background:#2f8fff;border-color:#7fc0ff;color:#fff}#netPanel .code{font-size:34px;letter-spacing:6px;color:#ffd23a;font-weight:900}
+  #netPanel .st{margin:0;font-size:13px;opacity:.85;min-height:1em}
+  #netChip{position:fixed;left:50%;top:calc(10px + var(--sat));transform:translateX(-50%);z-index:13;background:rgba(30,110,220,.85);color:#fff;border-radius:16px;padding:4px 12px;font-size:13px;font-weight:800;border:1px solid rgba(255,255,255,.5);white-space:nowrap}
+  #netInv{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:45;width:min(340px,90vw);padding:16px;text-align:center;display:flex;flex-direction:column;gap:10px;color:var(--ink,#fff)}
+  #netInv .row{display:flex;gap:10px;justify-content:center}#netInv button{flex:1;border-radius:10px;padding:10px;font-size:16px;font-weight:800;border:1px solid var(--line);background:var(--panel-2);color:inherit}#netInv button.ok{background:#e0408a;border-color:#ffb3d4;color:#fff}
+  #ddVs{position:absolute;left:50%;top:calc(46px + var(--sat));transform:translateX(-50%);z-index:3;background:rgba(10,14,30,.75);border:1px solid rgba(255,255,255,.35);border-radius:12px;padding:5px 12px;color:#fff;font-size:13px;font-weight:800;text-align:center;white-space:nowrap;pointer-events:none}
+  #ddVs b{font-size:16px;color:#ffd23a}#ddVs .me b{color:#7fe0ff}#ddVs .res{font-size:18px;color:#ffe14a}
 </style>
 </head>
 <body>
@@ -621,6 +634,7 @@
 
 <div id="menu" class="panel" hidden>
   <button id="fsBtn">全螢幕（隱藏網址列）</button>
+  <button id="netBtn">👥 連線：和別人一起玩</button>
   <h3>前往</h3>
   <div class="grid" id="goto"></div>
   <h3>環境</h3>
@@ -3677,7 +3691,7 @@ const BALLOON=(()=>{const HOME=new V2(2,27.5),g=new THREE.Group();scene.add(g);
   // 火焰
   const flameTex=(()=>{const [c,x]=cvs(64,64),gr=x.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,220,1)');gr.addColorStop(0.35,'rgba(255,170,40,0.9)');gr.addColorStop(1,'rgba(255,60,0,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
   const flame=new THREE.Sprite(new THREE.SpriteMaterial({map:flameTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));flame.position.set(0,H+2.2,0);flame.visible=false;g.add(flame);
-  const lab=labelSprite('熱氣球','走到吊籃旁按 F 搭乘');lab.scale.multiplyScalar(0.7);lab.position.set(0,16,0);g.add(lab);   // 搭乘中不顯示
+  const lab=labelSprite('熱氣球',isTouch?'點下方按鈕搭乘・按「跳」升空':'按 F 搭乘・按「跳」（空白鍵）升空');lab.scale.multiplyScalar(0.7);lab.position.set(0,16,0);g.add(lab);   // 搭乘中不顯示
   const B={g,pos:HOME.clone(),y:0,vy:0,vel:new V2(),burn:0,riding:false,landing:false,shT:0,t:0,told:false};
   B.col=addBox(HOME.x-0.9,HOME.x+0.9,HOME.y-0.9,HOME.y+0.9,1.1);
   const place=()=>g.position.set(B.pos.x,B.y,B.pos.y);place();
@@ -4454,7 +4468,7 @@ const TN=(()=>{
   // ---- 招式被破解（使用者：放了技能對方都接不住，少了一些樂趣）：每招有機率被對手看穿，對手衝過去喊出破解、回一記強力反擊球；金光模式時機率剩 4 成 ----
   const CNT={twist:0.7,zero:0.7,tsubame:0.7,hadou:0.7,snake:0.7,jack:0.7,hakugei:0.7,tann:0.7,ice:0.7,rai:0.7,rondo:0.7,samurai:0.7,mario:0.7};   // 使用者：7 成機率對手都要打得回來，才有對打的感覺
   const CNAME={twist:'彈臉球被破解了！',zero:'看穿回滾小球了！',tsubame:'貼地滑球被破解！',hadou:'重砲球・回擊！！',snake:'早就看穿大轉彎球了！',jack:'高球反擊！',hakugei:'看穿回風吊球了！',tann:'不彈殺球被破解！',ice:'冰被打碎了！',rai:'閃電快球被接住了！',rondo:'球拍沒掉！反擊！',samurai:'看穿分身球了！',mario:'完美格擋！反擊！！'};
-  const willCounter=k=>T.yips<=0&&Math.random()<(CNT[k]||0)*(T.aura>0?0.4:1);   // 定身術時對手不會破解
+  const willCounter=k=>!T.net&&T.yips<=0&&Math.random()<(CNT[k]||0)*(T.aura>0?0.4:1);   // 定身術時對手不會破解
   // ---- 你擊球 ----
   T.pHitCount=0;
   function pHit(skill){const broke=B.hitter==='o'&&ONAME[B.tag],otag=B.tag;if(broke){T.broke=(T.broke||0)+1;AUDIO.sfx('combo');ring(bp.clone(),'#ffffff',0.45,5,false);burst(bp.clone(),18,'#ffffff',3);}
@@ -4470,12 +4484,12 @@ const TN=(()=>{
       case 'hakugei':Q=new V3(C.cx+rnd(-2,2),R,C.cz-HL+0.9);Tf=2.7;B.tag='hakugei';ret=false;B.trail='#eaf6ff';big('回風吊球！');T.sw.k='zero';break;   // 不二：高高的吊球，落地被風吹回網前
       case 'tann':Q=new V3(C.cx+rnd(-2.5,2.5),R,C.cz-rnd(4,7));Tf=0.75;B.tag='tann';ret=false;B.trail='#ffd27a';big('不彈殺球！');T.sw.k='smash';break;   // 跡部：落地不彈、貼地滑
       case 'ice':{const sd=OPP.pos.x>C.cx?-1:1;Q=new V3(C.cx+sd*(SX-0.45),R,C.cz-HL+1.2);Tf=0.85;B.tag='ice';ret=false;B.trail='#bff4ff';big('冰凍死角！');T.sw.k='fore';icePillars();OPP.react='frozen';OPP.rt=0;AUDIO.sfx('shatter');break;}   // 跡部：冰柱、打死角、對手被冰住
-      case 'samurai':samuraiShot();return;
+      case 'samurai':samuraiShot();if(T.net&&T.netSend){const q=T.sam;T.netSend({t:'tSam',p0:[q.p0.x,q.p0.y,q.p0.z],p1:[q.p1.x,q.p1.y,q.p1.z]});}return;
       case 'rai':{const sd=OPP.pos.x>C.cx?-1:1;Q=new V3(C.cx+sd*(SX-0.6),R,C.cz-HL+rnd(1.5,3));Tf=0.34;B.tag='rai';ret=false;B.trail='#fff26a';big('閃電快球！！');T.sw.k='hadou';flashW();bolt(bp.clone(),Q.clone().setY(0.4),'#fff7a0');AUDIO.sfx('heavy');shake(0.4);break;}   // 真田：閃電般的球
-      case 'snake':snakeShot();return;
-      case 'rondo':startRondo();return;
-      case 'jack':startJack();return;
-      case 'mario':startMario();return;
+      case 'snake':snakeShot();if(T.net&&T.netSend)T.netSend({t:'tPath',p:B.path.p.map(v=>[v.x,v.y,v.z]),T:B.path.T});return;
+      case 'rondo':if(T.net){startJack();B.tag='rondo';B.trail='#c78bff';big('打飛球拍連殺！');if(T.netSend)T.netSend({t:'tW',k:'rondo'});return;}startRondo();return;   /* 連線：跳起來往對手身上殺（打不到＝球拍被打掉） */
+      case 'jack':startJack();if(T.net&&T.netSend)T.netSend({t:'tW',k:'jack'});return;
+      case 'mario':startMario();if(T.net&&T.netSend)T.netSend({t:'tW',k:'mario'});return;
       default:{if(broke)big(otag==='omario'?'擋下彩虹必殺球！！':'破解！'+broke+'！');const ai=T.in;Q=courtPt('o',aura||ai.f>0.3);   // 擊球時按住左右＝邊線、往前＝深、往後＝短
         if(ai.s>0.3)Q.x=C.cx+SX-0.55;else if(ai.s<-0.3)Q.x=C.cx-SX+0.55;else if(aura)Q.x=Math.random()<0.5?C.cx-SX+0.5:C.cx+SX-0.5;if(ai.f<-0.3)Q.z=C.cz-rnd(2.8,4.2);
         if(Math.abs(ai.s)>0.3&&!aura)ret=Math.random()<0.68;Tf=aura?0.72:rnd(1.0,1.2);
@@ -4487,7 +4501,8 @@ const TN=(()=>{
     if(T.yips>0){ret=false;OPP.ret=false;}   // 夢：對手失去五感，動不了
     launch(Q,Tf,skill==='tsubame'?1.0:1.2);OPP.ret=ret;
     const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);if(!ret){OPP.tgt.lerp(OPP.pos,skill==='zero'?0.15:0.5);}
-    if(skill==='zero'||skill==='tsubame'||skill==='twist')AUDIO.sfx('whoosh');}
+    if(skill==='zero'||skill==='tsubame'||skill==='twist')AUDIO.sfx('whoosh');
+    if(T.net)netHitOut(T.sw?T.sw.k:'fore');}
   // ---- 新招式的特效：冰柱、閃電、白光、分身球 ----
   const iceMat=new THREE.MeshStandardMaterial({color:'#cff6ff',transparent:true,opacity:0.78,roughness:0.1,metalness:0.2,emissive:'#4fb8ff',emissiveIntensity:0.35});
   const iceBlock=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.5,0.95,10),iceMat);iceBlock.position.y=0.47;iceBlock.visible=false;OPP.root.add(iceBlock);   // 對手腳被冰住
@@ -4633,42 +4648,72 @@ const TN=(()=>{
       case 'tsubame':bv.y=0;bp.y=R;B.roll=true;bv.x*=1.15;bv.z*=1.15;ring(g,'#7fd6ff',0.5,5);break;   // 不彈、貼地滑
       case 'hadou':ring(g,'#ff7a3a',0.6,7);burst(bp.clone(),18,'#ff6a2a',4);shake(0.25);break;
       case 'mario':ring(g,'rainbow',0.6,8);ring(g,'rainbow',0.5,5);burst(bp.clone(),26,'rainbow',5);shake(0.35);break;
-      case 'jack':bv.set(bv.x*0.25,13,-5.5);B.roll=false;OPP.react='late';OPP.rt=0;ring(g,'#ff8a2a',0.8,12);ring(g,'#ffffff',0.5,6);burst(bp.clone(),36,'#ffb060',6);shake(0.6);AUDIO.sfx('heavy');big('球彈飛出場！');break;   // 砸地、彈飛
+      case 'jack':if(T.net)bv.set(bv.x*0.25,9.0,-4.2);else bv.set(bv.x*0.25,13,-5.5);B.roll=false;OPP.react='late';OPP.rt=0;ring(g,'#ff8a2a',0.8,12);ring(g,'#ffffff',0.5,6);burst(bp.clone(),36,'#ffb060',6);shake(0.6);AUDIO.sfx('heavy');big('球彈飛出場！');break;   // 砸地、彈飛
       default:if(!OPP.ret){OPP.react='late';OPP.rt=0;}}}
   // ---- 計分 ----
-  const NUM=['0','15','30','40'];
-  function scoreText(){const a=T.sc.p,b=T.sc.o;if(a>=3&&b>=3)return a===b?'Deuce':a>b?'Advantage 你':'Advantage 對手';return `${NUM[a]}-${NUM[b]}`;}
-  function draw(){const el=document.getElementById('tnScore');if(el)el.textContent=`你 ${T.gm.p} : ${T.gm.o} 對手`;const e2=document.getElementById('tnPts');if(e2)e2.textContent=scoreText()+(T.server==='p'?'　你發球':'　對手發球');
-    const e3=document.getElementById('tnAura');if(e3)e3.textContent=[T.aura>0?`金光模式 ${Math.ceil(T.aura)} 秒`:'',T.zone>0?`吸球模式 ${Math.ceil(T.zone)} 秒`:'',T.phantom>0?`出界魔法 ${Math.ceil(T.phantom)} 秒`:'',T.yips>0?`定身術 ${Math.ceil(T.yips)} 秒`:'',T.noteT>0?T.noteMsg:'',T.obuff?`對手：${OBN[T.obuff.k]} ${Math.ceil(T.obuff.t)} 秒`:'',T.frozen>0?'腳被冰住！':''].filter(Boolean).join('　');
+  const NUM=['0','15','30','40'],ON=()=>T.net&&T.oppName?T.oppName:'對手';
+  function scoreText(){const a=T.sc.p,b=T.sc.o;if(a>=3&&b>=3)return a===b?'Deuce':a>b?'Advantage 你':'Advantage '+ON();return `${NUM[a]}-${NUM[b]}`;}
+  function draw(){const el=document.getElementById('tnScore');if(el)el.textContent=`你 ${T.gm.p} : ${T.gm.o} ${ON()}`;const e2=document.getElementById('tnPts');if(e2)e2.textContent=scoreText()+(T.server==='p'?'　你發球':'　'+ON()+'發球');
+    const e3=document.getElementById('tnAura');if(e3)e3.textContent=[T.aura>0?`金光模式 ${Math.ceil(T.aura)} 秒`:'',T.zone>0?`吸球模式 ${Math.ceil(T.zone)} 秒`:'',T.phantom>0?`出界魔法 ${Math.ceil(T.phantom)} 秒`:'',T.yips>0?`定身術 ${Math.ceil(T.yips)} 秒`:'',T.noteT>0?T.noteMsg:'',T.obuff?`${ON()}：${OBN[T.obuff.k]} ${Math.ceil(T.obuff.t)} 秒`:'',T.frozen>0?'腳被冰住！':''].filter(Boolean).join('　');
     const c=TN_SCORE.cv;if(!c)return;const g=c.getContext('2d');g.fillStyle='#0b0d10';g.fillRect(0,0,512,256);g.textAlign='center';g.textBaseline='middle';
-    g.fillStyle='#9aa4ad';g.font=`700 30px ${FONT}`;g.fillText('你',128,40);g.fillText('對手',384,40);g.fillStyle='#ffcf3a';g.font=`900 96px ${FONT}`;g.fillText(String(T.gm.p),128,120);g.fillText(String(T.gm.o),384,120);
+    g.fillStyle='#9aa4ad';g.font=`700 30px ${FONT}`;g.fillText('你',128,40);g.fillText(ON(),384,40);g.fillStyle='#ffcf3a';g.font=`900 96px ${FONT}`;g.fillText(String(T.gm.p),128,120);g.fillText(String(T.gm.o),384,120);
     g.fillStyle='#e9eef2';g.font=`800 40px ${FONT}`;g.fillText(scoreText(),256,214);TN_SCORE.tex.needsUpdate=true;}
   // 招式結束的提示：顯示在左上角比分條裡 2 秒（使用者：技能效果結束會擋住視線 → 不再用畫面中間的提示框）
   function note(m){T.noteMsg=m;T.noteT=2;draw();}
-  function point(w,why){if(B.dead)return;B.dead=true;T.sc[w]++;const l=w==='p'?'o':'p';let msg;
+  function point(w,why,rem){if(B.dead)return;if(T.net&&!rem&&B.hitter==='p')return;   /* 連線對打：球飛到哪一邊，就由那一邊判定得分（再通知對方），兩邊比分才會一樣 */
+    B.dead=true;T.sc[w]++;const l=w==='p'?'o':'p';let msg;
     if(T.sc[w]>=4&&T.sc[w]-T.sc[l]>=2){T.gm[w]++;T.sc={p:0,o:0};T.server=T.server==='p'?'o':'p';msg=w==='p'?`拿下這一局！ ${T.gm.p}:${T.gm.o}`:`對手拿下這一局 ${T.gm.p}:${T.gm.o}`;if(w==='p')AUDIO.sfx('bigcheer');}
     else{msg=(w==='p'?'得分！ ':'失分… ')+scoreText();if(w==='p')AUDIO.sfx('cheer');}
-    T.pend={t:0,msg:(why?why+'　':'')+msg};draw();}
+    T.pend={t:0,msg:(why?why+'　':'')+msg};draw();
+    if(T.net&&!rem&&T.netSend)T.netSend({t:'tP',w:w==='p'?'o':'p',why:why||'',sc:[T.sc.o,T.sc.p],gm:[T.gm.o,T.gm.p],srv:T.server==='p'?'o':'p'});}
   // ---- 每一分開始：站位、發球 ----
   function restoreRacket(){if(OPP.fly){OPP.fly=null;}OPP.racket.visible=true;if(OPP.racket.parent!==OPP.armR){OPP.armR.add(OPP.racket);}OPP.racket.position.set(0,-0.6,0);OPP.racket.rotation.set(0,0,0);}
   function flyRacket(v){OPP.root.updateMatrixWorld(true);scene.attach(OPP.racket);OPP.fly={v,w:new V3(rnd(8,14),rnd(4,9),rnd(6,12))};}
   // 對手的 buff（每一分開始時 15% 機率開一個）：金光模式 12 秒、吸球模式 10 秒、出界魔法 10 秒、定身術 3 秒（你動不了，來回中才倒數）
   const OBN={aura:'金光模式',zone:'吸球模式',phantom:'出界魔法',yips:'定身術'},OBD={aura:12,zone:10,phantom:10,yips:3},OBC={aura:'#ffd84a',zone:'#6fe3ff',phantom:'#7d8cff',yips:'#a050d0'};
-  function oBuff(k){T.obuff={k,t:OBD[k]};big('對手：'+OBN[k]+'！');AUDIO.sfx('chime');AUDIO.sfx(k==='aura'?'fire':k==='yips'?'heavy':'whoosh');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);ring(g,OBC[k],0.9,11);ring(g.clone().setY(1),'#ffffff',0.6,5,false);burst(g.clone().setY(1),26,OBC[k],4);
+  function oBuff(k){T.obuff={k,t:OBD[k]};big(ON()+'：'+OBN[k]+'！');AUDIO.sfx('chime');AUDIO.sfx(k==='aura'?'fire':k==='yips'?'heavy':'whoosh');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);ring(g,OBC[k],0.9,11);ring(g.clone().setY(1),'#ffffff',0.6,5,false);burst(g.clone().setY(1),26,OBC[k],4);
     if(k==='yips')ring(new V3(player.pos.x,player.y+0.05,player.pos.y),OBC.yips,1.0,9);draw();}
   function setupPoint(){samClear();osamClear();prkHome();T.frozen=0;pIce.visible=false;B.hold=null;B.markAfter=false;B.knocked=false;OPP.jd=OPP.jh=undefined;T.buf=null;T.land=null;T.knock=0;OPP.jt=undefined;B.counter=false;OPP.boost=1;B.dead=false;B.net=false;B.roll=false;B.rollT=0;B.bounces=0;B.tag=null;B.trail=null;B.hitter=null;B.mode='held';T.seq=null;T.q=null;markQ();restoreRacket();OPP.react=T.yips>0?'dazed':null;OPP.sw=null;T.sw=null;
     const deuce=(T.sc.p+T.sc.o)%2===0;T.st='serve';T.serveT=0;T.tossT=-1;T.ptgt=null;
     if(T.server==='p'){player.pos.set(C.cx+(deuce?0.8:-0.8),C.cz+HL+0.35);OPP.pos.set(C.cx+(deuce?-2.4:2.4),C.cz-HL-0.7);}
     else{player.pos.set(C.cx+(deuce?2.4:-2.4),C.cz+HL+0.7);OPP.pos.set(C.cx+(deuce?-0.8:0.8),C.cz-HL-0.35);}
     OPP.tgt.copy(OPP.pos);player.vel.set(0,0);player.y=heightAt(player.pos.x,player.pos.y,0);
-    if(!T.obuff&&T.yips<=0&&T.on&&Math.random()<0.15)oBuff(['aura','zone','phantom','yips'][Math.floor(Math.random()*4)]);draw();}
+    if(!T.obuff&&T.yips<=0&&T.on&&!T.net&&Math.random()<0.15)oBuff(['aura','zone','phantom','yips'][Math.floor(Math.random()*4)]);draw();}
   function serve(kind){if(T.st!=='serve'||T.tossT>=0)return;T.tossT=0;T.serveKind=kind;}
   function doServe(){const deuce=(T.sc.p+T.sc.o)%2===0;T.st='rally';B.mode='phys';B.bounces=0;B.net=false;B.roll=false;B.rollT=0;AUDIO.sfx('pock',bp);
     if(T.server==='p'){B.hitter='p';const tw=T.serveKind==='twist',tn=T.serveKind==='tann';T.sw={k:'smash',t:0};B.trail=tw?'#bfe9ff':tn?'#ffd27a':T.aura>0?'#ffd84a':null;
       const Q=new V3(deuce?C.cx-rnd(0.6,SX-0.5):C.cx+rnd(0.6,SX-0.5),R,C.cz-rnd(tw?4.6:2.5,5.6));launch(Q,tw?0.85:tn?0.7:0.62,1.15);
       if(tw){B.tag='twist';OPP.ret=false;B.counter=willCounter('twist');if(B.counter){OPP.ret=true;OPP.boost=2.0;}big('彈臉發球！');AUDIO.sfx('whoosh');ring(bp.clone(),'#bfe9ff',0.45,4,false);}else if(tn){B.tag='tann';OPP.ret=false;B.counter=willCounter('tann');if(B.counter){OPP.ret=true;OPP.boost=2.0;}big('不彈殺球發球！');AUDIO.sfx('whoosh');}else OPP.ret=Math.random()<(T.aura>0?0.3:0.75);
-      const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);if(!OPP.ret)OPP.tgt.lerp(OPP.pos,0.5);}
+      const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);if(!OPP.ret)OPP.tgt.lerp(OPP.pos,0.5);if(T.net)netHitOut('smash');}
     else{B.hitter='o';OPP.sw={t:0,k:'smash'};const Q=new V3(deuce?C.cx+rnd(0.6,SX-0.5):C.cx-rnd(0.6,SX-0.5),R,C.cz+rnd(2.5,5.6));launch(Q,0.95,1.15);T.land=landPt();}}
+  // ---- 連線對打（2026-10-15 使用者：要互相打網球）----
+  // 兩邊都覺得自己在近端（南邊）：對方的位置、球都照球場中心鏡像（x→2cx−x、z→2cz−z、速度 x z 反過來）。
+  // 誰擊球誰就把「球的位置＋速度」傳過去，對方用同一套物理算；得分由球飛過去的那一邊判定（point 的 rem）。
+  T.net=false;T.oppName='';
+  function netHitOut(k){if(T.netSend)T.netSend({t:'tH',p:[bp.x,bp.y,bp.z],v:[bv.x,bv.y,bv.z],k,tag:B.tag||null,tr:typeof B.trail==='string'?B.trail:null});}
+  function netOpp(dt){const O=OPP;if(!T.nt){O.mv=false;return;}const k=1-Math.exp(-dt*12),dx=T.nt.x-O.pos.x,dz=T.nt.y-O.pos.y;O.mv=Math.hypot(dx,dz)>0.04;O.pos.x+=dx*k;O.pos.y+=dz*k;}
+  T.netOpp=(x,z)=>{(T.nt||(T.nt=new V2())).set(2*C.cx-x,2*C.cz-z);};
+  T.netRx=d=>{if(!T.on||!T.net)return;
+    if(d.t==='tB'){if(OBN[d.k])oBuff(d.k);return;}   /* 對方開了 buff（金光、吸球、出界魔法、定身術） */
+    const ON2=T.oppName||'對手',mir=a=>new V3(2*C.cx-a[0],a[1],2*C.cz-a[2]);
+    const pre=()=>{if(T.pend){T.pend=null;setupPoint();}T.st='rally';T.tossT=-1;samClear();osamClear();T.seq=null;B.hold=null;B.dead=false;B.net=false;B.roll=false;B.rollT=0;B.markAfter=false;B.knocked=false;B.bounces=0;B.counter=false;ball.visible=true;};
+    const tagIn=k=>{const ok='o'+k;B.tag=ok;B.trail=OCOL[ok];big(`${ON2}：${ONAME[ok]}！`);AUDIO.sfx('whoosh');ring(bp.clone(),OCOL[ok],0.45,4,false);burst(bp.clone(),14,OCOL[ok],3);};
+    if(d.t==='tW'){pre();const ok='o'+d.k,mo=d.k==='mario';B.hitter='o';B.mode='ohold';B.hold={t:0,k:ok,dur:99};B.tag=ok;B.trail=OCOL[ok];OPP.jt=0;OPP.jd=mo?1.1:0.8;OPP.jh=mo?2.2:1.6;T.land=null;   /* 對方跳起來（球在頭上），等真正殺下來的那一球 */
+      big(`${ON2}：${ONAME[ok]}！`);AUDIO.sfx('takeoff');if(mo){AUDIO.sfx('chime');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);for(let i=0;i<3;i++)ring(g,'rainbow',0.6+i*0.15,6+i*3);}return;}
+    if(d.t==='tPath'){pre();const P=d.p.map(mir);bp.copy(P[0]);B.hitter='o';B.mode='path';B.path={p:P,T:d.T,t:0,by:'o'};T.land=new V2(P[3].x,P[3].z);tagIn('snake');OPP.sw={t:0,k:'fore'};AUDIO.sfx('pock',bp);return;}
+    if(d.t==='tSam'){pre();const p0=mir(d.p0),p1=mir(d.p1);bp.copy(p0);B.hitter='o';T.osam={t:0,p0,p1,split:false};B.mode='osam';T.land=null;tagIn('samurai');OPP.sw={t:0,k:'fore'};AUDIO.sfx('pock',bp);return;}
+    if(d.t==='tH'){const wasHold=B.mode==='ohold'&&B.hold;pre();
+      bp.set(2*C.cx-d.p[0],d.p[1],2*C.cz-d.p[2]);bv.set(-d.v[0],d.v[1],-d.v[2]);B.mode='phys';B.hitter='o';B.tag=null;B.trail=null;
+      OPP.sw={t:0,k:d.k==='smash'?'smash':bp.x>OPP.pos.x?'fore':'back'};AUDIO.sfx('pock',bp);
+      if(d.tag&&ONAME['o'+d.tag]){const ok='o'+d.tag;if(wasHold){B.tag=ok;B.trail=OCOL[ok];AUDIO.sfx('slam');shake(0.45);if(ok==='omario'){flashW();AUDIO.sfx('heavy');ring(bp.clone(),'rainbow',0.6,8,false);burst(bp.clone(),34,'rainbow',6);}else ring(bp.clone(),OCOL[ok],0.5,6,false);}
+        else{tagIn(d.tag);if(ok==='oice'){icePillars(player.pos,true);T.frozen=0.6;AUDIO.sfx('shatter');}else if(ok==='orai'){flashW();shake(0.3);AUDIO.sfx('heavy');bolt(bp.clone(),new V3(bp.x+bv.x*0.3,0.4,bp.z+bv.z*0.3),'#fff7a0');}else if(ok==='ohadou'){shake(0.35);AUDIO.sfx('heavy');ring(bp.clone(),'#ff7a3a',0.5,7,false);}}}
+      else if(d.tr)B.trail=d.tr;
+      const ow=T.owd?T.owd():0.05;for(let t=0;t<ow;t+=1/60)phys(Math.min(1/60,ow-t));   /* 補網路延遲：球往前算半個來回的時間 */
+      T.land=landPt();}
+    else if(d.t==='tP'){B.dead=false;point(d.w,d.why,true);T.sc={p:d.sc[0],o:d.sc[1]};T.gm={p:d.gm[0],o:d.gm[1]};T.server=d.srv;draw();}
+    else if(d.t==='tQ'){T.net=false;document.body.classList.remove('tnnet');if(T.netEnd)T.netEnd();toast(`${T.oppName||'對手'} 離開網球場了`);T.stop();}};
+  T.startNet=(server,name)=>{if(T.on){T.net=false;T.stop();}teleport(C.cx,C.cz+HL+1,0,0);T.net=true;T.oppName=name||'對手';T.start();T.nt=null;document.body.classList.add('tnnet');T.server=server;setupPoint();draw();
+    toast(server==='p'?'🎾 你先發球：按「擊球」發球':`🎾 ${T.oppName} 先發球`);};
   // ---- 開始／結束 ----
   T.near=()=>started&&mode==='walk'&&!RACE.on&&!GAME.on&&!SKATE.on&&!LIE.on&&!BALLOON.riding&&!BB.on&&player.y<1.2&&inR(player.pos.x,player.pos.y,P);
   T.label=()=>T.on?'放下球拍':T.near()?'拿球拍打網球':null;
@@ -4679,10 +4724,10 @@ const TN=(()=>{
     if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}camSave=comfort.camDist;comfort.camDist=Math.max(comfort.camDist,6.2);player.yaw=0;player.pitch=-0.2;
     setupPoint();AUDIO.sfx('chime');
     if(!T.told){T.told=true;toast(isTouch?'網球：自己跑（搖桿），黃圈＝球會落地的地方；球到身邊「擊球」變綠就按（同時推搖桿左右＝打邊線）。招式也是球到身邊按。先按「擊球」發球':'網球：WASD 跑位，黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J，同時按住 A／D＝打邊線。1～9、R T Y U I O P、G 彩虹必殺球 也是球到身邊按；F 放下球拍');}};
-  T.stop=()=>{if(!T.on)return;T.on=false;document.body.classList.remove('tnp2');T.phantom=0;T.yips=0;T.obuff=null;T.frozen=0;pIce.visible=false;osamClear();prkHome();OPP.root.visible=false;ball.visible=false;shadow.visible=false;hud.hidden=true;btns.hidden=true;document.body.classList.remove('tn');restoreRacket();
+  T.stop=()=>{if(!T.on)return;if(T.net){T.net=false;document.body.classList.remove('tnnet');if(T.netSend)T.netSend({t:'tQ'});if(T.netEnd)T.netEnd();}T.on=false;document.body.classList.remove('tnp2');T.phantom=0;T.yips=0;T.obuff=null;T.frozen=0;pIce.visible=false;osamClear();prkHome();OPP.root.visible=false;ball.visible=false;shadow.visible=false;hud.hidden=true;btns.hidden=true;document.body.classList.remove('tn');restoreRacket();
     if(prk.parent)prk.parent.remove(prk);if(camSave!==null){comfort.camDist=camSave;camSave=null;}T.cm=null;T.ck=0;T.seq=null;T.aura=0;T.zone=0;T.jump=null;T.slow=0;mark.visible=false;
     const A=avatar;A.body.rotation.set(0,0,0);A.body.position.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);A.zeroJoints();};
-  T.rt=dt=>{if(T.slow>0){T.slow-=dt;return T.slowK;}return 1;};
+  T.rt=dt=>{if(T.net){T.slow=0;return 1;}if(T.slow>0){T.slow-=dt;return T.slowK;}return 1;};   /* 連線：不放慢動作（兩邊時間要一樣） */
   T.oSpecial=oSpecial;T.oBuff=oBuff;   // 測試用：強制對手出招／開 buff
   // ---- 按鈕：擊球／發球、各招式（排隊＝下一球用；球已經在身邊就馬上打） ----
   function markQ(){for(const b of btns.querySelectorAll('button'))b.classList.toggle('on',(b.dataset.k==='aura'&&T.aura>0)||(b.dataset.k==='zone'&&T.zone>0)||(b.dataset.k==='phantom'&&T.phantom>0)||(b.dataset.k==='yips'&&T.yips>0));}
@@ -4690,6 +4735,7 @@ const TN=(()=>{
   function canHit(){return T.st==='rally'&&B.mode==='phys'&&B.hitter==='o'&&!B.dead&&bp.z>C.cz&&Math.hypot(bp.x-player.pos.x,bp.z-player.pos.y)<1.6&&bp.y>0.08&&bp.y<2.6;}
   function soon(){if(T.st!=='rally'||B.mode!=='phys'||B.hitter!=='o'||B.dead)return false;const dx=bp.x-player.pos.x,dz=bp.z-player.pos.y,d=Math.hypot(dx,dz),closing=-(dx*bv.x+dz*bv.z)/Math.max(d,0.01);return closing>0&&d<1.6+closing*0.4;}   // 0.4 秒內會到
   T.press=k=>{if(!T.on)return;
+    if(T.net&&(k==='aura'||k==='phantom'||k==='yips'||k==='zone')&&!(T[k]>0)&&T.netSend)T.netSend({t:'tB',k});   /* 連線：你開的 buff＝對方那邊「對手開了 buff」 */
     if(k==='aura'){if(T.aura>0)return;T.aura=12;big('金光模式！');AUDIO.sfx('fire');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#ffd84a',0.8,10);ring(g.clone().setY(player.y+1),'#ffffff',0.6,5,false);burst(g.clone().setY(player.y+1),30,'#ffd84a',4);markQ();draw();return;}
     if(k==='page'){const on=document.body.classList.toggle('tnp2');document.getElementById('tnPage').innerHTML=on?'前一頁':'更多<br>招式';return;}
     if(k==='phantom'){if(T.phantom>0)return;T.phantom=10;big('出界魔法！');AUDIO.sfx('whoosh');AUDIO.sfx('chime');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#7d8cff',0.9,12);markQ();draw();return;}   // 出界魔法：10 秒對手的球大多出界
@@ -4723,7 +4769,7 @@ const TN=(()=>{
       if(T.aura<=0){T.aura=0;markQ();note('金光模式結束');}draw();}
     // 發球
     if(T.st==='serve'){T.serveT+=dt;const sv=T.server==='p'?null:OPP;
-      if(T.server==='o'&&T.serveT>1.3&&T.tossT<0){T.tossT=0;T.serveKind='normal';OPP.sw={t:0,k:'toss'};}
+      if(T.server==='o'&&!T.net&&T.serveT>1.3&&T.tossT<0){T.tossT=0;T.serveKind='normal';OPP.sw={t:0,k:'toss'};}
       if(T.tossT>=0){T.tossT+=dt;const u=Math.min(1,T.tossT/0.55),h=2.95;const bx=T.server==='p'?player.pos.x-0.2:OPP.pos.x+0.2,bz=T.server==='p'?player.pos.y-0.35:OPP.pos.y+0.35,by=(T.server==='p'?player.y:0)+1.3+(h-1.3)*Math.sin(Math.PI/2*u);
         bp.set(bx,by,bz);if(T.server==='p'&&!T.sw)T.sw={k:'toss',t:0};if(u>=1)doServe();}
       else{const bx=T.server==='p'?player.pos.x-0.25:OPP.pos.x+0.25,bz=T.server==='p'?player.pos.y-0.2:OPP.pos.y+0.2;bp.set(bx,1.0+(T.server==='p'?player.y:0)+Math.abs(Math.sin(T.serveT*5))*-0.0,bz);}}   // 拿在手上
@@ -4733,12 +4779,12 @@ const TN=(()=>{
     else if(B.mode==='seq'||B.mode==='sam'){}   // 打飛球拍連殺：在 T.step 裡算；分身球：samTick
     else if(B.mode==='jack'){const j=T.jump;bp.set(player.pos.x-0.25,player.y+2.3,player.pos.y-0.2);   // 跳躍扣殺：球在頭上，跳到最高點往下殺
       if(!j||j.t>=0.36){if(j)j.launched=true;T.sw={k:'smash',t:0};AUDIO.sfx('pock',bp);AUDIO.sfx('slam');shake(0.45);B.mode='phys';B.hitter='p';B.bounces=0;B.net=false;B.roll=false;B.rollT=0;
-        launch(new V3(cl(OPP.pos.x+rnd(-1,1),C.cx-SX+0.6,C.cx+SX-0.6),R,cl(OPP.pos.y+3.2,C.cz-HL+1,C.cz-3)),0.5,1.25);ring(bp.clone(),'#ff8a2a',0.45,6,false);burst(bp.clone(),20,'#ffb060',5);OPP.tgt.copy(OPP.pos);
+        launch(B.tag==='rondo'?new V3(cl(OPP.pos.x,C.cx-SX+0.5,C.cx+SX-0.5),R,cl(OPP.pos.y+1.0,C.cz-HL+0.5,C.cz-2)):new V3(cl(OPP.pos.x+rnd(-1,1),C.cx-SX+0.6,C.cx+SX-0.6),R,cl(OPP.pos.y+3.2,C.cz-HL+1,C.cz-3)),0.5,1.25);if(T.net)netHitOut('smash');ring(bp.clone(),'#ff8a2a',0.45,6,false);burst(bp.clone(),20,'#ffb060',5);OPP.tgt.copy(OPP.pos);
         if(B.counter){OPP.ret=true;OPP.boost=2.2;const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);}}}
     else if(B.mode==='mario'){const j=T.jump;bp.set(player.pos.x-0.25,player.y+2.3,player.pos.y-0.2);   // 彩虹必殺球：跳到最高點（0.5 秒）把彩虹球轟向對手
       if(Math.random()<dt*40){const a=Math.random()*Math.PI*2,r=rnd(0.5,1.2);puff(new V3(player.pos.x+Math.cos(a)*r,player.y+rnd(0.2,2.6),player.pos.y+Math.sin(a)*r),0.6,0.35,0.05,new V3(0,1.5,0),Math.random()<0.4?'#ffffff':'rainbow');}
       if(!j||j.t>=0.5){if(j)j.launched=true;T.sw={k:'smash',t:0};AUDIO.sfx('pock',bp);AUDIO.sfx('slam');AUDIO.sfx('heavy');shake(0.6);flashW();slow(0.55,0.3);B.mode='phys';B.hitter='p';B.bounces=0;B.net=false;B.roll=false;B.rollT=0;
-        launch(new V3(cl(OPP.pos.x,C.cx-SX+0.5,C.cx+SX-0.5),R,cl(OPP.pos.y+1.0,C.cz-HL+0.5,C.cz-2)),0.45,1.25);ring(bp.clone(),'rainbow',0.6,8,false);ring(bp.clone(),'#ffffff',0.45,5,false);burst(bp.clone(),36,'rainbow',6);OPP.tgt.copy(OPP.pos);
+        launch(new V3(cl(OPP.pos.x,C.cx-SX+0.5,C.cx+SX-0.5),R,cl(OPP.pos.y+1.0,C.cz-HL+0.5,C.cz-2)),0.45,1.25);if(T.net)netHitOut('smash');ring(bp.clone(),'rainbow',0.6,8,false);ring(bp.clone(),'#ffffff',0.45,5,false);burst(bp.clone(),36,'rainbow',6);OPP.tgt.copy(OPP.pos);
         if(B.counter){OPP.ret=true;OPP.boost=2.2;const pr=predict();OPP.tgt.set(pr.x-0.55,pr.z-0.25);}}}
     else if(B.mode==='ohold'){const h=B.hold;h.t+=dt;bp.set(OPP.pos.x+0.2,OPP.root.position.y+2.5,OPP.pos.y+0.2);   // 對手跳起來、球在頭上
       if(h.k==='omario'&&Math.random()<dt*40){const a=Math.random()*Math.PI*2,r=rnd(0.5,1.2);puff(new V3(OPP.pos.x+Math.cos(a)*r,OPP.root.position.y+rnd(0.2,2.6),OPP.pos.y+Math.sin(a)*r),0.6,0.35,0.05,new V3(0,1.5,0),Math.random()<0.4?'#ffffff':'rainbow');}
@@ -4763,7 +4809,7 @@ const TN=(()=>{
       if(T.zone<=0){T.zone=0;markQ();note('吸球模式結束');}draw();}
     {const on=T.land&&B.hitter==='o'&&(B.bounces===0||B.markAfter)&&!B.dead&&T.st==='rally';mark.visible=!!on;if(on){mark.position.set(T.land.x,0.035,T.land.y);mark.scale.setScalar(1+0.15*Math.sin(performance.now()/90));}}
     // 對手：跑位、回擊、各招的反應
-    {const O=OPP;O.rt+=dt;const busy=O.react==='blown'||O.react==='lunge'||O.react==='frozen'||O.react==='dazed'||T.yips>0;
+    {const O=OPP;O.rt+=dt;if(T.net){netOpp(dt);oPose(dt);}else{const busy=O.react==='blown'||O.react==='lunge'||O.react==='frozen'||O.react==='dazed'||T.yips>0;
       if(!busy&&!(T.st==='serve'&&T.server==='o')){const spd=O.ret?6.6*(O.boost||1):3.2,dx=O.tgt.x-O.pos.x,dz=O.tgt.y-O.pos.y,l=Math.hypot(dx,dz);O.mv=l>0.06;if(O.mv){const u=Math.min(spd*dt,l);O.pos.x+=dx/l*u;O.pos.y+=dz/l*u;}}else O.mv=false;
       if(O.react==='lunge'&&O.rt<0.7){O.pos.y=Math.min(C.cz-0.9,O.pos.y+dt*6.5);O.mv=true;}   // 回滾小球：衝到網前也來不及
       if(O.react==='blown'&&O.rt<0.6){O.pos.y-=dt*5*(1-O.rt/0.6);}   // 重砲球：被轟到往後滑
@@ -4776,7 +4822,7 @@ const TN=(()=>{
           if(B.tag==='tsubame'){big('揮空！');}}}
       if(T.st==='rally'&&B.hitter==='p'&&(B.dead||B.bounces>1)&&O.react!=='blown')O.home();
       if(O.fly){const f=O.fly,r=O.racket;if(r.position.y>0.06){f.v.y-=GR*dt;r.position.addScaledVector(f.v,dt);r.rotation.x+=f.w.x*dt;r.rotation.y+=f.w.y*dt;r.rotation.z+=f.w.z*dt;}else{r.position.y=0.06;r.rotation.set(Math.PI/2,0,r.rotation.z);}}
-      oPose(dt);}
+      oPose(dt);}}
     // 這一分結束 → 1.9 秒後下一分
     if(T.pend){T.pend.t+=dt;if(T.pend.t>0.35&&!T.pend.shown){T.pend.shown=true;big(T.pend.msg);}if(T.pend.t>2.1){T.pend=null;setupPoint();}}
     // 球的拖尾、影子
@@ -9062,14 +9108,15 @@ const DD=(()=>{
   const DIFFN=['簡單','普通','困難','地獄'];
   const GCOL={AAA:'#ffe14a',AA:'#ffd23a',A:'#ff9a3a',B:'#3fbf7a',C:'#3d8fc2',D:'#9aa1a8',E:'#e0533f'};
   function drawPanel(){const sp=[1,1.5,2,3];
-    panel.querySelector('.opts').innerHTML=`<div class="row"><span>箭頭速度</span>${sp.map(v=>`<button data-s="${v}" class="${SAVE.spd===v?'on':''}">${v}×</button>`).join('')}</div>`+
+    panel.querySelector('.opts').innerHTML=(D.vsRow?D.vsRow():'')+`<div class="row"><span>箭頭速度</span>${sp.map(v=>`<button data-s="${v}" class="${SAVE.spd===v?'on':''}">${v}×</button>`).join('')}</div>`+
       `<div class="row"><span>時間微調</span><button data-o="-">－</button><b class="off">${SAVE.off>0?'+':''}${SAVE.off} ms</b><button data-o="+">＋</button><small>常顯示「太晚 LATE」就按－、「太早 EARLY」就按＋（藍牙耳機通常要＋）</small></div>`+
       `<div class="row"><button data-o="auto" class="${SAVE.auto?'on':''}">${SAVE.auto?'✅':'⬜'} 自動示範（看人物自己跳，不記分）</button><button data-o="tick" class="${SAVE.tick?'on':''}">${SAVE.tick?'✅':'⬜'} 踩到有拍手聲</button></div>`;
     panel.querySelector('.songs').innerHTML=SONGS.map((S,i)=>{const L=layout(S),sec=Math.round(L.total*60/S.bpm);return `<div class="song"><div><b>${S.xmas?'🎄 ':''}${S.n}</b><small>${S.lv?S.lv+'・':''}${S.bpm} BPM・${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}</small></div>`+
       DIFFN.map((n,dv)=>{const r=SAVE.best[S.id+':'+dv];return `<button class="d${dv}" data-p="${i}" data-v="${dv}">${n}<small style="${r&&(r.g==='AAA'||r.g==='AA')?'color:#ffe14a':''}">${r?r.g+(r.fc?' ★':''):'—'}</small></button>`;}).join('')+'</div>';}).join('');
     for(const b of panel.querySelectorAll('[data-s]'))b.onclick=e=>{e.stopPropagation();SAVE.spd=+b.dataset.s;save();drawPanel();};
-    for(const b of panel.querySelectorAll('[data-o]'))b.onclick=e=>{e.stopPropagation();const o=b.dataset.o;if(o==='-')SAVE.off=Math.max(-200,SAVE.off-10);else if(o==='+')SAVE.off=Math.min(300,SAVE.off+10);else if(o==='auto')SAVE.auto=!SAVE.auto;else if(o==='tick')SAVE.tick=!SAVE.tick;save();drawPanel();};
-    for(const b of panel.querySelectorAll('[data-p]'))b.onclick=e=>{e.stopPropagation();D.startSong(+b.dataset.p,+b.dataset.v);};}
+    for(const b of panel.querySelectorAll('[data-o]'))b.onclick=e=>{e.stopPropagation();const o=b.dataset.o;if(o==='-')SAVE.off=Math.max(-200,SAVE.off-10);else if(o==='+')SAVE.off=Math.min(300,SAVE.off+10);else if(o==='auto')SAVE.auto=!SAVE.auto;else if(o==='tick')SAVE.tick=!SAVE.tick;else if(o==='vs'&&D.vsToggle)D.vsToggle();save();drawPanel();};
+    for(const b of panel.querySelectorAll('[data-p]'))b.onclick=e=>{e.stopPropagation();D.pick(+b.dataset.p,+b.dataset.v);};}
+  D.pick=(i,dv)=>{if(D.vsInvite&&D.vsInvite(i,dv))return;D.startSong(i,dv);};   /* 連線中：邀請對方一起跳（NET） */
   panel.querySelector('[data-x=exit]').onclick=e=>{e.stopPropagation();D.stop();};
   function showPanel(res){panel.querySelector('.res').innerHTML=res||'';drawPanel();panel.hidden=false;padEl.hidden=true;topEl.hidden=true;if(!res)panel.scrollTop=0;else panel.scrollTop=0;}
 
@@ -9110,7 +9157,7 @@ const DD=(()=>{
     if(!D.useCtx)toast('聲音還沒打開：點一下畫面再按「重來」就有音樂');};
   const now=()=>{const c=ac();return D.useCtx&&c?c.currentTime:performance.now()/1000;};
   const songT=()=>D.paused?D.pSong:now()-D.t0-D.lat;
-  function abort(quiet){mzStop(0.15);D.play=false;D.paused=false;for(let l=0;l<4;l++)D.down&&(D.down[l]=false);if(!quiet)showPanel();}
+  function abort(quiet){if(D.play&&D.onAbort)D.onAbort();mzStop(0.15);D.play=false;D.paused=false;for(let l=0;l<4;l++)D.down&&(D.down[l]=false);if(!quiet)showPanel();}
   function pause(on){if(on===D.paused||!D.play)return;if(on){D.pSong=songT();D.pT=now();D.paused=true;mzGain(0);}else{D.t0+=now()-D.pT;D.paused=false;mzGain(MZ.v||0.9);}}
 
   // ================= 按、放開、判定 =================
@@ -9158,7 +9205,7 @@ const DD=(()=>{
     showPanel(`<div class="grade" style="color:${GCOL[g]}">${g}</div><b>${D.failed?'失敗…（血條歸零）':D.auto?'自動示範結束':'過關！'}</b>　${S.n}・${DIFFN[dv]}${fc?'　<b style="color:#ffd23a">FULL COMBO ★</b>':''}<br>`+
       `分數 <b>${score.toLocaleString()}</b>　最多 ${D.maxCombo} 連擊<br><small>PERFECT ${D.cnt[1]}・GREAT ${D.cnt[2]}・GOOD ${D.cnt[3]}・BAD ${D.cnt[4]}・MISS ${D.cnt[5]}${NT.some(n=>n.hb)?`・長按 OK ${D.ok}／NG ${D.ng}`:''}</small>${rec}`+
       `<div class="again"><button data-a="1">↺ 再跳一次</button>${dv<3?`<button data-a="2">⬆ 挑戰${DIFFN[dv+1]}</button>`:''}</div>`);
-    const r=panel.querySelector('.res');for(const b of r.querySelectorAll('[data-a]'))b.onclick=e=>{e.stopPropagation();D.startSong(D.si,b.dataset.a==='2'?D.dv+1:D.dv);};}
+    const r=panel.querySelector('.res');for(const b of r.querySelectorAll('[data-a]'))b.onclick=e=>{e.stopPropagation();D.pick(D.si,b.dataset.a==='2'?D.dv+1:D.dv);};if(D.onEnd)D.onEnd({sc:score,g,failed:D.failed,fc});}
 
   // ================= 畫箭頭 =================
   function draw(){const g=cx,W=LY.W,H=LY.H;if(!W)return;g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
@@ -9347,7 +9394,7 @@ let view='first';try{const v=localStorage.getItem('home-view2');if(v==='first'||
 // 結構：root → body（整個身體）→ 手腳四個關節（legL legR armL armR，動畫用），換裝時把身上的東西整組重做
 let charCfg={g:'m',o:0,h:1};try{const v=JSON.parse(localStorage.getItem('home-char')||'null');if(v&&CHAR_OUTFITS[v.g])charCfg={g:v.g,o:Math.min(v.o|0,CHAR_OUTFITS[v.g].length-1),h:Math.min(v.h|0,CHAR_HAIR.length-1)};}catch(_){}
 const FLAME_TEX=(()=>{const [c,x]=cvs(64,64),gr=x.createRadialGradient(32,36,0,32,32,32);gr.addColorStop(0,'rgba(255,250,210,1)');gr.addColorStop(0.35,'rgba(255,140,30,0.85)');gr.addColorStop(1,'rgba(220,30,0,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
-const avatar=(()=>{
+function mkAvatar(){   /* 2026-10-15 連線：對方的人物也用這個做（原本只做一個） */
   const root=new THREE.Group(),body=new THREE.Group();root.add(body);
   const legL=new THREE.Group(),legR=new THREE.Group(),armL=new THREE.Group(),armR=new THREE.Group(),parts=new THREE.Group();body.add(legL,legR,armL,armR,parts);
   {const [c,g]=cvs(64,64);const gr=g.createRadialGradient(32,32,2,32,32,30);gr.addColorStop(0,'rgba(0,0,0,0.42)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);
@@ -9901,7 +9948,8 @@ const avatar=(()=>{
   {const dressBase=A.dress;A.dress=cfg=>{A.fem=cfg.g==='f';unrig();dressBase(cfg);rig();skateGear();if(CU.on)CU.revest();};}   /* 校園大逃亡中換了衣服：系服穿回去 */
   A.dress(charCfg);
   return A;
-})();
+}
+const avatar=mkAvatar();
 // 選單「人物」：變身死亡騎士（小遊戲裡技能列也有變身按鈕）
 {const b=document.getElementById('dkMenu');b.onclick=()=>{if(CU.on){toast('先離開校園大逃亡再變身');return;}if(MU.on){toast('先離開音樂教室再變身');return;}if(DD.on){toast('先離開跳舞機再變身');return;}GAME.morph(!avatar.morph);b.textContent=avatar.morph?'變回人類':'變身：死亡騎士';if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}};}
 // 選單「人物」：男生／女生、衣服、髮色（換了就切到第三人稱讓你看到）
@@ -10286,6 +10334,7 @@ function drawMinimap(){
   mmc.fillStyle='#ff5a3c';mmc.strokeStyle='#fff';mmc.lineWidth=1.5;mmc.beginPath();mmc.moveTo(8,0);mmc.lineTo(-5,5);mmc.lineTo(-2,0);mmc.lineTo(-5,-5);mmc.closePath();mmc.fill();mmc.stroke();
   mmc.restore();
   GAME.drawMM(mmc,w2m);   // 小遊戲：殭屍紅點
+  NET.drawMM(mmc,w2m);   // 連線：對方是藍點
 }
 mm.addEventListener('click',e=>{
   const r=mm.getBoundingClientRect();const x=(e.clientX-r.left-mmT.ox)/mmT.sc+MB.x0,z=(e.clientY-r.top-mmT.oy)/mmT.sc+MB.z0;
@@ -11317,14 +11366,173 @@ const GATES=(()=>{const G={list:[]},grp=new THREE.Group();scene.add(grp);
   add({n:'網球場',ico:'🎾',col:'#5f9e1a',pos:()=>({x:TENNIS.cx-TENNIS.W/2-2,z:TENNIS.cz}),sub:T2('走進網球場','拿球拍')});
   add({n:'籃球場',ico:'🏀',col:'#b5481b',pos:()=>({x:COURT.x1-7,z:COURT.z1+1}),sub:T2('走進球場','拿籃球'),off:()=>BB.on});
   for(const r of SKATE_RACKS)add({n:'直排輪',ico:'🛼',col:'#e94f8a',pos:()=>({x:r.x,z:r.z}),h:5.6,sub:T2('走到架子旁邊','穿上直排輪'),off:()=>SKATE.on});
-  add({n:'熱氣球',ico:'🎈',col:'#e76f51',pos:()=>({x:BALLOON.pos.x,z:BALLOON.pos.y}),h:18.5,sub:T2('走到吊籃旁邊','搭乘'),off:()=>BALLOON.riding||BALLOON.y>0.5});
+  add({n:'熱氣球',ico:'🎈',col:'#e76f51',pos:()=>({x:BALLOON.pos.x,z:BALLOON.pos.y}),h:18.5,sub:isTouch?'點下方按鈕搭乘，按「跳」升空':'按 F 搭乘，按空白鍵（跳）升空',/* 使用者：熱氣球升空要寫「跳」 */off:()=>BALLOON.riding||BALLOON.y>0.5});
   const playing=()=>GAME.on||RACE.on||NM.on||RB.on||SB.on||CU.on||MU.on||DD.on||TN.on;
   G.tick=dt=>{const t=performance.now()/1000,hide=!started||playing(),cp=camera.position;
     for(const q of G.list){const p=q.pos(),d=Math.hypot(cp.x-p.x,cp.z-p.z),vis=!hide&&d<190&&!(q.off&&q.off());q.sp.visible=q.bm.visible=vis;if(!vis)continue;
       const h=q.h||5,k=Math.max(1,Math.min(5,d*0.034));q.sp.position.set(p.x,h+0.25*Math.sin(t*2+q.ph)+1.2*(k-1),p.z);q.sp.scale.set(4.6*k,1.65*k,1);
       q.bm.position.set(p.x,0,p.z);q.bm.scale.set(1,h-0.6+1.2*(k-1),1);q.bm.material.opacity=0.2+0.1*Math.sin(t*3+q.ph);
-      const pd=Math.hypot(player.pos.x-p.x,player.pos.y-p.z);if(mode==='walk'&&pd<15&&!q.told){q.told=true;toast(`${q.ico} ${q.n}：${q.sub||how}`);}if(pd>40)q.told=false;}};
+      const pd=Math.hypot(player.pos.x-p.x,player.pos.y-p.z);if(mode==='walk'&&pd<15&&!q.told&&!(q.off&&q.off())){q.told=true;toast(`${q.ico} ${q.n}：${q.sub||how}`);}if(pd>40)q.told=false;}};
   return G;})();
+
+/* ---------------- 連線（2026-10-15 使用者：跟另一個人連線，兩個人在不同地方 → 選 PeerJS） ----------------
+   選單「👥 連線」：一個人「開房間」拿到 4 碼代號，另一個人輸入代號「加入」。PeerJS 的公用伺服器只幫忙牽線，之後兩支手機直接互傳（WebRTC）。
+   每秒 12 次傳：位置＋全部關節角度＋手勢（走路、跳舞、溜直排輪、打球…對方看到的都一樣，不用每個動作各寫一次）；衣服換了才傳。
+   對方的人物用 mkAvatar() 再做一個，頭上有名字（隔著牆也看得到）；小地圖藍點；可以傳送到對方旁邊。
+   跳舞機對戰：選歌時邀請對方 → 對方接受 → 兩邊一起開始，跳的時候上面看得到對方分數，結束比輸贏。 */
+const NET=(()=>{const N={on:false,peer:null,conn:null,code:'',host:false,rem:null,rname:'',ddVs:true,vs:null,rtt:0};
+  const PFX='hxhome-',VER=document.querySelector('meta[name=app-version]').content,$n=id=>document.getElementById(id);
+  let NAME='';try{NAME=localStorage.getItem('home-netname')||'';}catch(_){}
+  // ---- 介面 ----
+  const P=document.createElement('div');P.id='netPanel';P.className='panel';P.hidden=true;
+  P.innerHTML=`<h3>👥 連線：和別人一起玩</h3>
+    <div class="row"><span>你的名字</span><input type="text" id="netName" maxlength="8" placeholder="例如：小明"></div>
+    <div class="idle"><div class="row"><button class="main" data-n="host">🏠 開房間</button><span class="note" style="font-size:12px">拿到代號傳給對方</span></div>
+      <div class="row" style="margin-top:8px"><input type="text" id="netCode" inputmode="numeric" maxlength="4" placeholder="對方的 4 碼代號"><button class="main" data-n="join">加入</button></div></div>
+    <div class="wait" hidden><div>房間代號（用 LINE 傳給對方）</div><div class="row"><span class="code"></span><button data-n="copy">複製</button></div><div class="note" style="font-size:12px">對方打開同一個網頁 →「👥 連線」→ 輸入代號 → 加入</div></div>
+    <div class="live" hidden><div>✅ 已連線：<b class="who"></b></div><div class="row"><button data-n="go">📍 傳送到對方旁邊</button><button data-n="tennis">🎾 邀請對方打網球</button></div>
+      <label class="row"><input type="checkbox" id="netDD" checked> 跳舞機對戰（選歌時邀請對方一起跳）</label></div>
+    <p class="st"></p>
+    <div class="row"><button data-n="off" class="off" hidden>中斷連線</button><button data-n="close">關閉</button></div>`;
+  document.body.appendChild(P);
+  const chip=document.createElement('div');chip.id='netChip';chip.hidden=true;document.body.appendChild(chip);chip.onclick=()=>open();
+  const INV=document.createElement('div');INV.id='netInv';INV.className='panel';INV.hidden=true;document.body.appendChild(INV);
+  const VS=document.createElement('div');VS.id='ddVs';VS.hidden=true;$n('ddUI').appendChild(VS);
+  for(const el of [P,INV])for(const ev of ['keydown','keyup','pointerdown','touchstart','wheel'])el.addEventListener(ev,e=>e.stopPropagation());   /* 打字時不要走路、點面板不要轉鏡頭 */
+  const nm=$n('netName');nm.value=NAME;nm.oninput=()=>{NAME=nm.value.trim().slice(0,8);try{localStorage.setItem('home-netname',NAME);}catch(_){}if(N.on)send({t:'name',name:myName()});};
+  const myName=()=>NAME||'玩家';
+  const st=t=>{P.querySelector('.st').textContent=t||'';};
+  function ui(){const s=N.on?'live':N.peer&&N.host&&N.code?'wait':N.peer?'busy':'idle';P.querySelector('.idle').hidden=s!=='idle';P.querySelector('.wait').hidden=s!=='wait';P.querySelector('.live').hidden=s!=='live';
+    P.querySelector('.code').textContent=N.code;P.querySelector('.who').textContent=N.rname||'對方';P.querySelector('.off').hidden=s==='idle';$n('netDD').checked=N.ddVs;chip.hidden=!N.on;}
+  function open(){P.hidden=false;menu.hidden=true;bMenu.classList.remove('on');ui();}
+  $n('netBtn').onclick=open;
+  P.addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(!b)return;const k=b.dataset.n;
+    if(k==='close')P.hidden=true;else if(k==='host')host();else if(k==='join'){const c=$n('netCode').value.replace(/\D/g,'');if(c.length!==4){st('代號是 4 個數字');return;}join(c);}
+    else if(k==='off'){bye();st('已中斷連線');}else if(k==='copy'){try{navigator.clipboard.writeText(N.code);st('已複製：'+N.code);}catch(_){st('請手動記下代號：'+N.code);}}
+    else if(k==='go')goTo();else if(k==='tennis')tnInvite();});
+  $n('netDD').onchange=e=>{N.ddVs=e.target.checked;};
+  // ---- PeerJS（用到才載入） ----
+  let Peer=null;async function lib(){if(Peer)return true;st('載入連線工具…');try{const m=await import('https://cdn.jsdelivr.net/npm/peerjs@1.5.4/+esm');Peer=m.Peer||m.default;return !!Peer;}catch(e){st('連線工具載入失敗（網路有問題？）');return false;}}
+  function clean(){if(N.conn)try{N.conn.close();}catch(_){}N.conn=null;if(N.peer)try{N.peer.destroy();}catch(_){}N.peer=null;N.code='';N.host=false;}
+  async function host(){if(!(await lib()))return;clean();const code=String(1000+Math.floor(Math.random()*9000)),p=new Peer(PFX+code,{debug:0});N.peer=p;N.host=true;st('正在開房間…');ui();
+    p.on('open',()=>{if(N.peer!==p)return;N.code=code;st('等對方加入…（網頁要開著，不要關掉）');ui();});
+    p.on('connection',c=>{if(N.conn&&N.conn.open){c.on('open',()=>{c.send({t:'full'});setTimeout(()=>{try{c.close();}catch(_){}},400);});return;}bind(c);});
+    p.on('disconnected',()=>{if(N.peer===p&&!p.destroyed)try{p.reconnect();}catch(_){}});   /* 跟牽線伺服器斷了：重連（已經連上的照樣能玩） */
+    p.on('error',e=>{if(N.peer!==p)return;if(e.type==='unavailable-id'){host();return;}st('出錯了：'+(e.type||e.message||e));});}
+  async function join(code){if(!(await lib()))return;clean();const p=new Peer({debug:0});N.peer=p;N.host=false;st('連線中…');ui();
+    p.on('open',()=>{if(N.peer!==p)return;bind(p.connect(PFX+code,{reliable:true}));setTimeout(()=>{if(N.peer===p&&!N.on){st('連不上：代號對嗎？對方的網頁要開著。如果一直連不上，可能是網路擋住了（換 Wi-Fi／行動網路試試）');clean();ui();}},15000);});
+    p.on('error',e=>{if(N.peer!==p)return;if(e.type==='peer-unavailable'){st('找不到這個房間（代號錯了，或對方關掉了）');clean();ui();}else st('出錯了：'+(e.type||e.message||e));});}
+  function bind(c){c.on('open',()=>{N.conn=c;N.on=true;N.ra=false;N.lastRx=performance.now();send({t:'hi',name:myName(),ver:VER,cfg:charCfg,sk:avatar.skates});ui();st('');toast('👥 連線成功！');AUDIO.sfx('chime');});
+    c.on('data',d=>{if(N.conn!==c)return;N.lastRx=performance.now();try{rx(d);}catch(e){console.warn('NET',e);}});   /* 已經中斷的連線晚到的資料不要（不然對方的人物又跑出來） */
+    c.on('close',()=>{if(N.conn===c)lost();});c.on('error',()=>{if(N.conn===c)lost();});}
+  function send(o){if(N.conn&&N.conn.open)try{N.conn.send(o);}catch(_){}}
+  function lost(){const was=N.on;N.on=false;N.conn=null;remDrop();if(TN.net){TN.net=false;document.body.classList.remove('tnnet');TN.netEnd();TN.stop();}vsEnd('對方斷線了');if(was){toast('👥 '+(N.rname||'對方')+' 離開了／斷線了');AUDIO.sfx('over');}
+    if(N.host&&N.peer&&!N.peer.destroyed)st('等對方再加入…（代號一樣：'+N.code+'）');else{clean();st('連線中斷了');}ui();}
+  function bye(){send({t:'bye'});const c=N.conn,p=N.peer;N.conn=null;N.peer=null;N.on=false;N.code='';N.host=false;remDrop();vsEnd();ui();setTimeout(()=>{try{c&&c.close();}catch(_){}try{p&&p.destroy();}catch(_){}},400);}   /* 等「bye」送出去再關 */
+  // ---- 對方的人物 ----
+  function tagTex(t){const [c,g]=cvs(256,64);g.font=`900 34px ${FONT}`;g.textAlign='center';g.textBaseline='middle';const w=Math.min(250,g.measureText(t).width+28);
+    g.fillStyle='rgba(20,90,200,0.85)';g.beginPath();g.roundRect(128-w/2,6,w,52,24);g.fill();g.fillStyle='#fff';g.fillText(t,128,33);const x=new THREE.CanvasTexture(c);x.colorSpace=THREE.SRGBColorSpace;return x;}
+  function rem(){if(N.rem)return N.rem;const A=mkAvatar();A.root.visible=false;A.root.traverse(o=>{o.userData.noCull=true;});
+    const tag=new THREE.Sprite(new THREE.SpriteMaterial({map:tagTex(N.rname||'對方'),depthTest:false,depthWrite:false,transparent:true,toneMapped:false}));tag.scale.set(1.5,0.375,1);tag.position.y=2.15;tag.renderOrder=9;A.root.add(tag);
+    N.rem={A,tag,s:null,has:false,cfg:null};return N.rem;}
+  function remDrop(){if(!N.rem)return;scene.remove(N.rem.A.root);N.rem=null;}
+  function remName(){if(N.rem){N.rem.tag.material.map.dispose();N.rem.tag.material.map=tagTex(N.rname||'對方');}}
+  function remDress(cfg,sk){const R=rem();if(!cfg||!CHAR_OUTFITS[cfg.g])return;const c={g:cfg.g,o:Math.min(cfg.o|0,CHAR_OUTFITS[cfg.g].length-1),h:Math.min(cfg.h|0,CHAR_HAIR.length-1)};R.A.skates=!!sk;R.A.dress(c);R.cfg=c;R.A.root.traverse(o=>{o.userData.noCull=true;});}
+  // 關節：root 位置／角度／大小、body 位置／角度、四肢、手肘、膝蓋、腳踝、胸、頭、兩隻手
+  const JN=['legL','legR','armL','armR','foreL','foreR','shinL','shinR','footL','footR','chest','head'];
+  const r3=v=>Math.round(v*1000)/1000;
+  function pack(){const A=avatar,o=A.root,inW=o.parent===scene;const a=[];
+    if(inW)a.push(r3(o.position.x),r3(o.position.y),r3(o.position.z));else a.push(r3(player.pos.x),r3(player.y),r3(player.pos.y));   /* 跳舞機、拍照時人物在別的場景：用自己站的位置 */
+    a.push(r3(o.rotation.x),r3(o.rotation.y),r3(o.rotation.z),r3(o.scale.x),r3(A.body.position.x),r3(A.body.position.y),r3(A.body.position.z),r3(A.body.rotation.x),r3(A.body.rotation.y),r3(A.body.rotation.z));
+    for(const k of JN){const g=A[k];if(g)a.push(r3(g.rotation.x),r3(g.rotation.y),r3(g.rotation.z));else a.push(0,0,0);}
+    for(const H of [A.handL,A.handR]){const g=H&&H.g;if(g)a.push(r3(g.rotation.x),r3(g.rotation.y),r3(g.rotation.z));else a.push(0,0,0);}
+    return {t:'s',a,h:HN.slice(),dd:DD.on?1:0};}   /* 第一人稱時自己的人物是藏起來的，對方照樣要看得到 */
+  const HN=['relax','relax'];{const h0=avatar.hand;avatar.hand=(side,name)=>{HN[side>0?1:0]=name;h0(side,name);};}   /* 記住手勢（比讚、比 YA…）傳給對方 */
+  const lerpA=(a,b,k)=>{let d=b-a;d=Math.atan2(Math.sin(d),Math.cos(d));return a+d*k;};
+  function remApply(dt){const R=N.rem;if(!R||!R.s)return;const A=R.A,o=A.root,a=R.s.a,k=1-Math.exp(-dt*14),snap=!R.has||Math.hypot(o.position.x-a[0],o.position.z-a[2])>8;R.has=true;
+    const L=(v,t)=>snap?t:v+(t-v)*k,LA=(v,t)=>snap?t:lerpA(v,t,k);
+    o.position.set(L(o.position.x,a[0]),L(o.position.y,a[1]),L(o.position.z,a[2]));o.rotation.set(LA(o.rotation.x,a[3]),LA(o.rotation.y,a[4]),LA(o.rotation.z,a[5]));o.scale.setScalar(a[6]||1);
+    A.body.position.set(L(A.body.position.x,a[7]),L(A.body.position.y,a[8]),L(A.body.position.z,a[9]));A.body.rotation.set(LA(A.body.rotation.x,a[10]),LA(A.body.rotation.y,a[11]),LA(A.body.rotation.z,a[12]));
+    let i=13;for(const kk of JN){const g=A[kk];if(g)g.rotation.set(LA(g.rotation.x,a[i]),LA(g.rotation.y,a[i+1]),LA(g.rotation.z,a[i+2]));i+=3;}
+    for(const H of [A.handL,A.handR]){const g=H&&H.g;if(g)g.rotation.set(LA(g.rotation.x,a[i]),LA(g.rotation.y,a[i+1]),LA(g.rotation.z,a[i+2]));i+=3;}
+    const h=R.s.h||[];if(h[0]!==R.h0){R.h0=h[0];A.hand(-1,h[0]||'relax');}if(h[1]!==R.h1){R.h1=h[1];A.hand(1,h[1]||'relax');}
+    o.visible=true;}
+  function goTo(){const R=N.rem;if(!R||!R.s){st('還不知道對方在哪裡');return;}const a=R.s.a;P.hidden=true;teleport(a[0]+1.3,a[2]+1.3,undefined,a[1]>0.5?a[1]:0);toast('📍 到 '+(N.rname||'對方')+' 旁邊了');}
+  // ---- 收到資料 ----
+  function rx(d){if(!d||typeof d!=='object')return;
+    switch(d.t){case 's':rem().s=d;break;
+      case 'hi':N.rname=String(d.name||'對方').slice(0,8);rem();remName();remDress(d.cfg,d.sk);ui();toast(`👥 ${N.rname} 加入了！`);if(d.ver&&d.ver!==VER)toast('⚠ 兩邊網頁版本不一樣，請兩邊都重新整理');break;
+      case 'name':N.rname=String(d.name||'對方').slice(0,8);remName();ui();break;
+      case 'cfg':remDress(d.cfg,d.sk);break;
+      case 'full':st('這個房間已經有人了');clean();ui();break;
+      case 'bye':lost();break;
+      case 'p':break;
+      case 'away':N.ra=!!d.v;break;
+      case 'ddInv':invited(d);break;
+      case 'tInv':tnInvited();break;
+      case 'tOk':if(N.tnWait){N.tnWait=false;INV.hidden=true;tnGo('p');}break;
+      case 'tNo':if(N.tnWait){N.tnWait=false;INV.hidden=true;toast(`${N.rname||'對方'} ${d.why||'現在不想打網球'}`);}else INV.hidden=true;break;
+      case 'tH':case 'tP':case 'tQ':case 'tB':case 'tW':case 'tPath':case 'tSam':TN.netRx(d);break;
+      case 'pi':send({t:'po',a:d.a});break;
+      case 'po':{const r=performance.now()-d.a;N.rtt=N.rtt?N.rtt*0.7+r*0.3:r;}break;
+      case 'ddOk':if(N.vs&&N.vs.wait){INV.hidden=true;N.vs.wait=false;startVs();}break;
+      case 'ddNo':if(N.vs&&N.vs.wait){INV.hidden=true;N.vs=null;toast(`${N.rname||'對方'} ${d.why||'現在不想跳'}`);}break;
+      case 'ddSc':if(N.vs&&!(N.vs.op&&N.vs.op.end)){N.vs.op=N.vs.op||{};Object.assign(N.vs.op,{sc:d.sc,cb:d.cb});vsDraw();}break;
+      case 'ddEnd':if(N.vs){N.vs.op={sc:d.sc,g:d.g,failed:d.failed,end:true};vsDraw();}break;
+      case 'ddNo2':INV.hidden=true;toast(`${N.rname||'對方'} 取消了邀請`);break;
+      case 'ddQuit':if(N.vs){vsEnd(`${N.rname||'對方'} 不跳了`);}break;}}
+  // ---- 跳舞機對戰 ----
+  const DIFF=['簡單','普通','困難','地獄'];
+  DD.vsRow=()=>N.on?`<div class="row"><button data-o="vs" class="${N.ddVs?'on':''}">${N.ddVs?'✅':'⬜'} 跟 ${N.rname||'對方'} 對戰（選歌後邀請對方一起跳）</button></div>`:'';
+  DD.vsToggle=()=>{N.ddVs=!N.ddVs;ui();};
+  DD.vsInvite=(i,dv)=>{if(!N.on||!N.ddVs)return false;const S=DD.SONGS[i];N.vs={i,dv,wait:true,me:null,op:null};send({t:'ddInv',i,dv,id:S.id,n:S.n});
+    INV.innerHTML=`<b>邀請 ${N.rname||'對方'} 一起跳</b><div>《${S.n}》・${DIFF[dv]}</div><div class="note" style="font-size:12px">等對方按「好」…</div><div class="row"><button data-k="cancel">取消</button><button data-k="solo">不等了，自己跳</button></div>`;INV.hidden=false;
+    INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;const w=N.vs;N.vs=null;send({t:'ddNo2'});if(b.dataset.k==='solo'&&w)DD.startSong(w.i,w.dv);};
+    clearTimeout(N.invT);N.invT=setTimeout(()=>{if(N.vs&&N.vs.wait){INV.hidden=true;N.vs=null;toast('對方沒有回應');}},30000);return true;};
+  function invited(d){const S=DD.SONGS[d.i];if(!S||S.id!==d.id){send({t:'ddNo',why:'的網頁版本不一樣（請兩邊重新整理）'});return;}
+    INV.innerHTML=`<b>💃 ${N.rname||'對方'} 邀請你跳跳舞機！</b><div>《${S.n}》・${DIFF[d.dv]}</div><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">好！一起跳</button></div>`;INV.hidden=false;AUDIO.sfx('chime');
+    INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;if(b.dataset.k==='no'){send({t:'ddNo'});return;}
+      if(GAME.on){send({t:'ddNo',why:'正在打殭屍，不能跳'});toast('先結束殭屍遊戲');return;}
+      if(!DD.on)DD.enter();N.vs={i:d.i,dv:d.dv,wait:false,me:null,op:null};send({t:'ddOk'});startVs();};}
+  function startVs(){const v=N.vs;if(!v)return;N.vsStart=true;DD.startSong(v.i,v.dv);N.vsStart=false;v.go=true;v.me=null;v.op={sc:0,cb:0};vsDraw();toast('🆚 對戰開始！');}
+  {const s0=DD.startSong;DD.startSong=(i,dv)=>{if(!N.vsStart&&N.vs&&N.vs.go){send({t:'ddQuit'});N.vs=null;VS.hidden=true;}s0(i,dv);};}   /* 自己另外選歌＝離開對戰 */
+  DD.onAbort=()=>{if(N.vs&&N.vs.go&&!N.vs.me){send({t:'ddQuit'});vsEnd();}};
+  DD.onEnd=r=>{if(!N.vs||!N.vs.go)return;N.vs.me=r;send({t:'ddEnd',sc:r.sc,g:r.g,failed:r.failed});vsDraw();};
+  function vsEnd(msg){const was=N.vs&&N.vs.go&&!(N.vs.me&&N.vs.op&&N.vs.op.end);N.vs=null;INV.hidden=true;if(was&&msg){VS.innerHTML=`<span class="res">${msg}</span>`;VS.hidden=false;setTimeout(()=>{if(!N.vs)VS.hidden=true;},4000);}else if(!msg)VS.hidden=true;}
+  function vsDraw(){const v=N.vs;if(!v||!v.go){return;}const op=v.op||{},meS=v.me?v.me.sc:Math.round(1e6*(DD.score||0)/Math.max(1,DD.nSteps||1)),f=x=>(x||0).toLocaleString();
+    let res='';if(v.me&&op.end){const a=v.me.failed?-1:v.me.sc,b=op.failed?-1:op.sc;res=a>b?'🏆 你贏了！':a<b?`${N.rname||'對方'} 贏了！`:'平手！';
+      if(!v.told){v.told=true;AUDIO.sfx(a>=b?'bigcheer':'cheer');toast(`🆚 你 ${f(v.me.sc)}（${v.me.g}）：${N.rname||'對方'} ${f(op.sc)}（${op.g}）`);}}
+    else if(v.me)res='等對方跳完…';else if(op.end)res=`${N.rname||'對方'} 跳完了：${op.failed?'失敗':op.g}`;
+    VS.innerHTML=`<span class="me">你 <b>${f(meS)}</b></span>　🆚　${N.rname||'對方'} <b>${f(op.sc)}</b>${op.cb?`<small>（${op.cb} 連擊）</small>`:''}${res?`<div class="res">${res}</div>`:''}`;VS.hidden=false;}
+  // ---- 網球對打 ----
+  TN.netSend=send;TN.owd=()=>Math.min(0.25,(N.rtt||120)/2000);
+  let tnTag=null;
+  function tnGo(server){P.hidden=true;INV.hidden=true;if(DD.on)DD.stop(true);TN.startNet(server,N.rname||'對手');
+    if(!tnTag){tnTag=new THREE.Sprite(new THREE.SpriteMaterial({depthTest:false,depthWrite:false,transparent:true,toneMapped:false}));tnTag.scale.set(2.6,0.65,1);tnTag.renderOrder=9;}
+    if(tnTag.material.map)tnTag.material.map.dispose();tnTag.material.map=tagTex(N.rname||'對手');tnTag.material.needsUpdate=true;tnTag.position.set(0,2.6,0);TN.OPP.root.add(tnTag);}
+  TN.netEnd=()=>{if(tnTag&&tnTag.parent)tnTag.parent.remove(tnTag);};
+  function tnInvite(){if(!N.on)return;if(GAME.on){toast('先結束殭屍遊戲');return;}N.tnWait=true;send({t:'tInv'});P.hidden=true;
+    INV.innerHTML=`<b>邀請 ${N.rname||'對方'} 打網球</b><div class="note" style="font-size:12px">等對方按「好」…（你先發球）</div><div class="row"><button data-k="cancel">取消</button></div>`;INV.hidden=false;
+    INV.onclick=e=>{if(!e.target.closest('[data-k]'))return;INV.hidden=true;N.tnWait=false;send({t:'tNo'});};
+    clearTimeout(N.tnT);N.tnT=setTimeout(()=>{if(N.tnWait){N.tnWait=false;INV.hidden=true;toast('對方沒有回應');}},30000);}
+  function tnInvited(){INV.innerHTML=`<b>🎾 ${N.rname||'對方'} 邀請你打網球！</b><div class="note" style="font-size:12px">按「好」會直接到網球場，對方先發球</div><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">好！來打</button></div>`;INV.hidden=false;AUDIO.sfx('chime');
+    INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;if(b.dataset.k==='no'){send({t:'tNo'});return;}
+      if(GAME.on){send({t:'tNo',why:'正在打殭屍，不能打網球'});toast('先結束殭屍遊戲');return;}send({t:'tOk'});tnGo('o');};}
+  // ---- 每格 ----
+  let sT=0,cT=0,lastCfg='',vT=0,pT=0;
+  N.tick=dt=>{if(!N.on){return;}sT-=dt;cT-=dt;vT-=dt;
+    if(sT<=0){sT=1/12;send(pack());}
+    if(cT<=0){cT=1;const c=JSON.stringify([charCfg,avatar.skates]);if(c!==lastCfg){lastCfg=c;send({t:'cfg',cfg:charCfg,sk:avatar.skates});}
+      const R=N.rem;chip.textContent=`👥 ${N.rname||'對方'}`+(N.ra?'（離開畫面）':'')+(TN.net?'・網球對打中':R&&R.s?`・${Math.round(Math.hypot(player.pos.x-R.s.a[0],player.pos.y-R.s.a[2]))} m`:'')+(R&&R.s&&R.s.dd?'・跳舞中':'');
+      if(performance.now()-N.lastRx>30000&&!N.ra){const c=N.conn;lost();try{c&&c.close();}catch(_){}return;}}   /* 30 秒沒收到東西＝斷了（對方切到別的 App 時不算） */
+    remApply(dt);if(TN.net){const R=N.rem;if(R){R.A.root.visible=false;if(R.s)TN.netOpp(R.s.a[0],R.s.a[2]);}pT-=dt;if(pT<=0){pT=2;send({t:'pi',a:performance.now()});}}   /* 網球對打：對方的人物藏起來，改用網球對手的模型站在對面 */
+    if(N.vs&&N.vs.go&&!N.vs.me&&DD.play&&vT<=0){vT=0.25;send({t:'ddSc',sc:Math.round(1e6*DD.score/Math.max(1,DD.nSteps)),cb:DD.combo});vsDraw();}};
+  N.drawMM=(g,w2m)=>{const R=N.rem;if(!N.on||!R||!R.s)return;const [x,y]=w2m(R.s.a[0],R.s.a[2]);g.fillStyle='#2f8fff';g.strokeStyle='#fff';g.lineWidth=1.5;g.beginPath();g.arc(x,y,5,0,Math.PI*2);g.fill();g.stroke();};
+  N.dbg=()=>({N,pack,rx,rem});   /* 測試用 */
+  addEventListener('pagehide',()=>{if(N.on)send({t:'bye'});});
+  setInterval(()=>{if(N.on)send({t:'p'});},4000);   /* 畫面迴圈停住（切到背景）時也告訴對方「我還在」 */
+  document.addEventListener('visibilitychange',()=>{if(N.on)send({t:'away',v:document.hidden});});
+  return N;})();
 
 /* ---------------- 主迴圈 ---------------- */
 const clock=new THREE.Clock();
@@ -11381,7 +11589,7 @@ function step(dt){
     else if(NM.on){const sa=NM.showAvatar();avatar.root.visible=sa;if(sa)updateAvatar(dt,1);NM.camera(dt);}   /* 夜市套圈：鏡頭跟著隊伍 */
     else if(RACE.on){avatar.root.visible=false;if(RACE.sk8)RACE.skPose(dt);RACE.camera(dt);}   /* 開賽車：鏡頭跟車 */
     else if(view==='third'){avatar.root.visible=true;updateAvatar(dt,stage);camDt=dt;thirdPersonCamera();}
-    else{avatar.root.visible=false;if(BB.on||SHOP.inside())updateAvatar(dt,stage);   /* 第一人稱拿著球：人物藏起來，但球照樣跟著手 */
+    else{avatar.root.visible=false;if(BB.on||SHOP.inside()||NET.on)updateAvatar(dt,stage);   /* 連線中：第一人稱也要算走路動作，對方才看得到你在走 */   /* 第一人稱拿著球：人物藏起來，但球照樣跟著手 */
       camera.position.set(player.pos.x,player.y+bodyH().eye,player.pos.y);camera.rotation.set(player.pitch,player.yaw,0,'YXZ');if(LIE.on)LIE.cam();}
   }else{orbit.update();if(BB.fly)BB.flyStep(dt);else if(!BALLOON.riding&&!LIE.on&&!SKATE.on&&!player.climb)playerFall(dt);avatar.root.visible=true;updateAvatar(dt,0);}   // 空拍：人物站在原地（上下照算：放如來神掌也飛得起來）
   // 衣櫃門約 0.5 秒打開到 100°、抽屜拉出 35 cm
@@ -11413,7 +11621,7 @@ function step(dt){
   CU.tick(dt);
   MU.tick(dt);
   DD.tick(dt);
-  GATES.tick(dt);
+  GATES.tick(dt);NET.tick(dt);
   {let t=0;if(CALM.on&&mode==='walk'&&started){const sp=RACE.on?Math.abs(RACE.v)*0.05:SKATE.on?SKATE.vel.length():player.vel.length();let dy=player.yaw-CALM.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
      t=Math.min(0.85,sp*0.08+Math.abs(dy)/Math.max(dt,1e-3)*0.22+(player.ground?0:0.2));}   // 防暈：越快、轉越快、在空中，四周越暗
    CALM.yaw=player.yaw;CALM.v+=(t-CALM.v)*Math.min(1,dt*6);if(Math.abs(CALM.v-CALM.last)>0.01||(CALM.v<0.01&&CALM.last)){CALM.last=CALM.v<0.01?0:CALM.v;document.getElementById('calmVig').style.opacity=CALM.last.toFixed(2);}}
@@ -11456,7 +11664,7 @@ NM.applyPrizes();
 function warmNow(){const hid=[],lay=[];scene.traverse(o=>{if(!o.visible&&!o.isLight){hid.push(o);o.visible=true;}if(o.isMesh&&o.layers.mask===2){lay.push(o);o.layers.set(0);}});
   try{renderer.compile(scene,camera);}catch(_){}for(const o of hid)o.visible=false;for(const o of lay)o.layers.set(1);}
 for(const [obj,fn] of [[NM,'start'],[NM,'startArmy'],[SB,'start'],[RB,'start'],[RACE,'pick'],[GAME,'start'],[TN,'start'],[BB,'start'],[MU,'start']]){const f=obj[fn];if(typeof f!=='function')continue;obj[fn]=(...a)=>{const r=f(...a);try{warmNow();}catch(_){}return r;};}
-window.__dbg={dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+window.__dbg={NET,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
