@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-16.12"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-16.13"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -190,6 +190,7 @@
   #closet[hidden]{display:none!important}
   #closet .clHead{display:flex;align-items:center;gap:10px}
   #closet .clHead b{font-size:18px}
+  #closet #clRe{border:0;border-radius:10px;padding:5px 9px;font-size:12px;font-weight:800;background:rgba(127,127,127,.18);color:inherit;white-space:nowrap}
   #closet .clHead span{flex:1;color:var(--ink-2);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #clClose{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);font-size:20px;line-height:1;padding:0;flex:none}
   #closet .clRow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
@@ -525,7 +526,7 @@
   #puUI .rl{position:absolute;left:50%;top:96px;transform:translateX(-50%);background:linear-gradient(180deg,#3a0d4a,#14061e);border:3px solid #ffcf2f;border-radius:14px;color:#ffcf2f;font-weight:900;font-size:32px;padding:4px 22px 8px;text-align:center;min-width:150px;box-shadow:0 0 18px rgba(255,207,47,.5)}
   #puUI .rl small{display:block;font-size:12px;color:#fff;opacity:.8}#puUI .rl.done{background:linear-gradient(180deg,#ffcf2f,#e0a020);color:#3a1f00}#puUI .rl.done small{color:#3a1f00}
   @media (max-width:520px){#puUI .tip{white-space:normal;width:92vw;text-align:center}#puUI .top{font-size:13px;gap:6px}#puUI .top b{font-size:17px}}
-  #puPanel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92vw);max-height:82vh;overflow:auto;z-index:40;background:rgba(24,14,40,.96);color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.45)}
+  #puPanel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92vw);max-height:82vh;overflow:auto;z-index:50;background:rgba(24,14,40,.96);color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.45)}
   #puPanel .hd{display:flex;justify-content:space-between;align-items:center;font-size:18px;margin-bottom:8px}#puPanel .hd button{background:#444;color:#fff;border:0;border-radius:8px;padding:5px 10px}
   #puPanel .wal{background:rgba(255,255,255,.08);border-radius:10px;padding:8px;margin-bottom:10px;font-size:14px}#puPanel .wal b{color:#ffcf2f;font-size:18px}
   #puPanel .res{background:#3fbf7a;border-radius:10px;padding:6px 8px;margin-bottom:8px;font-weight:800}
@@ -536,6 +537,8 @@
   #puPanel .pz.own{background:rgba(255,207,47,.18)}#puPanel .pz .e{font-size:26px}#puPanel .pz .n{flex:1;font-weight:700;font-size:14px}#puPanel .pz .n small{display:block;font-size:11px;color:#ffcf2f}
   #puPanel .pz button{background:#e0262c;color:#fff;border:0;border-radius:9px;padding:7px 10px;font-weight:900;font-size:14px;white-space:nowrap}#puPanel .pz button[data-w]{background:#6a3aa8}#puPanel .pz button.on{background:#3fbf7a}
   #puMenu{background:linear-gradient(90deg,#6a3aa8,#e0a020)}
+  #earnPop{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top));transform:translateX(-50%);z-index:60;background:linear-gradient(180deg,#ffcf2f,#e0a020);color:#3a1f00;font-weight:900;font-size:18px;border-radius:14px;padding:6px 16px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.35);pointer-events:none;white-space:nowrap}
+  #earnPop small{display:block;font-size:11px;font-weight:700}#earnPop.pop{animation:earnIn .35s ease-out}@keyframes earnIn{0%{transform:translate(-50%,-20px) scale(.7);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
   #fiMenu{background:linear-gradient(90deg,#1f6fe0,#2fd0ff)}
   /* 撈魚機（FISH）：整個畫面 */
   body.fi #jumpBtn,body.fi #act,body.fi #joy{visibility:hidden}
@@ -733,7 +736,7 @@
 <div id="calmVig"></div>
 <div id="emotePanel" class="panel" hidden></div>
 <div id="closet" class="panel" hidden>
-  <div class="clHead"><b>衣櫃</b><span id="clNow"></span><button id="clClose" aria-label="關閉衣櫃">×</button></div>
+  <div class="clHead"><b>衣櫃</b><span id="clNow"></span><button id="clRe" title="照片跟名字對不上時按這裡">🔄 重拍</button><button id="clClose" aria-label="關閉衣櫃">×</button></div>
   <div class="clRow" id="clG"></div>
   <div class="clRow" id="clH"></div>
   <div class="clTabs" id="clTabs"></div>
@@ -4256,7 +4259,7 @@ const BB=(()=>{
     B.fire=0;ballMat.emissiveIntensity=0;B.streak=0;B.ft={n:0,N:10,made:0,swish:0,m:0,dir:1,spd:0.85,green:0.24,wait:false};document.body.classList.add('ft');ftEl.hidden=false;ftDraw();
     big('罰球大賽！10 球',false);AUDIO.sfx('wave');toast(isTouch?'罰球大賽：按「投籃」讓指針停在綠色就會進，正中間黃色＝空心':'罰球大賽：按 J（或「投籃」）讓指針停在綠色就會進，正中間黃色＝空心；F 放下球＝結束');};
   function ftCancel(){B.ft=null;document.body.classList.remove('ft');ftEl.hidden=true;}
-  function ftEnd(){const f=B.ft;ftCancel();const rate=f.made>=10?'百發百中！神射手！':f.made>=8?'超準！':f.made>=6?'不錯喔！':f.made>=4?'再練練':'加油！';
+  function ftEnd(){const f=B.ft;ftCancel();EARN(f.made*5,`罰球進 ${f.made} 球`);const rate=f.made>=10?'百發百中！神射手！':f.made>=8?'超準！':f.made>=6?'不錯喔！':f.made>=4?'再練練':'加油！';
     let rec='';if(f.made>ftBest){if(ftBest)rec='　新紀錄！';ftBest=f.made;try{localStorage.setItem('home-ft-best',String(ftBest));}catch(_){}}
     setTimeout(()=>{big(`10 投 ${f.made} 中　${rate}`,false);AUDIO.sfx(f.made>=8?'bigcheer':f.made>=5?'cheer':'over');if(f.made>=8)B.flashT=2;},400);
     toast(`罰球大賽結束：10 投 ${f.made} 中（空心 ${f.swish}）${rec}　最佳紀錄 ${ftBest} 中`);}
@@ -4787,7 +4790,7 @@ const TN=(()=>{
   function note(m){T.noteMsg=m;T.noteT=2;draw();}
   function point(w,why,rem){if(B.dead)return;if(T.net&&!rem&&B.hitter==='p')return;   /* 連線對打：球飛到哪一邊，就由那一邊判定得分（再通知對方），兩邊比分才會一樣 */
     B.dead=true;T.sc[w]++;const l=w==='p'?'o':'p';let msg;
-    if(T.sc[w]>=4&&T.sc[w]-T.sc[l]>=2){T.gm[w]++;T.sc={p:0,o:0};T.server=T.server==='p'?'o':'p';msg=w==='p'?`拿下這一局！ ${T.gm.p}:${T.gm.o}`:`對手拿下這一局 ${T.gm.p}:${T.gm.o}`;if(w==='p')AUDIO.sfx('bigcheer');}
+    if(T.sc[w]>=4&&T.sc[w]-T.sc[l]>=2){T.gm[w]++;if(w==='p')EARN(30,'網球贏一局');T.sc={p:0,o:0};T.server=T.server==='p'?'o':'p';msg=w==='p'?`拿下這一局！ ${T.gm.p}:${T.gm.o}`:`對手拿下這一局 ${T.gm.p}:${T.gm.o}`;if(w==='p')AUDIO.sfx('bigcheer');}
     else{msg=(w==='p'?'得分！ ':'失分… ')+scoreText();if(w==='p')AUDIO.sfx('cheer');}
     T.pend={t:0,msg:(why?why+'　':'')+msg};draw();
     if(T.net&&!rem&&T.netSend)T.netSend({t:'tP',w:w==='p'?'o':'p',why:why||'',sc:[T.sc.o,T.sc.p],gm:[T.gm.o,T.gm.p],srv:T.server==='p'?'o':'p'});}
@@ -5729,7 +5732,7 @@ const RACE=(()=>{
        for(const o of [a,a+3]){navCol[o]=c0*fade;navCol[o+1]=c1*fade;navCol[o+2]=c2*fade;}}
      navG.attributes.position.needsUpdate=true;navG.attributes.color.needsUpdate=true;}
     R.hudT=(R.hudT||0)-dt;if(R.hudT<=0){R.hudT=0.1;hudDraw();drawMap();}};
-  function finish(){const pl=R.place,t=R.raceT;if(R.net&&R.netSend)R.netSend({t:'rFin',tt:t,pl});say(pl===1?'第一名！優勝！做得好':`完賽，第 ${pl} 名`,'boost',true);AUDIO.sfx(pl===1?'bigcheer':'cheer');big(pl===1?'🏆 優勝！':`完賽 第 ${pl} 名`);
+  function finish(){const pl=R.place,t=R.raceT;EARN([200,140,100,70,50,40,30,30][pl-1]||30,`賽車第 ${pl} 名`);if(R.net&&R.netSend)R.netSend({t:'rFin',tt:t,pl});say(pl===1?'第一名！優勝！做得好':`完賽，第 ${pl} 名`,'boost',true);AUDIO.sfx(pl===1?'bigcheer':'cheer');big(pl===1?'🏆 優勝！':`完賽 第 ${pl} 名`);
     setTimeout(()=>{if(!R.on)return;resDraw();syncNetBtn();panel.hidden=false;},2500);}
   // 完賽結果（連線：每個一起跑的人的名次／時間；別人晚一點完賽也會更新）
   function resDraw(){if(!R.fin)return;const pl=R.fin.place,t=R.fin.t;panel.querySelector('.res').innerHTML=`<b>${pl===1?'🏆 優勝！':`第 ${pl} 名`}</b><br>總時間 ${fmtT(t)}　最快圈 ${fmtT(Math.min(...R.lapTimes))}`+
@@ -6259,7 +6262,7 @@ const NM=(()=>{
     for(const t of TIERS)if(t.glow>0&&t.mat.emissive){t.mat.emissive.set('#ffb000');t.mat.emissiveIntensity=0.45+0.25*Math.sin(performance.now()/150);}
     if(N.n<=0&&!flying.length){F.end+=dt;if(F.end>(F.boss?2.4:1.2)&&N.st==='finish'){N.st='done';result(true);}}}
   function result(ok){const F=N.fin||{lv:0,boss:false,n0:0},i=N.stage,stars=!ok?0:F.boss?3:F.lv>=6?2:F.lv>=1?1:0,score=ok?Math.round((F.lv*100+F.n0*5+(F.boss?2000:0))*N.D.sc):0;if(ok&&stars>0&&N.dk>SAVE.dw[i])SAVE.dw[i]=N.dk;
-    let msg='';if(stars>SAVE.stars[i])SAVE.stars[i]=stars;if(score>SAVE.best[i]){SAVE.best[i]=score;msg='（新紀錄！）';}
+    EARN(ok?40+stars*30:10,ok?`夜市套圈 ${stars} 星`:'夜市套圈');let msg='';if(stars>SAVE.stars[i])SAVE.stars[i]=stars;if(score>SAVE.best[i]){SAVE.best[i]=score;msg='（新紀錄！）';}
     let prize='';if(F.boss){const k=['wheel','ball','flame'][i];if(!SAVE.prize[k]){SAVE.prize[k]=true;prize=['🎁 得到大獎：彩虹輪子！（選單「人物 → 直排輪改裝」換輪子顏色）','🎁 得到大獎：金色籃球！（籃球場拿球就是金色的）','🎁 得到大獎：彩虹火焰！（直排輪改裝裡打開）'][i];applyPrizes();}}
     save();for(const t of TIERS){t.mat.emissive.copy(t.base);t.mat.emissiveIntensity=1;}
     const html=ok?`<b>${F.boss?'🏆 套住大老闆！':stars?'過關！':'沒套上獎品塔'}</b><br>帶了 ${F.n0} 人到終點，套到 ×${F.lv}　${'★'.repeat(stars)}${'☆'.repeat(3-stars)}<br>難度 ${N.D.n}・分數 ${score}${msg}${prize?`<br>${prize}`:''}`:`<b>全軍覆沒…</b><br>再試一次！選比較大的數字、閃開障礙`;
@@ -6812,7 +6815,7 @@ const RB=(()=>{
     player.pos.set(CX-8.9,CZ);player.y=0;player.vel.set(0,0);hudDraw();};
   // 慢動作（主迴圈乘上去）
   R.rt=dt=>{if(!R.on)return 1;if(R.slow>0){R.slow-=dt;return 0.28;}return 1;};
-  function result(win){const i=R.stage;let msg='';
+  function result(win){const i=R.stage;let msg='';EARN(win?80+i*20:10,win?`機器人擂台第 ${i+1} 關`:'機器人擂台');
     if(win){if(i+1>SAVE.cleared){SAVE.cleared=i+1;const rw=OPP[i].reward;if(rw==='gold'){SAVE.gold=true;paint(me,GOLD_C);msg='🏆 冠軍！得到金色塗裝';}else msg=`🎁 解鎖必殺技「${MOVES[rw].n}」！`;}
       const t=Math.round(99-R.time);if(!SAVE.best[i]||t<SAVE.best[i])SAVE.best[i]=t;save();}
     R.pickPanel();panel.querySelector('.res').innerHTML=win?`<b>${i===4?'🏆 冠軍！':'勝利！'}</b><br>打倒 ${R.O.name}（${Math.round(99-R.time)} 秒）${msg?'<br>'+msg:''}`:`<b>輸了…</b><br>${R.O.name} 剩 ${Math.round(F.op.hp)} 血。按住防禦擋重拳、看準空檔反擊，能量滿了放必殺技！`;
@@ -7425,7 +7428,7 @@ const SB=(()=>{
     player.pos.set(S.me.x,S.me.z);player.y=0;player.vel.set(0,0);
     hudDraw();if(S.net)netHost(dt);};
   S.rt=dt=>{if(!S.on||S.net)return 1;if(S.slow>0){S.slow-=dt;return 0.3;}return 1;};
-  function result(win){if(S.net){netResult(win);return;}const i=S.stage,diff=T[0].score-T[1].score;let msg='';
+  function result(win){EARN(win?(S.net?100:80+S.stage*20):10,win?'鬥牛贏了':'鬥牛');if(S.net){netResult(win);return;}const i=S.stage,diff=T[0].score-T[1].score;let msg='';
     if(win){if(i+1>SAVE.cleared){SAVE.cleared=i+1;const rw=OPP[i].reward;if(rw==='shoes'){SAVE.shoes=true;msg='👟 得到金色球鞋（跑比較快）！';}else if(rw==='gold'){SAVE.gold=true;msg='🏆 冠軍！得到金色球衣';}else msg=`🎁 解鎖必殺技「${SP[rw].n}」！`;}
       if(!SAVE.best[i]||diff>SAVE.best[i])SAVE.best[i]=diff;save();AUDIO.sfx('bigcheer');}else AUDIO.sfx('over');
     const st=S.stats;S.pickPanel();panel.querySelector('.res').innerHTML=(win?`<b>${i===4?'🏆 冠軍！':'勝利！'}</b><br>${T[0].score} : ${T[1].score} 打贏${S.O.name}${msg?'<br>'+msg:''}`:`<b>輸了…</b><br>${T[0].score} : ${T[1].score}，${S.O.name}比較強。對手出手時按「蓋火鍋」、集氣滿了放必殺技！`)
@@ -8140,7 +8143,7 @@ const CU=(()=>{
   function die(force){if(K.dead)return;if(K.coop&&!force){if(!K.down){K.down=true;K.hp=0;K.revT=0;big('倒下了！等同伴來救');note('同伴站到你旁邊 3 秒就能把你救起來');AUDIO.sfx('over');}return;}   /* 合作：先倒地，兩個都倒下才結束（開房間那邊判定） */
     K.dead=true;K.st='dead';K.deadT=0;big(K.mode==='stage'||K.esc?'被作業淹沒了…':'倒下了…');AUDIO.sfx('over');AUDIO.musicStop();setTimeout(()=>{if(K.on&&K.st==='dead')result(false);},1700);}
   function winStart(){K.st='win';K.winT=0;big('🎓 過關！');AUDIO.sfx('cheer');hideTele();}
-  function result(ok){if(K.coop){if(K.chost&&K.netSend)K.netSend({t:'cuEnd',ok});K.coop=false;K.down=false;}const i=K.stage,hpk=Math.max(0,K.hp)/K.hpMax;let html='';K.score=K.kills*10+K.lv*50+(ok?Math.round(hpk*1000)+1000:0);
+  function result(ok){EARN(ok?120+(K.stage|0)*40:Math.min(200,Math.round((K.kills|0)/4)),ok?'校園大逃亡過關':'校園大逃亡');if(K.coop){if(K.chost&&K.netSend)K.netSend({t:'cuEnd',ok});K.coop=false;K.down=false;}const i=K.stage,hpk=Math.max(0,K.hp)/K.hpMax;let html='';K.score=K.kills*10+K.lv*50+(ok?Math.round(hpk*1000)+1000:0);
     if(K.mode==='stage'||K.esc){const stars=ok?(hpk>=0.6?3:hpk>=0.3?2:1):0,first=ok&&!SAVE.stars[i];if(stars>SAVE.stars[i])SAVE.stars[i]=stars;if(ok&&K.score>SAVE.best[i])SAVE.best[i]=K.score;let grad='';if(ok&&i===4&&!SAVE.grad){SAVE.grad=true;cuGrad=true;grad='<br>🎓 <b>畢業了！</b>得到學士服（衣櫃的「全部」裡，男女都有）';}save();
       html=ok?`<b>🎓 過關！${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</b><br>${K.dept.ico} ${K.dept.n}・擊倒 ${K.kills} 隻・Lv ${K.lv}・剩 ${Math.round(hpk*100)}% 生命・${K.score} 分${first?`<br>📜 得到獎狀：${STG[i].n.split('・')[1]}（大門口的榮譽榜）`:''}${grad}`:`<b>沒逃出去…</b><br>走了 ${Math.round(K.prog*100)}%・擊倒 ${K.kills} 隻・Lv ${K.lv}<br><small>沿路撿武器箱、愛心、護盾；看到大魔王的紅色範圍就閃開；大招冷卻好就按</small>`;}
     else{const t=K.t,rec=t>SAVE.eT;if(rec)SAVE.eT=Math.floor(t);if(K.kills>SAVE.eK)SAVE.eK=K.kills;save();const md=t>=600?'🥇 金牌':t>=360?'🥈 銀牌':t>=180?'🥉 銅牌':'';
@@ -8793,7 +8796,7 @@ for(const b of root.querySelectorAll('[data-n]'))b.onclick=e=>{e.stopPropagation
     if(M.trail.length>12)M.trail.shift();}
   function lessonNext(){const L=LESSONS[M.L];
     if(M.ph==='intro'){if(M.q.length){M.cur=M.q.shift();M.need=3;M.demoT=0.4;return;}M.ph='quiz';M.qn=0;big('小考！看五線譜吹出來');M.pool=LESSONS.slice(0,M.L+1).flatMap(x=>x.nw);}
-    if(M.ph==='quiz'){if(M.qn>=8){const st=M.miss===0?3:M.miss<=2?2:1;const first=!SAVE.ls[M.L];if(st>SAVE.ls[M.L])SAVE.ls[M.L]=st;save();AUDIO.sfx('cheer');
+    if(M.ph==='quiz'){if(M.qn>=8){const st=M.miss===0?3:M.miss<=2?2:1;EARN(st*30,`直笛過關 ${st} 星`);const first=!SAVE.ls[M.L];if(st>SAVE.ls[M.L])SAVE.ls[M.L]=st;save();AUDIO.sfx('cheer');
         finish(`<b>🎵 ${L.n} 過關！${stars(st)}</b><br>小考 8 題、錯 ${M.miss} 次${first&&M.L<4?`<br>下一課：${LESSONS[M.L+1].n}`:''}`);return;}
       let m;do{m=M.pool[Math.floor(Math.random()*M.pool.length)];}while(m===M.cur&&M.pool.length>1);M.cur=m;M.qn++;M.hint=false;}}
 
@@ -8813,8 +8816,8 @@ for(const b of root.querySelectorAll('[data-n]'))b.onclick=e=>{e.stopPropagation
     else if(!M.wait){const win=0.3*M.bps;for(let i=M.ji;i<S.notes.length;i++){const n=S.notes[i];if(n.t+win>M.b)break;if(!M.J[i]){M.J[i]=3;M.res[2]++;M.combo=0;judgeTxt('錯過了','#9aa1a8');}}advJ();}
     if(M.b>S.len+1.2&&!M.endT){M.endT=1;release();vOff();
       if(M.demo){finish(`<b>👂 示範：${S.n}</b><br>聽完了！按「▶ 吹」換你試試看（可以先選慢速、等我模式）`);return;}
-      if(M.wait){SAVE.ws[S.id]=1;save();AUDIO.sfx('cheer');finish(`<b>🎵 ${S.n}・練習完成！</b><br>吹錯 ${M.wrong} 次<br><small>關掉「等我模式」照節奏吹，就能拿星星</small>`);return;}
-      const n=S.notes.length,acc=(M.res[0]+M.res[1]*0.6)/n,st=acc>=0.95?3:acc>=0.8?2:acc>=0.6?1:0;if(st>(SAVE.ss[S.id]||0))SAVE.ss[S.id]=st;if(st)SAVE.ws[S.id]=1;save();AUDIO.sfx(st?'cheer':'over');
+      if(M.wait){SAVE.ws[S.id]=1;save();EARN(10,'直笛練習');AUDIO.sfx('cheer');finish(`<b>🎵 ${S.n}・練習完成！</b><br>吹錯 ${M.wrong} 次<br><small>關掉「等我模式」照節奏吹，就能拿星星</small>`);return;}
+      const n=S.notes.length,acc=(M.res[0]+M.res[1]*0.6)/n,st=acc>=0.95?3:acc>=0.8?2:acc>=0.6?1:0;if(st>(SAVE.ss[S.id]||0))SAVE.ss[S.id]=st;if(st)SAVE.ws[S.id]=1;save();EARN(st*25,`直笛 ${st} 星`);AUDIO.sfx(st?'cheer':'over');
       finish(`<b>${st?'🎵 '+S.n+' '+stars(st):S.n+'・再加油！'}</b><br>完美 ${M.res[0]}・不錯 ${M.res[1]}・錯過 ${M.res[2]}（共 ${n} 個音）・最多 ${M.maxCombo} 連擊<br>準確度 ${Math.round(acc*100)}%${SAVE.spd<1?`（${Math.round(SAVE.spd*100)}% 速度）`:''}${st<3?'<br><small>60% 1 星、80% 2 星、95% 3 星；可以先聽示範、開等我模式練習</small>':''}`);}}
   function lessonStep(dt){if(M.demoT>0&&M.ph==='intro'){M.demoT-=dt;if(M.demoT<=0){M.demoPlay=0.9;vOn(M.cur);M.cm=M.cur;drawFlute();showInfo();}}
     if(M.demoPlay>0){M.demoPlay-=dt;if(M.demoPlay<=0&&M.cm===M.cur){M.cm=0;vOff();drawFlute();showInfo();}}
@@ -9501,7 +9504,7 @@ const DD=(()=>{
     for(const q of CONES){q.c.rotation.z=Math.sin((D.time||0)*0.9+q.k*1.7)*0.45;q.c.rotation.x=Math.cos((D.time||0)*0.7+q.k)*0.25;const pal=palOf(b);q.m.color.set(pal[(q.k+3)%3]);q.m.opacity=0.1+0.1*Math.pow(1-(((b%1)+1)%1),2);}}
   function finish(){const S=D.S,dv=D.dv,tot=D.nSteps,pct=tot?(D.score/tot)*100:0,fc=!D.failed&&D.cnt[4]===0&&D.cnt[5]===0&&D.ng===0;
     const g=D.failed?'E':pct>=98&&fc?'AAA':pct>=93?'AA':pct>=85?'A':pct>=75?'B':pct>=60?'C':'D',score=Math.round(1e6*D.score/Math.max(1,tot));
-    mzStop(0.4);D.play=false;let rec='';
+    mzStop(0.4);D.play=false;let rec='';if(!D.auto)EARN((D.failed?10:{AAA:150,AA:120,A:90,B:60,C:40,D:20}[g]||20)*(1+dv*0.25),`跳舞機 ${g}`);
     if(!D.auto){const key=S.id+':'+dv,o=SAVE.best[key];if(!o||score>o.s){SAVE.best[key]={s:score,g,fc:fc||(o&&o.fc)};rec=o?'<br>🎉 新紀錄！':'';save();}else if(fc&&!o.fc){o.fc=true;save();}}
     AUDIO.sfx(D.failed?'over':'cheer');if(fc&&!D.auto)big('FULL COMBO!');
     showPanel(`<div class="grade" style="color:${GCOL[g]}">${g}</div><b>${D.failed?'失敗…（血條歸零）':D.auto?'自動示範結束':'過關！'}</b>　${S.n}・${DIFFN[dv]}${fc?'　<b style="color:#ffd23a">FULL COMBO ★</b>':''}<br>`+
@@ -10114,7 +10117,7 @@ const KF=(()=>{const K={on:false,ph:'idle'};
     if(K.ph==='end'&&K.pt>1.6&&!K.ended){K.ended=true;roundEnd();}
     if(K.ph==='end'&&K.pt>3.4){K.ended=false;if(matchOver()){K.ph='over';K.pt=0;matchEnd();}else roundStart();}
     hud(false);if(K.netHost)K.netSend&&K.netHostSend(dt);};
-  function matchEnd(){const me=F[0],won=me.wins>F[1].wins;K.play=false;hud(true);
+  function matchEnd(){const me=F[0],won=me.wins>F[1].wins;K.play=false;hud(true);EARN(won?(K.net?100:K.stage>=7?300:60+K.stage*15)*(SAVE.auto&&!K.net?0.5:1):10,won?(K.net?'武道快打對打贏了':`武道快打第 ${K.stage+1} 關`):'武道快打');
     if(K.net){em('me',won?0:1);if(K.netHost&&K.netSend){K.sendT=0;K.netHostSend(0);}if(K.onNetEnd)K.onNetEnd(won);showPanel(`<div class="big" style="color:${won?'#3fbf7a':'#ff5a2a'}">${won?'🏆 你贏了！':'輸了…'}</div>跟 ${K.netName} 對打 ${me.wins}：${F[1].wins}`);return;}
     if(won){const sec=Math.round((performance.now()-K.t0)/1000);if(K.stage+1>SAVE.reach)SAVE.reach=Math.min(8,K.stage+1);
       if(K.stage>=7){const first=!SAVE.clear;SAVE.clear=true;sfx('bigcheer');save();showPanel(`<div class="big" style="color:#ffcf2f">🏆 打倒鋼鐵魔王！武道王！</div>${first?'🎁 解鎖：可以用「鋼鐵魔王」上場（選流派最後一個）':'再打一次也很帥！'}`,true);return;}
@@ -10255,6 +10258,10 @@ const KF=(()=>{const K={on:false,ph:'idle'};
   K.netEnd=msg=>{if(!K.on||!K.net)return;K.net=false;K.netHost=K.netGuest=false;K.play=false;toast('🥋 '+(msg||'對打結束'));showPanel(`<div class="big" style="color:#ffcf2f">對打結束</div>${esc2(msg||'')}`);};
   return K;})();
 
+/* ---------------- 玩小遊戲賺零用錢（2026-10-16 使用者：每天 500 太少，玩其他小遊戲要可以賺錢）：贏了、過關給錢，輸了也有一點；畫面上方跳「💰 +80 元」 ---------------- */
+const earnEl=(()=>{const e=document.createElement('div');e.id='earnPop';e.hidden=true;document.body.appendChild(e);return e;})();let earnT=0;
+function EARN(n,why){n=Math.round(n);if(!(n>0)||typeof PUSH==='undefined'||!PUSH.W)return;const W=PUSH.W;W.money+=n;W.earn=(W.earn|0)+n;PUSH.save();
+  earnEl.innerHTML=`💰 +${n} 元零用錢<small>${why||''}・錢包 ${W.money} 元</small>`;earnEl.hidden=false;earnEl.classList.remove('pop');void earnEl.offsetWidth;earnEl.classList.add('pop');clearTimeout(earnT);earnT=setTimeout(()=>{earnEl.hidden=true;},3800);if(PUSH.snd)PUSH.snd('buy');}
 /* ---------------- 推幣機（2026-10-16 使用者：「湯姆熊的推幣機」，要投錢換代幣、贏了拿代幣和彩票；畫面上用原創名字「推幣樂園」） ----------------
    位置：便利商店西邊的草地（武道快打再過去），鋪地＋遮雨棚：4 個位子的推幣機、兌幣機（零用錢換代幣）、兌獎櫃台＋獎品展示櫃。
    玩法：代幣從上面的投幣口掉下來（投幣口自己左右擺，也可以自己移），推板前後推；從前面中間掉下來＝代幣回到手上，從兩邊角落掉下去＝沒了；
@@ -10273,12 +10280,13 @@ const PUSH=(()=>{const U={on:false,k:-1};
   const pPos=t=>P0+PA*(1-Math.cos(t*Math.PI*2/PT))/2;
   const CX=-4.85,PX=-3.95,KZ=14.5;   // 兌幣機、獎品櫃（中心 x）
   // ================= 存檔：錢包 =================
+  const DAILY=1000;U.DAILY=DAILY;   /* 每天零用錢（2026-10-16 使用者：500 太少 → 1000；玩其他小遊戲也賺得到，見 EARN） */
   const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
   const W=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-push')||'{}')||{};}catch(_){}
-    return {money:o.money==null?500:+o.money||0,day:o.day||'',tok:o.tok|0,tix:o.tix|0,pz:o.pz&&typeof o.pz==='object'?o.pz:{},wear:o.wear||'',ins:o.ins|0,out:o.out|0};})();
+    return {money:o.money==null?DAILY:+o.money||0,day:o.day||'',tok:o.tok|0,tix:o.tix|0,earn:o.earn|0,dv:o.dv|0,pz:o.pz&&typeof o.pz==='object'?o.pz:{},wear:o.wear||'',ins:o.ins|0,out:o.out|0};})();
   const save=()=>{try{localStorage.setItem('home-push',JSON.stringify(W));}catch(_){}};U.W=W;U.save=save;
   U.daily=()=>daily();
-  function daily(){const d=today();if(W.day!==d){const add=W.money<500;if(add)W.money=500;W.day=d;save();return add;}return false;}   /* 每天：不夠 500 元就補到 500 */
+  function daily(){const d=today();if(W.day!==d||(W.dv|0)<2){const add=W.money<DAILY;if(add)W.money=DAILY;W.day=d;W.dv=2;save();return add;}return false;}   /* 每天：不夠 DAILY 元就補到 DAILY；dv＝改成 1000 元那天，今天已經領過 500 的也馬上補到 1000 */
   // ================= 獎品 =================
   const PRZ=[{id:'sticker',n:'閃亮星星貼紙',e:'⭐',c:10},{id:'candy',n:'彩虹棒棒糖',e:'🍭',c:15},{id:'duck',n:'黃色小鴨',e:'🦆',c:25},{id:'bear',n:'小熊玩偶',e:'🧸',c:60},
     {id:'dino',n:'恐龍玩偶',e:'🦖',c:80},{id:'ears',n:'兔耳朵髮箍',e:'🐰',c:100,wear:1},{id:'rocket',n:'火箭模型',e:'🚀',c:120},{id:'robot',n:'小機器人',e:'🤖',c:150},
@@ -10424,6 +10432,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
     st.cupT+=dt;st.cupU=(FW/2-0.07)*Math.sin(st.cupT*1.15+st.i);
     if(!st.man){st.chT+=dt;st.chU=(FW/2-0.04)*Math.sin(st.chT*0.95);}else st.man=Math.max(0,st.man-dt);
     L0.length=0;L1.length=0;TOP.length=0;
+    if(st.c.some(c=>!isFinite(c.u)||!isFinite(c.v)||!isFinite(c.y)))st.c=st.c.filter(c=>isFinite(c.u)&&isFinite(c.v)&&isFinite(c.y));   /* 防呆 */
     for(const c of st.c){if(c.st==='tbl'){c.pu=c.u;c.pv=c.v;c.ov=0;(c.L?L1:L0).push(c);}else if(c.st==='top'){c.v+=dp;c.ov=0;TOP.push(c);}}   /* 推板上面的跟著推板走 */
     // 掉下來的（投幣口、推板前面掉到桌上）
     for(const c of st.c){if(c.st==='drop'){c.vy-=9.8*dt;c.y+=c.vy*dt;c.v+=(c.vl-c.v)*Math.min(1,dt*8);c.a+=dt*9;
@@ -10540,7 +10549,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
   for(const b of ui.querySelectorAll('[data-p]')){const k=b.dataset.p;
     b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(k==='x'){U.stop();return;}if(k==='A'){IN.auto=!IN.auto;b.classList.toggle('on',IN.auto);return;}if(k==='D'){IN.D=true;IN.dT=0;dropOne();}else IN[k]=true;b.classList.add('dn');});
     for(const ev of ['pointerup','pointercancel','pointerleave'])b.addEventListener(ev,()=>{if(k==='D'||k==='L'||k==='R')IN[k]=false;b.classList.remove('dn');});}
-  function dropOne(){const st=S[U.k];if(!st)return false;if(W.tok<=0){note(st,'代幣用完了！去旁邊的兌幣機換（或明天再來拿零用錢）');IN.auto=false;ui.querySelector('.auto').classList.remove('on');return false;}
+  function dropOne(){const st=S[U.k];if(!st)return false;if(W.tok<=0){note(st,'代幣用完了！');IN.auto=false;IN.D=false;ui.querySelector('.auto').classList.remove('on');if(pn.hidden)changeOpen();return false;}   /* 2026-10-16 使用者：沒代幣會當機嗎 → 直接跳出兌幣機（錢也不夠就提示去玩小遊戲賺） */
     W.tok--;W.ins++;st.since++;st.c.push({...nc(st.chU+rnd(-0.006,0.006),0.03,0),st:'drop',y:CHY,vy:0,vl:rnd(0.03,0.115)});snd('ins');U.lastDrop=performance.now();U.dq.push(Math.round(st.chU*1000));
     if(st.since%70===0)bonus(st,'b');else if(st.since%200===0)bonus(st,'g');   /* 投越多，偶爾掉彩球、寶石 */
     hudT=0;return true;}
@@ -10563,17 +10572,17 @@ const PUSH=(()=>{const U={on:false,k:-1};
     if(!U.camP){U.camP=CP2.clone();U.camL=CL2.clone();}const k=1-Math.exp(-dt*5);U.camP.lerp(CP2,k);U.camL.lerp(CL2,k);camera.position.copy(U.camP);camera.lookAt(U.camL);};
   U.start=k=>{if(GAME.on){toast('小遊戲中不能玩');return;}const st=S[k];if(!st)return;if(st.remote){toast(`第 ${k+1} 台 ${st.remote} 正在玩，換一台吧`);return;}
     if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(mode==='aerial')toggleAerial();
-    if(daily())toast('💰 今天的零用錢來了：500 元');U.on=true;U.k=k;st.act=true;U.camP=null;IN.auto=false;ui.querySelector('.auto').classList.remove('on');ui.hidden=false;document.body.classList.add('pu');hud();
+    if(daily())toast(`💰 今天的零用錢來了：${PUSH.DAILY} 元`);U.on=true;U.k=k;st.act=true;U.camP=null;IN.auto=false;ui.querySelector('.auto').classList.remove('on');ui.hidden=false;document.body.classList.add('pu');hud();
     if(W.tok<=0)note(st,'沒有代幣：先到旁邊的兌幣機換（站過去按 F）');else note(st,`投幣口左右擺，對準再投！你有 ${W.tok} 枚代幣`);AUDIO.sfx('chime');};
   U.stop=()=>{if(!U.on)return;const st=S[U.k];if(st.rl){st.rl.t=st.rl.dur;rlEnd(st);}W.tix+=st.tq;st.tq=0;W.tok+=st.rlNext.length;st.rlNext.length=0;st.act=false;   /* 離開時還沒吐完的彩票、轉到一半的輪盤都算給你 */U.on=false;ui.hidden=true;document.body.classList.remove('pu');saveF();save();avatar.root.visible=view==='third';player.pos.set(sx(U.k),STAND_Z-0.5);player.yaw=Math.PI;player.pitch=-0.1;U.k=-1;};
   // ================= 兌幣機、兌獎櫃台（面板） =================
   const pn=document.createElement('div');pn.id='puPanel';pn.className='panel';pn.hidden=true;document.body.appendChild(pn);
   for(const ev of ['pointerdown','touchstart','wheel'])pn.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
-  const BUY=[[100,11],[200,23],[500,60]];
-  function changeOpen(){const add=daily();pn.innerHTML=`<div class="hd"><b>🪙 兌幣機</b><button data-x="1">✕</button></div>${add?'<div class="res">💰 今天的零用錢來了：500 元！</div>':''}
+  const BUY=[[100,11],[200,23],[500,60]];U.changeOpen=()=>changeOpen();
+  function changeOpen(){const add=daily();pn.innerHTML=`<div class="hd"><b>🪙 兌幣機</b><button data-x="1">✕</button></div>${add?`<div class="res">💰 今天的零用錢來了：${DAILY} 元！</div>`:''}${W.money<100?'<div class="res" style="background:#e0a020;color:#3a1f00">錢不夠了：去玩其他小遊戲賺零用錢，或明天再來拿</div>':''}
       <div class="wal">💰 錢包 <b>${W.money}</b> 元　🪙 代幣 <b>${W.tok}</b> 枚　🎟 彩票 <b>${W.tix}</b> 張</div>
       <div class="row">${BUY.map(([m,n])=>`<button data-b="${m}" ${W.money<m?'disabled':''}>${m} 元<small>→ ${n} 枚${n*10>m?`（多送 ${n-m/10}）`:''}</small></button>`).join('')}</div>
-      <div class="note">每天會補零用錢：錢包不夠 500 元就補到 500 元（花完了明天再來）。</div>`;pn.hidden=false;
+      <div class="note">每天會補零用錢：錢包不夠 ${DAILY} 元就補到 ${DAILY} 元。<b>玩其他小遊戲也賺得到零用錢</b>：跳舞機、武道快打、賽車、鬥牛、擂台、夜市套圈、校園大逃亡、直笛、罰球、網球贏一局、打殭屍${W.earn?`（到現在賺了 ${W.earn} 元）`:''}。</div>`;pn.hidden=false;
     pn.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.x){pn.hidden=true;return;}const m=+b.dataset.b,it=BUY.find(q=>q[0]===m);if(!it||W.money<m)return;W.money-=m;W.tok+=it[1];save();snd('buy');toast(`🪙 換了 ${it[1]} 枚代幣（剩 ${W.money} 元）`);changeOpen();};}
   function prizeOpen(){pn.innerHTML=`<div class="hd"><b>🎟 兌獎櫃台</b><button data-x="1">✕</button></div><div class="wal">🎟 彩票 <b>${W.tix}</b> 張　🪙 代幣 <b>${W.tok}</b> 枚</div>
       <div class="prz">${PRZ.map(p=>{const n=W.pz[p.id]|0;return `<div class="pz${n?' own':''}"><span class="e">${p.e}</span><span class="n">${p.n}${n?`<small>有 ${n} 個</small>`:''}</span>
@@ -10699,7 +10708,7 @@ const FISH=(()=>{const F={on:false,seat:-1};
     const m={t:'fiN',x:gx,y:gy,r,pw:big?2:1,s:F.seat};
     if(iAmMaster())resolve(meId(),F.seat,gx,gy,r,m.pw);else{RINGS.push({x:gx,y:gy,r,s:F.seat,t:0,me:true,ghost:1});F.send(masterId(),m);}
     hudDirty=true;}
-  function insert(auto){const W=PUSH.W;if(W.tok<=0){banner={t:0,d:2.4,txt:'代幣用完了',sub:'去推幣樂園的兌幣機換（或明天再來拿零用錢）',col:'#ff9ec4'};return false;}
+  function insert(auto){const W=PUSH.W;if(W.tok<=0){banner={t:0,d:2.4,txt:'代幣用完了',sub:'在這裡就可以換（兌幣機）',col:'#ff9ec4'};if(PUSH.changeOpen&&$('puPanel').hidden)PUSH.changeOpen();return false;}
     W.tok--;W.ins++;nets+=3;PUSH.save();PUSH.snd('ins');hudDirty=true;if(!auto)banner={t:0,d:1.2,txt:'+3 網',sub:'',col:'#7dff9a'};return true;}
   // ================= 聲音 =================
   let sndT={};function snd(k){const AA=AUDIO.A,Y=AUDIO.syn;if(!AA.ctx||(AA.ctx.state!=='running'&&!AA.test))return;const now=performance.now();if(now-(sndT[k]||0)<60)return;sndT[k]=now;const t=AA.ctx.currentTime+0.005,o=AA.sfx;
@@ -10804,7 +10813,7 @@ const FISH=(()=>{const F={on:false,seat:-1};
   cv.addEventListener('pointerdown',e=>{e.preventDefault();const r=cv.getBoundingClientRect(),p=MI.transformPoint(new DOMPoint((e.clientX-r.left)*DPR,(e.clientY-r.top)*DPR));if(p.x<-40||p.x>WW+40||p.y<-40||p.y>WH+40)return;scoop(cl(p.x,0,WW),cl(p.y,0,WH));});
   ui.querySelector('[data-f=coin]').addEventListener('pointerdown',e=>{e.preventDefault();insert(false);});
   ui.querySelector('[data-f=x]').addEventListener('pointerdown',e=>{e.preventDefault();F.stop();});
-  function layout(){DPR=Math.min(2,devicePixelRatio||1);VW=Math.round(innerWidth*DPR);VH=Math.round(innerHeight*DPR);cv.width=VW;cv.height=VH;
+  function layout(){DPR=Math.min(isTouch?1.5:2,devicePixelRatio||1);VW=Math.round(innerWidth*DPR);VH=Math.round(innerHeight*DPR);cv.width=VW;cv.height=VH;
     const port=VH>VW*1.05,S=SEATS[F.seat]||SEATS[2],hudH=(port?150:112)*DPR,topH=(port?56:52)*DPR,aw=VW-16*DPR,ah=VH-hudH-topH;let a,b,c,d,e,f,s;
     if(!port){s=Math.min(aw/WW,ah/WH);const ox=(VW-WW*s)/2,oy=topH+(ah-WH*s)/2;if(S.gy){a=s;b=0;c=0;d=s;e=ox;f=oy;}else{a=-s;b=0;c=0;d=-s;e=ox+WW*s;f=oy+WH*s;}}
     else{s=Math.min(aw/WH,ah/WW);const ox=(VW-WH*s)/2,oy=topH+(ah-WW*s)/2;if(S.gx<WW/2){a=0;b=-s;c=s;d=0;e=ox;f=oy+WW*s;}else{a=0;b=s;c=-s;d=0;e=ox+WH*s;f=oy;}}   /* 直拿：轉 90°，自己的位子在下面 */
@@ -10835,7 +10844,7 @@ const FISH=(()=>{const F={on:false,seat:-1};
   F.step=dt=>{if(!F.on)return;const S=SEATS[F.seat];player.vel.set(0,0);player.pos.set(S.x,S.z);player.y=0;frame();};
   F.start=k=>{if(GAME.on){toast('小遊戲中不能玩');return;}const L=seated();if(L.some(p=>p.seat===k)){const o=L.find(p=>p.seat===k);toast(`第 ${k+1} 個位子 ${o.name} 坐了，換一個吧`);return;}
     if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(mode==='aerial')toggleAerial();
-    if(PUSH.daily&&PUSH.daily())toast('💰 今天的零用錢來了：500 元');
+    if(PUSH.daily&&PUSH.daily())toast(`💰 今天的零用錢來了：${PUSH.DAILY} 元`);
     F.on=true;F.seat=k;ui.hidden=false;document.body.classList.add('fi');layout();if(F.send&&F.netOn&&F.netOn()){if(iAmMaster())bc(fullState());else F.send('*',{t:'fiQ'});}   /* 自己是主持：把魚送給大家；不是：跟主持要全部的魚 */
     banner={t:0,d:2.6,txt:'🐟 點魚就撈！',sub:nets?`還有 ${nets} 網`:PUSH.W.tok?'第一網會自動投 1 枚代幣（3 網）':'沒有代幣：去兌幣機換',col:'#7dff9a'};AUDIO.sfx('chime');};
   F.stop=()=>{if(!F.on)return;F.on=false;ui.hidden=true;document.body.classList.remove('fi');const S=SEATS[F.seat];player.pos.set(S.x,S.gy?S.z+0.4:S.z-0.4);player.yaw=S.gy?0:Math.PI;F.seat=-1;
@@ -11584,10 +11593,12 @@ const THUMB=(()=>{const T={},CW=128,CH=256,COLS=12,list=[];
     A.armL.rotation.z=-0.13;A.armR.rotation.z=0.13;A.foreL.rotation.x=A.foreR.rotation.x=-0.15;A.root.updateMatrixWorld(true);
     renderer.setRenderTarget(rt);renderer.setClearColor(0x000000,0);renderer.clear();renderer.render(sc,cam);buf.fill(0);renderer.readRenderTargetPixels(rt,0,0,RW,RH,buf);
     const id=tc.createImageData(RW,RH),row=RW*4;for(let y=0;y<RH;y++)id.data.set(buf.subarray((RH-1-y)*row,(RH-y)*row),y*row);tc.putImageData(id,0,0);   // 讀回來是上下顛倒的
+    {let h=0;for(let p=0;p<buf.length;p+=4*61)h=(Math.imul(h,31)+buf[p]+buf[p+1]*7+buf[p+2]*13+buf[p+3]*17)|0;   /* 2026-10-16 使用者：衣櫃的衣服跟名字不一樣 → 有些手機讀回來的是上一張的畫面（整排錯一格）：跟別套一模一樣就等下一批重拍（最多 2 次） */
+     const prev=T.hash.get(h);if(prev!=null&&prev!==i&&(T.retry[i]|0)<2){T.retry[i]=(T.retry[i]|0)+1;T.dup=(T.dup||0)+1;return false;}T.hash.set(h,i);}
     const cx=(i%COLS)*CW,cy=Math.floor(i/COLS)*CH;ax.clearRect(cx,cy,CW,CH);ax.drawImage(tmp,cx,cy,CW,CH);T.done[i]=true;T.n++;let vis=0;for(let p=3;p<buf.length;p+=4*97)if(buf[p]>0)vis++;if(vis>40)T.okSet.add(i);else{T.fail=(T.fail||0)+1;dollCell(i);}}   /* 人物大約占 15～25%（取樣約 1350 點 → 200 點以上）；太少＝沒拍到 */
   // 2026-10-15 使用者：衣櫃、服裝店又看不到衣服 → 照片拍失敗的那格改畫紙娃娃（衣櫃、服裝店立牌都看得到東西），不存起來、下次重拍
   function dollCell(i){if(!T.dollFn)return;try{const it=list[i],c2=document.createElement('canvas');c2.width=CW;c2.height=CH;T.dollFn(c2,CHAR_OUTFITS[it.g][it.o],true);const cx=(i%COLS)*CW,cy=Math.floor(i/COLS)*CH;ax.clearRect(cx,cy,CW,CH);ax.drawImage(c2,cx,cy);T.okSet.add(i);}catch(_){}}   /* 拍出來是空的（有些手機讀不回畫面）：不算拍好，衣櫃留紙娃娃、也不存起來 */
-  T.okSet=new Set();T.ok=i=>T.cached||T.okSet.has(i);
+  T.okSet=new Set();T.ok=i=>T.cached||T.okSet.has(i);T.hash=new Map();T.retry={};
   T.can=()=>started&&!document.hidden&&!GAME.on&&!EMOTE.on&&!avatar.morph&&!avatar.skates&&!LIE.on&&!BB.on&&!TN.on&&!BALLOON.riding&&!CU.on&&!MU.on&&!DD.on&&!KF.on&&!PUSH.on&&!FISH.on&&!SB.on&&!RB.on&&!NM.on&&!RACE.on;   /* 小遊戲中不拍（會卡一下、還會把校園大逃亡的系服換掉） */
   let lastUp=0;
   function batch(){if(T.n>=list.length){T.tex.needsUpdate=true;if(!T.fail)save();return;}let ok=false;try{ok=T.can();}catch(_){}if(!ok){setTimeout(batch,800);return;}
@@ -11596,18 +11607,20 @@ const THUMB=(()=>{const T={},CW=128,CH=256,COLS=12,list=[];
     sc.add(A.root);A.root.position.set(0,0,0);A.root.rotation.set(0,0.35,0);A.root.scale.setScalar(1);A.root.visible=true;if(blob)blob.visible=false;
     const fast=typeof CLOSET!=='undefined'&&CLOSET.isOpen,t0=performance.now(),budget=fast?90:document.body.classList.contains('touch')?45:35;   /* 衣櫃打開時（正在等照片）每批拍久一點 */
     try{while(T.n<list.length&&performance.now()-t0<budget){let i=-1;while(T.prio.length&&i<0){const k=T.prio.shift();if(!T.done[k])i=k;}if(i<0)i=T.done.indexOf(false);if(i<0)break;
-      try{shoot(i);}catch(err){if(!T.done[i]){T.done[i]=true;T.n++;T.fail=(T.fail||0)+1;dollCell(i);}}}}   /* 2026-10-13：某一套拍失敗就跳過（原本整個拍照流程會停住、衣櫃一直空白），那格留紙娃娃 */
+      try{if(shoot(i)===false){T.redo=(T.redo||[]);T.redo.push(i);break;}}catch(err){if(!T.done[i]){T.done[i]=true;T.n++;T.fail=(T.fail||0)+1;dollCell(i);}}}}   /* 2026-10-13：某一套拍失敗就跳過（原本整個拍照流程會停住、衣櫃一直空白），那格留紙娃娃 */
     finally{renderer.setRenderTarget(prt);renderer.setClearColor(cc,ca);par.add(A.root);A.root.position.copy(pos);A.root.rotation.copy(rot);A.root.scale.copy(scl);A.root.visible=vis;if(blob)blob.visible=bv;
       A.dress(charCfg);A.zeroJoints();for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);}
+    if(T.redo&&T.redo.length){T.prio.unshift(...T.redo);T.redo=[];}   /* 重拍的放到下一批最前面（中間畫過一格畫面） */
     if(T.n-lastUp>=12||T.n>=list.length){lastUp=T.n;T.tex.needsUpdate=true;}
     if(T.onShot)T.onShot();setTimeout(batch,typeof CLOSET!=='undefined'&&CLOSET.isOpen?60:document.body.classList.contains('touch')?320:120);}
   // IndexedDB：衣服資料（或拍照方式）改了，簽名就不一樣，會重拍
-  const SIG=(()=>{const str='thumb-v2|'+JSON.stringify(CHAR_OUTFITS)+JSON.stringify(CHAR_HAIR);let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36)+'-'+str.length;})();
+  const SIG=(()=>{const str='thumb-v3|'+JSON.stringify(CHAR_OUTFITS)+JSON.stringify(CHAR_HAIR);let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36)+'-'+str.length;})();
   const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('home-explorer',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});
   async function load(){try{const db=await idb(),v=await new Promise((res,rej)=>{const q=db.transaction('kv').objectStore('kv').get('thumbs');q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});
       if(v&&v.sig===SIG&&v.blob){const bm=await createImageBitmap(v.blob);ax.clearRect(0,0,atlas.width,atlas.height);ax.drawImage(bm,0,0);
         {const px=ax.getImageData(0,0,atlas.width,atlas.height).data;let n=0;for(let p=3;p<px.length;p+=4*101)if(px[p]>0)n++;if(n<px.length/404*0.05){ax.clearRect(0,0,atlas.width,atlas.height);return false;}}   /* 存起來的照片是空白的（手機讀不回畫面）→ 不用、重拍 */T.done.fill(true);T.n=list.length;T.tex.needsUpdate=true;T.cached=true;if(T.onShot)T.onShot();return true;}}catch(_){}return false;}
   function save(){if(T.saved)return;T.saved=true;try{atlas.toBlob(async b=>{try{const db=await idb();db.transaction('kv','readwrite').objectStore('kv').put({sig:SIG,blob:b},'thumbs');}catch(_){}},'image/png');}catch(_){}}
+  T.reshoot=()=>{T.clearCache();ax.clearRect(0,0,atlas.width,atlas.height);T.done.fill(false);T.n=0;T.okSet.clear();T.hash.clear();T.retry={};T.fail=0;T.dup=0;T.cached=false;T.saved=false;lastUp=0;T.tex.needsUpdate=true;if(T.onReset)T.onReset();setTimeout(batch,100);};   /* 衣櫃的「重拍」按鈕 */
   T.clearCache=async()=>{try{const db=await idb();db.transaction('kv','readwrite').objectStore('kv').delete('thumbs');}catch(_){}};   // 測試用
   (async()=>{if(!(await load()))setTimeout(batch,1500);})();
   return T;})();
@@ -11647,6 +11660,8 @@ const CLOSET=(()=>{const C={isOpen:false,tab:'全部'},el=document.getElementByI
   function paint(){for(const c of cardEls){if(!c.drawn&&THUMB.done[c.ti]&&!(THUMB.fail&&!THUMB.ok(c.ti))){THUMB.draw(c.ti,c.cv.getContext('2d'),c.cv.width,c.cv.height);c.drawn=true;}else if(!c.drawn&&!c.fb){c.fb=true;const it=THUMB.list[c.ti];doll(c.cv,CHAR_OUTFITS[it.g][it.o]);}}
     if(C.isOpen)nowEl.textContent=`現在：${CHAR_OUTFITS[charCfg.g][charCfg.o].name}`+(THUMB.n<THUMB.list.length?`　（照片拍攝中 ${THUMB.n}/${THUMB.list.length}）`:'');}
   THUMB.onShot=()=>{if(C.isOpen)paint();};
+  THUMB.onReset=()=>{render();};
+  document.getElementById('clRe').onclick=e=>{e.stopPropagation();THUMB.reshoot();toast('🔄 照片重拍中（衣櫃開著會拍比較快）');};
   THUMB.dollFn=doll;   /* 照片拍失敗的格子用紙娃娃補（服裝店立牌也用得到） */
   C.open=()=>{if(!started)return;C.isOpen=true;el.hidden=false;if(sun.intensity<1.2){C.lit=true;hemi.intensity=Math.max(hemi.intensity,1.15);}   /* 晚上：天空光調亮，衣服才看得清楚 */document.body.classList.add('closet');menu.hidden=true;bMenu.classList.remove('on');document.getElementById('emotePanel').hidden=true;
     if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}avatar.yaw=player.yaw+Math.PI;render();requestAnimationFrame(fit);fit();
@@ -12729,7 +12744,7 @@ const GAME=(()=>{
     if(G.free)waveEl.textContent='自由破壞';
     AUDIO.musicStart();toast(G.free?'自由破壞模式：車子、鄰居的房子、周邊建築、便利商店都打得壞（我家不會壞）；技能往前方放，視角往上抬就往上打':'殭屍來襲！守住家裡！按下方按鈕往前方放技能，按住「蓄力」集氣放開發射；車子、別人的房子也打得壞');}
   function end(){clearAll();DESTR.reset();AUDIO.musicStop();document.body.classList.remove('gaming');G.on=false;G.over=false;hud.hidden=true;skills.hidden=true;overEl.hidden=true;flash.style.boxShadow='';if(G.prevView){view=G.prevView;syncViewUI();}G.prevView=null;}
-  function gameOver(){G.over=true;overEl.hidden=false;$('gOverMsg').textContent=`撐到第 ${G.wave} 波，擊倒 ${G.kills} 隻殭屍，破壞 ${DESTR.n} 個東西，最高 ${G.best} 連擊`;AUDIO.musicStop();chargeStop();snd('over');}
+  function gameOver(){G.over=true;EARN(Math.min(300,G.wave*15),`打殭屍撐到第 ${G.wave} 波`);overEl.hidden=false;$('gOverMsg').textContent=`撐到第 ${G.wave} 波，擊倒 ${G.kills} 隻殭屍，破壞 ${DESTR.n} 個東西，最高 ${G.best} 連擊`;AUDIO.musicStop();chargeStop();snd('over');}
   $('gStart').onclick=()=>start(false);$('gFree').onclick=()=>start(true);$('gQuit').onclick=end;$('gRetry').onclick=()=>start(G.free);$('gExit').onclick=end;
   // 技能按鈕（電腦點、手機按都可以，按下去馬上出招）
   for(const b of skills.querySelectorAll('button')){const s=b.dataset.s;
