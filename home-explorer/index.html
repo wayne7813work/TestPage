@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-16.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-16.5"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11659,7 +11659,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     P.querySelector('.code').textContent=N.code;P.querySelector('.off').hidden=s==='idle';$n('netDD').checked=N.ddVs;chip.hidden=!N.on;FXB.hidden=!N.on;CHB.hidden=!N.on;if(!N.on){FXP.hidden=true;CHP.hidden=true;}
     const rc=P.querySelector('.roomc');rc.hidden=!(N.host&&N.code&&N.on);rc.querySelector('.code2').textContent=N.code;rc.querySelector('.left').textContent=Math.max(0,3-N.conns.size);
     if(s==='live')pplDraw();}
-  function pplDraw(){const t=tgt();let h='';for(const q of N.P.values()){const d=dist(q);h+=`<div class="pp${q.id===t?' on':''}" data-p="${q.id}"><i style="background:${PC[q.id]||'#888'}"></i><b>${esc(q.name||'…')}</b><small>${d<1e9?Math.round(d)+' m':''}${q.ra?'・離開畫面':''}${q.s&&q.s.dd?'・跳舞中':''}</small><button data-go="${q.id}">📍 過去</button></div>`;}
+  function pplDraw(){const t=tgt();let h='';for(const q of N.P.values()){const d=dist(q);h+=`<div class="pp${q.id===t?' on':''}" data-p="${q.id}"><i style="background:${PC[q.id]||'#888'}"></i><b>${esc(q.name||'…')}</b><small>${d<1e9?Math.round(d)+' m':''}${q.ra?'・離開畫面':''}${q.s&&q.s.g?'・'+esc(q.s.g):''}</small><button data-go="${q.id}">📍 過去</button></div>`;}
     P.querySelector('.ppl').innerHTML=h||'<div class="note">等別人加入…</div>';
     P.querySelector('.tgt').innerHTML=t!=null?`邀請 <b style="color:${PC[t]}">${esc(pn(t)||'對方')}</b> 一起玩：${N.P.size>1?'<small>（點上面的名字換人）</small>':''}`:'';}
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -11753,7 +11753,8 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       const fe=BB.ball.material.emissiveIntensity;if(fe>0.05)s.bf=Math.round(fe*10)/10;}else lastB.ok=false;   /* 手感發燙：球會發光 */
     {const H=BB.port&&BB.port();if(H)s.hp=[r3(H.x),r3(H.z),H.dir];}   /* 隨身籃框（變出來之後一直留在原地） */
     {const M=BB.mate&&BB.mate();if(M&&M.root.visible){const o=M.root;s.mt=[r3(o.position.x),r3(o.position.y),r3(o.position.z),r3(o.rotation.y),r3(M.body.position.y),...[M.armL,M.armR,M.legL,M.legR].flatMap(g=>[r3(g.rotation.x),r3(g.rotation.y),r3(g.rotation.z)])];}}   /* 隊友 23 號 */
-    if(EMOTE.on)s.em=EMOTE.on.k;   /* 動作（月球漫步的帽子、Bye Bye Bye 的忍者裝） */
+    if(EMOTE.on)s.em=EMOTE.on.k;
+    {const g=TN.on?(TN.net?'🎾 網球對打':'🎾 打網球'):RACE.on?(RACE.net?'🏎️ 一起賽車':RACE.sk8?'🛼 直排輪比賽':'🏎️ 賽車'):SB.on?(SB.net?'⛹️ 一起鬥牛':'⛹️ 街頭鬥牛'):CU.on?(CU.coop?'🎓 合作打怪':'🎓 校園大逃亡'):DD.on?(N.vs&&N.vs.go?'💃 一起跳舞':'💃 跳舞機'):MU.on?'🎵 音樂教室':GAME.on?'🧟 打殭屍':NM.on?'🎯 夜市套圈':RB.on?'🤖 機器人擂台':BB.ft?'🏀 罰球大賽':'';if(g)s.g=g;}   /* 在玩什麼遊戲（別人頭上看得到、也不會被惡作劇打擾） */   /* 動作（月球漫步的帽子、Bye Bye Bye 的忍者裝） */
     return s;}   /* 第一人稱時自己的人物是藏起來的，對方照樣要看得到 */
   const tv=new V3(),lastP={x:0,z:0,t:0},lastB={x:0,y:0,z:0,t:0,ok:false};
   const HN=['relax','relax'];{const h0=avatar.hand;avatar.hand=(side,name)=>{HN[side>0?1:0]=name;h0(side,name);};}   /* 記住手勢（比讚、比 YA…）傳給對方 */
@@ -11783,6 +11784,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     else if(R.mate&&R.mate.root.parent)scene.remove(R.mate.root);
     {const em=s.em||'';if(em!==R.em){R.em=em;if(R.hat){A.body.remove(R.hat);R.hat=null;}if(em==='moon'){R.hat=EMOTE.mkHat();A.body.add(R.hat);}   /* 月球漫步的帽子 */
       const suit=em==='bye'&&!R.dk;if(suit!==!!R.suit&&q.cfg){R.suit=suit;A.dress(suit?{...q.cfg,O:EMOTE.DP}:q.cfg);A.root.traverse(x=>{x.userData.noCull=true;});R.h0=R.h1=null;}}}   /* Bye Bye Bye 的忍者裝 */
+    {const g=s.g||'';if(g!==R.gs){R.gs=g;if(!R.gt){R.gt=mkSprite(null,1.25,0.31);R.gt.position.y=2.47;A.root.add(R.gt);}if(R.gt.material.map)R.gt.material.map.dispose();R.gt.material.map=g?tagTex(g,'rgba(30,30,40,0.88)'):null;R.gt.material.needsUpdate=true;R.gt.visible=!!g;}}   /* 名字上面：在玩什麼 */
     o.visible=!s.hid;}
   function goTo(id){const q=N.P.get(id);if(!q||!q.s){st('還不知道 '+(q&&q.name||'對方')+' 在哪裡');return;}const a=q.s.a;P.hidden=true;teleport(a[0]+1.3,a[2]+1.3,undefined,a[1]>0.5?a[1]:0);toast('📍 到 '+(q.name||'對方')+' 旁邊了');}
   // ---- 收到資料（f＝誰送的） ----
@@ -11869,7 +11871,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     {const seq=N.ivSeq=(N.ivSeq||0)+1;let t=0;const tk=()=>{const c=INV.querySelector('.cd');if(N.ivSeq!==seq||INV.hidden||!c){clearInterval(t);return;}const s=Math.max(0,Math.ceil((end-performance.now())/1000));c.innerHTML=`⏱ 還有 <b>${s}</b> 秒`;if(s<=0){clearInterval(t);INV.hidden=true;N.ipid=null;toast('跳舞機的邀請時間到了');}};t=setInterval(tk,500);tk();}   /* 沒回就自動關掉 */
     INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;N.ipid=null;if(b.dataset.k==='no'){out(f,{t:'ddNo'});return;}
       if(GAME.on){out(f,{t:'ddNo',why:'正在打殭屍，不能跳'});toast('先結束殭屍遊戲');return;}
-      N.ivSeq++;if(!DD.on)DD.enter();N.vs={i:d.i,dv:d.dv,org:f,wait:true,ids:null,me:null,op:{},end,st:null,built:false};out(f,{t:'ddOk'});waitDraw();cdTick();};}
+      N.ivSeq++;prep('dd');if(!DD.on){teleport(12.2,13.3,Math.PI);DD.enter();}N.vs={i:d.i,dv:d.dv,org:f,wait:true,ids:null,me:null,op:{},end,st:null,built:false};out(f,{t:'ddOk'});waitDraw();cdTick();};}
   function startVs(ids){const v=N.vs;if(!v)return;v.wait=false;v.ids=ids.map(String).filter(x=>x!==myId()&&N.P.has(x));v.n=v.ids.length+1;N.vsStart=true;DD.startSong(v.i,v.dv);N.vsStart=false;v.go=true;v.me=null;v.told=false;v.op={};for(const id of v.ids)v.op[id]={sc:0,cb:0};
     INV.hidden=true;vsDraw();toast(`🆚 ${v.n} 個人一起跳！`);if(DD.opStart)DD.opStart(v.ids.map(id=>({id,name:pn(id)||'…',col:PC[id]})));}
   {const s0=DD.startSong;DD.startSong=(i,dv)=>{if(!N.vsStart&&N.vs&&N.vs.go){vsSend({t:'ddQuit'});N.vs=null;VS.hidden=true;if(DD.opStop)DD.opStop();}s0(i,dv);};}   /* 自己另外選歌＝離開對戰 */
@@ -11894,7 +11896,11 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   // ---- 網球對打 ----
   TN.netSend=send;TN.owd=()=>Math.min(0.25,(N.rtt||120)/2000);
   let tnTag=null;
-  function tnGo(server){P.hidden=true;INV.hidden=true;if(DD.on)DD.stop(true);TN.startNet(server,N.rname||'對手');
+  // 開始連線遊戲前：原本在做的事、別的遊戲都先關掉（2026-10-16.5：原本拿著籃球接受網球邀請會兩個一起開、在一個人賽車時接受跳舞機會兩個一起跑、空拍中接受會卡住）
+  function prep(keep){P.hidden=true;INV.hidden=true;FXP.hidden=true;CHP.hidden=true;if(mode==='aerial')toggleAerial();if(CLOSET.isOpen)CLOSET.close();
+    if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
+    if(keep!=='dd'&&DD.on)DD.stop(true);if(keep!=='tn'&&TN.on)TN.stop();if(RACE.on)RACE.stop();if(SB.on)SB.stop();if(keep!=='cu'&&CU.on)CU.stop(true);if(MU.on)MU.stop(true);if(NM.on)NM.stop();if(RB.on)RB.stop();}
+  function tnGo(server){prep('tn');TN.startNet(server,N.rname||'對手');
     if(!tnTag){tnTag=mkSprite(null,2.6,0.65);}
     if(tnTag.material.map)tnTag.material.map.dispose();tnTag.material.map=tagTex(N.rname||'對手',PC[N.pid]);tnTag.material.needsUpdate=true;tnTag.position.set(0,2.6,0);TN.OPP.root.add(tnTag);}
   TN.netEnd=()=>{if(tnTag&&tnTag.parent)tnTag.parent.remove(tnTag);};
@@ -11906,9 +11912,9 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;const f=N.ipid;N.ipid=null;if(b.dataset.k==='no'){out(f,{t:'tNo'});return;}
       if(GAME.on){out(f,{t:'tNo',why:'正在打殭屍，不能打網球'});toast('先結束殭屍遊戲');return;}N.pid=f;send({t:'tOk'});tnGo('o');};}
   // ---- 其他連線遊戲（賽車…）：一樣的邀請流程 ----
-  const GAMES={race:{n:'賽車',ico:'🏎️',desc:'三圈比賽，還有四台電腦車；會互撞',go:host=>{P.hidden=true;INV.hidden=true;if(DD.on)DD.stop(true);if(TN.on)TN.stop();RACE.startNet(host,N.rname||'對方',mkTag());}},
-    cu:{n:'校園大逃亡（合作）',ico:'🎓',desc:'',info:()=>N.cuChoice,descOf:x=>x&&x.md==='stage'?`逃生 ${CU.netStages()[x.i].n}・一起逃出去`:'無盡模式・一起撐下去',go:(host,x)=>{P.hidden=true;INV.hidden=true;if(DD.on)DD.stop(true);if(TN.on)TN.stop();if(RACE.on)RACE.stop();if(SB.on)SB.stop();CU.startCoop(host,N.rname||'同伴',host?N.cuChoice:x);}},
-    sb:{n:'街頭鬥牛 1 對 1',ico:'⛹️',desc:'到 11 分、2 分鐘；可以用自動模式只按必殺技',info:()=>SB.netInfo(),go:(host,x)=>{P.hidden=true;INV.hidden=true;if(DD.on)DD.stop(true);if(TN.on)TN.stop();if(RACE.on)RACE.stop();SB.startNet(host,N.rname||'對方',x,mkTag());}}};
+  const GAMES={race:{n:'賽車',ico:'🏎️',desc:'三圈比賽，還有四台電腦車；會互撞',go:host=>{prep();RACE.startNet(host,N.rname||'對方',mkTag());}},
+    cu:{n:'校園大逃亡（合作）',ico:'🎓',desc:'',info:()=>N.cuChoice,descOf:x=>x&&x.md==='stage'?`逃生 ${CU.netStages()[x.i].n}・一起逃出去`:'無盡模式・一起撐下去',go:(host,x)=>{prep();CU.startCoop(host,N.rname||'同伴',host?N.cuChoice:x);}},
+    sb:{n:'街頭鬥牛 1 對 1',ico:'⛹️',desc:'到 11 分、2 分鐘；可以用自動模式只按必殺技',info:()=>SB.netInfo(),go:(host,x)=>{prep();SB.startNet(host,N.rname||'對方',x,mkTag());}}};
   SB.netSend=send;CU.netSend=send;
   function cuChoose(){if(!N.on)return;const t=tgt();if(t==null)return;P.hidden=true;const st=CU.netStages();INV.innerHTML=`<b>🎓 跟 ${esc(pn(t)||'對方')} 一起打校園大逃亡</b><div class="note" style="font-size:12px">選模式（逃生只能選你已經打開的關卡）</div><div class="row" style="flex-wrap:wrap"><button data-k="e">♾ 無盡模式</button>${st.filter(q=>q.ok).map(q=>`<button data-k="s${q.i}">逃生 第 ${q.i+1} 關</button>`).join('')}</div><div class="row"><button data-k="x">取消</button></div>`;INV.hidden=false;
     INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;INV.hidden=true;if(k==='x')return;N.cuChoice=k==='e'?{md:'endless',i:0}:{md:'stage',i:+k.slice(1)};gInvite('cu');};}
@@ -11928,13 +11934,14 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   const NEAR=3,FAR=20,EMO=['😂','😡','❤️','👍','😮','😭','🎉','😎'],SAY=['快來！','等我！','好厲害！','哈哈哈','跟我來','再見！','謝謝','加油！'];
   const PR=[['poke','👉','戳一下',NEAR],['push','🫸','推一下',NEAR],['five','🙌','擊掌',NEAR],['hug','🤗','擁抱',NEAR],['bal','🎈','綁氣球',NEAR],['water','💦','潑水球',FAR],['banana','🍌','丟香蕉皮',FAR],['fart','💨','放屁',0],['photo','📸','合照',0]];   /* 0＝不用對象 */
   const free=()=>started&&mode==='walk'&&!GAME.on&&!DD.on&&!MU.on&&!CU.on&&!SB.on&&!RB.on&&!NM.on&&!RACE.on&&!BALLOON.riding&&!LIE.on&&!TN.on&&!player.climb;   /* 可以被推、被吊起來 */
-  function nearest(){let best=null,bd=1e9;for(const q of N.P.values()){const d=dist(q);if(q.s&&!q.s.hid&&d<bd){bd=d;best=q;}}return best?{q:best,d:bd}:null;}
+  function nearest(){let best=null,bd=1e9;for(const q of N.P.values()){const d=dist(q);if(q.s&&!q.s.hid&&!q.s.g&&d<bd){bd=d;best=q;}}return best?{q:best,d:bd}:null;}   /* 在玩遊戲的人不算 */
   let fxSel=null;
   function fxOpen(){const n=nearest();const q=(fxSel&&N.P.get(fxSel))||(n&&n.q);fxSel=q?q.id:null;const d=dist(q);
     let h=`<div class="hd"><b>😜 互動</b><button data-x="1">✕</button></div>`;
     if(N.P.size>1)h+=`<div class="row who">${[...N.P.values()].map(p=>`<button data-sel="${p.id}" class="${p.id===fxSel?'on':''}" style="--c:${PC[p.id]}">${esc(p.name||'…')}</button>`).join('')}</div>`;
     h+=q?`<div class="note">對象：<b style="color:${PC[q.id]}">${esc(q.name||'對方')}</b>（${d<1e9?Math.round(d*10)/10+' m':'不知道在哪'}）</div>`:'<div class="note">還沒有人</div>';
-    h+=`<div class="grid pr">${PR.map(([k,ic,t,r])=>{const far=r>0&&(!q||d>r);return `<button data-k="${k}" class="${far?'far':''}">${ic}<span>${t}</span>${far?`<small>${r} m 內</small>`:''}</button>`;}).join('')}</div>`;
+    const busyG=q&&q.s&&q.s.g;if(busyG)h+=`<div class="note">${esc(q.name||'對方')} 正在玩「${esc(busyG)}」，先不要打擾他（表情、聊天可以）</div>`;
+    h+=`<div class="grid pr">${PR.map(([k,ic,t,r])=>{const far=r>0&&(!q||d>r||busyG);return `<button data-k="${k}" class="${far?'far':''}">${ic}<span>${t}</span>${far?`<small>${busyG?'在玩遊戲':r+' m 內'}</small>`:''}</button>`;}).join('')}</div>`;
     h+=`<div class="grid emo">${EMO.map(e=>`<button data-e="${e}">${e}</button>`).join('')}</div><div class="grid say">${SAY.map(s=>`<button data-s="${s}">${s}</button>`).join('')}</div>`;
     h+=`<form class="in"><input type="text" maxlength="60" placeholder="打字說話…" enterkeyhint="send" autocomplete="off"><button type="submit">送出</button></form><button data-chat="1" class="chat">💬 打開聊天室（看全部對話）</button>`;
     FXP.innerHTML=h;FXP.hidden=false;P.hidden=true;CHP.hidden=true;FXP.querySelector('form').onsubmit=e=>{e.preventDefault();const inp=FXP.querySelector('form input'),tx=inp.value.trim().slice(0,60);if(!tx)return;FXP.hidden=true;doFx('say',null,tx);};}
@@ -11945,7 +11952,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     const k=b.dataset.k;if(!k)return;const q=N.P.get(fxSel),r=PR.find(x=>x[0]===k)[3];
     if(k==='fart'){FXP.hidden=true;doFx('fart',null);return;}
     if(k==='photo'){FXP.hidden=true;photoAsk();return;}
-    if(!q){toast('還沒有人可以互動');return;}if(dist(q)>r){toast(`要走到 ${q.name||'對方'} 旁邊 ${r} m 內`);return;}
+    if(!q){toast('還沒有人可以互動');return;}if(q.s&&q.s.g){toast(`${q.name||'對方'} 正在玩「${q.s.g}」，等他玩完再說`);return;}if(dist(q)>r){toast(`要走到 ${q.name||'對方'} 旁邊 ${r} m 內`);return;}
     FXP.hidden=true;
     if(k==='five'){if(N.fiveFrom===q.id&&performance.now()-N.fiveT<8000){N.fiveFrom=null;INV.hidden=true;doFx('five2',q.id);return;}N.fiveAsk={to:q.id,t:performance.now()};toast(`🙌 舉手等 ${q.name||'對方'} 擊掌…`);}
     if(k==='hug'){if(N.hugFrom===q.id&&performance.now()-N.hugT<8000){N.hugFrom=null;INV.hidden=true;doFx('hug2',q.id);return;}N.hugAsk={to:q.id,t:performance.now()};toast(`🤗 張開手等 ${q.name||'對方'} 抱抱…`);}
@@ -11995,9 +12002,9 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     switch(k){
       case 'emo':bubble(from,v,true);chatAdd(from,v);if(from!==me&&CHP.hidden)toast(`${nameOf(from)}：${v}`);break;
       case 'say':{const tx=String(v||'').slice(0,60);if(!tx)break;bubble(from,tx,false,Math.min(7,3.5+tx.length*0.12));chatAdd(from,tx);if(from!==me&&CHP.hidden)toast(`💬 ${nameOf(from)}：${tx}`);AUDIO.sfx('click');break;}
-      case 'poke':bubble(to,'❗',true,1.4);AUDIO.sfx('boing');if(self){shk=Math.max(shk,0.35);toast(`👉 ${nameOf(from)} 戳了你一下！`);}break;
+      case 'poke':bubble(to,'❗',true,1.4);AUDIO.sfx('boing');if(self&&free()){shk=Math.max(shk,0.35);toast(`👉 ${nameOf(from)} 戳了你一下！`);}break;
       case 'push':bubble(to,'💢',true,1.4);AUDIO.sfx('whoosh');if(self){shk=Math.max(shk,0.3);toast(`🫸 ${nameOf(from)} 推了你一下！`);if(free()&&v){let dx=player.pos.x-v[0],dz=player.pos.y-v[1];const l=Math.hypot(dx,dz)||1;if(l<0.05){dx=Math.sin(player.yaw);dz=Math.cos(player.yaw);}pushV={x:dx/l*17,z:dz/l*17,t:0};}}break;
-      case 'five':bubble(from,'🙌',true,4);if(self){N.fiveFrom=from;N.fiveT=performance.now();AUDIO.sfx('chime');
+      case 'five':bubble(from,'🙌',true,4);if(self&&free()){N.fiveFrom=from;N.fiveT=performance.now();AUDIO.sfx('chime');
           INV.innerHTML=`<b>🙌 ${fn} 想跟你擊掌！</b><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">擊掌！</button></div>`;INV.hidden=false;
           INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;const f=N.fiveFrom;N.fiveFrom=null;if(b.dataset.k==='ok'&&f&&N.P.has(f))doFx('five2',f);};
           clearTimeout(N.fiveTo);N.fiveTo=setTimeout(()=>{if(N.fiveFrom===from){N.fiveFrom=null;INV.hidden=true;}},8000);}
@@ -12007,13 +12014,13 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
         AUDIO.sfx('clap');AUDIO.sfx('cheer');if(from===me||to===me){const o=from===me?to:from,q=new V3();if(posOf(o,q)&&free())faceTo(q.x,q.z);pose={k:'five',t:0};N.fiveAsk=null;toast(`🙌 跟 ${nameOf(o)} 擊掌！`);}break;}
       case 'bal':balloonOn(to,5);AUDIO.sfx('inflate');if(self){toast(`🎈 ${nameOf(from)} 在你頭上綁了氣球，飄起來囉！`);if(free()){floatT=5;floatTop=player.y+3.2;}}break;
       case 'water':throwArc(from,to,(()=>{const p=new V3();posOf(to,p);p.y+=1.3;return [p.x,p.y,p.z];})(),0.7,()=>{const s=new THREE.Mesh(new THREE.SphereGeometry(0.16,12,8),new THREE.MeshStandardMaterial({color:'#4aa8ff',roughness:0.2,transparent:true,opacity:0.85}));s.userData.own=true;return s;},
-          p=>{const q=new V3();if(posOf(to,q))p=q.setY(q.y+1.3);if(p)burst(p,30,['#7ac8ff','#ffffff','#3a90ff'],4.5,0.8,9,0.16);AUDIO.sfx('pop');AUDIO.sfx('swish');drips(to,4);if(self){wetScreen();toast(`💦 被 ${nameOf(from)} 潑水了！`);}});AUDIO.sfx('whoosh');break;
+          p=>{const q=new V3();if(posOf(to,q))p=q.setY(q.y+1.3);if(p)burst(p,30,['#7ac8ff','#ffffff','#3a90ff'],4.5,0.8,9,0.16);AUDIO.sfx('pop');AUDIO.sfx('swish');drips(to,4);if(self&&free()){wetScreen();toast(`💦 被 ${nameOf(from)} 潑水了！`);}});AUDIO.sfx('whoosh');break;
       case 'banana':if(m&&m.old){bananaAdd(m.id,from,v[0],v[1],v[2]);break;}throwArc(from,to,v,0.6,()=>{const g=new THREE.Mesh(bananaGeo,bananaMat);return g;},()=>{bananaAdd(m&&m.id||from+'-x',from,v[0],v[1],v[2]);AUDIO.sfx('thud');});
         if(self)toast(`🍌 ${nameOf(from)} 在你前面丟了香蕉皮！小心！`);break;
       case 'fart':{const p=new V3();if(!posOf(from,p))break;const r=rootOf(from),ry=r?r.rotation.y:0;p.x-=Math.sin(ry)*0.35;p.z-=Math.cos(ry)*0.35;p.y+=0.85;stink(p);AUDIO.sfx('fart');bubble(from,'💨',true,2);
         for(const id of [me,...N.P.keys()]){if(id===from)continue;const q=new V3();if(posOf(id,q)&&Math.hypot(q.x-p.x,q.z-p.z)<4.5)bubble(id,'🤢',true,2.2);}
         if(from!==me){const q=new V3();posOf(me,q);toast(Math.hypot(q.x-p.x,q.z-p.z)<4.5?`💨 ${nameOf(from)} 在你旁邊放了一個屁！好臭！`:`💨 ${nameOf(from)} 放了一個屁！`);}break;}
-      case 'hug':bubble(from,'🤗',true,4);if(self){N.hugFrom=from;N.hugT=performance.now();AUDIO.sfx('chime');
+      case 'hug':bubble(from,'🤗',true,4);if(self&&free()){N.hugFrom=from;N.hugT=performance.now();AUDIO.sfx('chime');
           INV.innerHTML=`<b>🤗 ${fn} 想抱抱你！</b><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">抱抱！</button></div>`;INV.hidden=false;
           INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;const f=N.hugFrom;N.hugFrom=null;if(b.dataset.k==='ok'&&f&&N.P.has(f))doFx('hug2',f);};
           clearTimeout(N.hugTo);N.hugTo=setTimeout(()=>{if(N.hugFrom===from){N.hugFrom=null;INV.hidden=true;}},8000);
@@ -12038,12 +12045,12 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   const PH=document.createElement('div');PH.id='netPhoto';PH.className='panel';PH.hidden=true;document.body.appendChild(PH);
   for(const ev of ['keydown','keyup','pointerdown','touchstart','wheel'])PH.addEventListener(ev,e=>e.stopPropagation());
   function photoAsk(){if(!free()){toast('現在不能拍合照（先離開遊戲）');return;}const ids=[myId()],pts=[new V3(player.pos.x,player.y,player.pos.y)];
-    for(const q of N.P.values()){if(!q.s||q.s.hid)continue;const a=q.s.a;if(Math.hypot(a[0]-player.pos.x,a[2]-player.pos.y)<=8){ids.push(q.id);pts.push(new V3(a[0],a[1],a[2]));}}
+    for(const q of N.P.values()){if(!q.s||q.s.hid||q.s.g)continue;const a=q.s.a;if(Math.hypot(a[0]-player.pos.x,a[2]-player.pos.y)<=8){ids.push(q.id);pts.push(new V3(a[0],a[1],a[2]));}}
     const c=pts.reduce((s,p)=>s.add(p),new V3()).multiplyScalar(1/pts.length);let sp=0;for(const p of pts)sp=Math.max(sp,Math.hypot(p.x-c.x,p.z-c.z));
     const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),D=Math.max(3.2,sp*1.7+2.6);c.y+=1.05;
     const cam=new V3(c.x+fx*D,c.y+0.35,c.z+fz*D);{const p=new V2(cam.x,cam.z);resolve(p,0.25,c.y-1);cam.x=p.x;cam.z=p.y;}   /* 鏡頭不要卡進牆裡 */
     doFx('photo',null,{ids,cam:[r3(cam.x),r3(cam.y),r3(cam.z)],at:[r3(c.x),r3(c.y),r3(c.z)],n:ids.length});}
-  function photoRun(from,v){if(!v||!v.ids||!v.ids.includes(myId())){if(from!==myId())toast(`📸 ${nameOf(from)} 在拍合照`);return;}
+  function photoRun(from,v){if(!v||!v.ids||!v.ids.includes(myId())||!free()){if(from!==myId())toast(`📸 ${nameOf(from)} 在拍合照`);return;}
     toast(from===myId()?`📸 合照！${v.n>1?`${v.n} 個人`:'自己'}一起入鏡，看鏡頭～`:`📸 ${nameOf(from)} 要拍合照！看鏡頭～`);AUDIO.sfx('chime');let posed=false,last=0;
     if(free())faceTo(v.cam[0],v.cam[2]);
     {const vis=avatar.root.visible;avatar.root.visible=true;try{renderer.compile(avatar.root,camera,scene);}catch(_){}avatar.root.visible=vis;}   /* 一直用第一人稱時自己的人物從來沒畫過：先把著色程式編好，不然拍照那一下會被跳過（照片裡只有名字沒有人） */
