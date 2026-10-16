@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-16.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-16.3"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -10090,31 +10090,31 @@ function mkAvatar(){   /* 2026-10-15 連線：對方的人物也用這個做（�
   function flame(par,x,y,z,rx,r,len){const g=new THREE.Group();g.position.set(x,y,z);g.rotation.x=rx;par.add(g);
     const o=new THREE.Mesh(FLG,JM[0]),i=new THREE.Mesh(FLG,JM[1]);o.scale.set(r,len,r);i.scale.set(r*0.5,len*0.55,r*0.5);g.add(o,i);g.visible=false;A.jets.push({g,o,i,r,len});}
   const FRM={};   // 輪架金屬材質（換顏色時共用）
-  function skateGear(){A.jets=[];if(!A.skates||!A.footL)return;const WC={cyan:'#36c2d8',pink:'#ff5fa2',gold:'#f2c94c',lime:'#9be15d',black:'#2a2d33'};
+  function skateGear(){A.jets=[];if(!A.skates||!A.footL)return;const K=A.skm||SKMOD;   /* 連線：別人的人物用他自己的改裝（2026-10-16.3） */const WC={cyan:'#36c2d8',pink:'#ff5fa2',gold:'#f2c94c',lime:'#9be15d',black:'#2a2d33'};
     const SC={white:'#f4f5f7',black:'#2a2d33',pink:'#ff8cc0',sky:'#7cc8ff',purple:'#a98bff',mint:'#7fe0c0',red:'#e8434f'},AC={pink:'#e94f8a',cyan:'#36c2d8',gold:'#f2c94c',lime:'#9be15d',purple:'#8b5cf6',white:'#f4f5f7',black:'#23262c'},FC={black:'#3a3d44',gold:'#d9b24a',pink:'#ff5fa2',blue:'#3aa0ff'};   // 鞋身／彩條扣帶／輪架顏色（直排輪改裝）
-    const shell=M(SC[SKMOD.shell]||SC.white,0.35),dark=M(SKMOD.shell==='black'?'#14161a':'#23262c',0.55),acc=M(AC[SKMOD.acc]||AC.pink,0.4),fr=FC[SKMOD.frame]?(FRM[SKMOD.frame]||(FRM[SKMOD.frame]=std({color:FC[SKMOD.frame],roughness:0.35,metalness:0.6}))):MAT.alu,wh=M(WC[SKMOD.wheel]||WC.cyan,0.45),hub=M('#d9b24a',0.3),mesh=(g,m,x,y,z,par)=>{const o=at(new THREE.Mesh(g,m),x,y,z,par);o.castShadow=true;return o;};
+    const shell=M(SC[K.shell]||SC.white,0.35),dark=M(K.shell==='black'?'#14161a':'#23262c',0.55),acc=M(AC[K.acc]||AC.pink,0.4),fr=FC[K.frame]?(FRM[K.frame]||(FRM[K.frame]=std({color:FC[K.frame],roughness:0.35,metalness:0.6}))):MAT.alu,wh=M(WC[K.wheel]||WC.cyan,0.45),hub=M('#d9b24a',0.3),mesh=(g,m,x,y,z,par)=>{const o=at(new THREE.Mesh(g,m),x,y,z,par);o.castShadow=true;return o;};
     for(const [ft,sh,sd] of [[A.footL,A.shinL,-1],[A.footR,A.shinR,1]]){
       const toe=mesh(new THREE.CapsuleGeometry(0.068,0.17,6,14),shell,0,-0.075,0.045,ft);toe.rotation.x=Math.PI/2;toe.scale.set(1.02,1,0.85);   // 鞋身（圓頭）
       mesh(new THREE.BoxGeometry(0.13,0.026,0.3),dark,0,-0.135,0.045,ft);                                              // 鞋底
       mesh(new THREE.BoxGeometry(0.02,0.03,0.2),acc,sd*0.066,-0.07,0.05,ft);                                           // 側邊彩條
       mesh(new THREE.BoxGeometry(0.03,0.04,0.33),fr,0,-0.165,0.045,ft);                                                // 輪架
       for(const x of [-0.022,0.022])mesh(new THREE.BoxGeometry(0.007,0.075,0.34),fr,x,-0.19,0.045,ft);
-      for(let k=0;k<4;k++){const w=mesh(new THREE.CylinderGeometry(0.045,0.045,0.026,20),SKMOD.wheel==='rainbow'?M(['#ff3b3b','#ffb000','#3fd36a','#3aa0ff'][k],0.45):wh,0,-0.22,-0.087+k*0.088,ft);w.rotation.z=Math.PI/2;
+      for(let k=0;k<4;k++){const w=mesh(new THREE.CylinderGeometry(0.045,0.045,0.026,20),K.wheel==='rainbow'?M(['#ff3b3b','#ffb000','#3fd36a','#3aa0ff'][k],0.45):wh,0,-0.22,-0.087+k*0.088,ft);w.rotation.z=Math.PI/2;
         const hb=mesh(new THREE.CylinderGeometry(0.018,0.018,0.04,10),hub,0,-0.22,-0.087+k*0.088,ft);hb.rotation.z=Math.PI/2;}
       if(sd>0){const br=mesh(new THREE.BoxGeometry(0.05,0.06,0.07),dark,0,-0.2,-0.15,ft);br.rotation.x=-0.5;}             // 右腳煞車塊
       const cf=mesh(new THREE.CylinderGeometry(0.078,0.072,0.19,18),shell,0,-0.27,0.005,sh);                             // 高筒護踝（小腿）
       const st=mesh(new THREE.TorusGeometry(0.079,0.012,6,20),acc,0,-0.22,0.005,sh);st.rotation.x=Math.PI/2;              // 扣帶
       mesh(new THREE.BoxGeometry(0.03,0.025,0.014),M('#d9dde2',0.3),sd*0.06,-0.22,0.06,sh);                              // 扣環
-      if(SKMOD.jet){const nz=mesh(new THREE.CylinderGeometry(0.028,0.04,0.08,12),fr,0,-0.07,-0.13,ft);nz.rotation.x=Math.PI/2;   // 鞋跟噴嘴
+      if(K.jet){const nz=mesh(new THREE.CylinderGeometry(0.028,0.04,0.08,12),fr,0,-0.07,-0.13,ft);nz.rotation.x=Math.PI/2;   // 鞋跟噴嘴
         mesh(new THREE.TorusGeometry(0.036,0.008,6,14),acc,0,-0.07,-0.17,ft);flame(ft,0,-0.07,-0.175,-Math.PI/2,0.03,0.3);}}
-    if(SKMOD.jet){const C=A.chest,pk=M('#2b2f36',0.45);   // 噴射背包（背在背上，兩支推進筒往下噴）
+    if(K.jet){const C=A.chest,pk=M('#2b2f36',0.45);   // 噴射背包（背在背上，兩支推進筒往下噴）
       mesh(new THREE.BoxGeometry(0.3,0.36,0.1),pk,0,0.27,-0.17,C);mesh(new THREE.BoxGeometry(0.22,0.05,0.012),acc,0,0.36,-0.222,C);
       for(const x of [-0.1,0.1]){mesh(new THREE.CylinderGeometry(0.055,0.06,0.32,16),fr,x,0.25,-0.26,C);mesh(new THREE.CylinderGeometry(0.05,0.075,0.07,16),pk,x,0.06,-0.26,C);
         mesh(new THREE.SphereGeometry(0.055,12,8,0,Math.PI*2,0,Math.PI/2),acc,x,0.41,-0.26,C);flame(C,x,0.025,-0.26,0.35,0.06,0.55);}
       for(const x of [-0.12,0.12])mesh(new THREE.BoxGeometry(0.045,0.018,0.3),pk,x,0.47,-0.05,C);}}   // 肩帶
   // 每格：火焰（1＝推進器橘色、2＝超級加速藍白色、0＝關）
   A.jetTick=(n,dt)=>{for(const j of A.jets){j.g.visible=n>0;if(!n)continue;const k=(n===2?1.7:1)*(0.8+Math.random()*0.4);j.o.scale.set(j.r*(n===2?1.25:1),j.len*k,j.r*(n===2?1.25:1));j.i.scale.set(j.r*0.55,j.len*k*0.6,j.r*0.55);}
-    if(SKMOD.rf&&n)JM[0].color.setHSL((performance.now()/900)%1,1,0.6);else JM[0].color.set(n===2?(Math.random()<0.6?'#5fc8ff':'#c8f0ff'):'#ff8a2a');};   /* 彩虹火焰（夜市大獎） */
+    if((A.skm||SKMOD).rf&&n)JM[0].color.setHSL((performance.now()/900)%1,1,0.6);else JM[0].color.set(n===2?(Math.random()<0.6?'#5fc8ff':'#c8f0ff'):'#ff8a2a');};   /* 彩虹火焰（夜市大獎） */
   // 噴射的煙／光點（推進器開著時）
   A.jetPuff=n=>{for(const j of A.jets){if(j.len<0.4)continue;j.g.updateMatrixWorld(true);const p=j.g.localToWorld(tv.set(0,-j.len*0.9,0));
     const m=new THREE.Sprite(EMBER_MAT||(EMBER_MAT=new THREE.SpriteMaterial({map:FLAME_TEX,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})));m.position.copy(p);m.scale.setScalar(n===2?0.32:0.22);scene.add(m);
@@ -11679,7 +11679,8 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   function out(to,m){if(N.host){if(to==='*'){for(const c of N.conns.values())raw(c,{f:'0',m});}else raw(N.conns.get(to),{f:'0',m});}else raw(N.conn,{to,m});}
   const bc=o=>out('*',o);
   const send=o=>{if(N.pid!=null)out(N.pid,o);};   /* 送給一起玩遊戲的那個人 */
-  const hiMsg=()=>({t:'hi',name:myName(),ver:VER,cfg:charCfg,sk:avatar.skates});
+  const skmOf=()=>({jet:!!SKMOD.jet,sup:!!SKMOD.sup,wheel:SKMOD.wheel,rf:!!SKMOD.rf,shell:SKMOD.shell,acc:SKMOD.acc,frame:SKMOD.frame});   /* 直排輪改裝（外觀） */
+  const hiMsg=()=>({t:'hi',name:myName(),ver:VER,cfg:charCfg,sk:avatar.skates,skm:skmOf()});
   async function host(){if(!(await lib()))return;clean();const code=String(1000+Math.floor(Math.random()*9000)),p=new Peer(PFX+code,{debug:0});N.peer=p;N.host=true;st('正在開房間…');ui();
     p.on('open',()=>{if(N.peer!==p)return;N.code=code;st('等朋友加入…（網頁要開著，不要關掉）');ui();});
     p.on('connection',c=>{c.on('open',()=>{if(N.peer!==p)return;let id=null;for(const k of ['1','2','3'])if(!N.conns.has(k)){id=k;break;}
@@ -11728,7 +11729,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     q.rem={A,tag,dk:false,bal:null,ball:null};return q.rem;}
   function remKill(q){const R=q.rem;if(!R)return;if(R.A.root.parent)R.A.root.parent.remove(R.A.root);   /* 可能在跳舞機的小舞台上 */if(R.bal)scene.remove(R.bal.g);if(R.ball)scene.remove(R.ball);q.rem=null;}
   function remName(q){const R=rem(q);R.tag.material.map.dispose();R.tag.material.map=tagTex(q.name||'…',PC[q.id]);R.tag.material.needsUpdate=true;}
-  function remDress(q,cfg,sk){const R=rem(q);if(!cfg||!CHAR_OUTFITS[cfg.g])return;const c={g:cfg.g,o:Math.min(cfg.o|0,CHAR_OUTFITS[cfg.g].length-1),h:Math.min(cfg.h|0,CHAR_HAIR.length-1)};R.A.skates=!!sk;R.A.dress(c);q.cfg=c;R.A.root.traverse(o=>{o.userData.noCull=true;});}
+  function remDress(q,cfg,sk,skm){const R=rem(q);if(skm&&typeof skm==='object'){const t=x=>x==null?undefined:String(x).slice(0,12);R.A.skm={jet:!!skm.jet,sup:!!skm.sup,rf:!!skm.rf,wheel:t(skm.wheel),shell:t(skm.shell),acc:t(skm.acc),frame:t(skm.frame)};}if(!cfg||!CHAR_OUTFITS[cfg.g])return;const c={g:cfg.g,o:Math.min(cfg.o|0,CHAR_OUTFITS[cfg.g].length-1),h:Math.min(cfg.h|0,CHAR_HAIR.length-1)};R.A.skates=!!sk;R.A.dress(c);q.cfg=c;R.A.root.traverse(o=>{o.userData.noCull=true;});}
   // 自己頭上的名字（連線中才有；第一人稱看不到自己沒關係）
   let myT=null;function myTag(){if(N.on){if(!myT){myT=mkSprite(tagTex(myName(),MYC),1.5,0.375);myT.position.y=2.15;}if(myT.parent!==avatar.root)avatar.root.add(myT);}else if(myT&&myT.parent)myT.parent.remove(myT);}
   function myTagName(){if(!myT)return;myT.material.map.dispose();myT.material.map=tagTex(myName(),MYC);myT.material.needsUpdate=true;}
@@ -11744,14 +11745,18 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     const s={t:'s',a,h:HN.slice(),dd:DD.on?1:0};
     if(BALLOON.riding){const g=BALLOON.g;s.b=[r3(BALLOON.pos.x),r3(BALLOON.y),r3(BALLOON.pos.y),BALLOON.burn>0?1:0,r3(g.rotation.x),r3(g.rotation.z)];}   /* 搭熱氣球：熱氣球也要傳（不然對方只看到人飄在空中） */
     if(A.morph)s.dk=1;if(hidMe())s.hid=1;
+    {const now=performance.now(),dt=(now-lastP.t)/1000;if(dt>0.02&&dt<0.5){const vx=(a[0]-lastP.x)/dt,vz=(a[2]-lastP.z)/dt;if(Math.hypot(vx,vz)<130)s.v=[Math.round(vx*100)/100,Math.round(vz*100)/100];}lastP.x=a[0];lastP.z=a[2];lastP.t=now;}   /* 速度：對方那邊照速度往前推算，溜很快時才不會一頓一頓 */
+    {const jt=SKATE.on?SKATE.jet:RACE.on&&RACE.sk8?RACE.bst||0:0;if(jt)s.jt=jt;}   /* 直排輪推進器開著（1 橘色、2 超級加速藍白色） */
     if(BB.on&&BB.ball&&BB.ball.visible){const p=BB.ball.getWorldPosition(tv);s.ball=[r3(p.x),r3(p.y),r3(p.z)];}   /* 拿籃球：球的位置 */
     return s;}   /* 第一人稱時自己的人物是藏起來的，對方照樣要看得到 */
-  const tv=new V3();
+  const tv=new V3(),lastP={x:0,z:0,t:0};
   const HN=['relax','relax'];{const h0=avatar.hand;avatar.hand=(side,name)=>{HN[side>0?1:0]=name;h0(side,name);};}   /* 記住手勢（比讚、比 YA…）傳給對方 */
   const lerpA=(a,b,k)=>{let d=b-a;d=Math.atan2(Math.sin(d),Math.cos(d));return a+d*k;};
-  function remApply(q,dt){if(!q.s)return;const R=rem(q),A=R.A,o=A.root,s=q.s,a=s.a,k=1-Math.exp(-dt*14),snap=!q.has||Math.hypot(o.position.x-a[0],o.position.z-a[2])>8;q.has=true;
+  function remApply(q,dt){if(!q.s)return;const R=rem(q),A=R.A,o=A.root,s=q.s,a=s.a,vx=s.v?s.v[0]:0,vz=s.v?s.v[1]:0,sp=Math.hypot(vx,vz),age=Math.min(0.3,(performance.now()-(q.sAt||0))/1000),
+      tx=a[0]+vx*age,tz=a[2]+vz*age,k=1-Math.exp(-dt*(14+sp*0.4)),snap=!q.has||Math.hypot(o.position.x-tx,o.position.z-tz)>Math.max(8,sp*0.6);q.has=true;   /* 照速度往前推算（最多 0.3 秒） */
     const L=(v,t)=>snap?t:v+(t-v)*k,LA=(v,t)=>snap?t:lerpA(v,t,k);
-    o.position.set(L(o.position.x,a[0]),L(o.position.y,a[1]),L(o.position.z,a[2]));o.rotation.set(LA(o.rotation.x,a[3]),LA(o.rotation.y,a[4]),LA(o.rotation.z,a[5]));o.scale.setScalar(a[6]||1);
+    o.position.set(L(o.position.x,tx),L(o.position.y,a[1]),L(o.position.z,tz));
+    {const jt=s.jt|0;if(A.jets&&A.jets.length){A.jetTick(jt,dt);if(jt&&!CALM.on){R.pf=(R.pf||0)-dt;if(R.pf<=0){R.pf=0.06;A.jetPuff(jt);}}}A.fxTick(dt);}   /* 別人的推進器噴火 */o.rotation.set(LA(o.rotation.x,a[3]),LA(o.rotation.y,a[4]),LA(o.rotation.z,a[5]));o.scale.setScalar(a[6]||1);
     A.body.position.set(L(A.body.position.x,a[7]),L(A.body.position.y,a[8]),L(A.body.position.z,a[9]));A.body.rotation.set(LA(A.body.rotation.x,a[10]),LA(A.body.rotation.y,a[11]),LA(A.body.rotation.z,a[12]));
     let i=13;for(const kk of JN){const g=A[kk];if(g)g.rotation.set(LA(g.rotation.x,a[i]),LA(g.rotation.y,a[i+1]),LA(g.rotation.z,a[i+2]));i+=3;}
     for(const H of [A.handL,A.handR]){const g=H&&H.g;if(g)g.rotation.set(LA(g.rotation.x,a[i]),LA(g.rotation.y,a[i+1]),LA(g.rotation.z,a[i+2]));i+=3;}
@@ -11777,10 +11782,10 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     if(d.t==='bye'){if(f==='0'&&!N.host)lostAll('開房間的人離開了');else drop(f);return;}
     if(d.t==='left'){drop(f);return;}
     const q=peer(f);
-    switch(d.t){case 's':q.s=d;break;
-      case 'hi':q.name=String(d.name||'對方').slice(0,8);q.hi={t:'hi',name:q.name,ver:d.ver,cfg:d.cfg,sk:d.sk};remName(q);remDress(q,d.cfg,d.sk);ui();if(!d.quiet){toast(`👥 ${q.name} 加入了！`);AUDIO.sfx('chime');chatAdd(f,`${q.name} 加入了`,true);}if(d.ver&&d.ver!==VER)toast('⚠ 大家的網頁版本不一樣，請全部重新整理');break;
+    switch(d.t){case 's':q.s=d;q.sAt=performance.now();break;
+      case 'hi':q.name=String(d.name||'對方').slice(0,8);q.hi={t:'hi',name:q.name,ver:d.ver,cfg:d.cfg,sk:d.sk,skm:d.skm};remName(q);remDress(q,d.cfg,d.sk,d.skm);ui();if(!d.quiet){toast(`👥 ${q.name} 加入了！`);AUDIO.sfx('chime');chatAdd(f,`${q.name} 加入了`,true);}if(d.ver&&d.ver!==VER)toast('⚠ 大家的網頁版本不一樣，請全部重新整理');break;
       case 'name':q.name=String(d.name||'對方').slice(0,8);if(q.hi)q.hi.name=q.name;remName(q);ui();break;
-      case 'cfg':if(q.hi){q.hi.cfg=d.cfg;q.hi.sk=d.sk;}remDress(q,d.cfg,d.sk);break;
+      case 'cfg':if(q.hi){q.hi.cfg=d.cfg;q.hi.sk=d.sk;q.hi.skm=d.skm;}remDress(q,d.cfg,d.sk,d.skm);break;
       case 'p':break;
       case 'away':q.ra=!!d.v;break;
       case 'fx':fxRun(d.k,f,d.to,d.v,d);break;
@@ -12077,7 +12082,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   let sT=0,cT=0,lastCfg='',vT=0,pT=0;
   N.tick=dt=>{fxTick(dt);if(!N.on){return;}sT-=dt;cT-=dt;vT-=dt;
     if(sT<=0){sT=1/12;bc(pack());}
-    if(cT<=0){cT=1;const c=JSON.stringify([charCfg,avatar.skates]);if(c!==lastCfg){lastCfg=c;bc({t:'cfg',cfg:charCfg,sk:avatar.skates});}
+    if(cT<=0){cT=1;const c=JSON.stringify([charCfg,avatar.skates,skmOf()]);if(c!==lastCfg){lastCfg=c;bc({t:'cfg',cfg:charCfg,sk:avatar.skates,skm:skmOf()});}
       const pq=N.P.get(N.pid),n=N.P.size+1;chip.textContent=`👥 ${n} 人連線中`+(TN.net?`・跟 ${N.rname} 打網球`:RACE.net?`・跟 ${N.rname} 賽車`:SB.net?`・跟 ${N.rname} 鬥牛`:CU.coop?`・跟 ${N.rname} 合作打怪`:N.vs&&N.vs.go?`・${N.vs.n} 人一起跳舞`:N.P.size===1&&pq==null?(()=>{const q=[...N.P.values()][0];return `・${q.name}${q.ra?'（離開畫面）':''}${q.s?`・${Math.round(dist(q))} m`:''}`;})():'');
       if(!P.hidden&&!P.querySelector('.live').hidden)pplDraw();
       const now=performance.now();
