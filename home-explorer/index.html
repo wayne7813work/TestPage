@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-16.3"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-16.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -4073,7 +4073,7 @@ const BB=(()=>{
       PORT.sh=1;AUDIO.sfx('chime');AUDIO.sfx('takeoff');big('變出籃框！🏀',false);return PORT;}
     B.why='旁邊沒有空地放籃框';return null;}
   function pickHoop(){let [h,d]=nearestHoop();if(!h||d>12){const p=portHoop();if(p){h=p;d=Math.hypot(p.x-player.pos.x,p.z-player.pos.y);}}return [h,d];}
-  B.port=()=>PORT;
+  B.port=()=>PORT;B.mate=()=>MATE;
 
   // ================= 隊友（空中接力：你傳給他、他高吊到籃框上面、你飛起來接住再灌） =================
   const MATE=(()=>{const M={root:new THREE.Group(),body:new THREE.Group(),pos:new V2(),yaw:0,ph:0,state:'idle',t:0,hold:new V3(0,1.3,0.45),sg:1,retT:0,target:null};
@@ -8876,14 +8876,15 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
     const A=avatar;A.body.rotation.set(0,0,0);A.body.position.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);A.zeroJoints();
     if(it.k==='moon'&&!quiet){const el=document.getElementById('gBig');if(el){el.textContent='Hee-hee!';el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}}};
   // 月球漫步的紳士帽（黑色、白色帽帶）
-  E.addHat=()=>{if(E.hat)return;const g=new THREE.Group(),blk=std({color:'#121214',roughness:0.5}),wh=std({color:'#f2f2f2',roughness:0.5});
+  E.addHat=()=>{if(E.hat)return;const g=E.mkHat();avatar.body.add(g);E.hat=g;};
+  E.mkHat=()=>{const g=new THREE.Group(),blk=std({color:'#121214',roughness:0.5}),wh=std({color:'#f2f2f2',roughness:0.5});
     const brim=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,0.015,28),blk);g.add(brim);
     const crown=new THREE.Mesh(new THREE.CylinderGeometry(0.115,0.13,0.13,24),blk);crown.position.y=0.07;g.add(crown);
     const band=new THREE.Mesh(new THREE.CylinderGeometry(0.132,0.132,0.03,24),wh);band.position.y=0.025;g.add(band);
-    g.position.set(0,1.79,0.0);g.rotation.x=-0.12;g.traverse(o=>{if(o.isMesh)o.castShadow=true;});avatar.body.add(g);E.hat=g;};
+    g.position.set(0,1.79,0.0);g.rotation.x=-0.12;g.traverse(o=>{if(o.isMesh)o.castShadow=true;});return g;};
   E.removeHat=()=>{if(E.hat){avatar.body.remove(E.hat);E.hat=null;}};
   // Bye Bye Bye 跳舞時換上忍者裝（原本是使用者要的某電影角色裝扮；2026-10-12 為了避免侵權改成一般的忍者：深藍連身衣＋只露眼睛的頭巾、紅腰帶、綁腿、背上一把刀）；停下來換回原本的衣服
-  const DP={name:'忍者',top:'#1d2433',sleeve:'long',bottom:'pants',bc:'#1d2433',shoe:'#15171c',extra:'ninja',mask:'#1d2433',glove:'#1d2433'};
+  const DP={name:'忍者',top:'#1d2433',sleeve:'long',bottom:'pants',bc:'#1d2433',shoe:'#15171c',extra:'ninja',mask:'#1d2433',glove:'#1d2433'};E.DP=DP;
   E.suit=on=>{const A=avatar;if(on){if(A.morph)return;A.dress({...charCfg,O:DP});E.dp=true;}else if(E.dp){E.dp=false;A.dress(charCfg);}};
   // 跳舞的關節平滑（卡點的動作 0.04 秒內到位，換段落時不會瞬間跳過去）：E.ft（測試）時不平滑
   E.smooth=(a,dt,rate)=>{const js=[a.body,a.chest,a.head,a.armL,a.armR,a.foreL,a.foreR,a.legL,a.legR,a.shinL,a.shinR,a.footL,a.footR,a.handL&&a.handL.g,a.handR&&a.handR.g];
@@ -11727,9 +11728,9 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   function rem(q){if(q.rem)return q.rem;const A=mkAvatar();A.root.visible=false;A.root.traverse(o=>{o.userData.noCull=true;});
     const tag=mkSprite(tagTex(q.name||'…',PC[q.id]),1.5,0.375);tag.position.y=2.15;A.root.add(tag);
     q.rem={A,tag,dk:false,bal:null,ball:null};return q.rem;}
-  function remKill(q){const R=q.rem;if(!R)return;if(R.A.root.parent)R.A.root.parent.remove(R.A.root);   /* 可能在跳舞機的小舞台上 */if(R.bal)scene.remove(R.bal.g);if(R.ball)scene.remove(R.ball);q.rem=null;}
+  function remKill(q){const R=q.rem;if(!R)return;if(R.hoop){BB_KIT.remove(R.hoop);R.hoop=null;}if(R.mate&&R.mate.root.parent)R.mate.root.parent.remove(R.mate.root);if(R.A.root.parent)R.A.root.parent.remove(R.A.root);   /* 可能在跳舞機的小舞台上 */if(R.bal)scene.remove(R.bal.g);if(R.ball)scene.remove(R.ball);q.rem=null;}
   function remName(q){const R=rem(q);R.tag.material.map.dispose();R.tag.material.map=tagTex(q.name||'…',PC[q.id]);R.tag.material.needsUpdate=true;}
-  function remDress(q,cfg,sk,skm){const R=rem(q);if(skm&&typeof skm==='object'){const t=x=>x==null?undefined:String(x).slice(0,12);R.A.skm={jet:!!skm.jet,sup:!!skm.sup,rf:!!skm.rf,wheel:t(skm.wheel),shell:t(skm.shell),acc:t(skm.acc),frame:t(skm.frame)};}if(!cfg||!CHAR_OUTFITS[cfg.g])return;const c={g:cfg.g,o:Math.min(cfg.o|0,CHAR_OUTFITS[cfg.g].length-1),h:Math.min(cfg.h|0,CHAR_HAIR.length-1)};R.A.skates=!!sk;R.A.dress(c);q.cfg=c;R.A.root.traverse(o=>{o.userData.noCull=true;});}
+  function remDress(q,cfg,sk,skm){const R=rem(q);if(skm&&typeof skm==='object'){const t=x=>x==null?undefined:String(x).slice(0,12);R.A.skm={jet:!!skm.jet,sup:!!skm.sup,rf:!!skm.rf,wheel:t(skm.wheel),shell:t(skm.shell),acc:t(skm.acc),frame:t(skm.frame)};}if(!cfg||!CHAR_OUTFITS[cfg.g])return;const c={g:cfg.g,o:Math.min(cfg.o|0,CHAR_OUTFITS[cfg.g].length-1),h:Math.min(cfg.h|0,CHAR_HAIR.length-1)};R.A.skates=!!sk;R.A.dress(c);q.cfg=c;R.suit=false;R.em=null;R.A.root.traverse(o=>{o.userData.noCull=true;});}
   // 自己頭上的名字（連線中才有；第一人稱看不到自己沒關係）
   let myT=null;function myTag(){if(N.on){if(!myT){myT=mkSprite(tagTex(myName(),MYC),1.5,0.375);myT.position.y=2.15;}if(myT.parent!==avatar.root)avatar.root.add(myT);}else if(myT&&myT.parent)myT.parent.remove(myT);}
   function myTagName(){if(!myT)return;myT.material.map.dispose();myT.material.map=tagTex(myName(),MYC);myT.material.needsUpdate=true;}
@@ -11747,14 +11748,19 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     if(A.morph)s.dk=1;if(hidMe())s.hid=1;
     {const now=performance.now(),dt=(now-lastP.t)/1000;if(dt>0.02&&dt<0.5){const vx=(a[0]-lastP.x)/dt,vz=(a[2]-lastP.z)/dt;if(Math.hypot(vx,vz)<130)s.v=[Math.round(vx*100)/100,Math.round(vz*100)/100];}lastP.x=a[0];lastP.z=a[2];lastP.t=now;}   /* 速度：對方那邊照速度往前推算，溜很快時才不會一頓一頓 */
     {const jt=SKATE.on?SKATE.jet:RACE.on&&RACE.sk8?RACE.bst||0:0;if(jt)s.jt=jt;}   /* 直排輪推進器開著（1 橘色、2 超級加速藍白色） */
-    if(BB.on&&BB.ball&&BB.ball.visible){const p=BB.ball.getWorldPosition(tv);s.ball=[r3(p.x),r3(p.y),r3(p.z)];}   /* 拿籃球：球的位置 */
+    if(BB.on&&BB.ball&&BB.ball.visible){const p=BB.ball.getWorldPosition(tv),now=performance.now(),bd=(now-lastB.t)/1000;s.ball=[r3(p.x),r3(p.y),r3(p.z)];   /* 拿籃球：球的位置＋速度（投籃、高吊時別人那邊才順） */
+      if(lastB.ok&&bd>0.02&&bd<0.5){const vx=(p.x-lastB.x)/bd,vy=(p.y-lastB.y)/bd,vz=(p.z-lastB.z)/bd;if(Math.hypot(vx,vy,vz)<60)s.bv=[r3(vx),r3(vy),r3(vz)];}lastB.x=p.x;lastB.y=p.y;lastB.z=p.z;lastB.t=now;lastB.ok=true;
+      const fe=BB.ball.material.emissiveIntensity;if(fe>0.05)s.bf=Math.round(fe*10)/10;}else lastB.ok=false;   /* 手感發燙：球會發光 */
+    {const H=BB.port&&BB.port();if(H)s.hp=[r3(H.x),r3(H.z),H.dir];}   /* 隨身籃框（變出來之後一直留在原地） */
+    {const M=BB.mate&&BB.mate();if(M&&M.root.visible){const o=M.root;s.mt=[r3(o.position.x),r3(o.position.y),r3(o.position.z),r3(o.rotation.y),r3(M.body.position.y),...[M.armL,M.armR,M.legL,M.legR].flatMap(g=>[r3(g.rotation.x),r3(g.rotation.y),r3(g.rotation.z)])];}}   /* 隊友 23 號 */
+    if(EMOTE.on)s.em=EMOTE.on.k;   /* 動作（月球漫步的帽子、Bye Bye Bye 的忍者裝） */
     return s;}   /* 第一人稱時自己的人物是藏起來的，對方照樣要看得到 */
-  const tv=new V3(),lastP={x:0,z:0,t:0};
+  const tv=new V3(),lastP={x:0,z:0,t:0},lastB={x:0,y:0,z:0,t:0,ok:false};
   const HN=['relax','relax'];{const h0=avatar.hand;avatar.hand=(side,name)=>{HN[side>0?1:0]=name;h0(side,name);};}   /* 記住手勢（比讚、比 YA…）傳給對方 */
   const lerpA=(a,b,k)=>{let d=b-a;d=Math.atan2(Math.sin(d),Math.cos(d));return a+d*k;};
   function remApply(q,dt){if(!q.s)return;const R=rem(q),A=R.A,o=A.root,s=q.s,a=s.a,vx=s.v?s.v[0]:0,vz=s.v?s.v[1]:0,sp=Math.hypot(vx,vz),age=Math.min(0.3,(performance.now()-(q.sAt||0))/1000),
       tx=a[0]+vx*age,tz=a[2]+vz*age,k=1-Math.exp(-dt*(14+sp*0.4)),snap=!q.has||Math.hypot(o.position.x-tx,o.position.z-tz)>Math.max(8,sp*0.6);q.has=true;   /* 照速度往前推算（最多 0.3 秒） */
-    const L=(v,t)=>snap?t:v+(t-v)*k,LA=(v,t)=>snap?t:lerpA(v,t,k);
+    const kj=1-Math.exp(-dt*24),L=(v,t)=>snap?t:v+(t-v)*k,LA=(v,t)=>snap?t:lerpA(v,t,kj);   /* 關節跟得快一點（跳舞的動作才不會變小、慢半拍） */
     o.position.set(L(o.position.x,tx),L(o.position.y,a[1]),L(o.position.z,tz));
     {const jt=s.jt|0;if(A.jets&&A.jets.length){A.jetTick(jt,dt);if(jt&&!CALM.on){R.pf=(R.pf||0)-dt;if(R.pf<=0){R.pf=0.06;A.jetPuff(jt);}}}A.fxTick(dt);}   /* 別人的推進器噴火 */o.rotation.set(LA(o.rotation.x,a[3]),LA(o.rotation.y,a[4]),LA(o.rotation.z,a[5]));o.scale.setScalar(a[6]||1);
     A.body.position.set(L(A.body.position.x,a[7]),L(A.body.position.y,a[8]),L(A.body.position.z,a[9]));A.body.rotation.set(LA(A.body.rotation.x,a[10]),LA(A.body.rotation.y,a[11]),LA(A.body.rotation.z,a[12]));
@@ -11768,8 +11774,15 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       const B=R.bal;if(B.g.parent!==scene)scene.add(B.g);const ks=B.has?k:1;B.has=true;B.g.position.set(B.g.position.x+(s.b[0]-B.g.position.x)*ks,B.g.position.y+(s.b[1]-B.g.position.y)*ks,B.g.position.z+(s.b[2]-B.g.position.z)*ks);B.g.rotation.set(s.b[4]||0,0,s.b[5]||0);
       if(B.fl){B.fl.visible=!!s.b[3];if(B.fl.visible)B.fl.scale.setScalar(0.9+Math.random()*0.7);}}
     else if(R.bal&&R.bal.g.parent){scene.remove(R.bal.g);R.bal.has=false;}
-    if(s.ball){if(!R.ball){R.ball=BB.ball.clone(false);R.ball.userData.noCull=true;}if(R.ball.parent!==scene)scene.add(R.ball);R.ball.position.set(s.ball[0],s.ball[1],s.ball[2]);}
+    if(s.ball){if(!R.ball){R.ball=BB.ball.clone(false);R.ball.material=BB.ball.material.clone();R.ball.userData.noCull=true;}if(R.ball.parent!==scene)scene.add(R.ball);   /* 自己一份材質：別人手感發燙不會讓我的球也發光 */
+      const bv=s.bv,ag=bv?age:0;let by=s.ball[1]+(bv?bv[1]*ag-7*ag*ag:0);by=Math.max(by,0.12);R.ball.position.set(s.ball[0]+(bv?bv[0]*ag:0),by,s.ball[2]+(bv?bv[2]*ag:0));R.ball.material.emissiveIntensity=s.bf||0;}   /* 照球速往前推算（有重力） */
     else if(R.ball&&R.ball.parent)scene.remove(R.ball);
+    {const hp=s.hp,k2=hp?hp.join(','):'';if(k2!==R.hpK){R.hpK=k2;if(R.hoop){BB_KIT.remove(R.hoop);R.hoop=null;}if(hp)R.hoop=BB_KIT.build(+hp[0],+hp[1],hp[2]>0?1:-1);}}   /* 別人變出來的隨身籃框 */
+    if(s.mt){if(!R.mate){const M=BB.mate(),c=M.root.clone(true),cb=c.children[0];R.mate={root:c,body:cb,parts:[M.armL,M.armR,M.legL,M.legR].map(g=>cb.children[M.body.children.indexOf(g)])};c.traverse(x=>{x.userData.noCull=true;});}
+      const m=R.mate,t=s.mt;if(m.root.parent!==scene)scene.add(m.root);m.root.visible=true;m.root.position.set(t[0],t[1],t[2]);m.root.rotation.y=t[3];m.body.position.y=t[4];m.parts.forEach((g,i)=>{if(g)g.rotation.set(t[5+i*3],t[6+i*3],t[7+i*3]);});}   /* 別人的隊友 23 號 */
+    else if(R.mate&&R.mate.root.parent)scene.remove(R.mate.root);
+    {const em=s.em||'';if(em!==R.em){R.em=em;if(R.hat){A.body.remove(R.hat);R.hat=null;}if(em==='moon'){R.hat=EMOTE.mkHat();A.body.add(R.hat);}   /* 月球漫步的帽子 */
+      const suit=em==='bye'&&!R.dk;if(suit!==!!R.suit&&q.cfg){R.suit=suit;A.dress(suit?{...q.cfg,O:EMOTE.DP}:q.cfg);A.root.traverse(x=>{x.userData.noCull=true;});R.h0=R.h1=null;}}}   /* Bye Bye Bye 的忍者裝 */
     o.visible=!s.hid;}
   function goTo(id){const q=N.P.get(id);if(!q||!q.s){st('還不知道 '+(q&&q.name||'對方')+' 在哪裡');return;}const a=q.s.a;P.hidden=true;teleport(a[0]+1.3,a[2]+1.3,undefined,a[1]>0.5?a[1]:0);toast('📍 到 '+(q.name||'對方')+' 旁邊了');}
   // ---- 收到資料（f＝誰送的） ----
@@ -12081,7 +12094,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   // ---- 每格 ----
   let sT=0,cT=0,lastCfg='',vT=0,pT=0;
   N.tick=dt=>{fxTick(dt);if(!N.on){return;}sT-=dt;cT-=dt;vT-=dt;
-    if(sT<=0){sT=1/12;bc(pack());}
+    if(sT<=0){sT=EMOTE.on||BB.on||SKATE.on?1/20:1/12;bc(pack());}   /* 跳舞、籃球、直排輪動作快：每秒傳 20 次（平常 12 次） */
     if(cT<=0){cT=1;const c=JSON.stringify([charCfg,avatar.skates,skmOf()]);if(c!==lastCfg){lastCfg=c;bc({t:'cfg',cfg:charCfg,sk:avatar.skates,skm:skmOf()});}
       const pq=N.P.get(N.pid),n=N.P.size+1;chip.textContent=`👥 ${n} 人連線中`+(TN.net?`・跟 ${N.rname} 打網球`:RACE.net?`・跟 ${N.rname} 賽車`:SB.net?`・跟 ${N.rname} 鬥牛`:CU.coop?`・跟 ${N.rname} 合作打怪`:N.vs&&N.vs.go?`・${N.vs.n} 人一起跳舞`:N.P.size===1&&pq==null?(()=>{const q=[...N.P.values()][0];return `・${q.name}${q.ra?'（離開畫面）':''}${q.s?`・${Math.round(dist(q))} m`:''}`;})():'');
       if(!P.hidden&&!P.querySelector('.live').hidden)pplDraw();
