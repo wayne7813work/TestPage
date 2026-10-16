@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-16.13"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-16.14"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -82,7 +82,7 @@
   /* 小遊戲：殭屍來襲 */
   #fsBtn{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px;font-size:14px;margin-bottom:14px}
   /* 選單「小遊戲」按鈕：統一樣式，每個遊戲一個顏色（2026-10-13 使用者：有幾個很醜——夜市、擂台、街頭鬥牛、音樂教室原本沒樣式＝瀏覽器預設白條） */
-  #gStart,#gFree,#ftStart,#nmMenu,#rbMenu,#sbMenu,#cuMenu,#muMenu,#ddMenu,#kfMenu,#puMenu,#fiMenu{display:block;width:100%;color:#fff;border:0;border-radius:12px;padding:11px 10px;font-size:15px;font-weight:800;margin-bottom:7px;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+  #gStart,#gFree,#ftStart,#nmMenu,#rbMenu,#sbMenu,#cuMenu,#muMenu,#ddMenu,#kfMenu,#puMenu,#fiMenu,#codeMenu{display:block;width:100%;color:#fff;border:0;border-radius:12px;padding:11px 10px;font-size:15px;font-weight:800;margin-bottom:7px;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:0 3px 0 rgba(0,0,0,.25)}
   #gStart{background:linear-gradient(90deg,#a8231a,#e0533f)}#gFree{background:linear-gradient(90deg,#1f5a7d,#3d8fc2)}#ftStart{background:linear-gradient(90deg,#c25e10,#f0963a)}
   #nmMenu{background:linear-gradient(90deg,#b8264f,#f0638e)}#rbMenu{background:linear-gradient(90deg,#3b3f8c,#6b72d8)}#sbMenu{background:linear-gradient(90deg,#d0581a,#f4a03c)}
   #cuMenu{background:linear-gradient(90deg,#1f6f4a,#3fbf7a)}#muMenu{background:linear-gradient(90deg,#6a2c8f,#b06be0)}#ddMenu{background:linear-gradient(90deg,#c2185b,#ff9800)}
@@ -540,6 +540,9 @@
   #earnPop{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top));transform:translateX(-50%);z-index:60;background:linear-gradient(180deg,#ffcf2f,#e0a020);color:#3a1f00;font-weight:900;font-size:18px;border-radius:14px;padding:6px 16px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.35);pointer-events:none;white-space:nowrap}
   #earnPop small{display:block;font-size:11px;font-weight:700}#earnPop.pop{animation:earnIn .35s ease-out}@keyframes earnIn{0%{transform:translate(-50%,-20px) scale(.7);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
   #fiMenu{background:linear-gradient(90deg,#1f6fe0,#2fd0ff)}
+  #codeMenu{background:linear-gradient(90deg,#5a6470,#8a96a3)}
+  #puPanel form.code{display:flex;gap:8px;align-items:center;margin-top:10px;background:rgba(255,255,255,.06);border-radius:10px;padding:8px}#puPanel form.code span{font-size:13px;white-space:nowrap}
+  #puPanel form.code input{flex:1;min-width:0;font-size:18px;padding:6px 10px;border-radius:8px;border:1px solid #555;background:#111;color:#fff;letter-spacing:2px}#puPanel form.code button{border:0;border-radius:8px;padding:8px 14px;font-weight:900;background:#3fbf7a;color:#fff}
   /* 撈魚機（FISH）：整個畫面 */
   body.fi #jumpBtn,body.fi #act,body.fi #joy{visibility:hidden}
   #fiUI{position:fixed;inset:0;z-index:45;background:#1b0a2a;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -789,6 +792,7 @@
   <button id="kfMenu">🥋 武道快打（便利商店門口・3D 格鬥機台）</button>
   <button id="puMenu">🪙 推幣樂園（便利商店西邊・推幣機＋兌獎）</button>
   <button id="fiMenu">🐟 快樂撈魚機（推幣樂園後面・1 幣 3 網）</button>
+  <button id="codeMenu">🔑 輸入代碼（家長幫忙加零用錢）</button>
   <p class="note" style="margin-top:4px">殭屍會從門前巷子一波波進攻家裡。開始後畫面下方才會出現技能按鈕，按了馬上往前方放：氣功炮（J）、超級氣功波（L）、旋風腿（U）、如來神掌（I）、足球（O）、按住蓄力氣功彈（H）。視角往上抬就往上打（打飛到空中的殭屍可以接著打）。車子、鄰居的房子、周邊建築、便利商店都打得壞（我家不會壞），遊戲結束會復原。</p>
   <h3 style="margin-top:14px">舒適設定</h3>
   <label><span>視角轉動靈敏度</span><span id="sensVal">100%</span></label>
@@ -3428,9 +3432,9 @@ const SHOP_DOOR={panels:[],t:0,col:null};
 }
 
 /* ---- 樹木、電線桿、車輛 ---- */
-for(const [x,z] of [[-6,22.8],[9,25],[20,16],[-6,28],[15,30]]){const t=tree(rr(4.5,6.5));t.position.set(x,0,z);M.addObject(t);addCircle(x,z,0.25);}
+for(const [x,z] of [[0.3,25.2],[9,25],[20,16],[-6,28],[15,30]]){const t=tree(rr(4.5,6.5));t.position.set(x,0,z);M.addObject(t);addCircle(x,z,0.25);}
 for(let i=0;i<10;i++){const m=mesh(pick(crownGeos),pick(MAT.leaves),rr(GRASS.x0+1,GRASS.x1-1),0.3,rr(GRASS.z0+2,GRASS.z1-1),0,R()*6,0);m.scale.set(rr(0.5,1),rr(0.4,0.7),rr(0.5,1));
-  const p=m.position;if(p.x>STORE.x0-2.5&&p.x<STORE.x1+2.5&&p.z<STORE.z1+1.5)continue;if(p.x>-11&&p.x<-3&&p.z<20.8)continue;M.addObject(m);}   /* 推幣樂園裡不要長矮樹 */
+  const p=m.position;if(p.x>STORE.x0-2.5&&p.x<STORE.x1+2.5&&p.z<STORE.z1+1.5)continue;if(p.x>-11&&p.x<-3&&p.z<26.6)continue;M.addObject(m);}   /* 推幣樂園裡不要長矮樹 */
 const POLES=[[13,LANE_Z1+0.5],[40,LANE_Z1+0.5],[67,LANE_Z1+0.5]];
 for(const [x,z] of POLES){const p=pole(-1);p.position.set(x,0,z);M.addObject(p);addCircle(x,z,0.2);}
 // 電線（略為下垂）
@@ -10213,8 +10217,8 @@ const KF=(()=>{const K={on:false,ph:'idle'};
     if(r.g){g.font=`800 11px ${FONT}`;g.fillStyle='#7fd0ff';g.fillText('🆚 連線對打',128,176);}else{g.font=`800 11px ${FONT}`;g.fillStyle='#fff';g.fillText('👀 正在打',128,176);}
     SCR.t.needsUpdate=true;}
   K.dbg=()=>({F,MV,PO,IN,cmd,ai,startMove,STAGES,P,paintStage,applyPose,side,WIN,BGM,bgmStep,drawRemote});
-  $('fiMenu').onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(-9.6,16.2,Math.PI);toast('🐟 快樂撈魚機：走到桌子旁邊的位子按 F（代幣在推幣樂園前面的兌幣機換）');};
-  $('puMenu').onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(-7.5,12.4,Math.PI);toast('🪙 推幣樂園：先到兌幣機換代幣，再站到推幣機前面按 F');};
+  $('fiMenu').onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(-9.6,21.7,Math.PI);toast('🐟 快樂撈魚機：走到桌子旁邊的位子按 F（代幣在推幣樂園前面的兌幣機換）');};
+  $('puMenu').onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(-7.5,16.3,Math.PI);toast('🪙 推幣樂園：先到兌幣機換代幣，再站到推幣機前面按 F');};
   $('kfMenu').onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(P.x,P.z-1.5,Math.PI);setTimeout(()=>K.enter(),400);};
 
   // ================= 連線對打（邀請的人那邊跑整場：對方送搖桿方向＋按鈕，這邊每秒 20 次送狀態＋音效／特效／大字） =================
@@ -10271,19 +10275,19 @@ function EARN(n,why){n=Math.round(n);if(!(n>0)||typeof PUSH==='undefined'||!PUSH
 const PUSH=(()=>{const U={on:false,k:-1};
   const $=id=>document.getElementById(id),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=(a,b)=>a+Math.random()*(b-a);
   // ================= 尺寸 =================
-  const AX0=-10.5,AX1=-3.3,AZ0=11.45,AZ1=20.2;   // 鋪地（2026-10-16 往後加大到 20.2：後面放撈魚機）
+  const AX0=-10.5,AX1=-3.3,AZ0=11.45,AZ1=26.0;   // 鋪地（2026-10-16 往後加大到 20.2：後面放撈魚機）
   const NS=4,SW=1.0,SX0=-6.0,sx=i=>SX0-i*SW;   // 4 個位子（面向機台時第 1 台在左邊：x 越小越右邊）
   const FW=0.62,FD=0.5,R=0.022,TH=0.007,PH=0.032,PL=0.2;   // 推台寬、深；代幣半徑、厚度；推板高度、長度
-  const TY=1.0,BZ=14.1,FZ=BZ-FD,STAND_Z=12.95,CHY=0.24;   // 桌面高度、後牆 z、前緣 z、站的位置、投幣口高度
+  const TY=1.0,BZ=18.4,FZ=BZ-FD,STAND_Z=BZ-1.15,CHY=0.24;   /* 2026-10-16 使用者：機台離太近 → 分三排：前排兌幣機／兌獎櫃台、中間推幣機、後面撈魚機 */   // 桌面高度、後牆 z、前緣 z、站的位置、投幣口高度
   const WIN_W=FW/2*0.9;   // 前緣中間這段掉下去＝贏；兩邊角落＝沒了
   const P0=0.07,PA=0.1,PT=2.6;   // 推板：最後面 0.07、往前推 0.1、2.6 秒一趟
   const pPos=t=>P0+PA*(1-Math.cos(t*Math.PI*2/PT))/2;
-  const CX=-4.85,PX=-3.95,KZ=14.5;   // 兌幣機、獎品櫃（中心 x）
+  const CX=-9.7,PX=-4.4,KZ=13.9;   // 兌幣機（入口左邊）、獎品櫃（入口右邊），中間空出來走路   // 兌幣機、獎品櫃（中心 x）
   // ================= 存檔：錢包 =================
   const DAILY=1000;U.DAILY=DAILY;   /* 每天零用錢（2026-10-16 使用者：500 太少 → 1000；玩其他小遊戲也賺得到，見 EARN） */
   const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
   const W=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-push')||'{}')||{};}catch(_){}
-    return {money:o.money==null?DAILY:+o.money||0,day:o.day||'',tok:o.tok|0,tix:o.tix|0,earn:o.earn|0,dv:o.dv|0,pz:o.pz&&typeof o.pz==='object'?o.pz:{},wear:o.wear||'',ins:o.ins|0,out:o.out|0};})();
+    return {money:o.money==null?DAILY:+o.money||0,day:o.day||'',tok:o.tok|0,tix:o.tix|0,earn:o.earn|0,gift:o.gift|0,dv:o.dv|0,pz:o.pz&&typeof o.pz==='object'?o.pz:{},wear:o.wear||'',ins:o.ins|0,out:o.out|0};})();
   const save=()=>{try{localStorage.setItem('home-push',JSON.stringify(W));}catch(_){}};U.W=W;U.save=save;
   U.daily=()=>daily();
   function daily(){const d=today();if(W.day!==d||(W.dv|0)<2){const add=W.money<DAILY;if(add)W.money=DAILY;W.day=d;W.dv=2;save();return add;}return false;}   /* 每天：不夠 DAILY 元就補到 DAILY；dv＝改成 1000 元那天，今天已經領過 500 的也馬上補到 1000 */
@@ -10330,7 +10334,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
    // 遮雨棚：紅白條紋（半透明）＋四根柱子＋燈泡串
    const [c2,g2]=cvs(256,64);for(let i=0;i<8;i++){g2.fillStyle=i%2?'#ffffff':'#e0262c';g2.fillRect(i*32,0,32,64);}const t2=new THREE.CanvasTexture(c2);t2.colorSpace=THREE.SRGBColorSpace;
    const roof=addM(new THREE.PlaneGeometry(AX1-AX0+0.4,AZ1-AZ0+0.2).rotateX(Math.PI/2),new THREE.MeshStandardMaterial({map:t2,roughness:0.7,transparent:true,opacity:0.88,side:THREE.DoubleSide}),(AX0+AX1)/2,3.05,(AZ0+AZ1)/2);roof.castShadow=true;
-   const post=std({color:'#c9a227',metalness:0.6,roughness:0.35});for(const [x,z] of [[AX0+0.15,AZ0+0.15],[AX1-0.15,AZ0+0.15],[AX0+0.15,AZ1-0.15],[AX1-0.15,AZ1-0.15]]){addM(new THREE.CylinderGeometry(0.05,0.05,3.05,10),post,x,1.52,z,true);addBox(x-0.06,x+0.06,z-0.06,z+0.06,3);}
+   const post=std({color:'#c9a227',metalness:0.6,roughness:0.35});for(const [x,z] of [[AX0+0.15,AZ0+0.15],[AX1-0.15,AZ0+0.15],[AX0+0.15,AZ1-0.15],[AX1-0.15,AZ1-0.15],[AX0+0.15,(AZ0+AZ1)/2],[AX1-0.15,(AZ0+AZ1)/2]]){addM(new THREE.CylinderGeometry(0.05,0.05,3.05,10),post,x,1.52,z,true);addBox(x-0.06,x+0.06,z-0.06,z+0.06,3);}
    const bulb=new THREE.MeshBasicMaterial({color:'#fff3b0',toneMapped:false});for(let x=AX0+0.3;x<AX1-0.2;x+=0.45){addM(new THREE.SphereGeometry(0.035,8,6),bulb,x,2.95,AZ0+0.12);}
    // 招牌（面向巷子）
    const [c3,g3]=cvs(512,128);const gr=g3.createLinearGradient(0,0,512,0);gr.addColorStop(0,'#ffcf2f');gr.addColorStop(0.5,'#ff8a2a');gr.addColorStop(1,'#ffcf2f');g3.fillStyle='#3a0d4a';g3.fillRect(0,0,512,128);g3.strokeStyle=gr;g3.lineWidth=8;g3.strokeRect(6,6,500,116);
@@ -10577,12 +10581,15 @@ const PUSH=(()=>{const U={on:false,k:-1};
   U.stop=()=>{if(!U.on)return;const st=S[U.k];if(st.rl){st.rl.t=st.rl.dur;rlEnd(st);}W.tix+=st.tq;st.tq=0;W.tok+=st.rlNext.length;st.rlNext.length=0;st.act=false;   /* 離開時還沒吐完的彩票、轉到一半的輪盤都算給你 */U.on=false;ui.hidden=true;document.body.classList.remove('pu');saveF();save();avatar.root.visible=view==='third';player.pos.set(sx(U.k),STAND_Z-0.5);player.yaw=Math.PI;player.pitch=-0.1;U.k=-1;};
   // ================= 兌幣機、兌獎櫃台（面板） =================
   const pn=document.createElement('div');pn.id='puPanel';pn.className='panel';pn.hidden=true;document.body.appendChild(pn);
-  for(const ev of ['pointerdown','touchstart','wheel'])pn.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
-  const BUY=[[100,11],[200,23],[500,60]];U.changeOpen=()=>changeOpen();
-  function changeOpen(){const add=daily();pn.innerHTML=`<div class="hd"><b>🪙 兌幣機</b><button data-x="1">✕</button></div>${add?`<div class="res">💰 今天的零用錢來了：${DAILY} 元！</div>`:''}${W.money<100?'<div class="res" style="background:#e0a020;color:#3a1f00">錢不夠了：去玩其他小遊戲賺零用錢，或明天再來拿</div>':''}
+  for(const ev of ['pointerdown','touchstart','wheel','keydown','keyup'])pn.addEventListener(ev,e=>e.stopPropagation(),{passive:true});   /* 打代碼時不要走路 */
+  const BUY=[[100,11],[200,23],[500,60]],CODES={'777':1000};   /* 代碼 → 加多少零用錢 */U.changeOpen=m=>changeOpen(m);
+  function changeOpen(msg){const add=daily();pn.innerHTML=`<div class="hd"><b>🪙 兌幣機</b><button data-x="1">✕</button></div>${msg?`<div class="res">${msg}</div>`:''}${add?`<div class="res">💰 今天的零用錢來了：${DAILY} 元！</div>`:''}${W.money<100?'<div class="res" style="background:#e0a020;color:#3a1f00">錢不夠了：去玩其他小遊戲賺零用錢，或明天再來拿</div>':''}
       <div class="wal">💰 錢包 <b>${W.money}</b> 元　🪙 代幣 <b>${W.tok}</b> 枚　🎟 彩票 <b>${W.tix}</b> 張</div>
       <div class="row">${BUY.map(([m,n])=>`<button data-b="${m}" ${W.money<m?'disabled':''}>${m} 元<small>→ ${n} 枚${n*10>m?`（多送 ${n-m/10}）`:''}</small></button>`).join('')}</div>
-      <div class="note">每天會補零用錢：錢包不夠 ${DAILY} 元就補到 ${DAILY} 元。<b>玩其他小遊戲也賺得到零用錢</b>：跳舞機、武道快打、賽車、鬥牛、擂台、夜市套圈、校園大逃亡、直笛、罰球、網球贏一局、打殭屍${W.earn?`（到現在賺了 ${W.earn} 元）`:''}。</div>`;pn.hidden=false;
+      <div class="note">每天會補零用錢：錢包不夠 ${DAILY} 元就補到 ${DAILY} 元。<b>玩其他小遊戲也賺得到零用錢</b>：跳舞機、武道快打、賽車、鬥牛、擂台、夜市套圈、校園大逃亡、直笛、罰球、網球贏一局、打殭屍${W.earn?`（到現在賺了 ${W.earn} 元）`:''}。</div>
+      <form class="code"><span>🔑 代碼</span><input type="text" inputmode="numeric" maxlength="8" placeholder="輸入代碼" autocomplete="off" enterkeyhint="done"><button type="submit">確定</button></form>`;pn.hidden=false;
+    {const f=pn.querySelector('form.code');f.onsubmit=e=>{e.preventDefault();const v=f.querySelector('input').value.trim();   /* 2026-10-16 使用者：小孩玩手機沒錢時，家長輸入 777 馬上加 1000 元 */
+      if(CODES[v]){W.money+=CODES[v];W.gift=(W.gift|0)+CODES[v];save();snd('buy');AUDIO.sfx('chime');changeOpen(`✅ 加了 ${CODES[v]} 元零用錢！`);}else{f.querySelector('input').value='';f.querySelector('input').placeholder='代碼不對，再試一次';snd('lose');}};}
     pn.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.x){pn.hidden=true;return;}const m=+b.dataset.b,it=BUY.find(q=>q[0]===m);if(!it||W.money<m)return;W.money-=m;W.tok+=it[1];save();snd('buy');toast(`🪙 換了 ${it[1]} 枚代幣（剩 ${W.money} 元）`);changeOpen();};}
   function prizeOpen(){pn.innerHTML=`<div class="hd"><b>🎟 兌獎櫃台</b><button data-x="1">✕</button></div><div class="wal">🎟 彩票 <b>${W.tix}</b> 張　🪙 代幣 <b>${W.tok}</b> 枚</div>
       <div class="prz">${PRZ.map(p=>{const n=W.pz[p.id]|0;return `<div class="pz${n?' own':''}"><span class="e">${p.e}</span><span class="n">${p.n}${n?`<small>有 ${n} 個</small>`:''}</span>
@@ -10606,6 +10613,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
   U.netRx=(id,name,pu)=>{const st=S[pu.k|0];if(!st||st.act&&U.on&&U.k===st.i)return;st.remote=name||'有人';st.remId=id;st.remAt=performance.now();st.man=1;st.chU=cl((pu.c|0)/1000,-FW/2,FW/2);
     if(Array.isArray(pu.d))for(const u of pu.d.slice(0,8)){st.since++;st.c.push({...nc(cl(u/1000,-FW/2+R,FW/2-R),0.03,0),st:'drop',y:CHY,vy:0,vl:rnd(0.03,0.115)});if(st.since%70===0)bonus(st,'b');}};
   U.netBig=(name,d)=>{const st=S[d.k|0];if(!st)return;if(d.e==='jp'){burst(st);st.msg='👑 大獎';st.msgT=4;toast(`🎉 ${name} 在推幣機第 ${st.i+1} 台中了大獎！`);AUDIO.sfx('cheer');}};
+  {const b=document.getElementById('codeMenu');if(b)b.onclick=()=>{menu.hidden=true;document.getElementById('bMenu').classList.remove('on');changeOpen();setTimeout(()=>{const i=pn.querySelector('form.code input');if(i)i.focus();},60);};}   /* 選單也可以直接輸入代碼（不用走到推幣樂園） */
   U.dbg=()=>({S,W,phys,draw,fill,hole,RL,dropOne,credit,saveF,loadF,IN,changeOpen,prizeOpen,mkPrize,nearSt,FD,FW,WIN_W});
   return U;})();
 
@@ -10617,7 +10625,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
    連線：大家看同一群魚；坐著的人裡 id 最小的＝主持（出魚、算撈到沒有），撈的人把位置送給主持，主持把結果送給大家。 */
 const FISH=(()=>{const F={on:false,seat:-1};
   const $=id=>document.getElementById(id),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=(a,b)=>a+Math.random()*(b-a);
-  const TX=-8.4,TZ=18.3,TW=2.1,TD=1.4,TY=0.8,SWm=1.7,SDm=1.06;   // 桌子中心、大小、桌面高度；螢幕大小（公尺）
+  const TX=-7.5,TZ=23.6,TW=2.1,TD=1.4,TY=0.8,SWm=1.7,SDm=1.06;   // 桌子中心、大小、桌面高度；螢幕大小（公尺）
   const WW=1600,WH=1000;   // 遊戲座標（螢幕 1600×1000）
   const SEATS=[{gx:400,gy:0},{gx:1200,gy:0},{gx:400,gy:WH},{gx:1200,gy:WH}];   // 0、1 在北邊（面向 +z），2、3 在南邊（面向 -z）
   SEATS.forEach(s=>{s.x=TX+(s.gx/WW-0.5)*SWm;s.z=s.gy?TZ+TD/2+0.42:TZ-TD/2-0.42;s.yaw=s.gy?Math.PI:0;});
