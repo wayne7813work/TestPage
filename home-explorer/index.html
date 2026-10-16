@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-15.13"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-16.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -621,6 +621,7 @@
   #ddVs.side{top:auto;bottom:calc(64px + var(--sab));padding:6px 10px}#ddVs.side .rk{flex-direction:column;align-items:flex-start;gap:2px}#ddVs.side .res{font-size:15px}#ddVs .rk{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center}#ddVs .rk span{white-space:nowrap}#ddVs .rk span.q{opacity:.55}
   #ddVs .rk i{font-style:normal;display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:50%;background:#ffd23a;color:#222;font-size:12px;text-align:center;margin-right:4px}#ddVs .rk span.me{color:#7fe0ff}
   #ddVs .rk em{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:3px;border:1px solid #fff}#ddVs .rk small{margin-left:3px;color:#ffb27f}
+  #netInv .cd{font-size:15px}#netInv .cd b{color:#ffd23a;font-size:19px}
   #netInv .who{display:flex;flex-direction:column;gap:4px;text-align:left;margin:0 auto}#netInv .who i{display:inline-block;width:10px;height:10px;border-radius:50%;border:1px solid #fff;margin-right:6px}
 </style>
 </head>
@@ -11691,9 +11692,15 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       c.on('close',()=>{if(c._id&&N.conns.get(c._id)===c)gone(c._id);});c.on('error',()=>{if(c._id&&N.conns.get(c._id)===c)gone(c._id);});});
     p.on('disconnected',()=>{if(N.peer===p&&!p.destroyed)try{p.reconnect();}catch(_){}});   /* 跟牽線伺服器斷了：重連（已經連上的照樣能玩） */
     p.on('error',e=>{if(N.peer!==p)return;if(e.type==='unavailable-id'){host();return;}st('出錯了：'+(e.type||e.message||e));});}
+  // 跳舞機邀請的裁判（2026-10-16.2：四個人同時邀請＝原本大家互相拒絕、沒人跳得成）：所有訊息都經過開房間的人，由他決定誰先；
+  // 第一個人的邀請鎖住 23 秒（開始、取消、結束等待就解開），這段時間別人的邀請不轉送，回 ddBusy 讓他改加入先邀請的人
+  let ddLock=null;const ddBusyT={};
+  function ddLockOk(X){const now=performance.now();if(ddLock&&ddLock.until>now&&ddLock.org!==X)return false;ddLock={org:X,until:now+(TTL+3)*1000};return true;}
   function hostRx(X,d){if(!d||typeof d!=='object')return;const m=d.m;
+    if(m&&m.t==='ddInv'&&!ddLockOk(X)){if(!(ddBusyT[X]>performance.now())){ddBusyT[X]=performance.now()+1500;raw(N.conns.get(X),{f:'0',m:{t:'ddBusy',org:ddLock.org}});}return;}
+    if(m&&(m.t==='ddGo'||m.t==='ddNo2'||m.t==='ddRel')&&ddLock&&ddLock.org===X)ddLock=null;
     if(d.to==='*'){for(const [k,c] of N.conns)if(k!==X)raw(c,{f:X,m});rx(m,X);}else if(d.to==='0')rx(m,X);else raw(N.conns.get(d.to),{f:X,m});}
-  function gone(X){N.conns.delete(X);for(const c of N.conns.values())raw(c,{f:X,m:{t:'left'}});drop(X);setOn();if(!N.conns.size&&N.peer)st('等朋友再加入…（代號一樣：'+N.code+'）');}
+  function gone(X){N.conns.delete(X);if(ddLock&&ddLock.org===X)ddLock=null;for(const c of N.conns.values())raw(c,{f:X,m:{t:'left'}});drop(X);setOn();if(!N.conns.size&&N.peer)st('等朋友再加入…（代號一樣：'+N.code+'）');}
   async function join(code){if(!(await lib()))return;clean();const p=new Peer({debug:0});N.peer=p;N.host=false;st('連線中…');ui();
     p.on('open',()=>{if(N.peer!==p)return;const c=p.connect(PFX+code,{reliable:true});
       c.on('open',()=>{if(N.peer!==p)return;N.conn=c;c._rx=performance.now();N.code=code;setOn();bc(hiMsg());st('');});
@@ -11777,7 +11784,11 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       case 'p':break;
       case 'away':q.ra=!!d.v;break;
       case 'fx':fxRun(d.k,f,d.to,d.v,d);break;
-      case 'ddInv':if(busy(f)){out(f,{t:'ddNo',why:'正在跟別人玩'});break;}N.ipid=f;invited(d,f);break;
+      case 'ddInv':N.lastInv={d,f,end:performance.now()+(+d.ttl||TTL)*1000};if(N.vs&&N.vs.wait&&N.vs.org===myId()){ddBusy(f);break;}   /* 開房間的人只會轉送先邀請的人的邀請 */
+        if(busy(f)){out(f,{t:'ddNo',why:'正在跟別人玩'});break;}N.ipid=f;invited(d,f);break;
+      case 'ddBusy':ddBusy(String(d.org));break;
+      case 'ddRel':break;
+      case 'ddSt':{const v=N.vs;if(v&&v.wait&&v.org===f){v.st=(d.st||[]).map(x=>[String(x[0]),x[1]]);if(d.left!=null)v.end=performance.now()+d.left*1000;waitDraw();}}break;
       case 'ddGo':if(N.vs&&N.vs.wait&&N.vs.org===f)startVs((d.ids||[]).map(String));break;
       case 'tInv':if(busy(f)){out(f,{t:'tNo',why:'正在跟別人玩'});break;}N.ipid=f;tnInvited();break;
       case 'gInv':if(busy(f)){out(f,{t:'gNo',g:d.g,why:'正在跟別人玩'});break;}N.ipid=f;gInvited(d.g,d.x);break;
@@ -11804,23 +11815,43 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   const vsSend=o=>{const v=N.vs;if(v&&v.ids)for(const id of v.ids)out(id,o);};
   DD.vsRow=()=>N.on?`<div class="row"><button data-o="vs" class="${N.ddVs?'on':''}">${N.ddVs?'✅':'⬜'} 邀請大家一起跳（${N.P.size} 個人，選歌後邀請）</button></div>`:'';
   DD.vsToggle=()=>{N.ddVs=!N.ddVs;ui();};
-  DD.vsInvite=(i,dv)=>{if(!N.on||!N.ddVs||!N.P.size)return false;const S=DD.SONGS[i],inv=new Map();for(const id of N.P.keys()){inv.set(id,'wait');out(id,{t:'ddInv',i,dv,id:S.id,n:S.n});}
-    N.vs={i,dv,org:myId(),wait:true,inv,ids:null,me:null,op:{}};invDraw();
-    clearTimeout(N.invT);N.invT=setTimeout(()=>{const v=N.vs;if(v&&v.wait&&v.org===myId()){if([...v.inv.values()].includes('ok'))vsGo();else{INV.hidden=true;N.vs=null;toast('大家都沒有回應');}}},20000);return true;};   /* 20 秒還有人沒回：有人說好就先開始 */
-  function invDraw(){const v=N.vs;if(!v||!v.wait||v.org!==myId())return;const S=DD.SONGS[v.i],n=[...v.inv.values()].filter(x=>x==='ok').length;
-    if(![...v.inv.values()].includes('wait')){if(n){vsGo();return;}INV.hidden=true;N.vs=null;toast('大家都不想跳');return;}   /* 每個人都回覆了：有人說好就直接開始 */
-    INV.innerHTML=`<b>💃 邀請大家一起跳</b><div>《${S.n}》・${DIFF[v.dv]}</div><div class="who">${[...v.inv].map(([id,s])=>`<div><i style="background:${PC[id]}"></i>${esc(pn(id)||'…')}：${s==='ok'?'✅ 好！':s==='no'?'❌ 不跳':'⏳ 等回覆…'}</div>`).join('')}</div><div class="row"><button data-k="cancel">取消</button>${n?`<button data-k="go" class="ok">不等了，開始（${n+1} 人）</button>`:'<button data-k="solo">不等了，自己跳</button>'}</div>`;INV.hidden=false;
-    INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k,w=N.vs;if(k==='go'){vsGo();return;}INV.hidden=true;N.vs=null;if(w)for(const id of w.inv.keys())out(id,{t:'ddNo2'});if(k==='solo'&&w)DD.startSong(w.i,w.dv);};}
-  function vsGo(){const v=N.vs;if(!v||!v.wait)return;clearTimeout(N.invT);const ok=[...v.inv].filter(([,s])=>s==='ok').map(([id])=>id);for(const [id,s] of v.inv)if(s!=='ok')out(id,{t:'ddNo2'});
+  // 邀請：等 20 秒，視窗上倒數＋已同意幾個人（2026-10-16.1）；選歌的人每次有人回覆就把名單（ddSt）送給被邀請的人
+  const TTL=20,secLeft=v=>Math.max(0,Math.ceil((v.end-performance.now())/1000));
+  function cdTick(){clearInterval(N.cdT);N.cdT=setInterval(()=>{const v=N.vs;if(!v||!v.wait){clearInterval(N.cdT);return;}if(v.org===myId())invDraw();else waitDraw();},500);}
+  const stList=st=>st.map(([id,s])=>`<div><i style="background:${PC[id]||MYC}"></i>${esc(id===myId()?'你':pn(id)||'…')}：${s==='org'?'🎵 選歌的人':s==='ok'?'✅ 好！':s==='no'?'❌ 不跳':'⏳ 等回覆…'}</div>`).join('');
+  function ddRel(){if(N.host){if(ddLock&&ddLock.org==='0')ddLock=null;}else out('0',{t:'ddRel'});}
+  // 自己的邀請輸了（別人先邀請）：收掉自己的，重新跳出先邀請那個人的邀請（還有倒數）
+  function ddBusy(org){const v=N.vs;if(v&&v.wait&&v.org===myId()){clearTimeout(N.invT);clearInterval(N.cdT);N.vs=null;INV.hidden=true;}
+    const L=N.lastInv;if(L&&L.f===org&&L.end>performance.now()+1500&&N.P.has(org)){toast(`💃 ${pn(org)} 先邀請了，一起跳他選的歌吧！`);N.ipid=org;invited({...L.d,ttl:Math.ceil((L.end-performance.now())/1000)},org);}
+    else toast(`💃 ${pn(org)||'有人'} 正在邀請大家跳舞，等一下再邀請`);}
+  DD.vsInvite=(i,dv)=>{if(!N.on||!N.ddVs||!N.P.size)return false;
+    if(N.vs&&N.vs.wait&&N.vs.org!==myId()){toast(`已經答應 ${pn(N.vs.org)||'對方'} 了，等他開始`);return true;}   /* 答應別人之後不能再自己邀請 */
+    if(N.host&&!ddLockOk('0')){ddBusy(ddLock.org);return true;}const S=DD.SONGS[i],inv=new Map();for(const id of N.P.keys()){inv.set(id,'wait');out(id,{t:'ddInv',i,dv,id:S.id,n:S.n,ttl:TTL});}
+    N.vs={i,dv,org:myId(),wait:true,inv,ids:null,me:null,op:{},end:performance.now()+TTL*1000,built:false};invDraw();cdTick();
+    clearTimeout(N.invT);N.invT=setTimeout(()=>{const v=N.vs;if(v&&v.wait&&v.org===myId()){if([...v.inv.values()].includes('ok'))vsGo();else{INV.hidden=true;N.vs=null;ddRel();toast('大家都沒有回應');}}},TTL*1000);return true;};   /* 時間到還有人沒回：有人說好就先開始 */
+  function invDraw(){const v=N.vs;if(!v||!v.wait||v.org!==myId())return;const S=DD.SONGS[v.i],st=[...v.inv],n=st.filter(x=>x[1]==='ok').length;
+    if(!st.some(x=>x[1]==='wait')){if(n){vsGo();return;}INV.hidden=true;N.vs=null;ddRel();toast('大家都不想跳');return;}   /* 每個人都回覆了：有人說好就直接開始 */
+    const sig=JSON.stringify(st);if(sig!==v.sig){v.sig=sig;for(const [id] of st)out(id,{t:'ddSt',st,left:secLeft(v)});}   /* 告訴被邀請的人：誰答應了 */
+    if(!v.built){v.built=true;INV.innerHTML=`<b>💃 邀請大家一起跳</b><div>《${S.n}》・${DIFF[v.dv]}</div><div class="cd"></div><div class="who"></div><div class="row"><button data-k="cancel">取消</button><button data-k="go" class="ok"></button></div>`;INV.hidden=false;   /* 只建一次，之後只換文字（不然按鈕一直重畫會按不到） */
+      INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k,w=N.vs;if(k==='go'&&w&&[...w.inv.values()].includes('ok')){vsGo();return;}
+        INV.hidden=true;N.vs=null;if(w)for(const id of w.inv.keys())out(id,{t:'ddNo2'});ddRel();if(k==='go'&&w)DD.startSong(w.i,w.dv);};}
+    INV.querySelector('.cd').innerHTML=`⏱ 還有 <b>${secLeft(v)}</b> 秒・已同意 <b>${n}</b>／${st.length} 人`;INV.querySelector('.who').innerHTML=stList(st);
+    INV.querySelector('[data-k=go]').textContent=n?`不等了，開始（${n+1} 人）`:'不等了，自己跳';}
+  function waitDraw(){const v=N.vs;if(!v||!v.wait||v.org===myId())return;
+    if(!v.built){v.built=true;INV.innerHTML=`<b>💃 等 ${esc(pn(v.org)||'對方')} 開始…</b><div class="cd"></div><div class="who"></div><div class="note" style="font-size:12px">大家都回覆、或時間到就會一起開始</div><div class="row"><button data-k="x">不跳了</button></div>`;INV.hidden=false;
+      INV.onclick=e=>{if(!e.target.closest('[data-k]'))return;INV.hidden=true;const w=N.vs;if(w&&w.wait){out(w.org,{t:'ddNo'});N.vs=null;}};}
+    const st=v.st||[[myId(),'ok']],n=st.filter(x=>x[1]==='ok').length;
+    INV.querySelector('.cd').innerHTML=`⏱ 最多再等 <b>${secLeft(v)}</b> 秒・已同意 <b>${n}</b>／${v.st?st.length:'?'} 人`;INV.querySelector('.who').innerHTML=stList([[v.org,'org'],...st]);}
+  function vsGo(){const v=N.vs;if(!v||!v.wait)return;clearTimeout(N.invT);ddRel();const ok=[...v.inv].filter(([,s])=>s==='ok').map(([id])=>id);for(const [id,s] of v.inv)if(s!=='ok')out(id,{t:'ddNo2'});
     const ids=[myId(),...ok];for(const id of ok)out(id,{t:'ddGo',ids});INV.hidden=true;startVs(ids);}
   DD.vsLive=()=>!!(N.vs&&N.vs.go&&!N.vs.me);   /* 對戰中：打開選單不暫停（大家才不會不同步） */
   function invited(d,f){const S=DD.SONGS[d.i];if(!S||S.id!==d.id){out(f,{t:'ddNo',why:'的網頁版本不一樣（請大家重新整理）'});return;}
-    INV.innerHTML=`<b>💃 ${esc(pn(f)||'對方')} 邀請你一起跳跳舞機！</b><div>《${S.n}》・${DIFF[d.dv]}</div><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">好！一起跳</button></div>`;INV.hidden=false;AUDIO.sfx('chime');
+    const end=performance.now()+(+d.ttl||TTL)*1000;
+    INV.innerHTML=`<b>💃 ${esc(pn(f)||'對方')} 邀請你一起跳跳舞機！</b><div>《${S.n}》・${DIFF[d.dv]}</div><div class="cd"></div><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">好！一起跳</button></div>`;INV.hidden=false;AUDIO.sfx('chime');
+    {const seq=N.ivSeq=(N.ivSeq||0)+1;let t=0;const tk=()=>{const c=INV.querySelector('.cd');if(N.ivSeq!==seq||INV.hidden||!c){clearInterval(t);return;}const s=Math.max(0,Math.ceil((end-performance.now())/1000));c.innerHTML=`⏱ 還有 <b>${s}</b> 秒`;if(s<=0){clearInterval(t);INV.hidden=true;N.ipid=null;toast('跳舞機的邀請時間到了');}};t=setInterval(tk,500);tk();}   /* 沒回就自動關掉 */
     INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;N.ipid=null;if(b.dataset.k==='no'){out(f,{t:'ddNo'});return;}
       if(GAME.on){out(f,{t:'ddNo',why:'正在打殭屍，不能跳'});toast('先結束殭屍遊戲');return;}
-      if(!DD.on)DD.enter();N.vs={i:d.i,dv:d.dv,org:f,wait:true,ids:null,me:null,op:{}};out(f,{t:'ddOk'});
-      INV.innerHTML=`<b>💃 等 ${esc(pn(f)||'對方')} 開始…</b><div class="note" style="font-size:12px">其他人回覆之後就會一起開始</div><div class="row"><button data-k="x">不跳了</button></div>`;INV.hidden=false;
-      INV.onclick=e2=>{if(!e2.target.closest('[data-k]'))return;INV.hidden=true;const v=N.vs;if(v&&v.wait){out(v.org,{t:'ddNo'});N.vs=null;}};};}
+      N.ivSeq++;if(!DD.on)DD.enter();N.vs={i:d.i,dv:d.dv,org:f,wait:true,ids:null,me:null,op:{},end,st:null,built:false};out(f,{t:'ddOk'});waitDraw();cdTick();};}
   function startVs(ids){const v=N.vs;if(!v)return;v.wait=false;v.ids=ids.map(String).filter(x=>x!==myId()&&N.P.has(x));v.n=v.ids.length+1;N.vsStart=true;DD.startSong(v.i,v.dv);N.vsStart=false;v.go=true;v.me=null;v.told=false;v.op={};for(const id of v.ids)v.op[id]={sc:0,cb:0};
     INV.hidden=true;vsDraw();toast(`🆚 ${v.n} 個人一起跳！`);if(DD.opStart)DD.opStart(v.ids.map(id=>({id,name:pn(id)||'…',col:PC[id]})));}
   {const s0=DD.startSong;DD.startSong=(i,dv)=>{if(!N.vsStart&&N.vs&&N.vs.go){vsSend({t:'ddQuit'});N.vs=null;VS.hidden=true;if(DD.opStop)DD.opStop();}s0(i,dv);};}   /* 自己另外選歌＝離開對戰 */
