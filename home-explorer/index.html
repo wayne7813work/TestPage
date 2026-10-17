@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-17.7"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-18.1"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -6459,8 +6459,8 @@ const NM=(()=>{
     ...[-0.3,0,0.3].flatMap(x=>[-0.4,0.4].map(z=>vcol(new THREE.CylinderGeometry(0.17,0.17,0.12,10).rotateX(Math.PI/2).translate(x,0.17,z),'#22262c')))]),new THREE.MeshBasicMaterial({vertexColors:true}),40);CANM.frustumCulled=false;   /* 砲車（50 人合成一台） */
   const ABM=im(new THREE.BoxGeometry(0.5,0.07,0.07),new THREE.MeshBasicMaterial({color:'#9fe8ff',toneMapped:false}),500);ABM.frustumCulled=false;
   const ASM=im(new THREE.SphereGeometry(0.2,8,6),new THREE.MeshBasicMaterial({color:'#ffb347',toneMapped:false}),80);ASM.frustumCulled=false;
-  function eSpawn(x,z,hp,sp){if(eN>=EMX)return;const i=eFree.length?eFree.pop():eHi++;if(i>=EMX)return;EX[i]=x;EZ[i]=z;EHP[i]=hp;EPD[i]=0;ESP[i]=sp;EPH[i]=Math.random()*6.3;EAL[i]=1;eN++;}
-  function eKill(i,fx){if(!EAL[i])return;EAL[i]=0;eN--;eFree.push(i);A.kills++;N.kills++;if(fx&&A.fxT<=0){A.fxT=0.05;puff(EX[i],0.6,EZ[i],'#ff6a5a',0.45,0.4);}}
+  function eSpawn(x,z,hp,sp){if(eN>=EMX)return;const i=eFree.length?eFree.pop():eHi++;if(i>=EMX)return;EX[i]=x;EZ[i]=z;EHP[i]=hp;EPD[i]=0;ESP[i]=sp;EPH[i]=Math.random()*6.3;EAL[i]=1;eN++;if(N.spawnHook)N.spawnHook(i);}
+  function eKill(i,fx){if(!EAL[i])return;EAL[i]=0;eN--;eFree.push(i);if(N.grpDec)N.grpDec(i);A.kills++;N.kills++;if(fx&&A.fxT<=0){A.fxT=0.05;puff(EX[i],0.6,EZ[i],'#ff6a5a',0.45,0.4);}}
   function eHurt(i,d){if(!EAL[i])return;EHP[i]-=d;if(EHP[i]<=0)eKill(i,true);}
   // 前面的敵人（每格按 x 分桶，給瞄準用）
   const FRONT=[];function frontList(){FRONT.length=0;const B=A.bk||(A.bk=[]);for(let k=0;k<80;k++)(B[k]||(B[k]=[])).length=0;for(let i=0;i<eHi;i++){if(!EAL[i])continue;const k=Math.floor(EX[i]-WL);if(k>=0&&k<80)B[k].push(i);}for(let k=0;k<80&&FRONT.length<90;k++)for(const i of B[k]){FRONT.push(i);if(FRONT.length>=90)break;}}
@@ -6468,11 +6468,11 @@ const NM=(()=>{
   // 效能（使用者問）：門的形狀、材質共用；小牌子同一個數字共用一張貼圖（原本每塊都新做一張，新的一排出現時會卡 0.1～0.2 秒）
   const AGG=new THREE.Group();scene.add(AGG);const AGS={geo:{},mat:{},small:{}};
   const agGeo=(k,f)=>AGS.geo[k]||(AGS.geo[k]=f());
-  const AGPOST=std({color:'#f5f5f2',roughness:0.4}),AGPAN={};for(const [k,c] of [['p','#3aa0ff'],['x','#9b7bff'],['q','#ffd23a'],['n','#ff4a4a']])AGPAN[k]=new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:0.3,side:THREE.DoubleSide,depthWrite:false});AGPAN.ph=new THREE.MeshBasicMaterial({color:'#5ab8ff',transparent:true,opacity:0.62,side:THREE.DoubleSide,depthWrite:false});   /* 大軍站的那一邊：門亮起來 */
+  const AGPOST=std({color:'#f5f5f2',roughness:0.4}),AGPAN={};for(const [k,c] of [['p','#3aa0ff'],['x','#9b7bff'],['q','#ffd23a'],['n','#ff4a4a']])AGPAN[k]=new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:0.3,side:THREE.DoubleSide,depthWrite:false});AGPAN.ph=new THREE.MeshBasicMaterial({color:'#5ab8ff',transparent:true,opacity:0.62,side:THREE.DoubleSide,depthWrite:false});AGPAN.lk=new THREE.MeshBasicMaterial({color:'#5a5f66',transparent:true,opacity:0.55,side:THREE.DoubleSide,depthWrite:false});   /* 鎖住的門 */   /* 大軍站的那一邊：門亮起來 */
   const panKey=g=>g.op==='?'?'q':g.op==='x'?'x':g.v>=0?'p':'n';
   function agDraw(g){const c=g.ctx,W2=g.cw,H2=g.ch,sc=g.sc||1;if(!g.noClear){c.setTransform(sc,0,0,sc,0,0);c.clearRect(0,0,W2,H2);}const q=g.op==='?',x=g.op==='x';
     c.fillStyle=q?'#e8a000':x?'#7a4fd8':g.v>=0?'#1f8fd8':'#d8262c';c.fillRect(0,0,W2,H2);c.strokeStyle='#fff';c.lineWidth=7;c.strokeRect(3.5,3.5,W2-7,H2-7);
-    const t=q?'❓ ×2／歸零':x?`×${g.v}`:(g.v>=0?'+':'')+g.v+(g.small?'':' 人'),px=Math.min(H2*0.72,W2*0.9/Math.max(1.6,t.length*0.62));c.font=`900 ${px}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=px*0.14;c.strokeStyle='rgba(0,0,0,.7)';c.strokeText(t,W2/2,H2*0.54);c.fillStyle='#fff';c.fillText(t,W2/2,H2*0.54);g.tex.needsUpdate=true;
+    const t=q?'❓ ×2／歸零':x?`×${g.v}`:(g.lock?'🔒 ':'')+(g.v>=0?'+':'')+g.v+(g.small?'':' 人'),px=Math.min(H2*0.72,W2*0.9/Math.max(1.6,t.length*0.62));c.font=`900 ${px}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=px*0.14;c.strokeStyle='rgba(0,0,0,.7)';c.strokeText(t,W2/2,H2*0.54);c.fillStyle='#fff';c.fillText(t,W2/2,H2*0.54);g.tex.needsUpdate=true;
     if(g.panel)g.panel.material=AGPAN[panKey(g)];}
   const ATL=(()=>{const [c,g]=cvs(2048,2048),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;let drawn=false;
     const mat=new THREE.MeshBasicMaterial({map:tex,toneMapped:false,side:THREE.DoubleSide});
@@ -6495,124 +6495,167 @@ const NM=(()=>{
     const [c,g]=cvs(256,640),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;g.fillStyle='#8a9098';g.fillRect(0,0,256,640);g.font=`900 150px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.lineWidth=14;g.strokeStyle='#3a1a6a';g.fillStyle='#b98aff';
     const t='×'+mul;[...t].forEach((ch,k)=>{const y=110+k*150;g.strokeText(ch,128,y);g.fillText(ch,128,y);});const sm=new THREE.MeshBasicMaterial({map:tex});sm.userData.own=true;const face=mk(new THREE.PlaneGeometry(1.4,3.5),sm,-0.76,4.6,0,piv);face.rotation.y=-Math.PI/2;
     const bar=countSprite('#5a5f66');bar.scale.set(1.9,0.7,1);A.sprites.push(bar);const p={x,z,mul,hp,max:hp,piv,bar,fall:-1};setCount(bar,hp);A.pills.push(p);return p;}
-  // ================= 2026-10-17.6 大軍團改版 =================
-  // 使用者：怪物都好遠、不知道在打什麼；移動時一堆人不知道會碰到哪個門、哪個武器；×2／歸零很糟；廣告就是「加人」或「換武器換裝備」。
-  // 照廣告（Last War 那種）：窄窄一條路、鏡頭在大軍後上方往下看、大軍擠成一團（腳下綠圈、頭上人數）；路中間一條虛線分左右，
-  // 每一排只有兩個選擇：藍色「+N 人」門（站在那一邊、門到你面前就加人）／紅色數字桶子（上面寫武器或護盾，站在那一邊就會打它，打到 0 才拿到）。
-  // 使用者選：大軍站著守警戒線（不往前跑）；武器要打桶子打到 0 才拿到；直接改大軍團（舊的連續小門、倍數石柱、×2／歸零、砲車都拿掉）。
-  const AW=3.4,SPN=AX+40,AB={eh:0.11,boss:24000,pow:1.25,powMax:3};N.AB=AB;   // 可以站的半寬（路變窄）、門／桶子／敵人出現的地方（鏡頭看得到）
-  const AWP=[{n:'手槍',e:'🔫',m:1,c:'#9fe8ff'},{n:'散彈槍',e:'💥',m:1.6,c:'#ffd27a'},{n:'加特林',e:'⚙️',m:2.4,c:'#ffe14a'},{n:'雷射槍',e:'⚡',m:3.4,c:'#7dfcff'},{n:'火箭砲',e:'🚀',m:4.8,c:'#ff9a5a',boom:1}];
+  // ================= 2026-10-17.6 大軍團改版（10-17.8 第二版） =================
+  // 第一版（.6）使用者：怪物都好遠、不知道在打什麼；移動時不知道會碰到哪個門；×2／歸零很糟；廣告就是「加人」或「換武器換裝備」。
+  // → 照廣告（Last War 那種）：窄路、鏡頭在大軍後上方往下看、大軍擠成一團（腳下綠圈、頭上人數）；大軍站著守警戒線；武器要打桶子打到 0 才拿到。
+  // 第二版（.8）使用者：子彈太小看不清楚；拿到武器沒感覺（手上的東西沒換）；小兵打不死；站左邊子彈卻去打右邊；廣告是左中右三格；一開始打不到；小兵要有數量、打死扣掉。
+  // → 子彈直直往前射（只打得到自己前面那一條：最前面的那個敵人／桶子／鎖住的門／大魔王）、變粗變亮、每種武器樣子不同（散彈 3 顆、加特林一串、雷射一條光會穿透、火箭砲炸一片）；
+  //   小兵手上拿著現在的武器（換武器時整團的槍換掉＋放大一下）；路分左中右三格（兩條虛線），每排三格：加人門／武器桶／隨機（鎖住的大加人門、護盾、小加人門），位置每排打亂；
+  //   紅色敵人一團一團、頭上紅色數字（剩幾個），越近越往你這邊靠（才打得到）；被打中閃白、往後頓一下；
+  //   使用者選：衝到警戒線＝扣掉我方一樣多人（扣到 0 才輸；大魔王衝過來還是直接輸；護盾擋一次）。
+  const AW=3.4,SPN=AX+40,LNW=2*AW/3,RNG=22,AB={eh:0.3,boss:46000,e0:0.55,pow:1.25,powMax:3,gA:5,gK:1.4,gN:0.12,bA:10,bK:2.6,bN:0.25};N.AB=AB;   // 可以站的半寬、東西出現的地方、一格的寬
+  const laneOf=z=>cl(Math.floor((z-(LC-AW))/LNW),0,2),laneZ=k=>LC+(k-1)*LNW;
+  const AWP=[{n:'手槍',e:'🔫',m:1,c:'#7df9ff',sx:1.6,s:2.0,sp:34,rate:1},{n:'散彈槍',e:'💥',m:1.6,c:'#ffcf5a',sx:0.9,s:2.4,sp:30,rate:0.7,pel:3},{n:'加特林',e:'⚙️',m:2.4,c:'#fff04a',sx:2.4,s:1.7,sp:42,rate:1.9},{n:'雷射槍',e:'⚡',m:3.4,c:'#5ffcff',beam:1,rate:1,pierce:3},{n:'火箭砲',e:'🚀',m:4.8,c:'#ff8a3a',boom:1,sp:22,rate:0.45}];
   const pw85=n=>3.2*Math.pow(n,0.75);   /* 人越多、每個人平均火力稍微變少 */
   const armyDps=()=>pw85(N.n)*AWP[A.wl||0].m*(A.pow||1)*(N.sk.rapid>0?1.8:1)*(N.sk.gold>0?2:1);
   const nCan=()=>0;
-  const armyHW=()=>cl(0.45+Math.sqrt(Math.min(N.n,80))*0.16,0.55,1.9);   // 大軍那一團的半徑（最多路寬的 1/3：一眼看得出站在哪一邊）
-  const BAR_GEO=new THREE.CylinderGeometry(0.72,0.72,1.25,18),BAR_RG=new THREE.CylinderGeometry(0.76,0.76,0.1,18),BAR_MAT=std({color:'#c8262c',roughness:0.5,emissive:'#3a0606'}),BAR_RING=std({color:'#f2f2f2',roughness:0.4});
+  const armyHW=()=>cl(0.42+Math.sqrt(Math.min(N.n,60))*0.1,0.5,1.15);   // 大軍那一團的半徑（一格寬以內：一眼看得出站在哪一格）
+  // 小兵手上的武器（每種一個 InstancedMesh，只顯示現在那一種）
+  const AGUN=[[vcol(new THREE.BoxGeometry(0.05,0.08,0.17).translate(0.13,0.42,0.13),'#22262c')],
+    [vcol(new THREE.BoxGeometry(0.05,0.06,0.42).translate(0.13,0.44,0.2),'#7a4a24'),vcol(new THREE.CylinderGeometry(0.022,0.022,0.3,6).rotateX(Math.PI/2).translate(0.13,0.48,0.3),'#9aa0a8')],
+    [vcol(new THREE.CylinderGeometry(0.06,0.06,0.4,8).rotateX(Math.PI/2).translate(0.13,0.43,0.24),'#8a9098'),vcol(new THREE.BoxGeometry(0.1,0.1,0.14).translate(0.13,0.43,0.04),'#ffd23a')],
+    [vcol(new THREE.BoxGeometry(0.07,0.09,0.36).translate(0.13,0.44,0.18),'#f2f6ff'),vcol(new THREE.CylinderGeometry(0.035,0.035,0.08,8).rotateX(Math.PI/2).translate(0.13,0.44,0.4),'#3ff6ff')],
+    [vcol(new THREE.CylinderGeometry(0.075,0.075,0.6,10).rotateX(Math.PI/2).translate(0.13,0.66,0.06),'#3f7a3a'),vcol(new THREE.ConeGeometry(0.075,0.12,10).rotateX(Math.PI/2).translate(0.13,0.66,0.42),'#ff5a2a')]]
+    .map(parts=>{const m=im(mergeGeometries(parts),new THREE.MeshBasicMaterial({vertexColors:true}),60);m.frustumCulled=false;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);return m;});
+  // 敵人：一團一團（頭上數字）、被打中閃白（instanceColor）
+  const EGR=new Int16Array(EMX),EOF=new Float32Array(EMX),EHT=new Float32Array(EMX);REDM.setColorAt(0,TC.set('#ffffff'));
+  N.grpDec=i=>{const g=A.grp&&A.grp[EGR[i]];if(g)g.n--;};
+  N.spawnHook=i=>{const g=A.grp&&A.grp[A.curG];EGR[i]=g?A.curG:-1;EOF[i]=rnd(-0.9,0.9);EHT[i]=0;if(g)g.n++;};   /* eSpawn 生出來時：記住是哪一團 */
+  function grpFree(g){if(!g.bar)return;scene.remove(g.bar);g.bar.material.map.dispose();g.bar.material.dispose();g.bar=null;}
+  // 每一條（z 分成 28 格）最前面的敵人：子彈直直往前射時找「這一條」的第一個
+  const ZB=28,ZBIN=[];for(let k=0;k<ZB;k++)ZBIN.push([]);
+  function zBins(){for(const b of ZBIN)b.length=0;for(let i=0;i<eHi;i++){if(!EAL[i]||EX[i]>AX+RNG+1)continue;const k=Math.floor((EZ[i]-(LC-AW))/(2*AW)*ZB);if(k>=0&&k<ZB)ZBIN[k].push(i);}}
+  function colFirst(oz,hr,ox){const k0=Math.max(0,Math.floor((oz-hr-(LC-AW))/(2*AW)*ZB)),k1=Math.min(ZB-1,Math.floor((oz+hr-(LC-AW))/(2*AW)*ZB));let best=-1,bx=1e9;
+    for(let k=k0;k<=k1;k++)for(const i of ZBIN[k]){if(!EAL[i]||EHP[i]-EPD[i]<=0||EX[i]<=ox||EX[i]>=bx||Math.abs(EZ[i]-oz)>hr)continue;bx=EX[i];best=i;}return best;}
+  const BAR_GEO=new THREE.CylinderGeometry(0.62,0.62,1.15,18),BAR_RG=new THREE.CylinderGeometry(0.66,0.66,0.1,18),BAR_MAT=std({color:'#c8262c',roughness:0.5,emissive:'#3a0606'}),BAR_RING=std({color:'#f2f2f2',roughness:0.4});
   const BAR_IT={w:lv=>AWP[lv],shield:()=>({n:'護盾',e:'🛡️'}),pow:()=>({n:'火力加強',e:'💪'})};
-  function aBarrel(x,z,kind,lv){const g=new THREE.Group();g.position.set(x,0,z);CG.add(g);mk(BAR_GEO,BAR_MAT,0,0.63,0,g);mk(BAR_RG,BAR_RING,0,0.3,0,g);mk(BAR_RG,BAR_RING,0,0.96,0,g);
-    const it=BAR_IT[kind](lv),lm=new THREE.SpriteMaterial({map:textTex([it.e+' '+it.n],512,128,'rgba(20,24,40,.85)','#fff',`900 66px ${FONT}`),depthWrite:false,toneMapped:false}),lab=new THREE.Sprite(lm);lab.scale.set(2.7,0.68,1);lab.position.set(0,3.05,0);lab.renderOrder=4;g.add(lab);
-    const hp=Math.max(20,Math.round(pw85(N.n)*AWP[A.wl].m*(A.pow||1)*rnd(2.3,3.1)*(N.D.pump||1)));   /* 照「沒開技能」的火力算（開連發時出現的桶子不會特別硬） */const bar=countSprite('#c0262c');bar.scale.set(1.7,0.64,1);A.sprites.push(bar);setCount(bar,hp);
+  const baseDps=()=>pw85(N.n)*AWP[A.wl].m*(A.pow||1);   /* 「沒開技能」的火力：桶子、鎖住的門照這個算血量 */
+  function aBarrel(x,z,kind,lv){const g=new THREE.Group();g.position.set(x,0,z);CG.add(g);mk(BAR_GEO,BAR_MAT,0,0.58,0,g);mk(BAR_RG,BAR_RING,0,0.28,0,g);mk(BAR_RG,BAR_RING,0,0.9,0,g);
+    const it=BAR_IT[kind](lv),lm=new THREE.SpriteMaterial({map:textTex([it.e+' '+it.n],512,128,'rgba(20,24,40,.85)','#fff',`900 66px ${FONT}`),depthWrite:false,toneMapped:false}),lab=new THREE.Sprite(lm);lab.scale.set(2.2,0.55,1);lab.position.set(0,2.85,0);lab.renderOrder=4;g.add(lab);
+    const hp=Math.max(15,Math.round(baseDps()*rnd(2.2,3.0)*(N.D.pump||1)));const bar=countSprite('#c0262c');bar.scale.set(1.5,0.56,1);A.sprites.push(bar);setCount(bar,hp);
     const b={x,z,kind,lv,hp,max:hp,g,lab,bar,dead:-1,hit:0};A.bars.push(b);return b;}
   function barFree(b){CG.remove(b.g);b.lab.material.map.dispose();b.lab.material.dispose();b.bar.visible=false;}
   function barBreak(b){b.dead=0;const it=BAR_IT[b.kind](b.lv);
-    if(b.kind==='w'){A.wl=Math.max(A.wl,b.lv);big(`拿到 ${it.e} ${it.n}！`);}else if(b.kind==='shield'){A.shield=1;big('🛡️ 拿到護盾！可以擋一次');}else{A.pow=Math.min(AB.powMax,(A.pow||1)*AB.pow);big(`💪 火力加強 ×${A.pow.toFixed(1)}！`);}
+    if(b.kind==='w'){A.wl=Math.max(A.wl,b.lv);A.gunT=0.5;big(`拿到 ${it.e} ${it.n}！`);ring3(N.cx-0.4,N.cz);}else if(b.kind==='shield'){A.shield=1;big('🛡️ 拿到護盾！可以擋一次');}else{A.pow=Math.min(AB.powMax,(A.pow||1)*AB.pow);A.gunT=0.5;big(`💪 火力加強 ×${A.pow.toFixed(1)}！`);}
     for(let q=0;q<12;q++)puff(b.x+rnd(-0.8,0.8),rnd(0.4,1.8),b.z+rnd(-0.8,0.8),q%2?'#ffd23a':'#ff5a4a',0.7,0.55);ring3(b.x,b.z);AUDIO.sfx('bigcheer');}
-  // 時間表：每 6.5 秒一排「左右兩個選擇」：一邊加人門、一邊桶子（武器升級；偶爾護盾；武器滿了變火力加強）
-  function aEvent(k){const left=Math.random()<0.5,zg=left?[LC-AW,LC-0.06]:[LC+0.06,LC+AW],zb=left?LC+AW/2:LC-AW/2;
-    const v=Math.max(3,Math.round(N.n*rnd(0.28,0.48)+2+k*0.6));const g=aGate(SPN,zg[0],zg[1],'+',v);g.side=left?-1:1;
-    const shield=!A.shield&&k>=2&&Math.random()<0.25;aBarrel(SPN,zb,shield?'shield':A.wl<AWP.length-1?'w':'pow',Math.min(AWP.length-1,A.wl+1));}
+  // 時間表：每 6.5 秒一排「左中右三格」：加人門／武器桶／隨機（鎖住的大加人門＝先把鎖打到 0；護盾桶；小加人門），三格位置打亂
+  function aEvent(k){const L=[0,1,2].sort(()=>Math.random()-0.5),z0=j=>LC-AW+j*LNW+0.05,z1=j=>LC-AW+(j+1)*LNW-0.05;
+    const v=Math.max(3,Math.round((AB.gA+k*AB.gK+N.n*AB.gN)*rnd(0.85,1.15)));aGate(SPN,z0(L[0]),z1(L[0]),'+',v);   /* 加人門：固定數字為主（照比例給會越滾越大） */
+    aBarrel(SPN,laneZ(L[1]),A.wl<AWP.length-1?'w':'pow',Math.min(AWP.length-1,A.wl+1));
+    const r=Math.random();if(k>=1&&r<0.4){const g=aGate(SPN,z0(L[2]),z1(L[2]),'+',Math.max(6,Math.round((AB.bA+k*AB.bK+N.n*AB.bN)*rnd(0.85,1.15))));g.hp=g.max=Math.max(15,Math.round(baseDps()*rnd(2.4,3.2)*(N.D.pump||1)));g.lock=true;g.dirty=true;g.bar=countSprite('#5a5f66');g.bar.scale.set(1.5,0.56,1);A.sprites.push(g.bar);setCount(g.bar,g.hp);}
+    else if(!A.shield&&k>=2&&r<0.65)aBarrel(SPN,laneZ(L[2]),'shield',0);
+    else aGate(SPN,z0(L[2]),z1(L[2]),'+',Math.max(2,Math.round(v*rnd(0.35,0.55))));}
   // 開始
   N.startArmy=()=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(RB.on)RB.stop();if(SB.on)SB.stop();if(RACE.on)RACE.stop();if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
-    if(N.on)N.stop();clearCourse();panel.hidden=true;N.mode='army';ATL.init();N.D=DIFF[SAVE.diff]||DIFF[1];N.dk=SAVE.diff;N.S={mhp:1,name:'大軍團'};N.on=true;N.st='count';N.cd=2.4;N.lastCd=4;N.n=12;N.cz=LC+AW/2;N.cx=AX;N.kills=0;N.manT=0;N.sk={big:0,rapid:0,gold:0};N.cdn={big:0,rapid:0,gold:0};N.camP=null;N.bossOn=null;
-    A.run=(A.run||0)+1;Object.assign(A,{on:true,t:0,ev:0,evT:1.5,wave:0,waveT:2,boss:null,bossT:95,kills:0,maxN:12,bul:[],gates:[],pills:[],bars:[],sprites:[],fxT:0,acc:0,accC:0,over:false,wl:0,pow:1,shield:0,tb:null});EAL.fill(0);eHi=0;eN=0;eFree.length=0;
-    // 警戒線、路（窄路：兩邊路肩變暗、白邊線、中間虛線分左右）
+    if(N.on)N.stop();clearCourse();panel.hidden=true;N.mode='army';ATL.init();N.D=DIFF[SAVE.diff]||DIFF[1];N.dk=SAVE.diff;N.S={mhp:1,name:'大軍團'};N.on=true;N.st='count';N.cd=2.4;N.lastCd=4;N.n=12;N.cz=LC;N.cx=AX;N.kills=0;N.manT=0;N.sk={big:0,rapid:0,gold:0};N.cdn={big:0,rapid:0,gold:0};N.camP=null;N.bossOn=null;
+    A.run=(A.run||0)+1;Object.assign(A,{on:true,t:0,ev:0,evT:1.5,wave:0,waveT:2,boss:null,bossT:95,kills:0,maxN:12,bul:[],gates:[],pills:[],bars:[],grp:[],sprites:[],fxT:0,acc:0,accC:0,over:false,wl:0,pow:1,shield:0,tb:null,gunT:0,lostT:0,lostN:0});EAL.fill(0);eHi=0;eN=0;eFree.length=0;
+    // 警戒線、路（窄路：兩邊路肩變暗、白邊線、兩條虛線分左中右）
     const ln=mk(new THREE.PlaneGeometry(0.35,AW*2+0.6).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#ff2a2a',transparent:true,opacity:0.85,toneMapped:false}),WL,0.07,LC,CG);A.line=ln;
     const lt=new THREE.MeshBasicMaterial({map:textTex(['⚠ 警戒線'],512,96,null,'#ff5a5a',`900 60px ${FONT}`),transparent:true,toneMapped:false});lt.userData.own=true;mk(new THREE.PlaneGeometry(3.2,0.6).rotateX(-Math.PI/2).rotateY(-Math.PI/2),lt,WL-0.6,0.075,LC,CG);
     {const L=62,x0=AX-6,sh=new THREE.MeshBasicMaterial({color:'#1a1420',transparent:true,opacity:0.55,depthWrite:false}),wl=new THREE.MeshBasicMaterial({color:'#ffffff',toneMapped:false}),sw=LW-AW+0.6;
      for(const s of [-1,1]){mk(new THREE.PlaneGeometry(L,sw).rotateX(-Math.PI/2),sh,x0+L/2,0.05,LC+s*(AW+sw/2),CG);mk(new THREE.PlaneGeometry(L,0.12).rotateX(-Math.PI/2),wl,x0+L/2,0.06,LC+s*AW,CG);}
-     const dg=new THREE.PlaneGeometry(1.2,0.14).rotateX(-Math.PI/2);for(let x=WL+1;x<x0+L;x+=2.4)mk(dg,wl,x,0.06,LC,CG);
+     const dg=new THREE.PlaneGeometry(1.2,0.14).rotateX(-Math.PI/2);for(const s of [-1,1])for(let x=WL+1;x<x0+L;x+=2.4)mk(dg,wl,x,0.06,LC+s*LNW/2,CG);
      A.ring=mk(new THREE.RingGeometry(0.92,1,40).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#5dff7a',transparent:true,opacity:0.9,toneMapped:false,side:THREE.DoubleSide}),AX,0.07,LC,CG);}   /* 大軍腳下的綠圈 */
     if(N.lanAll)for(const m of N.lanAll)m.visible=false;   /* 燈籠藏起來：鏡頭要拉高往下看 */
     document.body.classList.add('nm');hud.hidden=false;btns.hidden=false;mySign.visible=true;night(true);syncBtns();if(view!=='third'){view='third';syncViewUI();}player.yaw=-Math.PI/2;AUDIO.sfx('chime');
-    try{const ar=[ATL.m,ATL.post,REDM,CANM,ABM,ASM];for(const m of ar)m.count=Math.max(m.count,1);renderer.compile(scene,camera);for(const m of ar)m.count=0;}catch(_){}   /* 先把著色程式編好 */
-    toast('大軍團：大軍自動開槍，左右移動選一邊：藍色「+人」門走過去就加人；紅色桶子打到 0 拿武器、護盾。紅色大軍闖過警戒線就輸了！');};
-  function armyEnd(){A.on=false;ATL.m.count=ATL.post.count=0;mySign.scale.set(2.2,0.82,1);REDM.count=CANM.count=ABM.count=ASM.count=0;for(const s of A.sprites){scene.remove(s);s.material.map.dispose();s.material.dispose();}A.sprites=[];if(A.boss&&A.boss.bar){scene.remove(A.boss.bar);A.boss.bar.material.map.dispose();A.boss.bar.material.dispose();}A.boss=null;for(const g of A.gates)agFree(g);A.gates=[];for(const b of A.bars||[])barFree(b);A.bars=[];A.pills=[];A.bul=[];EAL.fill(0);eHi=eN=0;eFree.length=0;N.mode=null;
-    if(N.lanAll)for(const m of N.lanAll)m.visible=true;ABM.material.color.set('#9fe8ff');if(N.fov0!=null){camera.fov=N.fov0;camera.updateProjectionMatrix();N.fov0=null;}}
+    try{const ar=[ATL.m,ATL.post,REDM,CANM,ABM,ASM,...AGUN];for(const m of ar)m.count=Math.max(m.count,1);renderer.compile(scene,camera);for(const m of ar)m.count=0;}catch(_){}   /* 先把著色程式編好 */
+    toast('大軍團：大軍站在哪一格，子彈就往前打哪一格。左中右選一格：藍色「+人」門加人、紅色桶子打到 0 拿武器、灰色鎖住的門先打開。敵人衝到警戒線會扣人數！');};
+  function armyEnd(){A.on=false;ATL.m.count=ATL.post.count=0;mySign.scale.set(2.2,0.82,1);REDM.count=CANM.count=ABM.count=ASM.count=0;for(const m of AGUN)m.count=0;for(const s of A.sprites){scene.remove(s);if(s.material.map)s.material.map.dispose();s.material.dispose();}A.sprites=[];for(const g of A.grp||[])grpFree(g);A.grp=[];if(A.boss&&A.boss.bar){scene.remove(A.boss.bar);A.boss.bar.material.map.dispose();A.boss.bar.material.dispose();}A.boss=null;for(const g of A.gates)agFree(g);A.gates=[];for(const b of A.bars||[])barFree(b);A.bars=[];A.pills=[];A.bul=[];EAL.fill(0);eHi=eN=0;eFree.length=0;N.mode=null;
+    if(N.lanAll)for(const m of N.lanAll)m.visible=true;ABM.material.color.set('#9fe8ff');ASM.material.color.set('#ffb347');if(N.fov0!=null){camera.fov=N.fov0;camera.updateProjectionMatrix();N.fov0=null;}}
   N.armyEnd=armyEnd;
-  const AF=[1,1.1,1.8,2.6];   /* 大軍團另外再加的難度 */
+  const AF=[1,1.1,1.5,2.0];   /* 大軍團另外再加的難度 */
   // 技能：巨大圈＝前面那一團炸掉；連發、黃金＝火力 ×2
   function armySkill(k){if(k==='big'){frontList();let x=WL+10,z=N.cz;if(FRONT.length){x=EX[FRONT[0]]+2;z=EZ[FRONT[0]];}const tg=A.boss&&A.boss.x-WL<14?A.boss:null;if(tg){tg.hp-=180*(N.D.boss||1)*(N.sk.gold>0?2:1);x=tg.x;z=tg.z;}
       for(let i=0;i<eHi;i++)if(EAL[i]&&Math.hypot(EX[i]-x,EZ[i]-z)<4)eKill(i,true);ring3(x,z);for(let q=0;q<10;q++)puff(x+rnd(-4,4),rnd(0.3,1.5),z+rnd(-3,3),N.sk.gold>0?'#ffd23a':'#ffe08a',0.9,0.6);big('巨大圈！');AUDIO.sfx('bigboom');}
     else{N.sk[k]=SK[k].dur;big(SK[k].n+'！');AUDIO.sfx(k==='gold'?'chime':'whoosh');}}
   N.armySkill=armySkill;
-  // 自動：看前面兩邊的門、桶子（桶子要來得及打破才算），選比較划算的那一邊
-  function armyAuto(){let best=N.cz,bs=-1e9;const dps=armyDps();
-    for(const zc of [LC-AW/2,LC+AW/2]){let sc=-Math.abs(zc-N.cz)*0.2;const side=Math.sign(zc-LC);
-      for(const g of A.gates){if(g.used||g.x>AX+30||g.x<AX)continue;if(Math.sign((g.z0+g.z1)/2-LC)===side)sc+=g.v;}
-      for(const b of A.bars){if(b.dead>=0||b.x>AX+32||b.x<AX+1||Math.sign(b.z-LC)!==side)continue;if(b.hp<dps*((b.x-AX)/GS)*0.85)sc+=b.kind==='w'?N.n*0.5+5:b.kind==='shield'?N.n*0.4+6:N.n*0.3+4;}
+  // 自動：看三格的門、桶子、鎖（來得及打開才算），選最划算的那一格
+  function armyAuto(){let best=N.cz,bs=-1e9;const dps=baseDps();
+    for(let L=0;L<3;L++){const zc=laneZ(L);let sc=-Math.abs(zc-N.cz)*0.15;
+      for(const g of A.gates){if(g.used||g.x>AX+30||g.x<AX)continue;if(laneOf((g.z0+g.z1)/2)!==L)continue;if(g.lock&&g.hp>0){if(g.hp<dps*((g.x-AX)/GS)*0.8)sc+=g.v*0.85;}else sc+=g.v;}
+      for(const b of A.bars){if(b.dead>=0||b.x>AX+32||b.x<AX+1||laneOf(b.z)!==L)continue;if(b.hp<dps*((b.x-AX)/GS)*0.85)sc+=b.kind==='w'?N.n*0.5+5:b.kind==='shield'?N.n*0.4+6:N.n*0.3+4;}
       if(sc>bs){bs=sc;best=zc;}}return best;}
-  // 開火：站在哪一邊就先打那一邊的桶子（敵人快到警戒線時先打敵人）；沒有桶子就打最前面的敵人
-  function armyFire(dt){const hw=armyHW(),W=AWP[A.wl],dps=armyDps(),rS=Math.min(60,4+N.n*0.6)*(N.sk.rapid>0?1.4:1);A.acc+=rS*dt;let fi=0;
-    const side=Math.sign(N.cz-LC)||1,danger=FRONT.length&&EX[FRONT[0]]<WL+9;let tb=null;
-    if(!danger)for(const b of A.bars){if(b.dead>=0||b.x>AX+30||b.x<AX+1||Math.sign(b.z-LC)!==side)continue;if(!tb||b.x<tb.x)tb=b;}A.tb=tb;
-    const shot=dmg=>{const ox=AX+0.3,oz=N.cz+rnd(-hw,hw)*0.7;let tx,tz,ti=-9,p=null;
-      if(tb){ti=-3;p=tb;tx=tb.x-0.4;tz=tb.z+rnd(-0.4,0.4);}
-      else{while(fi<FRONT.length){const i=FRONT[fi];if(EAL[i]&&EHP[i]-EPD[i]>0){ti=i;break;}fi++;}
-        if(A.boss&&A.boss.hp>0&&(ti<0||A.boss.x<EX[ti]+3)){ti=-1;tx=A.boss.x;tz=A.boss.z+rnd(-1,1);}else if(ti>=0){const d=EX[ti]-ox,T=d/32;tx=EX[ti]-ESP[ti]*T;tz=EZ[ti];EPD[ti]+=dmg;if(EHP[ti]-EPD[ti]<=0)fi++;}else{tx=ox+30;tz=oz;}}
-      const T=Math.max(0.1,Math.hypot(tx-ox,tz-oz)/(W.boom?22:32));if(A.bul.length<560)A.bul.push({a:ox,b:oz,c:tx,d:tz,t:0,T,dmg,ti,kind:W.boom?1:0,p});};
-    let n=0;while(A.acc>=1&&n<8){A.acc-=1;n++;shot(dps/rS);}}
-  function armyBul(dt){for(let k=A.bul.length-1;k>=0;k--){const b=A.bul[k];b.t+=dt;if(b.t<b.T)continue;A.bul.splice(k,1);
-      if(b.ti===-3){const r=b.p;if(r&&r.dead<0){r.hp-=b.dmg;r.hit=0.08;setCount(r.bar,Math.max(0,Math.ceil(r.hp)));if(r.hp<=0)barBreak(r);}continue;}
-      if(b.ti===-1&&A.boss){A.boss.hp-=b.dmg;A.boss.hitT=0.12;continue;}
-      if(b.kind===1){const x=b.c,z=b.d;if(b.ti>=0)EPD[b.ti]=Math.max(0,EPD[b.ti]-b.dmg);for(let i=0;i<eHi;i++){if(EAL[i]&&Math.abs(EX[i]-x)<1.5&&Math.abs(EZ[i]-z)<1.5)eHurt(i,b.dmg*0.6);}if(A.fxT<=0){A.fxT=0.04;puff(x,0.5,z,'#ffb347',0.8,0.35);}continue;}   /* 火箭砲：炸一片 */
-      if(b.ti>=0){EPD[b.ti]=Math.max(0,EPD[b.ti]-b.dmg);let rem=b.dmg,x=EX[b.ti],z=EZ[b.ti],cur=b.ti,hop=0;   /* 打死了還有剩的傷害：穿過去打後面的 */
-        while(rem>0&&cur>=0&&hop<6){const h=EHP[cur];eHurt(cur,rem);rem-=h;if(rem<=0)break;hop++;cur=-1;let bd=1.7;for(const j of FRONT){if(!EAL[j])continue;const dd=Math.abs(EX[j]-x)+Math.abs(EZ[j]-z)*0.7;if(dd<bd){bd=dd;cur=j;}}if(cur>=0){x=EX[cur];z=EZ[cur];}}}}}
+  // 開火：子彈從大軍裡往正前方飛，打到「這一條」最前面的東西（敵人／桶子／鎖住的門／大魔王），打不到就飛到最遠
+  function armyFire(dt){const hw=armyHW(),W=AWP[A.wl],dps=armyDps(),pel=W.pel||1,rS=Math.min(60,4+N.n*0.6)*W.rate*(N.sk.rapid>0?1.4:1);A.acc+=rS*dt;
+    const shot=dmg=>{const ox=AX+0.2,oz=N.cz+rnd(-1,1)*hw*0.75;for(let p=0;p<pel;p++){const z=oz+(pel>1?(p-(pel-1)/2)*0.32:0);
+      let ti=colFirst(z,0.36,ox),tx=ti>=0?EX[ti]:ox+RNG,obj=null,kind=ti>=0?0:-9;
+      for(const b of A.bars){if(b.dead>=0||b.x<=ox||b.x>=tx||Math.abs(b.z-z)>0.7)continue;tx=b.x-0.5;obj=b;kind=-3;}
+      for(const g of A.gates){if(!(g.lock&&g.hp>0)||g.used||g.x<=ox||g.x>=tx||z<g.z0||z>g.z1)continue;tx=g.x;obj=g;kind=-4;}
+      const B=A.boss;if(B&&B.hp>0&&B.x>ox&&B.x-0.6<tx&&Math.abs(B.z-z)<1.5){tx=B.x-0.6;obj=null;kind=-1;}
+      if(kind===0){const T=(tx-ox)/(W.sp||60);tx-=ESP[ti]*T;EPD[ti]+=dmg;}else ti=-9;
+      const T=W.beam?0.07:Math.max(0.05,(tx-ox)/W.sp);if(A.bul.length<600)A.bul.push({a:ox,b:z,c:tx,d:z,t:0,T,dmg,ti,kind,p:obj});}};
+    let n=0;while(A.acc>=1&&n<10){A.acc-=1;n++;shot(dps/rS/pel);}}
+  function hitEnemy(i,dmg){if(!EAL[i])return;EHT[i]=0.1;EX[i]+=0.06;eHurt(i,dmg);}
+  function armyBul(dt){const W=AWP[A.wl];for(let k=A.bul.length-1;k>=0;k--){const b=A.bul[k];b.t+=dt;if(b.t<b.T)continue;A.bul.splice(k,1);
+      if(b.kind===-3){const r=b.p;if(r&&r.dead<0){r.hp-=b.dmg;r.hit=0.08;setCount(r.bar,Math.max(0,Math.ceil(r.hp)));if(r.hp<=0)barBreak(r);}continue;}
+      if(b.kind===-4){const g=b.p;if(g&&g.hp>0){g.hp-=b.dmg;setCount(g.bar,Math.max(0,Math.ceil(g.hp)));if(g.hp<=0){g.hp=0;g.lock=false;g.dirty=true;g.bar.visible=false;big(`🔓 +${g.v} 人的門打開了！`);soft('combo');for(let q=0;q<8;q++)puff(g.x,rnd(0.5,2.4),rnd(g.z0,g.z1),'#7dd3ff',0.6,0.5);}}continue;}
+      if(b.kind===-1&&A.boss){A.boss.hp-=b.dmg;A.boss.hitT=0.12;continue;}
+      if(b.ti<0)continue;
+      EPD[b.ti]=Math.max(0,EPD[b.ti]-b.dmg);
+      if(W.boom){const x=b.c,z=b.d;for(let i=0;i<eHi;i++){if(EAL[i]&&Math.abs(EX[i]-x)<1.6&&Math.abs(EZ[i]-z)<1.6)hitEnemy(i,b.dmg*0.7);}if(A.fxT<=0){A.fxT=0.04;puff(x,0.6,z,'#ffb347',1.0,0.4);}continue;}   /* 火箭砲：炸一片 */
+      let rem=b.dmg,cur=b.ti,hop=0;const z=b.d,maxHop=W.pierce||5;   /* 打死了還有剩的傷害：穿過去打同一條後面的（雷射穿透） */
+      while(rem>0&&cur>=0&&hop<maxHop){const h=EHP[cur];hitEnemy(cur,rem);if(!W.pierce)rem-=h;if(rem<=0)break;hop++;cur=colFirst(z,0.36,EX[cur]+0.01);}
+      if(A.fxT<=0){A.fxT=0.03;puff(b.c,0.6,z,'#ffffff',0.35,0.2);}}}
   function armyStep(dt,f,s){A.fxT-=dt;for(const k in N.cdn)N.cdn[k]=Math.max(0,N.cdn[k]-dt);for(const k in N.sk)N.sk[k]=Math.max(0,N.sk[k]-dt);
     if(N.st==='count'){N.cd-=dt;const c=Math.ceil(N.cd);if(c!==N.lastCd&&c>0){N.lastCd=c;big(String(c));AUDIO.sfx('beep');}if(N.cd<=0){N.st='run';big('守住警戒線！');AUDIO.sfx('go');}}
     const live=N.st==='run';
     if(live){A.t+=dt;
       if(Math.abs(s)>0.12){N.cz+=s*8*dt;N.manT=0.5;}else if(N.auto&&N.manT<=0){N.cz+=cl(armyAuto()-N.cz,-6*dt,6*dt);}N.manT-=dt;N.cz=cl(N.cz,LC-AW+0.5,LC+AW-0.5);
-      // 紅色大軍：一群一群（越後面越多越硬）；第 95 秒大魔王
-      A.waveT-=dt;if(A.waveT<=0){const k=A.wave++,bossOn=!!A.boss,tot=Math.max(6,Math.round((2+k*0.55)*12*N.D.rate*(bossOn?0.55:1))),hp=(2.2+k*0.9)*(1+k*AB.eh*k*0.5+k*AB.eh)*N.D.hp*AF[N.dk],sp=1.7+Math.min(0.6,k*0.04);
-        const nc=Math.max(1,Math.min(4,Math.round(tot/30))),m=Math.round(tot/nc);for(let c=0;c<nc;c++){const zc=LC+rnd(-AW+1,AW-1),xc=SPN+3+c*2.6+rnd(0,1.5);for(let j=0;j<m;j++){const r=0.27*Math.sqrt(j+0.5),a=j*2.39996;eSpawn(xc+r*Math.cos(a),cl(zc+r*Math.sin(a),LC-AW+0.15,LC+AW-0.15),hp,sp);}}
+      // 紅色大軍：一團一團（頭上數字），一開始少、越後面越多越硬；第 95 秒大魔王
+      A.waveT-=dt;if(A.waveT<=0){const k=A.wave++,bossOn=!!A.boss,ez=Math.min(1,AB.e0+k*(1-AB.e0)/5),tot=Math.max(5,Math.round((1.2+k*0.6)*12*N.D.rate*(bossOn?0.55:1)*ez)),hp=(2.2+k*0.9)*(1+k*AB.eh*k*0.5+k*AB.eh)*N.D.hp*AF[N.dk]*ez,   /* ez：前 5 波慢慢加（一開始打得動） */sp=1.7+Math.min(0.6,k*0.04);
+        const nc=Math.max(1,Math.min(3,Math.round(tot/25))),m=Math.round(tot/nc);for(let c=0;c<nc;c++){const gi=A.grp.length,g={n:0,bar:countSprite('#d8262c'),x:0,z:0};g.bar.scale.set(1.3,0.5,1);A.grp.push(g);const zc=laneZ(Math.floor(Math.random()*3))+rnd(-0.4,0.4),xc=SPN+3+c*3+rnd(0,1.5);
+          A.curG=gi;for(let j=0;j<m;j++){const r=0.27*Math.sqrt(j+0.5),a=j*2.39996;eSpawn(xc+r*Math.cos(a),cl(zc+r*Math.sin(a),LC-AW+0.15,LC+AW-0.15),hp,sp);}}
         A.waveT=bossOn?9:7.5;if(k%3===2)note('⚠ 一大波紅色大軍！');}
       A.evT-=dt;if(A.evT<=0){aEvent(A.ev++);A.evT=6.5;}
-      if(!A.boss&&A.t>=A.bossT){const bg=bossModel(['bear','chef','gold'][Math.min(2,Math.floor(N.dk/1.4))]);bg.scale.setScalar(1.5);bg.position.set(SPN+6,0,LC);CG.add(bg);const bar=hpSprite();scene.add(bar);const hp=AB.boss*N.D.boss*AF[N.dk];
+      if(!A.boss&&A.t>=A.bossT){const bg=bossModel(['bear','chef','gold'][Math.min(2,Math.floor(N.dk/1.4))]);bg.scale.setScalar(1.5);bg.position.set(SPN+6,0,LC);CG.add(bg);const bar=hpSprite();scene.add(bar);const hp=AB.boss*Math.sqrt(N.D.boss*AF[N.dk]);   /* 難度開根號：困難大約是普通的 1.45 倍（直接乘會變 2 倍以上、打不完） */
         A.boss={x:SPN+6,z:LC,hp,max:hp,name:'紅色大軍統帥',g:bg,bar,lastHp:-1,hitT:0,sp:0.8};big('大魔王來了！');AUDIO.sfx('heavy');note('打倒大魔王就贏了！它闖過警戒線就輸');}
-      armyFire(dt);}
+      zBins();armyFire(dt);}
     if(live)frontList();
     armyBul(dt);
-    // 敵人往前衝；闖過警戒線＝輸（有護盾：擋一次）
-    let cross=false;const pdk=Math.exp(-dt*1.5);if(live){for(let i=0;i<eHi;i++){if(!EAL[i])continue;EPD[i]*=pdk;EX[i]-=ESP[i]*dt;EPH[i]+=dt*9;if(EX[i]<WL){cross=true;}}}
-    const B=A.boss;if(B){B.hitT=Math.max(0,B.hitT-dt);if(live&&B.hp>0){B.x-=B.sp*dt;if(B.x<WL+1)cross=true;}B.g.position.set(B.x,0,B.z);B.g.userData.body.position.y=Math.abs(Math.sin(A.t*3))*0.15;B.g.rotation.y=Math.PI/2;
+    // 敵人往前衝、靠近時往大軍這邊靠；衝到警戒線＝扣我方一樣多人（護盾擋一次；大魔王衝過來直接輸）
+    let lost=0,bossX=false;const pdk=Math.exp(-dt*1.5);
+    for(const g of A.grp){g.sx=0;g.sz=0;g.c=0;g.mx=-1e9;}
+    if(live){for(let i=0;i<eHi;i++){if(!EAL[i])continue;EPD[i]*=pdk;EX[i]-=ESP[i]*dt*(EX[i]>AX+RNG+2?1.8:1);   /* 射程外走快一點（不用等太久） */EPH[i]+=dt*9;EHT[i]=Math.max(0,EHT[i]-dt);
+        if(EX[i]<WL+26){const tz=cl(N.cz+EOF[i],LC-AW+0.15,LC+AW-0.15);EZ[i]+=cl(tz-EZ[i],-1.1*dt,1.1*dt);}
+        if(EX[i]<WL){if(A.shield){A.shield=0;let kc=0;for(let j=0;j<eHi;j++)if(EAL[j]&&EX[j]<WL+7)eKill(j,kc++<10);big('🛡️ 護盾擋住了！');AUDIO.sfx('heavy');ring3(WL+2,N.cz);continue;}
+          EAL[i]=0;eN--;eFree.push(i);N.grpDec(i);lost++;continue;}
+        const g=A.grp[EGR[i]];if(g){g.sx+=EX[i];g.sz+=EZ[i];g.c++;}}}
+    else for(let i=0;i<eHi;i++){if(!EAL[i])continue;const g=A.grp[EGR[i]];if(g){g.sx+=EX[i];g.sz+=EZ[i];g.c++;}}
+    for(const g of A.grp){if(!g.bar)continue;if(g.n<=0||!g.c){grpFree(g);continue;}g.bar.position.set(g.sx/g.c,1.55,g.sz/g.c);setCount(g.bar,g.n);}
+    if(lost){N.n-=lost;A.lostN+=lost;A.lostT=0.6;soft('thud');if(N.n<=0){N.n=0;}}
+    if(A.lostT>0){A.lostT-=dt;if(A.lostT<=0&&A.lostN){big(`-${A.lostN} 人`);A.lostN=0;}}
+    const B=A.boss;if(B){B.hitT=Math.max(0,B.hitT-dt);if(live&&B.hp>0){B.x-=B.sp*dt;if(B.x<WL+1){if(A.shield){A.shield=0;B.x+=9;big('🛡️ 護盾擋住了！');AUDIO.sfx('heavy');}else bossX=true;}}B.g.position.set(B.x,0,B.z);B.g.userData.body.position.y=Math.abs(Math.sin(A.t*3))*0.15;B.g.rotation.y=Math.PI/2;
       B.bar.visible=B.hp>0;B.bar.position.set(B.x,6.4,B.z);if(Math.ceil(B.hp)!==B.lastHp){B.lastHp=Math.ceil(B.hp);drawHp(B);}
       if(B.hp<=0&&live){N.st='done';for(let i=0;i<eHi;i++)if(EAL[i])eKill(i,Math.random()<0.2);big('🏆 打倒大魔王！');AUDIO.sfx('bigcheer');ring3(B.x,B.z);B.g.visible=false;{const id=A.run;setTimeout(()=>{if(N.on&&N.mode==='army'&&A.run===id)armyResult(true);},1800);}}}
-    if(cross&&live&&A.shield){A.shield=0;cross=false;let kc=0;for(let i=0;i<eHi;i++)if(EAL[i]&&EX[i]<WL+7){eKill(i,kc++<10);}if(B&&B.x<WL+3)B.x+=9;big('🛡️ 護盾擋住了！');AUDIO.sfx('heavy');ring3(WL+2,LC);}
-    if(cross&&live){N.st='over';big('闖過警戒線了…');AUDIO.sfx('over');{const id=A.run;setTimeout(()=>{if(N.on&&N.mode==='army'&&A.run===id)armyResult(false);},1700);}}
-    // 加人門：往你這邊移動；大軍中心站在那一邊，門到你面前就加人（站的那一邊會亮）
-    for(let k=A.gates.length-1;k>=0;k--){const g=A.gates[k];if(live)g.x-=GS*dt;if(g.grp)g.grp.position.x=g.x;
-      if(g.panel&&!g.used)g.panel.material=N.cz>=g.z0&&N.cz<g.z1?AGPAN.ph:AGPAN.p;
-      if(!g.used&&g.x<=AX+0.4){g.used=true;if(N.cz>=g.z0&&N.cz<g.z1){N.n=Math.max(1,N.n+g.v);big(`+${g.v} 人`);soft('combo');}g.fade=1;}
+    if(live&&(bossX||N.n<=0)){N.st='over';big(bossX?'大魔王闖過警戒線了…':'大軍被打光了…');AUDIO.sfx('over');{const id=A.run;setTimeout(()=>{if(N.on&&N.mode==='army'&&A.run===id)armyResult(false);},1700);}}
+    // 加人門：往你這邊移動；大軍中心站在那一格，門到你面前就加人（站的那一格會亮）；鎖住的門要先打開
+    const myL=laneOf(N.cz);
+    for(let k=A.gates.length-1;k>=0;k--){const g=A.gates[k];if(live)g.x-=GS*dt;if(g.grp)g.grp.position.x=g.x;if(g.dirty&&g.ctx){g.dirty=false;agDraw(g);}if(g.bar&&g.bar.visible)g.bar.position.set(g.x,3.25,(g.z0+g.z1)/2);
+      if(g.panel&&!g.used)g.panel.material=g.lock&&g.hp>0?AGPAN.lk:laneOf((g.z0+g.z1)/2)===myL?AGPAN.ph:AGPAN.p;
+      if(!g.used&&g.x<=AX+0.4){g.used=true;if(laneOf((g.z0+g.z1)/2)===myL){if(g.lock&&g.hp>0){big('🔒 門還鎖著…');soft('thud');}else{N.n=Math.max(1,N.n+g.v);big(`+${g.v} 人`);soft('combo');}}g.fade=1;if(g.bar)g.bar.visible=false;}
       if(g.used){g.fade=Math.max(0,g.fade-dt*3);g.sc=g.fade>0?1+(1-g.fade)*0.4:1;if(g.fade<=0&&g.x<AX-1)g.hide=true;if(g.grp){g.grp.scale.setScalar(g.sc);g.grp.visible=!g.hide;}}
       if(g.x<AX-6){agFree(g);A.gates.splice(k,1);}}
     // 桶子：往你這邊移動；打到 0 拿到；沒打破就滾過去
     for(let k=A.bars.length-1;k>=0;k--){const b=A.bars[k];
-      if(b.dead<0){if(live)b.x-=GS*dt;b.g.position.x=b.x;b.hit=Math.max(0,b.hit-dt);b.g.scale.setScalar(1+b.hit*1.5);b.bar.position.set(b.x,2.1,b.z);b.bar.visible=true;const tg=A.tb===b;b.lab.scale.set(tg?3.1:2.7,tg?0.78:0.68,1);
+      if(b.dead<0){if(live)b.x-=GS*dt;b.g.position.x=b.x;b.hit=Math.max(0,b.hit-dt);b.g.scale.setScalar(1+b.hit*1.5);b.bar.position.set(b.x,1.95,b.z);b.bar.visible=true;
         if(b.x<AX-0.6){b.dead=0;b.miss=1;}}
       else{b.dead+=dt;b.bar.visible=false;if(b.miss){b.x-=GS*dt;b.g.position.x=b.x;}else b.g.scale.setScalar(Math.max(0.01,1-b.dead*3));if(b.dead>(b.miss?1.2:0.35)){barFree(b);A.bars.splice(k,1);}}}
     N.n=Math.min(N.n,99999);A.maxN=Math.max(A.maxN,N.n);
     armyDraw(dt);armyHud();}
-  // 畫面：紅色大軍、我方大軍（擠成一團、腳下綠圈）、子彈（顏色看武器）
-  function armyDraw(dt){const e=REDM.instanceMatrix.array;let j=0;for(let i=0;i<eHi;i++){if(!EAL[i])continue;const o=j*16,y=Math.abs(Math.sin(EPH[i]))*0.08;
-      e[o]=0;e[o+1]=0;e[o+2]=1;e[o+3]=0;e[o+4]=0;e[o+5]=1;e[o+6]=0;e[o+7]=0;e[o+8]=-1;e[o+9]=0;e[o+10]=0;e[o+11]=0;e[o+12]=EX[i];e[o+13]=y;e[o+14]=EZ[i];e[o+15]=1;j++;}   /* 面向 -x（往我們這邊） */
-    REDM.count=j;REDM.instanceMatrix.needsUpdate=true;CANM.count=0;
-    const hw=armyHW(),ns=Math.min(80,N.n),cx=AX-0.4-hw,sc=Math.min(1,hw/(0.33*Math.sqrt(ns+0.4))),t=performance.now()/1000;
-    for(let i=0;i<ns;i++){const xx=cx+FORM[i][0]*sc,zz=N.cz+FORM[i][1]*sc,bob=Math.abs(Math.sin(t*8+i))*0.03;put(CB,i,xx,bob,zz,Math.PI/2);put(CH,i,xx,bob,zz,Math.PI/2);}
-    CB.count=CH.count=Math.max(0,ns);CB.instanceMatrix.needsUpdate=CH.instanceMatrix.needsUpdate=true;A.backX=cx-hw;
+  // 畫面：紅色大軍（被打中閃白）、我方大軍（擠成一團、手上拿著現在的武器、腳下綠圈）、子彈（每種武器樣子不同）
+  function armyDraw(dt){const e=REDM.instanceMatrix.array,ec=REDM.instanceColor.array;let j=0;for(let i=0;i<eHi;i++){if(!EAL[i])continue;const o=j*16,y=Math.abs(Math.sin(EPH[i]))*0.08;
+      e[o]=0;e[o+1]=0;e[o+2]=1;e[o+3]=0;e[o+4]=0;e[o+5]=1;e[o+6]=0;e[o+7]=0;e[o+8]=-1;e[o+9]=0;e[o+10]=0;e[o+11]=0;e[o+12]=EX[i];e[o+13]=y;e[o+14]=EZ[i];e[o+15]=1;const w=EHT[i]>0?2.6:1;ec[j*3]=ec[j*3+1]=ec[j*3+2]=w;j++;}   /* 面向 -x（往我們這邊）；被打中閃白 */
+    REDM.count=j;REDM.instanceMatrix.needsUpdate=true;REDM.instanceColor.needsUpdate=true;CANM.count=0;
+    const hw=armyHW(),ns=Math.min(60,N.n),cx=AX-0.4-hw,sc=Math.min(1,hw/(0.33*Math.sqrt(ns+0.4))),t=performance.now()/1000;N.cx=cx;A.gunT=Math.max(0,(A.gunT||0)-dt);const gs=0.85*(1+A.gunT*1.4),G=AGUN[A.wl];
+    for(let i=0;i<ns;i++){const xx=cx+FORM[i][0]*sc,zz=N.cz+FORM[i][1]*sc,bob=Math.abs(Math.sin(t*8+i))*0.03;put(CB,i,xx,bob,zz,Math.PI/2,0.85,0.85,0.85);put(CH,i,xx,bob,zz,Math.PI/2,0.85,0.85,0.85);put(G,i,xx,bob,zz,Math.PI/2,gs,gs,gs);}
+    CB.count=CH.count=Math.max(0,ns);CB.instanceMatrix.needsUpdate=CH.instanceMatrix.needsUpdate=true;for(const m of AGUN)m.count=m===G?ns:0;G.instanceMatrix.needsUpdate=true;A.backX=cx-hw;
     if(A.ring){A.ring.position.set(cx,0.07,N.cz);A.ring.scale.setScalar(hw+0.35);}
-    ABM.material.color.set(AWP[A.wl].c);
-    let bi=0,si=0;for(const b of A.bul){const u=Math.min(1,b.t/b.T),px=b.a+(b.c-b.a)*u,pz=b.b+(b.d-b.b)*u;if(b.kind===1){if(si<80)put(ASM,si++,px,0.9+Math.sin(u*Math.PI)*1.6,pz);}else if(bi<500)put(ABM,bi++,px,0.75,pz,Math.atan2(-(b.d-b.b),b.c-b.a));}
+    const W=AWP[A.wl];ABM.material.color.set(W.c);ASM.material.color.set(W.c);
+    let bi=0,si=0;for(const b of A.bul){const u=Math.min(1,b.t/b.T);if(W.boom){if(si<80){const px=b.a+(b.c-b.a)*u;put(ASM,si++,px,0.75,b.b,0,1.5,1.5,1.5);}continue;}if(bi>=560)continue;
+      if(W.beam){const len=Math.max(0.5,b.c-b.a);put(ABM,bi++,(b.a+b.c)/2,0.6,b.b,0,len/0.5,1.6,1.6);}   /* 雷射：一條光從大軍拉到目標 */
+      else{const px=b.a+(b.c-b.a)*u;put(ABM,bi++,px,0.6,b.b,0,W.sx,W.s,W.s);}}
     ABM.count=bi;ASM.count=si;ABM.instanceMatrix.needsUpdate=ASM.instanceMatrix.needsUpdate=true;
-    mySign.position.set(cx+0.2,2.1,N.cz);mySign.scale.set(1.6,0.6,1);setCount(mySign,N.n);
+    mySign.position.set(cx+0.2,1.9,N.cz);mySign.scale.set(1.5,0.56,1);setCount(mySign,N.n);
     player.pos.set(cx-hw-1.1,N.cz);player.yaw=-Math.PI/2;player.y=0;player.vel.set(0,0);
     if(A.line)A.line.material.opacity=FRONT.length&&EX[FRONT[0]]<WL+10?0.55+0.45*Math.sin(t*12):0.85;   /* 敵人很近：警戒線閃 */
     ATL.m.count=ATL.post.count=0;ringsDraw();fxTick(dt);}
@@ -6620,11 +6663,11 @@ const NM=(()=>{
     hud.innerHTML=`<b>大軍團</b>・<span style="color:${N.D.c}">${N.D.n}</span>　<span>👥</span><b>${N.n}</b>　<span>${W.e}</span><b>${W.n}</b>${A.pow>1?`<span>×${A.pow.toFixed(1)}</span>`:''}${A.shield?'　<b>🛡️</b>':''}　<span>💀</span><b>${A.kills}</b>　${B?`<span style="color:#ff8a8a">大魔王 ${Math.max(0,Math.ceil(B.hp))}</span>`:`<span>大魔王 ${Math.max(0,Math.ceil(A.bossT-A.t))} 秒後</span>`}　<span style="color:${near<8?'#ff6a6a':'#ffe08a'}">離警戒線 ${near.toFixed(0)} m</span>`;
     for(const b of btns.querySelectorAll('[data-k]')){const k=b.dataset.k;if(!SK[k])continue;b.classList.toggle('cd',N.cdn[k]>0);b.style.setProperty('--p',(N.cdn[k]>0?100-N.cdn[k]/SK[k].cd*100:100)+'%');b.classList.toggle('act',N.sk[k]>0);}}
   function armyResult(win){const sc=Math.round((A.kills*2+A.maxN+(win?3000:0))*N.D.sc),sv=SAVE.army||(SAVE.army={best:0,win:-1});let rec='';if(sc>sv.best){sv.best=sc;rec='（新紀錄！）';}if(win&&N.dk>sv.win)sv.win=N.dk;save();const W=AWP[A.wl];
-    const html=win?`<b>🏆 守住了！打倒大魔王</b><br>擊倒 ${A.kills} 個、最多 ${A.maxN} 人、武器 ${W.e} ${W.n}<br>難度 ${N.D.n}・分數 ${sc}${rec}`:`<b>闖過警戒線了…</b><br>撐了 ${Math.floor(A.t)} 秒、擊倒 ${A.kills} 個、最多 ${A.maxN} 人、武器 ${W.e} ${W.n}<br>難度 ${N.D.n}・分數 ${sc}${rec}<br><small>走到藍色「+人」門那一邊加人；站在紅色桶子那一邊，打到 0 就拿到更強的武器</small>`;
+    const html=win?`<b>🏆 守住了！打倒大魔王</b><br>擊倒 ${A.kills} 個、最多 ${A.maxN} 人、武器 ${W.e} ${W.n}<br>難度 ${N.D.n}・分數 ${sc}${rec}`:`<b>${N.n<=0?'大軍被打光了…':'大魔王闖過警戒線了…'}</b><br>撐了 ${Math.floor(A.t)} 秒、擊倒 ${A.kills} 個、最多 ${A.maxN} 人、武器 ${W.e} ${W.n}<br>難度 ${N.D.n}・分數 ${sc}${rec}<br><small>站在哪一格就打哪一格：先站到紅色敵人前面把他們打光；藍色「+人」門加人、紅色桶子打到 0 換更強的武器</small>`;
     N.stop();N.pickPanel();panel.querySelector('.res').innerHTML=html;if(win)AUDIO.sfx('cheer');}
   N.armyStep=armyStep;
   N.armyCam=dt=>{const asp=camera.aspect||1.6,pw=asp<1?1-asp:0;if(N.fov0==null)N.fov0=camera.fov;{const tf=asp>=1?42:N.fov0;if(camera.fov!==tf){camera.fov=tf;camera.updateProjectionMatrix();}}   /* 橫拿／電腦：視野縮小（拉近），路才不會只有一小條 */
-    if(asp>=1){CP.set(AX-10,7,LC+(N.cz-LC)*0.3);CL.set(AX+4,0,LC+(N.cz-LC)*0.15);}else{CP.set(AX-8.5-pw*10,10.5-pw,LC+(N.cz-LC)*0.3);CL.set(AX+9-pw*15,0,LC+(N.cz-LC)*0.15);}   /* 拉高往下看（燈籠藏起來了）：大軍在下面、門和敵人在中間看得清楚 */
+    if(asp>=1){CP.set(AX-10,7,LC+(N.cz-LC)*0.3);CL.set(AX+4,0,LC+(N.cz-LC)*0.15);}else{CP.set(AX-8.5-pw*10,10.5-pw,LC+(N.cz-LC)*0.3);CL.set(AX+9-pw*15,0,LC+(N.cz-LC)*0.15);}
     if(!N.camP){N.camP=CP.clone();N.camL=CL.clone();}const k=1-Math.exp(-dt*5);N.camP.lerp(CP,k);N.camL.lerp(CL,k);camera.position.copy(N.camP);camera.lookAt(N.camL);};
   return N;})();
 
