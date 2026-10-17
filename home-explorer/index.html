@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-18.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-18.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -6094,21 +6094,21 @@ const NM=(()=>{
   // 使用者：套圈大進擊跟遊戲廣告差好多——廣告是「一個固定前進的小兵，一個獲得高級武器的，一個增加人數的，然後我自己選擇要做哪件事情，就是生存模式」
   // → 小兵隊伍自動往前走、自動丟武器打前面；路上一對一對左右選：一邊「加人數」門（數字負的也可以一直打，打到變正）、一邊「武器箱」（打破才拿得到；沒打破撞上去會少人）；
   //   打破武器箱＝選了這邊（另一邊的門就收掉）。前面一直有夜市怪物衝過來，碰到隊伍會咬掉人。路的盡頭大魔王擋路，打倒後跑去獎品塔套圈（剩幾個人＝幾個圈）。
-  // 每一對：L、R 各是 {op:'+',v}（加人數門）、{op:'x',v}（乘倍門）、{op:'box',w,hp}（武器箱）
+  // 每一對：L、R 各是 {op:'+',v}（加人數門）、{op:'x',v}（乘倍門）、{op:'box',w,hp}（武器箱）   /* 2026-10-18 使用者：×倍數門拿掉（人數會乘到幾萬），改成加人門或武器箱 */
   const XB=238;   // 大魔王擋路的地方
   const STAGES=[
     {name:'第 1 關・夜市初體驗',spd:4.6,n0:5,mhp:1,r0:0.9,r1:2.2,mix:{tako:1,balloon:0.6},late:{sausage:0.5},boss:{kind:'bear',hp:240},waves:[{x:152,n:14},{x:206,n:22}],items:[
-      {x:116,L:{op:'+',v:5},R:{op:'box',w:'water',hp:8}},{x:132,L:{op:'x',v:2},R:{op:'+',v:3}},{x:148,L:{op:'box',w:'cannon',hp:26},R:{op:'+',v:8}},
-      {x:164,L:{op:'+',v:-4},R:{op:'+',v:9}},{x:180,L:{op:'x',v:2},R:{op:'box',w:'fire',hp:40}},{x:196,L:{op:'+',v:14},R:{op:'box',w:'water',hp:34}},
-      {x:212,L:{op:'+',v:-6},R:{op:'x',v:2}},{x:227,L:{op:'+',v:20},R:{op:'box',w:'cannon',hp:55}}]},
+      {x:116,L:{op:'+',v:5},R:{op:'box',w:'water',hp:8}},{x:132,L:{op:'+',v:12},R:{op:'box',w:'fire',hp:20}},{x:148,L:{op:'box',w:'cannon',hp:26},R:{op:'+',v:8}},
+      {x:164,L:{op:'+',v:-4},R:{op:'+',v:9}},{x:180,L:{op:'+',v:30},R:{op:'box',w:'fire',hp:40}},{x:196,L:{op:'+',v:14},R:{op:'box',w:'water',hp:34}},
+      {x:212,L:{op:'+',v:-6},R:{op:'+',v:40}},{x:227,L:{op:'+',v:20},R:{op:'box',w:'cannon',hp:55}}]},
     {name:'第 2 關・攤販大亂鬥',spd:4.8,n0:5,mhp:1.7,r0:0.8,r1:2.8,mix:{tako:1,sausage:0.7,balloon:0.4},late:{cotton:0.5},boss:{kind:'chef',hp:560},waves:[{x:164,n:14},{x:194,n:5,k:'cotton'},{x:218,n:28}],items:[
-      {x:116,L:{op:'box',w:'water',hp:10},R:{op:'+',v:4}},{x:132,L:{op:'+',v:-3},R:{op:'x',v:2}},{x:148,L:{op:'+',v:10},R:{op:'box',w:'fire',hp:45}},
-      {x:164,L:{op:'x',v:2},R:{op:'+',v:-8}},{x:180,L:{op:'box',w:'cannon',hp:60},R:{op:'+',v:12}},{x:196,L:{op:'+',v:-10},R:{op:'x',v:2}},
-      {x:212,L:{op:'box',w:'fire',hp:70},R:{op:'+',v:18}},{x:227,L:{op:'x',v:2},R:{op:'+',v:25}}]},
+      {x:116,L:{op:'box',w:'water',hp:10},R:{op:'+',v:4}},{x:132,L:{op:'+',v:-3},R:{op:'+',v:14}},{x:148,L:{op:'+',v:10},R:{op:'box',w:'fire',hp:45}},
+      {x:164,L:{op:'+',v:25},R:{op:'+',v:-8}},{x:180,L:{op:'box',w:'cannon',hp:60},R:{op:'+',v:12}},{x:196,L:{op:'+',v:-10},R:{op:'+',v:35}},
+      {x:212,L:{op:'box',w:'fire',hp:70},R:{op:'+',v:18}},{x:227,L:{op:'box',w:'cannon',hp:90},R:{op:'+',v:25}}]},
     {name:'第 3 關・大老闆的考驗',spd:5,n0:6,mhp:1.8,r0:0.8,r1:2.9,mix:{tako:1,sausage:0.6,balloon:0.6},late:{cotton:0.5,sausage:0.4},boss:{kind:'gold',hp:1000},waves:[{x:158,n:18},{x:180,n:2,k:'chicken'},{x:206,n:32},{x:226,n:3,k:'chicken'}],items:[
-      {x:116,L:{op:'+',v:8},R:{op:'box',w:'water',hp:12}},{x:132,L:{op:'box',w:'cannon',hp:40},R:{op:'x',v:2}},{x:148,L:{op:'+',v:14},R:{op:'+',v:-4}},
-      {x:164,L:{op:'x',v:2},R:{op:'box',w:'ring',hp:50}},{x:180,L:{op:'+',v:10},R:{op:'box',w:'fire',hp:60}},{x:196,L:{op:'x',v:2},R:{op:'+',v:15}},
-      {x:212,L:{op:'box',w:'cannon',hp:80},R:{op:'+',v:12}},{x:227,L:{op:'+',v:30},R:{op:'x',v:2}}]}];
+      {x:116,L:{op:'+',v:8},R:{op:'box',w:'water',hp:12}},{x:132,L:{op:'box',w:'cannon',hp:40},R:{op:'+',v:18}},{x:148,L:{op:'+',v:14},R:{op:'+',v:-4}},
+      {x:164,L:{op:'+',v:28},R:{op:'box',w:'ring',hp:50}},{x:180,L:{op:'+',v:10},R:{op:'box',w:'fire',hp:60}},{x:196,L:{op:'box',w:'fire',hp:75},R:{op:'+',v:15}},
+      {x:212,L:{op:'box',w:'cannon',hp:80},R:{op:'+',v:12}},{x:227,L:{op:'+',v:30},R:{op:'+',v:45}}]}];
   // 武器（夜市道具）：每個小兵每秒丟 rate 發、每發 dmg；aoe＝爆炸半徑；同一種再拿一次升一級（傷害 +50%）
   const WPN={base:{n:'圈圈',ico:'⭕',rate:1.0,dmg:1,range:17,ring:true,col:'#ffd23a',spd:16},
     water:{n:'水槍',ico:'💧',rate:2.2,dmg:0.85,range:22,col:'#5fc8ff',sc:0.7,spd:26},
@@ -6209,7 +6209,7 @@ const NM=(()=>{
   function bulHit(sh){const W=WPN[sh.k],p=sh.b,T=sh.T;
     if(T.boss){const B=T.boss;if(B.st==='dead')return;B.hp-=sh.dmg;if(W.freeze)B.frz=Math.max(B.frz,W.freeze*0.5);B.hitT=0.12;}
     else if(T.m){T.m.pend=Math.max(0,T.m.pend-sh.dmg);if(!T.m.dead)hitMon(T.m,sh.dmg,W);else{let nb=null,nd=1.6;for(const m of mons){if(m.dead)continue;const dd=Math.hypot(m.x-p.x,m.z-p.z);if(dd<nd){nd=dd;nb=m;}}if(nb)hitMon(nb,sh.dmg,W);}}   /* 目標已經死了：打旁邊的 */
-    else if(T.g){const g=T.g;if(g.used)return;if(g.op==='box'){if(g.hp>0){g.hp-=sh.dmg;g.dirty=true;if(g.hp<=0)boxBreak(g);}}else{g.acc+=sh.dmg;while(g.acc>=PUMP()){g.acc-=PUMP();g.v++;g.dirty=true;}}}
+    else if(T.g){const g=T.g;if(g.used)return;if(g.op==='box'){if(g.hp>0){g.hp-=sh.dmg;g.dirty=true;if(g.hp<=0)boxBreak(g);}}else{g.acc+=sh.dmg;if(g.v0==null)g.v0=g.v;const vmax=Math.abs(g.v0)*N.GV[0]+N.GV[1];while(g.v<vmax){const c=2*N.S.mhp*(1+Math.max(0,g.v)/N.GV[2]);if(g.acc<c)break;g.acc-=c;g.v++;g.dirty=true;}if(g.v>=vmax)g.acc=0;   /* 2026-10-18：加人門有上限（N.GV）、數字越大越難加（原本會滾到上千） */}}
     if(W.aoe&&!T.g){for(const m of mons){if(m.dead||m===T.m)continue;if(Math.hypot(m.x-p.x,m.z-p.z)<W.aoe+MON[m.k].r)hitMon(m,sh.dmg*0.7,W);}}
     if(sh.k==='cannon'){for(let i=0;i<5;i++)puff(p.x,p.y,p.z,i%2?'#ffffff':'#ff4a4a',0.6,0.45);soft('heavy');}
     else if(sh.k==='fire'){const cs=['#ff5fa2','#ffd23a','#7fe0ff','#b48cff','#7fff8a'];for(let i=0;i<7;i++){const a2=i/7*Math.PI*2;puff(p.x,p.y+0.4,p.z,cs[i%5],0.35,0.55,new V3(Math.cos(a2)*3,rnd(1,3),Math.sin(a2)*3));}soft('pop');}
@@ -6268,6 +6268,7 @@ const NM=(()=>{
     if(!wasToss){player.pos.set(X0-1.5,LC);player.yaw=-Math.PI/2;}};
   // 技能：巨大圈（前面炸一大圈、砸大魔王定住）、連發（丟得快 2.5 倍）、黃金（傷害 ×2）
   const SK={big:{n:'巨大圈',cd:8},rapid:{n:'連發',cd:10,dur:5},gold:{n:'黃金',cd:12,dur:6}};
+  N.GV=[4,20,16];   /* 加人門被打的上限：原本×[0]＋[1]；數字每多 [2] 就要多打一倍 */
   N.press=k=>{if(!N.on||N.st==='toss')return;if(k==='auto'){N.auto=!N.auto;syncBtns();toast(N.auto?'自動：幫你選邊（你推搖桿就照你的）':'自動關閉：自己選邊');return;}
     if(N.st!=='run'||N.cdn[k]>0)return;N.cdn[k]=SK[k].cd;
     if(N.mode==='army'){N.armySkill(k);syncBtns();return;}
@@ -6528,7 +6529,7 @@ const NM=(()=>{
   function colFirst(oz,hr,ox){const k0=Math.max(0,Math.floor((oz-hr-(LC-AW))/(2*AW)*ZB)),k1=Math.min(ZB-1,Math.floor((oz+hr-(LC-AW))/(2*AW)*ZB));let best=-1,bx=1e9;
     for(let k=k0;k<=k1;k++)for(const i of ZBIN[k]){if(!EAL[i]||EHP[i]-EPD[i]<=0||EX[i]<=ox||EX[i]>=bx||Math.abs(EZ[i]-oz)>hr)continue;bx=EX[i];best=i;}return best;}
   const BAR_GEO=new THREE.CylinderGeometry(0.62,0.62,1.15,18),BAR_RG=new THREE.CylinderGeometry(0.66,0.66,0.1,18),BAR_MAT=std({color:'#c8262c',roughness:0.5,emissive:'#3a0606'}),BAR_RING=std({color:'#f2f2f2',roughness:0.4});
-  const BAR_IT={w:lv=>AWP[lv],shield:()=>({n:'護盾',e:'🛡️'}),pow:()=>({n:'火力加強',e:'💪'})};
+  const BAR_IT={w:lv=>AWP[lv],shield:()=>({n:'護盾',e:'🛡️'}),pow:()=>({n:'火力加強',e:'💪'}),troop:v=>({n:'援軍 +'+v,e:'🎖️'})};
   const baseDps=()=>pw85(N.n)*AWP[A.wl].m*(A.pow||1);   /* 「沒開技能」的火力：桶子、鎖住的門照這個算血量 */
   function aBarrel(x,z,kind,lv){const g=new THREE.Group();g.position.set(x,0,z);CG.add(g);mk(BAR_GEO,BAR_MAT,0,0.58,0,g);mk(BAR_RG,BAR_RING,0,0.28,0,g);mk(BAR_RG,BAR_RING,0,0.9,0,g);
     const it=BAR_IT[kind](lv),lm=new THREE.SpriteMaterial({map:textTex([it.e+' '+it.n],512,128,'rgba(20,24,40,.85)','#fff',`900 66px ${FONT}`),depthWrite:false,toneMapped:false}),lab=new THREE.Sprite(lm);lab.scale.set(2.2,0.55,1);lab.position.set(0,2.85,0);lab.renderOrder=4;g.add(lab);
@@ -6536,12 +6537,12 @@ const NM=(()=>{
     const b={x,z,kind,lv,hp,max:hp,g,lab,bar,dead:-1,hit:0};A.bars.push(b);return b;}
   function barFree(b){CG.remove(b.g);b.lab.material.map.dispose();b.lab.material.dispose();b.bar.visible=false;}
   function barBreak(b){b.dead=0;A.brk=(A.brk||0)+1;const it=BAR_IT[b.kind](b.lv);
-    if(b.kind==='w'){A.wl=Math.max(A.wl,b.lv);A.gunT=0.5;big(`拿到 ${it.e} ${it.n}！`);ring3(N.cx-0.4,N.cz);}else if(b.kind==='shield'){A.shield=1;big('🛡️ 拿到護盾！可以擋一次');}else{A.pow=Math.min(AB.powMax,(A.pow||1)*AB.pow);A.gunT=0.5;big(`💪 火力加強 ×${A.pow.toFixed(1)}！`);}
+    if(b.kind==='w'){A.wl=Math.max(A.wl,b.lv);A.gunT=0.5;big(`拿到 ${it.e} ${it.n}！`);ring3(N.cx-0.4,N.cz);}else if(b.kind==='shield'){A.shield=1;big('🛡️ 拿到護盾！可以擋一次');}else if(b.kind==='troop'){N.n+=b.lv;big(`🎖️ 援軍 +${b.lv} 人！`);}else{A.pow=Math.min(AB.powMax,(A.pow||1)*AB.pow);A.gunT=0.5;big(`💪 火力加強 ×${A.pow.toFixed(1)}！`);}
     for(let q=0;q<12;q++)puff(b.x+rnd(-0.8,0.8),rnd(0.4,1.8),b.z+rnd(-0.8,0.8),q%2?'#ffd23a':'#ff5a4a',0.7,0.55);ring3(b.x,b.z);AUDIO.sfx('bigcheer');}
   // 時間表：每 6.5 秒一排「左中右三格」：加人門／武器桶／隨機（鎖住的大加人門＝先把鎖打到 0；護盾桶；小加人門），三格位置打亂
   function aEvent(k){const L=[0,1,2].sort(()=>Math.random()-0.5),z0=j=>LC-AW+j*LNW+0.05,z1=j=>LC-AW+(j+1)*LNW-0.05;
     const v=Math.max(3,Math.round((AB.gA+k*AB.gK+N.n*AB.gN)*rnd(0.85,1.15)));aGate(SPN,z0(L[0]),z1(L[0]),'+',v);   /* 加人門：固定數字為主（照比例給會越滾越大） */
-    aBarrel(SPN,laneZ(L[1]),A.wl<AWP.length-1?'w':'pow',Math.min(AWP.length-1,A.wl+1));
+    if(A.wl<AWP.length-1)aBarrel(SPN,laneZ(L[1]),'w',A.wl+1);else if((A.pow||1)<AB.powMax-0.01)aBarrel(SPN,laneZ(L[1]),'pow',A.wl);else aBarrel(SPN,laneZ(L[1]),'troop',Math.round(v*1.6));   /* 武器、火力都滿了：換成援軍（原本還是寫火力加強、打破了沒用） */
     const r=Math.random();if(k>=1&&r<0.4){const g=aGate(SPN,z0(L[2]),z1(L[2]),'+',Math.max(6,Math.round((AB.bA+k*AB.bK+N.n*AB.bN)*rnd(0.85,1.15))));g.hp=g.max=Math.max(15,Math.round(baseDps()*AB.lt*rnd(0.85,1.15)*(N.D.pump||1)));g.lock=true;g.dirty=true;g.bar=countSprite('#5a5f66');g.bar.scale.set(1.5,0.56,1);A.sprites.push(g.bar);setCount(g.bar,g.hp);}
     else if(!A.shield&&k>=2&&r<0.65)aBarrel(SPN,laneZ(L[2]),'shield',0);
     else aGate(SPN,z0(L[2]),z1(L[2]),'+',Math.max(2,Math.round(v*rnd(0.35,0.55))));}
@@ -6573,7 +6574,7 @@ const NM=(()=>{
   function armyAuto(){let best=N.cz,bs=-1e9;const dps=baseDps();
     for(let L=0;L<3;L++){const zc=laneZ(L);let sc=-Math.abs(zc-N.cz)*0.15;
       for(const g of A.gates){if(g.used||g.x>AX+30||g.x<AX)continue;if(laneOf((g.z0+g.z1)/2)!==L)continue;if(g.lock&&g.hp>0){if(g.hp<dps*((g.x-AX)/GS)*0.8)sc+=g.v*0.85;}else sc+=g.v;}
-      for(const b of A.bars){if(b.dead>=0||b.x>AX+32||b.x<AX+1||laneOf(b.z)!==L)continue;if(b.hp<dps*((b.x-AX)/GS)*0.85)sc+=b.kind==='w'?N.n*0.5+5:b.kind==='shield'?N.n*0.4+6:N.n*0.3+4;}
+      for(const b of A.bars){if(b.dead>=0||b.x>AX+32||b.x<AX+1||laneOf(b.z)!==L)continue;if(b.hp<dps*((b.x-AX)/GS)*0.85)sc+=b.kind==='w'?N.n*0.5+5:b.kind==='shield'?N.n*0.4+6:b.kind==='troop'?b.lv:N.n*0.3+4;}
       if(sc>bs){bs=sc;best=zc;}}return best;}
   // 開火：子彈從大軍裡往正前方飛，打到「這一條」最前面的東西（敵人／桶子／鎖住的門／大魔王），打不到就飛到最遠
   function armyFire(dt){const hw=armyHW(),W=AWP[A.wl],dps=armyDps(),pel=W.pel||1,rS=Math.min(60,4+N.n*0.6)*W.rate*(N.sk.rapid>0?1.4:1);A.acc+=rS*dt;
@@ -6581,8 +6582,8 @@ const NM=(()=>{
       let ti=colFirst(z,0.36,ox),tx=ti>=0?EX[ti]:ox+RNG,obj=null,kind=ti>=0?0:-9;
       if(ti<0||Math.random()<AB.share){for(const b of A.bars){if(b.dead>=0||b.x<=ox||b.x>=tx||Math.abs(b.z-z)>0.7)continue;tx=b.x-0.5;obj=b;kind=-3;}   /* 分火力：這一條有怪物時，6 成子彈飛過桶子、鎖去打怪物、4 成打桶子／鎖（使用者：門後面的怪物打不到，等門經過小兵都快到了） */
         for(const g of A.gates){if(!(g.lock&&g.hp>0)||g.used||g.x<=ox||g.x>=tx||z<g.z0||z>g.z1)continue;tx=g.x;obj=g;kind=-4;}}
-      const B=A.boss;if(B&&B.hp>0&&B.x>ox&&B.x-0.6<tx&&Math.abs(B.z-z)<1.5){tx=B.x-0.6;obj=null;kind=-1;}
-      if(kind===0){const T=(tx-ox)/(W.sp||60);tx-=ESP[ti]*T;EPD[ti]+=dmg;}else ti=-9;
+      const B=A.boss;if(B&&B.hp>0&&B.x>ox&&B.x-0.6<ox+RNG&&Math.abs(B.z-z)<1.8&&(B.x-0.6<tx||Math.random()<0.5)){tx=B.x-0.6;obj=null;kind=-1;ti=-9;}   /* 大魔王很大：打中範圍寬，一半子彈越過前面的小兵打它 */
+      if(kind===0&&ti>=0){const T=(tx-ox)/(W.sp||60);tx-=ESP[ti]*T;EPD[ti]+=dmg;}else ti=-9;
       const T=W.beam?0.07:Math.max(0.05,(tx-ox)/W.sp);if(A.bul.length<600)A.bul.push({a:ox,b:z,c:tx,d:z,t:0,T,dmg,ti,kind,p:obj});}};
     let n=0;while(A.acc>=1&&n<10){A.acc-=1;n++;shot(dps/rS/pel);}}
   function hitEnemy(i,dmg){if(!EAL[i])return;EHT[i]=0.1;EX[i]+=0.06;eHurt(i,dmg);}
@@ -6621,10 +6622,10 @@ const NM=(()=>{
           EAL[i]=0;eN--;eFree.push(i);N.grpDec(i);lost++;continue;}
         const g=A.grp[EGR[i]];if(g){g.sx+=EX[i];g.sz+=EZ[i];g.c++;}}}
     else for(let i=0;i<eHi;i++){if(!EAL[i])continue;const g=A.grp[EGR[i]];if(g){g.sx+=EX[i];g.sz+=EZ[i];g.c++;}}
-    for(const g of A.grp){if(!g.bar)continue;if(g.n<=0||!g.c){grpFree(g);continue;}g.bar.position.set(g.sx/g.c,1.55,g.sz/g.c);setCount(g.bar,g.n);}
+    const VG=[];for(const g of A.grp){if(!g.bar)continue;if(g.n<=0||!g.c){grpFree(g);continue;}const x=g.sx/g.c,z=g.sz/g.c;let up=0;for(const h of VG)if(Math.abs(h.x-x)<1.2&&Math.abs(h.z-z)<1.3)up++;VG.push({x,z});g.bar.position.set(x,1.55+up*0.6,z);setCount(g.bar,g.n);}   /* 兩團靠在一起：數字往上疊開 */
     if(lost){N.n-=lost;A.lostN+=lost;A.lostT=0.6;soft('thud');if(N.n<=0){N.n=0;}}
     if(A.lostT>0){A.lostT-=dt;if(A.lostT<=0&&A.lostN){big(`-${A.lostN} 人`);A.lostN=0;}}
-    const B=A.boss;if(B){B.hitT=Math.max(0,B.hitT-dt);if(live&&B.hp>0){B.x-=B.sp*dt;if(B.x<WL+1){if(A.shield){A.shield=0;B.x+=9;big('🛡️ 護盾擋住了！');AUDIO.sfx('heavy');}else bossX=true;}}B.g.position.set(B.x,0,B.z);B.g.userData.body.position.y=Math.abs(Math.sin(A.t*3))*0.15;B.g.rotation.y=Math.PI/2;
+    const B=A.boss;if(B){B.hitT=Math.max(0,B.hitT-dt);if(live&&B.hp>0){B.x-=B.sp*dt*(B.x>AX+RNG+1?2.2:1);if(B.x<WL+30)B.z+=cl(cl(N.cz,LC-AW+1,LC+AW-1)-B.z,-0.7*dt,0.7*dt);   /* 大魔王慢慢往大軍這一格靠（原本固定走中間：站旁邊那格打不到） */if(B.x<WL+1){if(A.shield){A.shield=0;B.x+=9;big('🛡️ 護盾擋住了！');AUDIO.sfx('heavy');}else bossX=true;}}B.g.position.set(B.x,0,B.z);B.g.userData.body.position.y=Math.abs(Math.sin(A.t*3))*0.15;B.g.rotation.y=Math.PI/2;
       B.bar.visible=B.hp>0;B.bar.position.set(B.x,6.4,B.z);if(Math.ceil(B.hp)!==B.lastHp){B.lastHp=Math.ceil(B.hp);drawHp(B);}
       if(B.hp<=0&&live){N.st='done';for(let i=0;i<eHi;i++)if(EAL[i])eKill(i,Math.random()<0.2);big('🏆 打倒大魔王！');AUDIO.sfx('bigcheer');ring3(B.x,B.z);B.g.visible=false;{const id=A.run;setTimeout(()=>{if(N.on&&N.mode==='army'&&A.run===id)armyResult(true);},1800);}}}
     if(live&&(bossX||N.n<=0)){N.st='over';big(bossX?'大魔王闖過警戒線了…':'大軍被打光了…');AUDIO.sfx('over');{const id=A.run;setTimeout(()=>{if(N.on&&N.mode==='army'&&A.run===id)armyResult(false);},1700);}}
@@ -6638,8 +6639,8 @@ const NM=(()=>{
     // 桶子：往你這邊移動；打到 0 拿到；沒打破就滾過去
     for(let k=A.bars.length-1;k>=0;k--){const b=A.bars[k];
       if(b.dead<0){if(live)b.x-=GS*dt;b.g.position.x=b.x;b.hit=Math.max(0,b.hit-dt);b.g.scale.setScalar(1+b.hit*1.5);b.bar.position.set(b.x,1.95,b.z);b.bar.visible=true;
-        if(b.x<AX-0.6){b.dead=0;b.miss=1;}}
-      else{b.dead+=dt;b.bar.visible=false;if(b.miss){b.x-=GS*dt;b.g.position.x=b.x;}else b.g.scale.setScalar(Math.max(0.01,1-b.dead*3));if(b.dead>(b.miss?1.2:0.35)){barFree(b);A.bars.splice(k,1);}}}
+        if(b.x<AX+0.8){b.dead=0;b.miss=1;}}
+      else{b.dead+=dt;b.bar.visible=false;b.g.scale.setScalar(Math.max(0.01,1-b.dead*(b.miss?2.5:3)));if(b.dead>(b.miss?0.4:0.35)){barFree(b);A.bars.splice(k,1);}   /* 沒打破：到面前縮小消失（原本會從大軍中間滾過去） */}}
     N.n=Math.min(N.n,99999);A.maxN=Math.max(A.maxN,N.n);
     armyDraw(dt);armyHud();}
   // 畫面：紅色大軍（被打中閃白）、我方大軍（擠成一團、手上拿著現在的武器、腳下綠圈）、子彈（每種武器樣子不同）
@@ -6666,6 +6667,7 @@ const NM=(()=>{
     const html=win?`<b>🏆 守住了！打倒大魔王</b><br>擊倒 ${A.kills} 個、最多 ${A.maxN} 人、武器 ${W.e} ${W.n}<br>難度 ${N.D.n}・分數 ${sc}${rec}`:`<b>${N.n<=0?'大軍被打光了…':'大魔王闖過警戒線了…'}</b><br>撐了 ${Math.floor(A.t)} 秒、擊倒 ${A.kills} 個、最多 ${A.maxN} 人、武器 ${W.e} ${W.n}<br>難度 ${N.D.n}・分數 ${sc}${rec}<br><small>站在哪一格就打哪一格：先站到紅色敵人前面把他們打光；藍色「+人」門加人、紅色桶子打到 0 換更強的武器</small>`;
     N.stop();N.pickPanel();panel.querySelector('.res').innerHTML=html;if(win)AUDIO.sfx('cheer');}
   N.armyStep=armyStep;
+  N.adbg=()=>({EX,EZ,EHP,EAL,EGR,get eHi(){return eHi;},laneOf,laneZ,AWP,RNG,AGPAN,AW,LNW,WL,AX});   /* 測試用 */
   N.armyCam=dt=>{const asp=camera.aspect||1.6,pw=asp<1?1-asp:0;if(N.fov0==null)N.fov0=camera.fov;{const tf=asp>=1?42:N.fov0;if(camera.fov!==tf){camera.fov=tf;camera.updateProjectionMatrix();}}   /* 橫拿／電腦：視野縮小（拉近），路才不會只有一小條 */
     if(asp>=1){CP.set(AX-10,7,LC+(N.cz-LC)*0.3);CL.set(AX+4,0,LC+(N.cz-LC)*0.15);}else{CP.set(AX-8.5-pw*10,10.5-pw,LC+(N.cz-LC)*0.3);CL.set(AX+9-pw*15,0,LC+(N.cz-LC)*0.15);}
     if(!N.camP){N.camP=CP.clone();N.camL=CL.clone();}const k=1-Math.exp(-dt*5);N.camP.lerp(CP,k);N.camL.lerp(CL,k);camera.position.copy(N.camP);camera.lookAt(N.camL);};
