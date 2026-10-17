@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-17.3"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-17.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -556,6 +556,8 @@
   #puPanel form.code input{flex:1;min-width:0;font-size:18px;padding:6px 10px;border-radius:8px;border:1px solid #555;background:#111;color:#fff;letter-spacing:2px}#puPanel form.code button{border:0;border-radius:8px;padding:8px 14px;font-weight:900;background:#3fbf7a;color:#fff}
   /* 撈魚機（FISH）：整個畫面 */
   body.fi #jumpBtn,body.fi #act,body.fi #joy{visibility:hidden}
+  body.fi #bAerial,body.fi #bView,body.fi #hint,body.fi #bMap,body.fi #bEmote,body.fi #minimap,body.fi #place{display:none!important}   /* 本來就被撈魚畫面蓋在下面 */
+  body.fi #toast{z-index:46}   /* 撈魚畫面不透明（z 45）：提示要浮在上面才看得到（零用錢、連線訊息） */
   #fiUI{position:fixed;inset:0;z-index:45;background:#1b0a2a;touch-action:none;user-select:none;-webkit-user-select:none}
   #fiUI canvas{width:100%;height:100%;display:block;touch-action:none}
   #fiUI .bt{position:absolute;right:10px;top:calc(8px + env(safe-area-inset-top));display:flex;gap:8px}
@@ -10357,7 +10359,7 @@ const KF=(()=>{const K={on:false,ph:'idle'};
 
 /* ---------------- 玩小遊戲賺零用錢（2026-10-16 使用者：每天 500 太少，玩其他小遊戲要可以賺錢）：贏了、過關給錢，輸了也有一點；畫面上方跳「💰 +80 元」 ---------------- */
 const earnEl=(()=>{const e=document.createElement('div');e.id='earnPop';e.hidden=true;document.body.appendChild(e);return e;})();let earnT=0;
-function EARN(n,why){n=Math.round(n);if(!(n>0)||typeof PUSH==='undefined'||!PUSH.W)return;const W=PUSH.W;W.money+=n;W.earn=(W.earn|0)+n;PUSH.save();
+function EARN(n,why){n=Math.round(n);if(!(n>0)||typeof PUSH==='undefined'||!PUSH.W)return;const W=PUSH.W;if(PUSH.daily&&PUSH.daily())why=(why||'')+`（今天的零用錢也來了）`;   /* 先補今天的零用錢：不然之後補到 1000 會把賺的錢吃掉 */W.money+=n;W.earn=(W.earn|0)+n;PUSH.save();
   earnEl.innerHTML=`💰 +${n} 元零用錢<small>${why||''}・錢包 ${W.money} 元</small>`;earnEl.hidden=false;earnEl.classList.remove('pop');void earnEl.offsetWidth;earnEl.classList.add('pop');clearTimeout(earnT);earnT=setTimeout(()=>{earnEl.hidden=true;},3800);if(PUSH.snd)PUSH.snd('buy');}
 /* ---------------- 推幣機（2026-10-16 使用者：「湯姆熊的推幣機」，要投錢換代幣、贏了拿代幣和彩票；畫面上用原創名字「推幣樂園」） ----------------
    位置：便利商店西邊的草地（武道快打再過去），鋪地＋遮雨棚：4 個位子的推幣機、兌幣機（零用錢換代幣）、兌獎櫃台＋獎品展示櫃。
@@ -10429,10 +10431,10 @@ const PUSH=(()=>{const U={on:false,k:-1};
     const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false,toneMapped:false}));sp.scale.set(1.9,0.42,1);sp.userData.noCull=true;return sp;}
   const HR=new WeakMap();function holdRig(A){let h=HR.get(A);if(!h){h={id:'',m:null,show:0,glow:null,txt:null,txtK:''};HR.set(A,h);}return h;}
   function holdSet(A,id,show){const h=holdRig(A);
-    if(id!==h.id){h.id=id;if(h.m&&h.m.parent)h.m.parent.remove(h.m);h.m=id?mkPrize(id):null;if(h.m)h.m.traverse(o=>{o.userData.noCull=true;});if(!id)h.show=0;}
+    if(id!==h.id){h.id=id;if(h.m){if(h.m.parent)h.m.parent.remove(h.m);h.m.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose();}});}h.m=id?mkPrize(id):null;if(h.m)h.m.traverse(o=>{o.userData.noCull=true;});if(!id)h.show=0;}
     if(show&&!(h.show>0))h.show=SHOWT;else if(!show&&A!==avatar)h.show=0;
     if(id&&!HL.includes(A))HL.push(A);}
-  function holdClear(A){const h=HR.get(A);if(!h)return;for(const o of [h.m,h.glow,h.txt])if(o&&o.parent)o.parent.remove(o);h.id='';h.m=null;h.show=0;}
+  function holdClear(A){const h=HR.get(A);if(!h)return;for(const o of [h.m,h.glow,h.txt])if(o&&o.parent)o.parent.remove(o);if(h.m)h.m.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose();}});h.id='';h.m=null;h.show=0;}
   function tagLift(A,on){for(const c of A.root.children){if(!c.isSprite||c===(HR.get(A)||{}).txt)continue;if(on){if(c.userData.y0==null){c.userData.y0=c.position.y;c.position.y+=1.1;}}else if(c.userData.y0!=null){c.position.y=c.userData.y0;c.userData.y0=null;}}}   /* 炫耀時名字牌移到字的上面 */
   function holdTick(dt){
     holdSet(avatar,holdVis(),false);
@@ -10690,10 +10692,11 @@ const PUSH=(()=>{const U={on:false,k:-1};
   document.body.appendChild(ui);for(const ev of ['pointerdown','touchstart','wheel','click'])ui.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
   const IN={L:false,R:false,D:false,auto:false,dT:0};
   for(const b of ui.querySelectorAll('[data-p]')){const k=b.dataset.p;
-    b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(k==='x'){U.stop();return;}if(k==='A'){IN.auto=!IN.auto;b.classList.toggle('on',IN.auto);return;}if(k==='D'){IN.D=true;IN.dT=0;dropOne();}else IN[k]=true;b.classList.add('dn');});
+    if(k==='x')b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();U.stop();});   /* 離開：放開手指才離開（同上） */
+    b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(k==='x')return;if(k==='A'){IN.auto=!IN.auto;b.classList.toggle('on',IN.auto);return;}if(k==='D'){IN.D=true;IN.dT=0;dropOne();}else IN[k]=true;b.classList.add('dn');});
     for(const ev of ['pointerup','pointercancel','pointerleave'])b.addEventListener(ev,()=>{if(k==='D'||k==='L'||k==='R')IN[k]=false;b.classList.remove('dn');});}
   function dropOne(){const st=S[U.k];if(!st)return false;if(W.tok<=0){note(st,'代幣用完了！');IN.auto=false;IN.D=false;ui.querySelector('.auto').classList.remove('on');if(pn.hidden)changeOpen();return false;}   /* 2026-10-16 使用者：沒代幣會當機嗎 → 直接跳出兌幣機（錢也不夠就提示去玩小遊戲賺） */
-    W.tok--;W.ins++;st.since++;st.c.push({...nc(st.chU+rnd(-0.006,0.006),0.03,0),st:'drop',y:CHY,vy:0,vl:rnd(0.03,0.115)});snd('ins');U.lastDrop=performance.now();U.dq.push(Math.round(st.chU*1000));
+    W.tok--;W.ins++;st.since++;st.c.push({...nc(st.chU+rnd(-0.006,0.006),0.03,0),st:'drop',y:CHY,vy:0,vl:rnd(0.03,0.115)});snd('ins');U.lastDrop=performance.now();U.dq.push(Math.round(st.chU*1000));if(U.dq.length>16)U.dq.splice(0,U.dq.length-16);
     if(st.since%70===0)bonus(st,'b');else if(st.since%200===0)bonus(st,'g');   /* 投越多，偶爾掉彩球、寶石 */
     hudT=0;return true;}
   U.dq=[];
@@ -10718,7 +10721,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
     if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(mode==='aerial')toggleAerial();if(FISH.on)FISH.stop();   /* 不要同時開兩個（撈魚機還開著） */
     if(daily())toast(`💰 今天的零用錢來了：${PUSH.DAILY} 元`);U.on=true;U.k=k;st.act=true;U.camP=null;IN.auto=false;ui.querySelector('.auto').classList.remove('on');ui.hidden=false;document.body.classList.add('pu');hud();
     if(W.tok<=0)note(st,'沒有代幣：先到旁邊的兌幣機換（站過去按 F）');else note(st,`投幣口左右擺，對準再投！你有 ${W.tok} 枚代幣`);AUDIO.sfx('chime');};
-  U.stop=()=>{if(!U.on)return;const st=S[U.k];if(st.rl){st.rl.t=st.rl.dur;rlEnd(st);}W.tix+=st.tq;st.tq=0;W.tok+=st.rlNext.length;st.rlNext.length=0;st.act=false;   /* 離開時還沒吐完的彩票、轉到一半的輪盤都算給你 */U.on=false;ui.hidden=true;document.body.classList.remove('pu');saveF();save();avatar.root.visible=view==='third';player.pos.set(sx(U.k),STAND_Z-0.5);player.yaw=Math.PI;player.pitch=-0.1;U.k=-1;};
+  U.stop=()=>{if(!U.on)return;const st=S[U.k];if(st.rl){st.rl.t=st.rl.dur;rlEnd(st);}W.tix+=st.tq;st.tq=0;W.tok+=st.rlNext.length;st.rlNext.length=0;st.act=false;IN.L=IN.R=IN.D=false;IN.dT=0;   /* 離開時還沒吐完的彩票、轉到一半的輪盤都算給你 */U.on=false;ui.hidden=true;document.body.classList.remove('pu');saveF();save();avatar.root.visible=view==='third';player.pos.set(sx(U.k),STAND_Z-0.5);player.yaw=Math.PI;player.pitch=-0.1;U.k=-1;};
   // ================= 兌幣機、兌獎櫃台（面板） =================
   const pn=document.createElement('div');pn.id='puPanel';pn.className='panel';pn.hidden=true;document.body.appendChild(pn);
   for(const ev of ['pointerdown','touchstart','wheel','keydown','keyup'])pn.addEventListener(ev,e=>e.stopPropagation(),{passive:true});   /* 打代碼時不要走路 */
@@ -10729,7 +10732,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
       <div class="note">每天會補零用錢：錢包不夠 ${DAILY} 元就補到 ${DAILY} 元。<b>玩其他小遊戲也賺得到零用錢</b>：跳舞機、武道快打、賽車、鬥牛、擂台、夜市套圈、校園大逃亡、直笛、罰球、網球贏一局、打殭屍、小餐館${W.earn?`（到現在賺了 ${W.earn} 元）`:''}。</div>
       <form class="code"><span>🔑 代碼</span><input type="text" inputmode="numeric" maxlength="8" placeholder="輸入代碼" autocomplete="off" enterkeyhint="done"><button type="submit">確定</button></form>`;pn.hidden=false;
     {const f=pn.querySelector('form.code');f.onsubmit=e=>{e.preventDefault();const v=f.querySelector('input').value.trim();   /* 2026-10-16 使用者：小孩玩手機沒錢時，家長輸入 777 馬上加 1000 元 */
-      if(CODES[v]){W.money+=CODES[v];W.gift=(W.gift|0)+CODES[v];save();snd('buy');AUDIO.sfx('chime');changeOpen(`✅ 加了 ${CODES[v]} 元零用錢！`);}else{f.querySelector('input').value='';f.querySelector('input').placeholder='代碼不對，再試一次';snd('lose');}};}
+      if(Object.prototype.hasOwnProperty.call(CODES,v)){W.money+=CODES[v];W.gift=(W.gift|0)+CODES[v];save();snd('buy');AUDIO.sfx('chime');changeOpen(`✅ 加了 ${CODES[v]} 元零用錢！`);}else{f.querySelector('input').value='';f.querySelector('input').placeholder='代碼不對，再試一次';snd('lose');}};}
     pn.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.x){pn.hidden=true;return;}const m=+b.dataset.b,it=BUY.find(q=>q[0]===m);if(!it||W.money<m)return;W.money-=m;W.tok+=it[1];save();snd('buy');toast(`🪙 換了 ${it[1]} 枚代幣（剩 ${W.money} 元）`);changeOpen();};}
   function prizeOpen(){pn.innerHTML=`<div class="hd"><b>🎟 兌獎櫃台</b><button data-x="1">✕</button></div><div class="wal">🎟 彩票 <b>${W.tix}</b> 張　🪙 代幣 <b>${W.tok}</b> 枚</div>
       <div class="prz">${PRZ.map(p=>{const n=W.pz[p.id]|0;return `<div class="pz${n?' own':''}"><span class="e">${p.e}</span><span class="n">${p.n}${n?`<small>有 ${n} 個</small>`:''}</span>
@@ -10813,7 +10816,8 @@ const FISH=(()=>{const F={on:false,seat:-1};
   const fullState=()=>({t:'fiA',f:fish.filter(q=>!q.dead).map(q=>({id:q.id,k:q.k,x0:q.x0,y0:q.y0,a0:q.a0,sp:q.sp,c:q.c,wa:q.wa,wf:q.wf,ph:q.ph,t:+q.t.toFixed(2),ox:q.ox,oy:q.oy,it:q.it,hp:q.hp,hm:q.hm})),fz:frozen});
   function spawnBatch(list){for(const d of list)addFish(d);bc({t:'fiS',f:list});}
   const newId=()=>meId()+':'+(++nid);
-  function masterTick(dt){const L=seated(),n=fish.filter(f=>f.k!=='boss'&&f.k!=='item').length,target=22+L.length*3;
+  function masterTick(dt){syncT-=dt;if(syncT<=0){syncT=3;bc({t:'fiT',f:fish.filter(q=>!q.dead).map(q=>[q.id,+q.t.toFixed(2)]),fz:+Math.max(0,frozen).toFixed(2)});}   /* 每 3 秒對一次魚的時間 */
+    const L=seated(),n=fish.filter(f=>f.k!=='boss'&&f.k!=='item').length,target=22+L.length*3;
     spT-=dt;if(spT<=0&&n<target){spT=rnd(0.25,0.6);const k=pickKind();
       if(k==='blue'){const base=mkPath('blue'),list=[];for(let i=0;i<rnd(4,7);i++)list.push({...base,id:newId(),ox:Math.round(rnd(-70,70)),oy:Math.round(rnd(-50,50)),ph:+rnd(0,6).toFixed(2)});spawnBatch(list);}   /* 小魚一群一群 */
       else spawnBatch([{...mkPath(k),id:newId()}]);}
@@ -10835,12 +10839,12 @@ const FISH=(()=>{const F={on:false,seat:-1};
     const sum=Object.values(dmg).reduce((a,b)=>a+b,0)||1,sh={};for(const [id,v] of Object.entries(dmg))sh[id]=Math.round(tot*v/sum);
     const m={t:'fiB',bid:b.id,ids,sh};bc(m);onBoom(m);dmg={};}
   // ================= 大家：收到結果 =================
-  let frozen=0,bigN=0,dblT=0,nets=Math.min(99,SV.n|0),pend=0,pendT=0,lastScoop=0;
+  let frozen=0,syncT=0,bigN=0,dblT=0,nets=Math.min(150,SV.n|0),pend=0,pendT=0,lastScoop=0;
   F.saveAll=()=>{while(pend>0){pend--;PUSH.W.tix++;}PUSH.save();saveF();};
   const FLY=[],POP=[],RINGS=[],BOLTS=[];let banner=null;
   function seatXY(s){const S=SEATS[s];return S?{x:S.gx,y:S.gy?WH-30:30}:{x:WW/2,y:WH/2};}
   function onResult(m){RINGS.push({x:m.x,y:m.y,r:m.r,s:m.s,t:0,me:m.b===meId()});const mine=m.b===meId();let w=0;
-    for(const [id,wt] of m.c){const i=fish.findIndex(f=>f.id===id);if(i<0)continue;const f=fish[i];fish.splice(i,1);if(f.k==='item')continue;
+    for(const [id,wt] of m.c){const i=fish.findIndex(f=>f.id===id);if(i<0){if(mine&&wt>0)w+=dblT>0?wt*2:wt;continue;}   /* 主持判定撈到了、但自己畫面上那條魚已經游走：重量照樣算 */const f=fish[i];fish.splice(i,1);if(f.k==='item')continue;
       const ww=mine&&dblT>0?wt*2:wt;w+=ww;FLY.push({k:f.k,x:f.x,y:f.y,a:f.a,to:seatXY(m.s),t:0,sz:KINDS[f.k].sz});POP.push({x:f.x,y:f.y,t:0,txt:`${ww} 斤`,big:ww>=150,col:SCOL[m.s]||'#fff'});
       if(mine&&(!SV.best||ww>SV.best.w))SV.best={k:f.k,w:ww};}
     if(m.bh){const b=fish.find(f=>f.id===m.bh[0]);if(b)b.hp=m.bh[1];if(b)b.hit=0.2;}
@@ -10863,7 +10867,8 @@ const FISH=(()=>{const F={on:false,seat:-1};
     if(iAmMaster())resolve(meId(),F.seat,gx,gy,r,m.pw);else{RINGS.push({x:gx,y:gy,r,s:F.seat,t:0,me:true,ghost:1});F.send(masterId(),m);}
     hudDirty=true;}
   function insert(auto){const W=PUSH.W;if(W.tok<=0){banner={t:0,d:2.4,txt:'代幣用完了',sub:'在這裡就可以換（兌幣機）',col:'#ff9ec4'};if(PUSH.changeOpen&&$('puPanel').hidden)PUSH.changeOpen();return false;}
-    W.tok--;W.ins++;nets+=3;PUSH.save();PUSH.snd('ins');hudDirty=true;if(!auto)banner={t:0,d:1.2,txt:'+3 網',sub:'',col:'#7dff9a'};return true;}
+    if(nets>=99){banner={t:0,d:1.6,txt:'網子夠多了',sub:'先撈一撈再投幣',col:'#ffe14a'};return false;}   /* 原本可以一直投，重新整理只剩 99 網 */
+    W.tok--;W.ins++;nets+=3;saveF();PUSH.save();PUSH.snd('ins');hudDirty=true;if(!auto)banner={t:0,d:1.2,txt:'+3 網',sub:'',col:'#7dff9a'};return true;}
   // ================= 聲音 =================
   let sndT={};function snd(k){const AA=AUDIO.A,Y=AUDIO.syn;if(!AA.ctx||(AA.ctx.state!=='running'&&!AA.test))return;const now=performance.now();if(now-(sndT[k]||0)<60)return;sndT[k]=now;const t=AA.ctx.currentTime+0.005,o=AA.sfx;
     switch(k){case 'splash':Y.noise(t,0.22,0.09,o,'lowpass',1400,500);Y.tone('sine',420,180,t,0.12,0.05,o);break;
@@ -10966,7 +10971,7 @@ const FISH=(()=>{const F={on:false,seat:-1};
   for(const ev2 of ['pointerdown','touchstart','wheel','click','pointermove'])ui.addEventListener(ev2,e=>e.stopPropagation(),{passive:false});
   cv.addEventListener('pointerdown',e=>{e.preventDefault();const r=cv.getBoundingClientRect(),p=MI.transformPoint(new DOMPoint((e.clientX-r.left)*DPR,(e.clientY-r.top)*DPR));if(p.x<-40||p.x>WW+40||p.y<-40||p.y>WH+40)return;scoop(cl(p.x,0,WW),cl(p.y,0,WH));});
   ui.querySelector('[data-f=coin]').addEventListener('pointerdown',e=>{e.preventDefault();insert(false);});
-  ui.querySelector('[data-f=x]').addEventListener('pointerdown',e=>{e.preventDefault();F.stop();});
+  ui.querySelector('[data-f=x]').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();F.stop();});   /* click：放開手指才離開（iPhone 按下就收掉畫面，放開時會點到後面的「選單」） */
   function layout(){DPR=Math.min(isTouch?1.5:2,devicePixelRatio||1);VW=Math.round(innerWidth*DPR);VH=Math.round(innerHeight*DPR);cv.width=VW;cv.height=VH;
     const port=VH>VW*1.05,S=SEATS[F.seat]||SEATS[2];SIDE=!port&&VH/DPR<520;   /* 手機橫拿（矮）：資訊放右邊一欄，海底用滿整個高度（原本下面的資訊條佔掉 40%，魚太小點不到） */
     const hudH=SIDE?0:(port?150:112)*DPR,topH=SIDE?8*DPR:(port?56:52)*DPR,aw=VW-16*DPR-(SIDE?SIDEW*DPR:0),ah=VH-hudH-topH-(SIDE?8*DPR:0);let a,b,c,d,e,f,s;
@@ -11012,7 +11017,7 @@ const FISH=(()=>{const F={on:false,seat:-1};
     banner={t:0,d:2.6,txt:'🐟 點魚就撈！',sub:nets?`還有 ${nets} 網`:PUSH.W.tok?'第一網會自動投 1 枚代幣（3 網）':'沒有代幣：去兌幣機換',col:'#7dff9a'};AUDIO.sfx('chime');};
   F.stop=()=>{if(!F.on)return;F.on=false;ui.hidden=true;document.body.classList.remove('fi');const S=SEATS[F.seat];player.pos.set(S.x,S.gy?S.z+0.4:S.z-0.4);player.yaw=S.gy?0:Math.PI;F.seat=-1;
     while(pend>0){pend--;PUSH.W.tix++;}PUSH.save();saveF();};   /* 還沒吐完的彩票算給你；剩下的網留著下次用 */
-  F.key=(e,down)=>{if(!F.on)return false;if(down&&e.code==='Escape'){F.stop();return true;}if(down&&(e.code==='Space'||e.code==='Enter')){insert(false);return true;}return true;};
+  F.key=(e,down)=>{if(!F.on)return false;if(down&&e.code==='Escape'){F.stop();return true;}if(down&&(e.code==='Space'||e.code==='Enter')){if(!e.repeat)insert(false);return true;}return true;};
   // ================= 走過去按 F =================
   const nearSeat=()=>{let b=-1,bd=0.65;SEATS.forEach((S,i)=>{const d=Math.hypot(player.pos.x-S.x,player.pos.y-S.z);if(d<bd){bd=d;b=i;}});return b;};
   F.label=()=>{if(F.on||!started||mode!=='walk'||GAME.on||player.y>1.2)return null;const k=nearSeat();if(k<0)return null;const o=seated().find(p=>p.seat===k);return {t:o?`撈魚機第 ${k+1} 位（${o.name} 坐了）`:`玩撈魚機（第 ${k+1} 位）`,k};};
@@ -11026,6 +11031,7 @@ const FISH=(()=>{const F={on:false,seat:-1};
       case 'fiS':if(Array.isArray(d.f))for(const q of d.f.slice(0,20))if(q&&KINDS[q.k])addFish({...q,t:(+q.t||0)+0.08});break;
       case 'fiA':if(Array.isArray(d.f)){fish.length=0;for(const q of d.f.slice(0,80))if(q&&KINDS[q.k])addFish({...q,t:(+q.t||0)+0.08});if(d.fz)frozen=Math.max(frozen,+d.fz||0);}break;
       case 'fiQ':if(iAmMaster())bc(fullState());break;
+      case 'fiT':if(!iAmMaster()&&Array.isArray(d.f)){const M=new Map(d.f.slice(0,80));for(const q of fish){const t=M.get(q.id);if(isFinite(t)&&Math.abs(q.t-(t+0.08))>0.15){q.t=t+0.08;fpos(q);}}if(isFinite(d.fz))frozen=+d.fz;}break;
       case 'fiN':if(iAmMaster()&&isFinite(d.x)&&isFinite(d.y))resolve(f,d.s|0,+d.x,+d.y,cl(+d.r||115,40,200),d.pw|0);break;
       case 'fiR':if(d.b!==meId()||!iAmMaster())onResult(d);break;
       case 'fiB':if(!iAmMaster())onBoom(d);break;
@@ -11085,7 +11091,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     {id:'decor',n:'花花裝潢',e:'🌸',c:450,d:'盆栽、桌上的花、燈串：小費多 30%'},{id:'gold',n:'金色廚師帽',e:'👑',c:150,d:'廚師帽變成金色的'}];   /* 升級廚房：用開店賺的錢（存款）買 */
   const DIFF=[{n:'簡單',pat:80,gap:1.25,cook:0.75,par:1.5,maxC:0,hint:true},{n:'普通',pat:52,gap:1,cook:1,par:1.15,maxC:0,hint:true},{n:'困難',pat:36,gap:0.85,cook:1.25,par:1,maxC:1,hint:false}];
   // ================= 存檔 =================
-  const SAVE=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-rs')||'{}')||{};}catch(_){}const ob=k=>o[k]&&typeof o[k]==='object'?o[k]:{};return {u:cl(o.u|0||1,1,NDAY),b:ob('b'),diff:o.diff==null?1:cl(o.diff|0,0,2),coins:o.coins|0,up:ob('up'),made:ob('made'),star:ob('star')};})();   /* up 升級、made 每道菜做了幾份、star 招牌菜（做出三星） */
+  const SAVE=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-rs')||'{}')||{};}catch(_){}const ob=k=>o[k]&&typeof o[k]==='object'?o[k]:{};return {u:cl(o.u|0||1,1,NDAY),b:ob('b'),diff:o.diff==null?1:cl(o.diff|0,0,2),coins:o.coins|0,up:ob('up'),made:ob('made'),star:ob('star')};})();R.diff=SAVE.diff;   /* 上次選的難度 */   /* up 升級、made 每道菜做了幾份、star 招牌菜（做出三星） */
   const heatK=()=>SAVE.up.fire?1.3:1,passCap=()=>SAVE.up.pass?5:3;
   const save=()=>{try{localStorage.setItem('home-rs',JSON.stringify(SAVE));}catch(_){}};R.SAVE=SAVE;
   // ================= 音效（自己合成，小聲；只在「好聽的時刻」） =================
@@ -11219,7 +11225,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     g.font=`900 34px ${FONT}`;g.fillText(on?`${D.e} ${D.n}`:'❓ 還沒有',128,32);g.font=`700 24px ${FONT}`;g.fillText(on?`做了 ${SAVE.made[w.k]|0} 份`:'做出三星就上牆',128,72);w.t.needsUpdate=true;w.m.visible=on;}}
   function checkStar(k){if(!WALLK.includes(k)||SAVE.star[k])return;SAVE.star[k]=1;save();wallDraw();AUDIO.sfx('bigcheer');toast(`🏆 新的招牌菜：${DISH[k].e} ${DISH[k].n}！掛到店裡左邊的牆上了`);}
   // ================= 客人 =================
-  const POOL=[];let custs=[],spawned=0,spawnT=0,DAY=null,dayT=0,endT=0,stat=null,PASS=[],FLY=[],POPS=[];
+  const POOL=[];let custs=[],spawned=0,spawnT=0,DAY=null,dayT=0,endT=0,stat=null,PASS=[],FLY=[],POPS=[],HOLD=[];   /* HOLD：出餐台滿了先排隊的菜 */
   function getAvatar(seed){let A=POOL.find(a=>!a.used);if(!A){A={A:mkAvatar(),used:false};A.A.root.traverse(o=>{o.userData.noCull=true;});POOL.push(A);}A.used=true;
     if(seed==null)seed=Math.floor(Math.random()*1e6);const g=seed%2?'f':'m',o=Math.floor(seed/2)%CHAR_OUTFITS[g].length,h=Math.floor(seed/64)%CHAR_HAIR.length;   /* seed：連線時別人畫出一樣的客人 */try{A.A.skates=false;A.A.dress({g,o,h});}catch(_){}A.A.root.traverse(o=>{o.userData.noCull=true;});return A;}
   function bubble(){const [c,g]=cvs(160,160),t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));s.renderOrder=20;s.scale.set(0.85,0.85,1);s.userData.noCull=true;return {s,c,g,t,last:''};}
@@ -11253,17 +11259,20 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
       if(cu.st==='out'&&cu.mood&&cu.t>2.2){cu.bub.s.visible=false;}return;}
     // 坐著：面向廚房
     A.root.position.set(cu.x,0.03,cu.z);{let dy=Math.PI-cu.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));cu.yaw+=dy*Math.min(1,dt*8);}A.root.rotation.y=cu.yaw+Math.PI;
-    if(cu.st==='wait'){if(!cu.coming)cu.pat-=dt;if(cu.pat<=0){cu.mood='sad';leave(cu);stat.miss++;snd('sad');popTxt('😢 等太久了','#ff8a8a',cu.x,2.6,cu.z);}}
-    else if(cu.st==='eat'){if(cu.t>3.6&&cu.mood!=='happy'){cu.mood='happy';cu.t=3.6;}if(cu.t>4.6){if(cu.dishM&&cu.dishM.parent)cu.dishM.parent.remove(cu.dishM);leave(cu);}}
+    if(cu.st==='wait'){if(!cu.coming&&!R.over)cu.pat-=dt;if(cu.pat<=0){cu.mood='sad';leave(cu);stat.miss++;snd('sad');popTxt('😢 等太久了','#ff8a8a',cu.x,2.6,cu.z);}}
+    else if(cu.st==='eat'){if(cu.t>3.6&&cu.mood!=='happy'){cu.mood='happy';cu.t=3.6;}if(cu.t>4.6){if(cu.dishM){dishFree(cu.dishM);cu.dishM=null;}leave(cu);}}
     sitAnim(A,cu,dt);drawBubble(cu);}
   function leave(cu){cu.st='out';cu.t=0;cu.path=[[cu.T.x,43.35],[52,Z0+0.8],[52,38.4]];cu.pi=0;cu.T.busy=null;if(cu.mood!=='sad')cu.bub.s.visible=false;else drawBubble(cu);}
-  function custKill(cu){const A=cu.A;if(cu.bub&&cu.bub.s.parent)cu.bub.s.parent.remove(cu.bub.s);cu.bub.t.dispose();if(A&&A.root.parent)A.root.parent.remove(A.root);if(cu.P)cu.P.used=false;if(cu.dishM&&cu.dishM.parent)cu.dishM.parent.remove(cu.dishM);if(cu.T.busy===cu)cu.T.busy=null;}
+  function custKill(cu){const A=cu.A;if(cu.bub&&cu.bub.s.parent)cu.bub.s.parent.remove(cu.bub.s);cu.bub.t.dispose();cu.bub.s.material.dispose();if(A&&A.root.parent)A.root.parent.remove(A.root);if(cu.P)cu.P.used=false;if(cu.dishM){dishFree(cu.dishM);cu.dishM=null;}if(cu.T.busy===cu)cu.T.busy=null;}
+  function dishFree(m){if(!m)return;if(m.parent)m.parent.remove(m);m.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}   /* 每道菜都是新的幾何、材質：丟掉要釋放（手機記憶體） */
   // ================= 出餐台 → 端給客人 =================
   function passPos(i){return i<3?{x:ST.pass-0.28+i*0.28,y:CH+0.05+0.36,z:CZ+CD/2}:{x:ST.pass-0.14+(i-3)*0.28,y:CH+0.05+0.19,z:CZ+CD/2};}   /* 大出餐台：下面多一層 */
-  function tryServe(){for(let i=0;i<PASS.length;i++){const p=PASS[i];const cu=custs.filter(c=>c.st==='wait'&&c.dish===p.k&&!c.coming).sort((a,b)=>a.pat-b.pat)[0];if(!cu)continue;
+  function tryServe(){for(let i=0;i<HOLD.length;i++){const h=HOLD[i],need=custs.filter(c=>c.st==='wait'&&c.dish===h.k&&!c.coming).length-PASS.filter(q=>q.k===h.k).length;if(need<=0)continue;HOLD.splice(i,1);i--;const m=mkDish(h.k);m.scale.setScalar(1.5);G.add(m);const q=passPos(0);m.position.set(q.x,q.y,q.z);PASS.push({k:h.k,q:h.q,m});}   /* 排隊的菜有客人在等：直接端過去（出餐台被沒人點的菜塞滿也不會卡住） */
+    for(let i=0;i<PASS.length;i++){const p=PASS[i];const cu=custs.filter(c=>c.st==='wait'&&c.dish===p.k&&!c.coming).sort((a,b)=>a.pat-b.pat)[0];if(!cu)continue;
       PASS.splice(i,1);i--;cu.coming=true;const from=p.m.position.clone();FLY.push({m:p.m,cu,q:p.q,from,t:0});}
+    while(HOLD.length&&PASS.length<passCap()){const h=HOLD.shift();addDish(h.k,h.q,null);}
     PASS.forEach((p,i)=>{const q=passPos(i);p.m.position.set(q.x,q.y,q.z);});}
-  function served(f){const cu=f.cu;cu.coming=false;if(cu.st!=='wait'){if(f.m.parent)f.m.parent.remove(f.m);return;}
+  function served(f){const cu=f.cu;cu.coming=false;if(cu.st!=='wait'){dishFree(f.m);return;}
     cu.st='eat';cu.t=0;cu.q=f.q;cu.dishM=f.m;f.m.position.set(cu.T.x,0.78,cu.T.z-0.12);const D=DISH[cu.dish],pk=cu.pat/cu.patMax;
     const tip=Math.round(D.price*(0.12*f.q+0.35*pk)*(SAVE.up.decor?1.3:1)),pay=D.price+tip;if(f.q===3)checkStar(cu.dish);stat.coins+=pay;if(cu.fid)NT.send(cu.fid,{t:'rsE',e:'served',k:cu.dish,q:f.q});else{stat.served++;stat.qsum+=f.q;}snd('coin');popTxt(`+${pay} 🪙`,'#ffe14a',cu.x,2.75,cu.z);hudDirty=true;}
   // ================= 做菜（小遊戲） =================
@@ -11274,11 +11283,12 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
   const ck=ui.querySelector('.cook'),cvC=ck.querySelector('canvas'),cg=cvC.getContext('2d');let CW=0,CHh=0,DPR=1,hudDirty=true;
   function cookSize(){DPR=Math.min(isTouch?1.5:2,devicePixelRatio||1);const r=cvC.getBoundingClientRect();CW=Math.max(10,Math.round(r.width*DPR));CHh=Math.max(10,Math.round(r.height*DPR));if(cvC.width!==CW)cvC.width=CW;if(cvC.height!==CHh)cvC.height=CHh;}
   addEventListener('resize',()=>{if(R.on)setTimeout(cookSize,50);});
-  const P={down:false,x:0,y:0,sx:0,sy:0,lx:0,ly:0};
+  const P={down:false,id:null,x:0,y:0,sx:0,sy:0,lx:0,ly:0};   /* id：只認第一隻手指（小孩常兩隻手指一起碰） */
   const ptr=e=>{const r=cvC.getBoundingClientRect();return [(e.clientX-r.left)*DPR,(e.clientY-r.top)*DPR];};
-  cvC.addEventListener('pointerdown',e=>{e.preventDefault();try{cvC.setPointerCapture(e.pointerId);}catch(_){}const [x,y]=ptr(e);P.down=true;P.x=P.sx=P.lx=x;P.y=P.sy=P.ly=y;const c=R.cook;if(c&&c.S.down)c.S.down(c);});
-  cvC.addEventListener('pointermove',e=>{if(!P.down)return;const [x,y]=ptr(e);P.lx=P.x;P.ly=P.y;P.x=x;P.y=y;const c=R.cook;if(c&&c.S.move)c.S.move(c);});
-  const pUp=e=>{if(!P.down)return;P.down=false;const c=R.cook;if(c&&c.S.up)c.S.up(c);};cvC.addEventListener('pointerup',pUp);cvC.addEventListener('pointercancel',pUp);
+  cvC.addEventListener('pointerdown',e=>{e.preventDefault();if(P.down&&e.pointerId!==P.id)return;try{cvC.setPointerCapture(e.pointerId);}catch(_){}const [x,y]=ptr(e);P.down=true;P.id=e.pointerId;P.x=P.sx=P.lx=x;P.y=P.sy=P.ly=y;const c=R.cook;if(c&&c.S.down)c.S.down(c);});
+  cvC.addEventListener('pointermove',e=>{if(!P.down||e.pointerId!==P.id)return;const [x,y]=ptr(e);P.lx=P.x;P.ly=P.y;P.x=x;P.y=y;const c=R.cook;if(c&&c.S.move)c.S.move(c);});
+  const pUp=e=>{if(!P.down||e.pointerId!==P.id)return;P.down=false;P.id=null;const c=R.cook;if(c&&c.S.up)c.S.up(c);};cvC.addEventListener('pointerup',pUp);cvC.addEventListener('pointercancel',e=>{if(e.pointerId!==P.id)return;P.down=false;P.id=null;if(R.cook)R.cook.pouring=false;});   /* 被系統打斷（通知、手勢）：不算放開（不然會算成切一刀、倒完） */
+  if(window.ResizeObserver)new ResizeObserver(()=>{if(R.on)cookSize();}).observe(cvC);   /* 轉向後版面慢一點才定下來也跟得上 */
   const parT=st=>STEP[st].par*DIFF[R.diff].par;
   const qTime=(t,par)=>par<=0?3:t<=par*1.3?3:t<=par*2.2?2:1;
   const wrapA=a=>Math.atan2(Math.sin(a),Math.cos(a));
@@ -11447,7 +11457,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
   function hintDown(g,cx,cy,d,T){const y=cy+((T*1.2)%1)*d;g.fillStyle='rgba(125,255,154,0.95)';g.font=`900 ${Math.round(d*0.25)}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText('👆',cx,y);g.fillText('⬇',cx,cy+d*1.05);}
   function hintTap(g,x,y,s,T,hold){const k=0.5+0.5*Math.sin(T*8);g.strokeStyle=`rgba(125,255,154,${0.5+k*0.5})`;g.lineWidth=4*DPR;g.beginPath();g.arc(x,y,s*(0.8+k*0.4),0,7);g.stroke();g.font=`${Math.round(s*1.2)}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText('👆',x+s*0.3,y+s*0.5);
     if(hold){g.font=`900 ${Math.round(s*0.6)}px ${FONT}`;g.fillStyle='#7dff9a';g.fillText('按住',x,y-s*1.3);}}
-  function startCook(k){if(!R.on||R.cook||R.over)return;res.hidden=true;if(!R.free&&PASS.length>=passCap()){toast('出餐台滿了：等客人來拿');return;}const D=DISH[k];
+  function startCook(k){if(!R.on||R.cook||R.over)return;res.hidden=true;if(!R.free&&(R.helper?!!RM&&(RM.pass||[]).length+(Array.isArray(RM.hd)?RM.hd.length:0)>=(RM.cap|0||3):PASS.length+HOLD.length>=passCap())){toast(R.helper?'出餐台滿了：等店長那邊端給客人':'出餐台滿了：等客人來拿');return;}   /* 一起煮：看店長的出餐台（自己的永遠是空的） */const D=DISH[k];
     const c={k,D,si:-1,qs:[],T:0,st:null,S:null,prog:0,next:q=>{c.qs.push(q);c.si++;stepIn(c);}};R.cook=c;if(R.helper)NT.send(R.helper,{t:'rsC',a:'claim',k});else claim(NT.me(),k);   /* 點菜單上寫誰在做 */ck.hidden=false;ui.classList.add('cooking');cookSize();stepIn(c);snd('tap');hudDirty=true;}
   function stepIn(c){P.down=false;if(c.si<0)c.si=0;if(c.si>=c.D.steps.length){cookDone(c);return;}c.st=c.D.steps[c.si];c.S=STEPS[c.st];c.T=0;c.prog=0;for(const k of ['fin','spill','pouring','wait','flash','auto','done1','qq','colf','lab','turns','col1','col2'])delete c[k];c.S.init(c);
     ck.querySelector('.sn').textContent=`${c.D.e} ${c.D.n}：${STEP[c.st].n}`;ck.querySelector('.tip').textContent=STEP[c.st].tip;ck.querySelector('.dots').innerHTML=c.D.steps.map((s,i)=>`<i class="${i<c.si?'ok':i===c.si?'on':''}"></i>`).join('');}
@@ -11456,6 +11466,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     if(R.helper){NT.send(R.helper,{t:'rsC',a:'done',k:c.k,q,base:c.base});if(q===3)checkStar(c.k);if(R.free)showRes(kind);else popTxt(`${c.D.e} ${'⭐'.repeat(q)}`,'#ffe14a',ST.pass,CH+0.65,CZ+CD/2);hudDirty=true;return;}   /* 一起煮：做好送給店長，店長放到出餐台 */
     unclaim(NT.me());
     if(R.free){if(q===3)checkStar(c.k);if(custs.some(x=>x.fid&&x.st==='wait'&&x.dish===c.k&&!x.coming))addDish(c.k,q,null);else placeFree(kind);showRes(kind);hudDirty=true;return;}   /* 自由煮：有朋友在等這道菜就端給他，不然放到桌上 */   /* 自由煮：放到桌上＋結果卡片（可以拍照） */
+    if(PASS.length>=passCap()){HOLD.push({k:c.k,q});popTxt(`${c.D.e} ${'⭐'.repeat(q)}`,'#ffe14a',ST.pass,CH+0.65,CZ+CD/2);tryServe();hudDirty=true;return;}   /* 做的時候幫手的菜把出餐台放滿了：先排隊 */
     const m=mkDish(c.k);m.scale.setScalar(1.5);G.add(m);PASS.push({k:c.k,q,m});const p=passPos(PASS.length-1);m.position.set(p.x,p.y,p.z);popTxt(`${c.D.e} ${'⭐'.repeat(q)}`,'#ffe14a',p.x,p.y+0.5,p.z);tryServe();hudDirty=true;}
   function cookCancel(){if(!R.cook)return;if(R.helper)NT.send(R.helper,{t:'rsC',a:'cancel'});else unclaim(NT.me());R.cook=null;ck.hidden=true;ui.classList.remove('cooking');snd('bad');hudDirty=true;}
   ck.querySelector('.x').onclick=e=>{e.stopPropagation();cookCancel();};
@@ -11465,7 +11476,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
   for(const ev of ['pointerdown','touchstart','wheel'])ph.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
   const escH=t=>String(t).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
   const FD=[];let FDi=0;const BASE2DISH={rice:'rice',bun:'burger',cake:'pancake',pizza:'pizza',drink:'tea',ice:'tea'};
-  function placeFree(kind){const k=kind.k==='custom'?BASE2DISH[kind.base]||'rice':kind.k;const T=TABLES[FDi%TABLES.length];FDi++;const old=FD[T.i];if(old&&old.parent)old.parent.remove(old);
+  function placeFree(kind){const k=kind.k==='custom'?BASE2DISH[kind.base]||'rice':kind.k;const T=TABLES[FDi%TABLES.length];FDi++;dishFree(FD[T.i]);
     const m=mkDish(k);m.position.set(T.x,0.78,T.z-0.12);G.add(m);FD[T.i]=m;popTxt(kind.k==='custom'?'🎨':'⭐'.repeat(kind.q),'#ffe14a',T.x,1.3,T.z);}   /* 做好的菜輪流擺到桌上 */
   function artTo(g,kind,cx,cy,r){if(kind.k==='custom'){drawBase(g,kind.base,cx,cy,r);drawItems(g,kind.items||[],cx,cy,r);}else{g.font=`${Math.round(r*1.4)}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText(DISH[kind.k].e,cx,cy);}}
   function preview(kind){const [c,g]=cvs(360,360);g.fillStyle='#fff8ec';g.beginPath();g.arc(180,180,170,0,7);g.fill();artTo(g,kind,180,190,kind.k==='custom'?120:100);return c.toDataURL('image/png');}
@@ -11486,9 +11497,9 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
   ui.querySelector('.dishes').addEventListener('click',e=>{const b=e.target.closest('button[data-d]');if(!b)return;e.stopPropagation();startCook(b.dataset.d);});
   function hud(){const info=ui.querySelector('.info');let tk,menu=DAY.menu,needOf;const showClaim=!!(R.helper||HELP.size);
     if(R.helper&&RM){const nm=escH(NT.nameOf(R.helper)),S=RM.st||[0,0,0,0];info.innerHTML=RM.free?`👩‍🍳 幫 ${nm} 煮（自由煮）`:`👩‍🍳 幫 ${nm} 煮・第 ${RM.day} 天　🪙 <b>${S[0]}</b>　😋 ${S[1]}/${S[3]}`;
-      tk=RM.cu.filter(a=>a[3]==='wait').map(a=>({ti:a[1],dish:a[2],k:a[4]/100,claim:a[10],fid:a[8]}));menu=RM.menu.filter(k=>DISH[k]);needOf=k=>RM.cu.filter(a=>a[3]==='wait'&&a[2]===k).length-RM.pass.filter(x=>x===k).length;}
+      tk=RM.cu.filter(a=>a[3]==='wait').map(a=>({ti:a[1],dish:a[2],k:a[4]/100,claim:a[10],fid:a[8]}));menu=RM.menu.filter(k=>DISH[k]);needOf=k=>RM.cu.filter(a=>a[3]==='wait'&&a[2]===k).length-RM.pass.filter(x=>x===k).length-(Array.isArray(RM.hd)?RM.hd:[]).filter(x=>x===k).length;}
     else{info.innerHTML=(R.free?'🎨 自由煮：想做什麼就做什麼':`第 ${R.day} 天・${DIFF[R.diff].n}　🪙 <b>${stat.coins}</b>　😋 ${stat.served}/${DAY.n}${stat.miss?`　😢 ${stat.miss}`:''}`)+(HELP.size?`　👩‍🍳×${HELP.size+1}`:'');
-      tk=custs.filter(c=>c.st==='wait').sort((a,b)=>a.id-b.id).map(c=>({ti:c.T.i,dish:c.dish,k:c.pat/c.patMax,claim:c.claim,fid:c.fid,coming:c.coming}));needOf=k=>custs.filter(c=>c.st==='wait'&&c.dish===k&&!c.coming).length-PASS.filter(p=>p.k===k).length;}
+      tk=custs.filter(c=>c.st==='wait').sort((a,b)=>a.id-b.id).map(c=>({ti:c.T.i,dish:c.dish,k:c.pat/c.patMax,claim:c.claim,fid:c.fid,coming:c.coming}));needOf=k=>custs.filter(c=>c.st==='wait'&&c.dish===k&&!c.coming).length-PASS.filter(p=>p.k===k).length-HOLD.filter(h=>h.k===k).length;}
     const tkh=tk.filter(c=>DISH[c.dish]).map(c=>`<div class="t${c.coming?' go':''}"><b>${c.ti+1}</b><span>${DISH[c.dish].e}</span>${showClaim&&c.claim?`<em>👩‍🍳${escH(c.claim===NT.me()?'我':NT.nameOf(c.claim))}</em>`:c.fid?`<em>🧑${escH(NT.nameOf(c.fid))}</em>`:''}<i style="width:${Math.round(c.k*100)}%;background:${c.k>0.5?'#3fbf7a':c.k>0.25?'#ffb000':'#e0262c'}"></i></div>`).join('');
     const te=ui.querySelector('.tk');if(te.innerHTML!==tkh)te.innerHTML=tkh;
     const ds=ui.querySelector('.dishes');const html=menu.map(k=>{const D=DISH[k],need=needOf(k);return `<button data-d="${k}" style="--c:${D.col}" class="${need>0?'need':''}">${D.e}<b>${D.n}</b>${need>0?`<i>${need}</i>`:''}</button>`;}).join('');if(ds.innerHTML!==html)ds.innerHTML=html;}
@@ -11514,9 +11525,9 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     if(b.dataset.tab){R.open(b.dataset.tab);return;}if(b.dataset.free){pn.hidden=true;R.start(0,R.diff,true);return;}if(b.dataset.buy){buy(b.dataset.buy);return;}
     if(b.dataset.day){R.day=+b.dataset.day;R.open();return;}if(b.dataset.df){R.diff=+b.dataset.df;SAVE.diff=R.diff;save();R.open();return;}
     if(b.dataset.go){pn.hidden=true;R.start(R.day,R.diff);return;}if(b.dataset.again){pn.hidden=true;R.start(R.day,R.diff);return;}if(b.dataset.nextday){pn.hidden=true;R.start(Math.min(NDAY,R.day+1),R.diff);return;}if(b.dataset.leave){pn.hidden=true;R.stop();return;}};
-  function finish(early){if(!R.on||R.over)return;R.over=true;cookCancel();ui.classList.add('over');const n=DAY.n,sv=stat.served,aq=sv?stat.qsum/sv:0;
+  function finish(early){if(!R.on||R.over)return;for(const f of FLY.splice(0))served(f);   /* 飛在半空中的菜先算進去（原本打烊後才落地，錢沒存到） */R.over=true;cookCancel();ui.classList.add('over');const n=DAY.n,sv=stat.served,aq=sv?stat.qsum/sv:0;
     let stars=0;if(!early||spawned>=n){if(sv>=Math.ceil(n*0.6))stars=1;if(sv>=Math.ceil(n*0.8)&&aq>=2)stars=2;if(sv>=n&&aq>=2.5)stars=3;}
-    const key='d'+R.day,arr=SAVE.b[key]||[0,0,0];const nb=stars>(arr[R.diff]|0);arr[R.diff]=Math.max(arr[R.diff]|0,stars);SAVE.b[key]=arr;const unl=stars>=1&&R.day<NDAY&&SAVE.u<R.day+1;if(stars>=1)SAVE.u=Math.max(SAVE.u,Math.min(NDAY,R.day+1));SAVE.coins+=stat.coins;save();
+    const key='d'+R.day,arr=Array.isArray(SAVE.b[key])?SAVE.b[key]:[0,0,0];const nb=stars>(arr[R.diff]|0);arr[R.diff]=Math.max(arr[R.diff]|0,stars);SAVE.b[key]=arr;const unl=stars>=1&&R.day<NDAY&&SAVE.u<R.day+1;if(stars>=1)SAVE.u=Math.max(SAVE.u,Math.min(NDAY,R.day+1));SAVE.coins+=stat.coins;save();
     for(const c of custs)if(c.fid&&c.st!=='gone'){NT.send(c.fid,{t:'rsE',e:'closed'});c.st='gone';}if(nt()&&HELP.size)NT.send('*',{t:'rsE',e:'end',stars,sv,n,coins:stat.coins,day:R.day,diff:R.diff});
     const money=sv?Math.round(([10,40,70,100][stars]+(stars?(R.day-1)*15:0))*[0.8,1,1.3][R.diff]):0;   /* 一個客人都沒招待到：不給錢（不能一直開店又關掉賺錢） */EARN(money,`小餐館第 ${R.day} 天 ${'⭐'.repeat(stars)||''}`);
     AUDIO.sfx(stars>=2?'bigcheer':stars?'cheer':'over');
@@ -11528,11 +11539,11 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
   R.start=(day,diff,free)=>{if(GAME.on){toast('小遊戲中不能開店');return;}if(remOpen()&&!R.on){toast(`${NT.nameOf(RM.o)} 已經開店了：到櫃台按 F「一起煮」`);return;}if(R.seat)standUp();if(R.on)clearDay();
     if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(mode==='aerial')toggleAerial();if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();
     R.free=!!free;if(R.free){R.diff=cl(diff|0,0,2);DAY={n:0,menu:[...WALLK,'custom'],gap:999,maxC:0};}else{R.day=cl(day|0,1,SAVE.u);R.diff=cl(diff|0,0,2);DAY={...DAYS[R.day]};const Df=DIFF[R.diff];DAY.gap*=Df.gap;DAY.maxC=Math.min(3,DAYS[R.day].maxC+Df.maxC);}   /* 自由煮：沒有客人、6 道菜＋自創料理 */
-    R.on=true;R.over=false;R.cook=null;spawned=0;spawnT=1.2;dayT=0;endT=0;stat={coins:0,served:0,miss:0,qsum:0,cid:0};PASS=[];FLY=[];
+    R.on=true;R.over=false;R.cook=null;spawned=0;spawnT=1.2;dayT=0;endT=0;stat={coins:0,served:0,miss:0,qsum:0,cid:0};PASS=[];FLY=[];HOLD=[];
     R.x=ST.stove;player.pos.set(R.x,CHEF_Z);player.vel.set(0,0);player.y=0;avatar.yaw=0;chefHat(true);avatar.root.traverse(o=>{o.userData.noCull=true;});   /* 鏡頭比較遠：自己的人物不要被距離裁切藏掉 */
     ui.hidden=false;ck.hidden=true;ui.classList.remove('cooking','over');document.body.classList.add('rs');R.camX=null;R.need=null;ROOF.forEach(o=>o.visible=false);hud();AUDIO.sfx('chime');};   /* 不跳提示字（會蓋住上面的點菜單；開店面板已經說明） */
-  function clearDay(){for(const m of FD)if(m&&m.parent)m.parent.remove(m);FD.length=0;FDi=0;res.hidden=true;ph.hidden=true;for(const c of custs)custKill(c);custs=[];for(const p of PASS)if(p.m.parent)p.m.parent.remove(p.m);PASS=[];for(const f of FLY)if(f.m.parent)f.m.parent.remove(f.m);FLY=[];for(const p of POPS){if(p.s.parent)p.s.parent.remove(p.s);p.s.material.map.dispose();}POPS=[];for(const T of TABLES)T.busy=null;FLAME.forEach(f=>f.visible=false);}
-  R.stop=()=>{if(!R.on)return;if(R.helper){if(R.cook)cookCancel();NT.send(R.helper,{t:'rsC',a:'leave'});R.helper=null;}else{for(const c of custs)if(c.fid&&c.st!=='gone')NT.send(c.fid,{t:'rsE',e:'closed'});if(nt())NT.send('*',{t:'rsS',on:0});HELP.clear();}   /* 一起煮的人離開／店長打烊：告訴大家 */
+  function clearDay(){for(const m of FD)dishFree(m);FD.length=0;FDi=0;res.hidden=true;ph.hidden=true;for(const c of custs)custKill(c);custs=[];for(const p of PASS)dishFree(p.m);PASS=[];HOLD=[];for(const f of FLY)dishFree(f.m);FLY=[];for(const p of POPS){if(p.s.parent)p.s.parent.remove(p.s);p.s.material.map.dispose();p.s.material.dispose();}POPS=[];for(const T of TABLES)T.busy=null;FLAME.forEach(f=>f.visible=false);}
+  R.stop=()=>{if(!R.on)return;if(!R.helper&&!R.free&&!R.over&&spawned>0)finish(true);   /* 營業中被「前往」、開別的遊戲、接受邀請打斷：先打烊結算（原本今天賺的錢、星星都不見） */if(R.helper){if(R.cook)cookCancel();NT.send(R.helper,{t:'rsC',a:'leave'});R.helper=null;}else{for(const c of custs)if(c.fid&&c.st!=='gone')NT.send(c.fid,{t:'rsE',e:'closed'});if(nt())NT.send('*',{t:'rsS',on:0});HELP.clear();}   /* 一起煮的人離開／店長打烊：告訴大家 */
     if(!R.over&&spawned>0){R.over=true;}clearDay();R.on=false;R.over=false;R.free=false;R.cook=null;ui.hidden=true;pn.hidden=true;document.body.classList.remove('rs');chefHat(false);camera.clearViewOffset();if(fov0!=null){camera.fov=fov0;camera.updateProjectionMatrix();fov0=null;}ROOF.forEach(o=>o.visible=true);
     player.pos.set(52,46.6);player.yaw=Math.PI;player.pitch=-0.1;player.vel.set(0,0);};
   // ================= 每格 =================
@@ -11545,7 +11556,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
       if(spawned>=D.n&&!custs.some(c=>!c.fid&&c.st!=='out'&&c.st!=='gone')){endT+=dt;if(endT>1.2)finish(false);}}
     for(const cu of custs)custTick(cu,dt);for(let i=custs.length-1;i>=0;i--)if(custs[i].st==='gone'){custKill(custs[i]);custs.splice(i,1);}
     for(let i=FLY.length-1;i>=0;i--){const f=FLY[i];f.t+=dt/0.7;const k=sm(Math.min(1,f.t)),to={x:f.cu.T.x,y:0.78,z:f.cu.T.z-0.12};f.m.position.set(f.from.x+(to.x-f.from.x)*k,f.from.y+(to.y-f.from.y)*k+Math.sin(k*Math.PI)*0.9,f.from.z+(to.z-f.from.z)*k);f.m.rotation.y+=dt*8;if(f.t>=1){f.m.rotation.y=0;FLY.splice(i,1);served(f);}}
-    for(let i=POPS.length-1;i>=0;i--){const p=POPS[i];p.t+=dt;p.s.position.y+=dt*0.5;p.s.material.opacity=Math.min(1,(1.6-p.t)/0.4);if(p.t>1.6){if(p.s.parent)p.s.parent.remove(p.s);p.s.material.map.dispose();POPS.splice(i,1);}}
+    for(let i=POPS.length-1;i>=0;i--){const p=POPS[i];p.t+=dt;p.s.position.y+=dt*0.5;p.s.material.opacity=Math.min(1,(1.6-p.t)/0.4);if(p.t>1.6){if(p.s.parent)p.s.parent.remove(p.s);p.s.material.map.dispose();p.s.material.dispose();POPS.splice(i,1);}}
     // 做菜畫面
     const c=R.cook;if(c){c.T+=dt;if(c.S.tick)c.S.tick(c,dt);if(R.cook===c&&!ck.hidden){if(!CW)cookSize();const g=cg;g.setTransform(1,0,0,1,0,0);const gr=g.createLinearGradient(0,0,0,CHh);gr.addColorStop(0,'#5a3418');gr.addColorStop(1,'#2e1a0c');g.fillStyle=gr;g.fillRect(0,0,CW,CHh);
         c.S.draw(c,g,CW,CHh);g.fillStyle='rgba(255,255,255,0.15)';g.fillRect(0,CHh-6*DPR,CW,6*DPR);g.fillStyle='#7dff9a';g.fillRect(0,CHh-6*DPR,CW*(c.prog||0),6*DPR);}}
@@ -11575,7 +11586,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
   // ================= 走過去按 F =================
   R.near=(x,z)=>x>X0-0.3&&x<X1+0.3&&z>Z0-2.5&&z<Z1;
   R.label=()=>{if(R.on||R.seat||!started||mode!=='walk'||GAME.on||player.y>1)return null;const x=player.pos.x,z=player.pos.y,nearC=x>CX0-0.6&&x<CX1+1.3&&z>CZ-1.5&&z<CHEF_Z+1.2;
-    if(remOpen()){if(nearC)return `一起煮（幫 ${NT.nameOf(RM.o)} 的忙）`;const busy=new Set((RM.cu||[]).map(a=>a[1]));for(const T of TABLES)if(!busy.has(T.i)&&Math.hypot(x-T.x,z-T.cz)<0.9)return `坐下點菜（第 ${T.i+1} 桌）`;return null;}
+    if(remOpen()){if(RM.over)return null;if(nearC)return `一起煮（幫 ${NT.nameOf(RM.o)} 的忙）`;const busy=new Set((RM.cu||[]).map(a=>a[1]));for(const T of TABLES)if(!busy.has(T.i)&&Math.hypot(x-T.x,z-T.cz)<0.9)return `坐下點菜（第 ${T.i+1} 桌）`;return null;}
     if(nearC)return '開店：好好吃小餐館（煮飯遊戲）';return null;};
   R.act=()=>{const L=R.label();if(!L)return;if(L.startsWith('一起煮'))R.helpStart();else if(L.startsWith('坐下')){const x=player.pos.x,z=player.pos.y,T=TABLES.find(T=>Math.hypot(x-T.x,z-T.cz)<0.9);if(T)R.orderOpen(T.i);}else R.open();};
   R.what=()=>R.seat?'在小餐館吃飯':R.on?(R.helper?'一起煮':R.free?'自由煮':R.over?'打烊了':`第 ${R.day} 天・🪙 ${stat.coins}・😋 ${stat.served}/${DAY.n}`):'';
@@ -11591,13 +11602,13 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
   const remOpen=()=>!!(RM&&RM.on&&performance.now()-RMat<3500&&RM.o!==NT.me());
   function snap(){return {t:'rsS',on:1,free:R.free?1:0,day:R.day,diff:R.diff,over:R.over?1:0,menu:DAY.menu,
     cu:custs.filter(c=>c.st!=='gone').map(c=>[c.id,c.T.i,c.dish,c.st,Math.round(Math.max(0,c.pat)/c.patMax*100),Math.round(c.x*100),Math.round(c.z*100),c.seed|0,c.fid||'',c.q|0,c.claim||'',c.mood||'']),
-    pass:PASS.map(p=>p.k),st:[stat.coins,stat.served,stat.miss,DAY.n]};}
+    pass:PASS.map(p=>p.k),hd:HOLD.map(h=>h.k),cap:passCap(),st:[stat.coins,stat.served,stat.miss,DAY.n]};}
   function claim(by,k){const cu=custs.filter(c=>c.st==='wait'&&c.dish===k&&!c.claim&&!c.coming).sort((a,b)=>a.pat-b.pat)[0];if(cu)cu.claim=by;hudDirty=true;}
-  function unclaim(by){for(const c of custs)if(c.claim===by)c.claim='';hudDirty=true;}
+  function unclaim(by){for(const c of custs)if(c.claim===by||(by===NT.me()&&c.claim==='L'))c.claim='';hudDirty=true;}
   function addDish(k,q,by,base){if(R.free&&!custs.some(c=>c.fid&&c.st==='wait'&&c.dish===k&&!c.coming)){placeFree({k,q,base,items:[],name:DISH[k].n});return;}
-    if(PASS.length>=passCap()){if(by&&by!==NT.me())NT.send(by,{t:'rsE',e:'full'});toast('出餐台滿了');return;}
+    if(PASS.length>=passCap()){if(HOLD.length<6)HOLD.push({k,q});hudDirty=true;return;}   /* 幫手做好時出餐台滿了：先排隊（原本整份丟掉） */
     const m=mkDish(k);m.scale.setScalar(1.5);G.add(m);PASS.push({k,q,m});const p=passPos(PASS.length-1);m.position.set(p.x,p.y,p.z);popTxt(`${DISH[k].e} ${'⭐'.repeat(q)}`,'#ffe14a',p.x,p.y+0.5,p.z);tryServe();hudDirty=true;}
-  function friendSit(f,ti,k){const T=TABLES[ti];if(!R.on||R.over||R.helper||!T||T.busy||!DISH[k]||k==='custom'||!DAY.menu.includes(k)){NT.send(f,{t:'rsE',e:'sitNo'});return;}
+  function friendSit(f,ti,k){for(const c of custs)if(c.fid===f&&c.st!=='gone'){c.st='gone';if(c.T.busy===c)c.T.busy=null;}   /* 同一個朋友只能坐一桌 */const T=TABLES[ti];if(!R.on||R.over||R.helper||!T||T.busy||!DISH[k]||k==='custom'||!DAY.menu.includes(k)){NT.send(f,{t:'rsE',e:'sitNo'});return;}
     const pm=R.free?600:DIFF[R.diff].pat*2.5;const cu={P:null,A:null,T,dish:k,st:'wait',fid:f,x:T.x,z:T.cz,yaw:Math.PI,ph:0,pat:pm,patMax:pm,q:0,mood:'',t:0,bub:bubble(),id:++stat.cid,seed:0};
     T.busy=cu;G.add(cu.bub.s);cu.bub.s.position.set(T.x,1.95,T.cz);custs.push(cu);snd('bell');NT.send(f,{t:'rsE',e:'sitOk',ti:T.i,k});tryServe();hudDirty=true;toast(`🪑 ${NT.nameOf(f)} 坐在第 ${T.i+1} 桌，點了 ${DISH[k].e} ${DISH[k].n}`);}
   function friendTick(cu,dt){cu.t+=dt;if(cu.st==='wait'){if(!cu.coming)cu.pat-=dt;if(cu.pat<=0){NT.send(cu.fid,{t:'rsE',e:'sad'});cu.st='gone';return;}}else if(cu.st==='eat'&&cu.t>40){cu.st='gone';return;}drawBubble(cu);}
@@ -11606,8 +11617,8 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     NT.send('*',snap());}
   // ---- 照店長的狀態畫客人（一起煮的人、坐著的朋友、旁邊的人） ----
   const RCU=new Map();let RPASS=[];
-  function remKill(r){if(r.bub.s.parent)r.bub.s.parent.remove(r.bub.s);r.bub.t.dispose();if(r.A&&r.A.root.parent)r.A.root.parent.remove(r.A.root);if(r.P)r.P.used=false;if(r.dishM&&r.dishM.parent)r.dishM.parent.remove(r.dishM);}
-  function remoteClear(){for(const r of RCU.values())remKill(r);RCU.clear();for(const p of RPASS)if(p.m.parent)p.m.parent.remove(p.m);RPASS=[];}
+  function remKill(r){if(r.bub.s.parent)r.bub.s.parent.remove(r.bub.s);r.bub.t.dispose();if(r.A&&r.A.root.parent)r.A.root.parent.remove(r.A.root);if(r.P)r.P.used=false;dishFree(r.dishM);r.bub.s.material.dispose();}
+  function remoteClear(){for(const r of RCU.values())remKill(r);RCU.clear();for(const p of RPASS)dishFree(p.m);RPASS=[];}
   function remoteTick(dt){const px=player.pos.x,pz=player.pos.y,show=remOpen()&&(R.helper||R.seat||Math.hypot(px-52,pz-47)<30);
     if(!show){if(RCU.size||RPASS.length)remoteClear();return;}
     const seen=new Set();for(const a of RM.cu||[]){const [id,ti,k,stc,pp,x,z,seed,fid,q,cm,mood]=a;const T=TABLES[ti|0];if(!T||!DISH[k])continue;seen.add(id);let r=RCU.get(id);
@@ -11615,16 +11626,16 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
       Object.assign(r,{st:stc,pat:pp,patMax:100,q:q|0,mood,dish:k,tx:x/100,tz:z/100,T});}
     for(const [id,r] of RCU)if(!seen.has(id)){remKill(r);RCU.delete(id);}
     for(const r of RCU.values()){r.t+=dt;const mine=r.fid&&r.fid===NT.me();r.bub.s.visible=!mine&&(r.st==='wait'||r.st==='eat'||(r.st==='out'&&r.mood==='sad'));if(r.bub.s.visible)drawBubble(r);
-      if(r.st==='eat'&&!r.dishM){r.dishM=mkDish(r.dish);r.dishM.position.set(r.T.x,0.78,r.T.z-0.12);G.add(r.dishM);}else if(r.st!=='eat'&&r.dishM){if(r.dishM.parent)r.dishM.parent.remove(r.dishM);r.dishM=null;}
+      if(r.st==='eat'&&!r.dishM){r.dishM=mkDish(r.dish);r.dishM.position.set(r.T.x,0.78,r.T.z-0.12);G.add(r.dishM);}else if(r.st!=='eat'&&r.dishM){dishFree(r.dishM);r.dishM=null;}
       if(!r.A)continue;const dx=r.tx-r.x,dz=r.tz-r.z,d=Math.hypot(dx,dz);if(d>2){r.x=r.tx;r.z=r.tz;}else{const k2=Math.min(1,dt*6);r.x+=dx*k2;r.z+=dz*k2;}
       if((r.st==='in'||r.st==='out')&&d>0.02){const ty=Math.atan2(-dx,-dz);let dy=ty-r.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));r.yaw+=dy*Math.min(1,dt*10);r.ph+=dt*7;walkAnim(r.A,r.ph,1);}
       else if(r.st==='wait'||r.st==='eat'){let dy=Math.PI-r.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));r.yaw+=dy*Math.min(1,dt*8);sitAnim(r.A,r,dt);}else walkAnim(r.A,r.ph,0);
       r.A.root.position.set(r.x,0.03,r.z);r.A.root.rotation.y=r.yaw+Math.PI;}
-    const want=R.helper&&RM.pass?RM.pass:[];if(RPASS.map(p=>p.k).join()!==want.join()){for(const p of RPASS)if(p.m.parent)p.m.parent.remove(p.m);RPASS=want.filter(k=>DISH[k]).map((k,i)=>{const m=mkDish(k);m.scale.setScalar(1.5);const q=passPos(i);m.position.set(q.x,q.y,q.z);G.add(m);return {k,m};});}}
+    const want=R.helper&&RM.pass?RM.pass:[];if(RPASS.map(p=>p.k).join()!==want.join()){for(const p of RPASS)dishFree(p.m);RPASS=want.filter(k=>DISH[k]).map((k,i)=>{const m=mkDish(k);m.scale.setScalar(1.5);const q=passPos(i);m.position.set(q.x,q.y,q.z);G.add(m);return {k,m};});}}
   // ---- 一起煮 ----
   function prepOthers(){if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(mode==='aerial')toggleAerial();if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();}
-  R.helpStart=()=>{if(!remOpen()||R.on||R.seat||GAME.on)return;prepOthers();const o=RM.o;R.helper=o;R.on=true;R.over=false;R.cook=null;R.free=!!RM.free;R.day=RM.day||1;R.diff=RM.diff|0;
-    DAY={n:RM.st?RM.st[3]:0,menu:(RM.menu||[]).filter(k=>DISH[k]),gap:999,maxC:0};spawned=1;stat={coins:0,served:0,miss:0,qsum:0,cid:0};PASS=[];FLY=[];
+  R.helpStart=()=>{if(!remOpen()||RM.over||R.on||R.seat||GAME.on)return;prepOthers();const o=RM.o;R.helper=o;R.on=true;R.over=false;R.cook=null;R.free=!!RM.free;R.day=RM.day||1;R.diff=RM.diff|0;
+    DAY={n:RM.st?RM.st[3]:0,menu:(RM.menu||[]).filter(k=>DISH[k]),gap:999,maxC:0};spawned=1;stat={coins:0,served:0,miss:0,qsum:0,cid:0};PASS=[];FLY=[];HOLD=[];
     R.x=ST.drink;player.pos.set(R.x,CHEF_Z+0.7);player.vel.set(0,0);player.y=0;avatar.yaw=0;chefHat(true);avatar.root.traverse(q=>{q.userData.noCull=true;});
     ui.hidden=false;ck.hidden=true;ui.classList.remove('cooking','over');document.body.classList.add('rs');R.camX=null;R.need=null;ROOF.forEach(q=>q.visible=false);NT.send(o,{t:'rsC',a:'join'});hud();AUDIO.sfx('chime');toast(`👩‍🍳 來幫 ${NT.nameOf(o)} 煮菜！做好的菜會放到出餐台，店長那邊自動端給客人`);};
   function helperEnd(d){if(!R.on||!R.helper||R.over)return;R.over=true;cookCancel();ui.classList.add('over');const stars=cl(d.stars|0,0,3),sv=d.sv|0;
@@ -11636,10 +11647,10 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
   for(const ev of ['pointerdown','touchstart'])seatEl.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
   function seatDraw(){const S=R.seat;if(!S){seatEl.hidden=true;return;}const D=DISH[S.k];
     seatEl.innerHTML=S.st==='wait'?`<span>🪑 你點了 ${D.e} ${D.n}，等廚師做…</span><button data-up="1">起來</button>`:S.st==='eat'?`<span>😋 ${D.e} 好好吃…</span>`:`<span>${D.e} 好吃嗎？</span>${[1,2,3].map(v=>`<button data-rate="${v}">${'⭐'.repeat(v)}</button>`).join('')}`;seatEl.hidden=false;}
-  function standUp(){const S=R.seat;R.seat=null;seatEl.hidden=true;if(S){const T=TABLES[S.ti];player.pos.set(T.x,43.3);player.vel.set(0,0);player.y=0;}}R.standUp=standUp;
-  seatEl.onclick=e=>{const b=e.target.closest('button');if(!b||!R.seat)return;e.stopPropagation();if(b.dataset.up){NT.send(R.seat.o,{t:'rsO',a:'leave'});standUp();return;}
+  function standUp(){const S=R.seat;R.seat=null;seatEl.hidden=true;if(S){if(NT.send)NT.send(S.o,{t:'rsO',a:'leave'});   /* 告訴店長（原本被「前往」或斷線站起來，店長那邊會留一個空等的客人） */const T=TABLES[S.ti];player.pos.set(T.x,43.3);player.vel.set(0,0);player.y=0;}}R.standUp=standUp;
+  seatEl.onclick=e=>{const b=e.target.closest('button');if(!b||!R.seat)return;e.stopPropagation();if(b.dataset.up){standUp();return;}
     if(b.dataset.rate){NT.send(R.seat.o,{t:'rsO',a:'rate',v:+b.dataset.rate});toast('謝謝你的評分！');AUDIO.sfx('chime');standUp();}};
-  R.orderOpen=ti=>{if(!remOpen())return;R.orderTi=ti;const menu=(RM.menu||[]).filter(k=>DISH[k]&&k!=='custom');
+  R.orderOpen=ti=>{if(!remOpen()||RM.over)return;R.orderTi=ti;const menu=(RM.menu||[]).filter(k=>DISH[k]&&k!=='custom');
     pn.innerHTML=`<div class="hd"><b>🪑 第 ${ti+1} 桌：想吃什麼？</b><button data-x="1">✕</button></div><div class="note">${escH(NT.nameOf(RM.o))} 的店（${RM.free?'自由煮':'營業中'}）：點了菜，店長和一起煮的人會做給你吃！吃完記得給星星。</div>
       <div class="order">${menu.map(k=>`<button data-order="${k}" style="--c:${DISH[k].col}">${DISH[k].e}<b>${DISH[k].n}</b></button>`).join('')}</div>`;pn.hidden=false;};
   function seatTick(dt){const S=R.seat;if(!S)return;if(!remOpen()||RM.o!==S.o){toast('店打烊了');standUp();return;}const T=TABLES[S.ti];player.pos.set(T.x,T.cz);player.vel.set(0,0);player.y=0;avatar.yaw=Math.PI;S.t+=dt;
@@ -11658,7 +11669,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     case 'rsS':if(d.on){if(R.on&&!R.helper&&!R.over){if(f<String(NT.me())){toast(`${NT.nameOf(f)} 也開店了：一次只能開一間，可以到櫃台「一起煮」`);R.stop();}else break;}RM={...d,o:f,cu:Array.isArray(d.cu)?d.cu.slice(0,12):[],pass:Array.isArray(d.pass)?d.pass.slice(0,6):[],menu:Array.isArray(d.menu)?d.menu.slice(0,8):[]};RMat=performance.now();if(R.helper===f)hudDirty=true;}
       else if(RM&&RM.o===f)RM.on=0;break;
     case 'rsC':if(!R.on||R.helper)break;
-      if(d.a==='join'){HELP.set(f,1);toast(`👩‍🍳 ${NT.nameOf(f)} 來幫忙煮了！`);AUDIO.sfx('chime');snapT=0;}else if(d.a==='claim'){if(DISH[d.k])claim(f,d.k);}else if(d.a==='cancel')unclaim(f);
+      if(d.a==='join'){if(R.over)break;HELP.set(f,1);toast(`👩‍🍳 ${NT.nameOf(f)} 來幫忙煮了！`);AUDIO.sfx('chime');snapT=0;}else if(d.a==='claim'){if(DISH[d.k])claim(f,d.k);}else if(d.a==='cancel')unclaim(f);
       else if(d.a==='done'){unclaim(f);if(DISH[d.k])addDish(d.k,cl(d.q|0,1,3),f,d.base);}else if(d.a==='leave'){HELP.delete(f);unclaim(f);}hudDirty=true;break;
     case 'rsO':if(!R.on||R.helper)break;if(d.a==='sit'){friendSit(f,d.ti|0,d.k);break;}
       {const cu=custs.find(c=>c.fid===f&&c.st!=='gone');if(!cu)break;if(d.a==='rate'&&cu.st==='eat'){const v=cl(d.v|0,1,3);stat.coins+=v*5;popTxt(`${'⭐'.repeat(v)} 好吃！`,'#ffe14a',cu.T.x,2.2,cu.T.cz);AUDIO.sfx('chime');}cu.st='gone';hudDirty=true;}break;
@@ -11667,7 +11678,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
       if(d.e==='sitOk'&&!R.on&&!R.seat&&RM&&RM.o===f&&DISH[d.k]){R.seat={o:f,ti:cl(d.ti|0,0,TABLES.length-1),k:d.k,st:'wait',t:0};seatDraw();if(view!=='third'){view='third';syncViewUI();}}
       else if(d.e==='sitNo')toast('這一桌不能坐（可能有人了）');else if(d.e==='full'&&R.helper===f)toast('出餐台滿了：等店長那邊端給客人');break;}};
   R.tick=dt=>{tagHide(avatar,R.on);if(R.on&&!R.helper){ownerNet(dt);if(RCU.size||RPASS.length)remoteClear();}else remoteTick(dt);seatTick(dt);
-    if(R.helper&&R.on&&!R.over&&(!RM||RM.o!==R.helper||!RM.on||performance.now()-RMat>4500)){toast('店長打烊了（或斷線了）');R.stop();}};
+    if(R.helper&&R.on&&!R.over&&(!RM||RM.o!==R.helper||!RM.on||RM.over||performance.now()-RMat>4500)){toast('店長打烊了（或斷線了）');R.stop();}};
   R.dbg=()=>({get RM(){return RM;},HELP,RCU,snap,friendSit,seatDraw,wallDraw,checkStar,UPG,buy,makePhoto,get res(){return res;},get ph(){return ph;},get custs(){return custs;},get PASS(){return PASS;},get FLY(){return FLY;},STEPS,DISH,DAYS,DIFF,TABLES,ST,stat:()=>stat,DAY:()=>DAY,startCook,cookCancel,finish,spawn,P,cookSize,get cook(){return R.cook;}});
   return R;})();
 
@@ -13735,7 +13746,7 @@ addEventListener('pagehide',SAVEALL);document.addEventListener('visibilitychange
  const go=()=>{const u=new URL(location.href);if(!newV||u.searchParams.get('v')===newV)return;SAVEALL();u.searchParams.set('v',newV);location.replace(u.toString());};
  bar.onclick=e=>{e.stopPropagation();if(busy()){toast('玩完再更新');return;}go();};
  setInterval(()=>{bar.hidden=!newV||busy();},1000);
- async function latest(){const r=await fetch(location.pathname+'?_='+Date.now(),{cache:'no-store'});
+ async function latest(){const ac=window.AbortController?new AbortController():null;if(ac)setTimeout(()=>ac.abort(),20000);const r=await fetch(location.pathname+'?_='+Date.now(),{cache:'no-store',signal:ac?ac.signal:undefined});   /* 20 秒還沒下載完就放棄 */
    if(r.body&&r.body.getReader){const rd=r.body.getReader(),dec=new TextDecoder();let s='';   /* 版本號在第 7 行：讀到就停 */
      while(s.length<200000){const {done,value}=await rd.read();if(done)break;s+=dec.decode(value,{stream:true});const m=s.match(/name="app-version" content="([^"]+)"/);if(m){rd.cancel().catch(()=>{});return m[1];}}
      const m=s.match(/name="app-version" content="([^"]+)"/);return m?m[1]:'';}
@@ -13994,7 +14005,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     const q=peer(f);
     switch(d.t){case 's':q.s=d;q.sAt=performance.now();if(d.pu)PUSH.netRx(f,q.name,d.pu);break;
       case 'puEv':PUSH.netBig(q.name||'有人',d);break;
-      case 'fiS':case 'fiA':case 'fiQ':case 'fiN':case 'fiR':case 'fiB':case 'fiE':FISH.netRx(d,f);break;
+      case 'fiS':case 'fiA':case 'fiQ':case 'fiN':case 'fiR':case 'fiB':case 'fiE':case 'fiT':FISH.netRx(d,f);break;
       case 'rsS':case 'rsC':case 'rsO':case 'rsE':RS.netRx(d,f);break;   /* 小餐館：店長狀態、一起煮、坐下點菜 */
       case 'hi':q.name=String(d.name||'對方').slice(0,8);q.hi={t:'hi',name:q.name,ver:d.ver,cfg:d.cfg,sk:d.sk,skm:d.skm};remName(q);remDress(q,d.cfg,d.sk,d.skm);ui();if(!d.quiet){toast(`👥 ${q.name} 加入了！`);AUDIO.sfx('chime');chatAdd(f,`${q.name} 加入了`,true);}if(d.ver&&d.ver!==VER)toast('⚠ 大家的網頁版本不一樣，請全部重新整理');break;
       case 'name':q.name=String(d.name||'對方').slice(0,8);if(q.hi)q.hi.name=q.name;remName(q);ui();break;
