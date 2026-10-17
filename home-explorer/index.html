@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-18.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-18.5"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -342,6 +342,8 @@
   #nmHud b{font-size:15px;margin:0 3px}
   #nmNote{position:fixed;left:calc(12px + var(--sal));top:calc(96px + var(--sat));z-index:12;font-size:13px;font-weight:800;color:#ffe08a;text-shadow:0 1px 3px #000;opacity:0;pointer-events:none}body.touch #nmNote{top:calc(146px + var(--sat))}
   #nmNote.pop{animation:rbn 2.4s ease-out}body.touch #nmHud{top:calc(110px + var(--sat));font-size:11px}
+  #nmHud{max-width:calc(100vw - 24px - var(--sal) - var(--sar));box-sizing:border-box;white-space:normal;line-height:1.45}#nmHud i{font-style:normal;white-space:nowrap}
+  @media (orientation:landscape) and (max-height:520px){body.touch #nmHud{top:calc(12px + var(--sat));left:0;right:0;margin:0 auto;width:fit-content;max-width:calc(100vw - 300px - var(--sal) - var(--sar))}}   /* 手機橫拿：放到最上面那一排中間（原本在 110 px＝畫面 30% 高，剛好橫在路中間蓋住門） */   /* 2026-10-18.5：手機直拿一行放不下（大軍團 462 px、螢幕 375 px，後面「離警戒線」整段看不到）→ 一項一項換行 */
   #nmHud[hidden],#nmBtns[hidden],#nmPanel[hidden]{display:none!important}
   #nmBtns{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:10px;z-index:11}
   #nmBtns button{width:66px;height:66px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(18,24,30,.6);color:#fff;font-size:14px;font-weight:800;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;position:relative;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,.5)}
@@ -6102,13 +6104,13 @@ const NM=(()=>{
       {x:164,L:{op:'+',v:-4},R:{op:'+',v:9}},{x:180,L:{op:'+',v:30},R:{op:'box',w:'fire',hp:40}},{x:196,L:{op:'+',v:14},R:{op:'box',w:'water',hp:34}},
       {x:212,L:{op:'+',v:-6},R:{op:'+',v:40}},{x:227,L:{op:'+',v:20},R:{op:'box',w:'cannon',hp:55}}]},
     {name:'第 2 關・攤販大亂鬥',spd:4.8,n0:5,mhp:1.7,r0:0.8,r1:2.8,mix:{tako:1,sausage:0.7,balloon:0.4},late:{cotton:0.5},boss:{kind:'chef',hp:560},waves:[{x:164,n:14},{x:194,n:5,k:'cotton'},{x:218,n:28}],items:[
-      {x:116,L:{op:'box',w:'water',hp:10},R:{op:'+',v:4}},{x:132,L:{op:'+',v:-3},R:{op:'+',v:14}},{x:148,L:{op:'+',v:10},R:{op:'box',w:'fire',hp:45}},
-      {x:164,L:{op:'+',v:25},R:{op:'+',v:-8}},{x:180,L:{op:'box',w:'cannon',hp:60},R:{op:'+',v:12}},{x:196,L:{op:'+',v:-10},R:{op:'+',v:35}},
-      {x:212,L:{op:'box',w:'fire',hp:70},R:{op:'+',v:18}},{x:227,L:{op:'box',w:'cannon',hp:90},R:{op:'+',v:25}}]},
+      {x:116,L:{op:'box',w:'water',hp:6},R:{op:'+',v:4}},{x:132,L:{op:'+',v:-3},R:{op:'+',v:14}},{x:148,L:{op:'+',v:10},R:{op:'box',w:'fire',hp:27}},
+      {x:164,L:{op:'+',v:25},R:{op:'+',v:-8}},{x:180,L:{op:'box',w:'cannon',hp:36},R:{op:'+',v:12}},{x:196,L:{op:'+',v:-10},R:{op:'+',v:35}},
+      {x:212,L:{op:'box',w:'fire',hp:42},R:{op:'+',v:18}},{x:227,L:{op:'box',w:'cannon',hp:54},R:{op:'+',v:25}}]},   /* 2026-10-18.5：武器箱血量 ×0.6（同第 3 關：簡單不按技能只過 1/3、都拿不到武器） */
     {name:'第 3 關・大老闆的考驗',spd:5,n0:6,mhp:1.8,r0:0.8,r1:2.9,mix:{tako:1,sausage:0.6,balloon:0.6},late:{cotton:0.5,sausage:0.4},boss:{kind:'gold',hp:1000},waves:[{x:158,n:18},{x:180,n:2,k:'chicken'},{x:206,n:32},{x:226,n:3,k:'chicken'}],items:[
-      {x:116,L:{op:'+',v:8},R:{op:'box',w:'water',hp:12}},{x:132,L:{op:'box',w:'cannon',hp:40},R:{op:'+',v:18}},{x:148,L:{op:'+',v:14},R:{op:'+',v:-4}},
-      {x:164,L:{op:'+',v:28},R:{op:'box',w:'ring',hp:50}},{x:180,L:{op:'+',v:10},R:{op:'box',w:'fire',hp:60}},{x:196,L:{op:'box',w:'fire',hp:75},R:{op:'+',v:15}},
-      {x:212,L:{op:'box',w:'cannon',hp:80},R:{op:'+',v:12}},{x:227,L:{op:'+',v:30},R:{op:'+',v:45}}]}];
+      {x:116,L:{op:'+',v:8},R:{op:'box',w:'water',hp:7}},{x:132,L:{op:'box',w:'cannon',hp:24},R:{op:'+',v:18}},{x:148,L:{op:'+',v:14},R:{op:'+',v:-4}},
+      {x:164,L:{op:'+',v:28},R:{op:'box',w:'ring',hp:30}},{x:180,L:{op:'+',v:10},R:{op:'box',w:'fire',hp:36}},{x:196,L:{op:'box',w:'fire',hp:45},R:{op:'+',v:15}},
+      {x:212,L:{op:'box',w:'cannon',hp:48},R:{op:'+',v:12}},{x:227,L:{op:'+',v:30},R:{op:'+',v:45}}]}];   /* 2026-10-18.5：第 3 關武器箱血量 ×0.6（拿掉 × 門以後人只有 20～40 個，3 秒內打不破任何武器箱 → 只有圈圈打不過大魔王，連簡單都過不了） */
   // 武器（夜市道具）：每個小兵每秒丟 rate 發、每發 dmg；aoe＝爆炸半徑；同一種再拿一次升一級（傷害 +50%）
   const WPN={base:{n:'圈圈',ico:'⭕',rate:1.0,dmg:1,range:17,ring:true,col:'#ffd23a',spd:16},
     water:{n:'水槍',ico:'💧',rate:2.2,dmg:0.85,range:22,col:'#5fc8ff',sc:0.7,spd:26},
@@ -6276,7 +6278,7 @@ const NM=(()=>{
       else{const x=N.cx+9,z=N.cz;launch(new V3(N.cx,1,N.cz),new V3(x,0.3,z),N.sk.gold>0?'g':'y',{blast:{x,z},scale:7});big('巨大圈！');AUDIO.sfx('whoosh');}}
     else{N.sk[k]=SK[k].dur;big(SK[k].n+'！');AUDIO.sfx(k==='gold'?'chime':'whoosh');}syncBtns();};
   function syncBtns(){btns.querySelector('[data-k=auto]').classList.toggle('on',N.auto);}
-  function note(t){const el=$('nmNote');if(!el)return;el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}
+  function note(t){const el=$('nmNote');if(!el)return;el.textContent=t;if(!hud.hidden){const hb=hud.getBoundingClientRect();if(hb.height){el.style.top=Math.round(hb.bottom+4)+'px';el.style.left=Math.round(hb.left)+'px';}}   /* 跟在資訊列下面（手機上資訊列會變兩行） */el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}
   N.key=(e,down)=>{if(!down||e.repeat)return false;if(N.st==='toss'&&(e.code==='Space'||e.code==='KeyG')){tossScatter();return true;}if(N.st==='toss'&&e.code==='KeyR'){tossReset();tossStart();return true;}const m={Digit1:'big',Digit2:'rapid',Digit3:'gold',KeyP:'auto'}[e.code];if(m){N.press(m);return true;}if(e.code==='Escape'){N.stop();return true;}return false;};
   for(const b of btns.querySelectorAll('button')){const k=b.dataset.k;const dn=e=>{e.preventDefault();e.stopPropagation();if(k==='exit')N.stop();else N.press(k);b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),150);};
     b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();});}
@@ -6284,9 +6286,16 @@ const NM=(()=>{
   panel.querySelector('[data-x=exit]').onclick=e=>{e.stopPropagation();panel.hidden=true;if(N.on)N.stop();};
   // 自動選邊：估計打得破武器箱嗎（打不破撞上去會少人）、加人數門現在幾個／還能打多少
   const dpsNow=()=>N.n*wp().rate*wp().dmg*(1+0.5*(wlv()-1));
-  function sideScore(g){const t=Math.max(0.3,(g.x-N.cx)/N.S.spd),busy=Math.min(0.85,mons.filter(m=>!m.dead&&m.x>N.cx&&m.x<N.cx+18).length*0.06),free=dpsNow()*t*(1-busy);
-    if(g.op==='x')return N.n*(g.v-1);if(g.op==='+')return g.v+free/PUMP()*0.5;
-    if(g.hp<=0)return 1e6;if(g.hp>free*(N.n<15?0.65:1.05))return -(3+g.hp/6);const bossAhead=bosses.some(b=>b.st==='wait');return 10+N.n*0.45+(bossAhead?12:0)+(!N.wpn.k?14:N.wpn.k===g.w?8:0)-(N.n<6?10:0)+(g.w==='cannon'||g.w==='fire'?5:0);}
+  const AU={bk:0.06,bm:0.85,gk:0.5};N.AU=AU;N.sideScore=g=>sideScore(g);   /* 自動選邊的估算（測試時可以改） */
+  function sideScore(g){const t=Math.max(0.3,(g.x-N.cx)/N.S.spd),busy=Math.min(AU.bm,mons.filter(m=>!m.dead&&m.x>N.cx&&m.x<N.cx+18).length*AU.bk),free=dpsNow()*t*(1-busy);
+    if(g.op==='x')return N.n*(g.v-1);if(g.op==='+')return gateEst(g,free*AU.gk);
+    if(g.hp<=0)return 1e6;if(g.hp>free*(N.n<15?0.65:1.05))return -(3+g.hp/6);const bossAhead=bosses.some(b=>b.st==='wait'),lv=N.wpn.lv;
+    /* 2026-10-18.5：武器的價值照「火力變幾倍」算（第一把武器≈火力 ×2＝多一倍的人；同一種升級 +50%）。原本固定約 N×0.45，加人門有上限之後自動模式整關都不拿武器、打不過第 3 關大魔王 */
+    const wv=!N.wpn.k?N.n*1.0+8:N.wpn.k===g.w?(lv>=5?2:N.n*0.5/(1+0.5*(lv-1))+4):(g.w==='cannon'||g.w==='fire'?N.n*0.12+3:2);
+    return wv+(bossAhead?12:0)-(N.n<6?10:0);}
+  function gateEst(g,free){   /* 加人門打下去大概會變多少（照 bulHit 的規則：有上限 N.GV、數字越大越難加） */
+    const v0=g.v0==null?g.v:g.v0,vmax=Math.abs(v0)*N.GV[0]+N.GV[1];let v=g.v,f=free+g.acc;
+    while(v<vmax){const c=2*N.S.mhp*(1+Math.max(0,v)/N.GV[2]);if(f<c)break;f-=c;v++;}return v;}
   function autoZ(){const r=radOf(N.n);let tz=N.cz;if(N.bossOn)return LC;const near=gates.filter(g=>!g.used&&g.x>N.cx&&g.x<N.cx+34).sort((a,b)=>a.x-b.x);
     if(near.length){const x=near[0].x,pair=near.filter(g=>g.x===x);let bg=pair[0];for(const g of pair)if(sideScore(g)>sideScore(bg))bg=g;tz=bg.zc;}
     return cl(tz,LC-LW+r,LC+LW-r);}
@@ -6358,7 +6367,7 @@ const NM=(()=>{
     for(const k of MK){const M=MIM[k];M.count=cnt[k];M.instanceMatrix.needsUpdate=true;if(M.instanceColor)M.instanceColor.needsUpdate=true;}
     mySign.position.set(N.cx,1.7+radOf(N.n)*0.3,N.cz);setCount(mySign,N.n);ringsDraw();fxTick(dt);}
   const TE=new THREE.Euler();
-  function hudDraw(){N.hudT=(N.hudT||0)-1/60;if(N.hudT>0)return;N.hudT=0.1;const S=N.S,B=N.bossOn;hud.innerHTML=`<b>套圈大進擊</b>　${S.name.split('・')[0]}・<span style="color:${N.D.c}">${N.D.n}</span>　<span>👥</span><b>${N.n}</b>　<span>💀</span><b>${N.kills}</b>　${N.wpn.k?`${WPN[N.wpn.k].ico} <b>${WPN[N.wpn.k].n}</b> Lv${N.wpn.lv}`:`⭕ <span>圈圈</span>`}${B&&B.st!=='dead'?`　<span style="color:#ff8a8a">${B.name} ${Math.ceil(B.hp)}</span>`:''}${N.fin?`　<span>獎品塔</span><b>×${N.fin.lv}</b>`:''}`;
+  function hudDraw(){N.hudT=(N.hudT||0)-1/60;if(N.hudT>0)return;N.hudT=0.1;const S=N.S,B=N.bossOn;hud.innerHTML=[`<b>套圈大進擊</b>　${S.name.split('・')[0]}・<span style="color:${N.D.c}">${N.D.n}</span>`,`<span>👥</span><b>${N.n}</b>`,`<span>💀</span><b>${N.kills}</b>`,N.wpn.k?`${WPN[N.wpn.k].ico} <b>${WPN[N.wpn.k].n}</b> Lv${N.wpn.lv}`:`⭕ <span>圈圈</span>`,B&&B.st!=='dead'?`<span style="color:#ff8a8a">${B.name} ${Math.ceil(B.hp)}</span>`:'',N.fin?`<span>獎品塔</span><b>×${N.fin.lv}</b>`:''].filter(Boolean).map(s=>`<i>${s}</i>`).join('　');
     for(const k of ['big','rapid','gold']){const b=btns.querySelector(`[data-k=${k}]`),c=N.cdn[k];b.classList.toggle('cd',c>0);b.style.setProperty('--p',c>0?(1-c/SK[k].cd)*100+'%':'100%');b.classList.toggle('act',(N.sk[k]||0)>0);}}
   // ================= 終點：往上套獎品塔 =================
   function finishStart(){N.st='finish';N.fin={n0:N.n,thrown:0,landed:0,lv:0,boss:false,acc:0,end:0,k:Math.max(1,Math.ceil(N.n/150)),iv:cl(5/Math.max(1,Math.min(N.n,150)),0.033,0.25)};   /* 人很多時一個圈代表 k 個人（最多丟約 150 個圈、約 5 秒） */big('獎品塔！往上套！');AUDIO.sfx('chime');}
@@ -6549,7 +6558,7 @@ const NM=(()=>{
   // 開始
   N.startArmy=()=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(RB.on)RB.stop();if(SB.on)SB.stop();if(RACE.on)RACE.stop();if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
     if(N.on)N.stop();clearCourse();panel.hidden=true;N.mode='army';ATL.init();N.D=DIFF[SAVE.diff]||DIFF[1];N.dk=SAVE.diff;N.S={mhp:1,name:'大軍團'};N.on=true;N.st='count';N.cd=2.4;N.lastCd=4;N.n=12;N.cz=LC;N.cx=AX;N.kills=0;N.manT=0;N.sk={big:0,rapid:0,gold:0};N.cdn={big:0,rapid:0,gold:0};N.camP=null;N.bossOn=null;
-    A.run=(A.run||0)+1;Object.assign(A,{on:true,t:0,ev:0,evT:1.5,wave:0,waveT:2,boss:null,bossT:95,kills:0,maxN:12,bul:[],gates:[],pills:[],bars:[],grp:[],sprites:[],fxT:0,acc:0,accC:0,over:false,wl:0,pow:1,shield:0,tb:null,gunT:0,lostT:0,lostN:0,brk:0});EAL.fill(0);eHi=0;eN=0;eFree.length=0;
+    A.run=(A.run||0)+1;Object.assign(A,{on:true,t:0,ev:0,evT:1.5,wave:0,waveT:2,boss:null,bossT:95,kills:0,maxN:12,bul:[],gates:[],pills:[],bars:[],grp:[],sprites:[],fxT:0,acc:0,accC:0,over:false,wl:0,pow:1,shield:0,tb:null,gunT:0,lostT:0,lostN:0,brk:0,pZ:null,pSd:1});EAL.fill(0);eHi=0;eN=0;eFree.length=0;
     // 警戒線、路（窄路：兩邊路肩變暗、白邊線、兩條虛線分左中右）
     const ln=mk(new THREE.PlaneGeometry(0.35,AW*2+0.6).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#ff2a2a',transparent:true,opacity:0.85,toneMapped:false}),WL,0.07,LC,CG);A.line=ln;
     const lt=new THREE.MeshBasicMaterial({map:textTex(['⚠ 警戒線'],512,96,null,'#ff5a5a',`900 60px ${FONT}`),transparent:true,toneMapped:false});lt.userData.own=true;mk(new THREE.PlaneGeometry(3.2,0.6).rotateX(-Math.PI/2).rotateY(-Math.PI/2),lt,WL-0.6,0.075,LC,CG);
@@ -6560,7 +6569,7 @@ const NM=(()=>{
     if(N.lanAll)for(const m of N.lanAll)m.visible=false;   /* 燈籠藏起來：鏡頭要拉高往下看 */
     document.body.classList.add('nm');hud.hidden=false;btns.hidden=false;mySign.visible=true;night(true);syncBtns();if(view!=='third'){view='third';syncViewUI();}player.yaw=-Math.PI/2;AUDIO.sfx('chime');
     try{const ar=[ATL.m,ATL.post,REDM,CANM,ABM,ASM,...AGUN];for(const m of ar)m.count=Math.max(m.count,1);renderer.compile(scene,camera);for(const m of ar)m.count=0;}catch(_){}   /* 先把著色程式編好 */
-    toast('大軍團：大軍站在哪一格，子彈就往前打哪一格。左中右選一格：藍色「+人」門加人、紅色桶子打到 0 拿武器、灰色鎖住的門先打開。敵人衝到警戒線會扣人數！');};
+    if(!N.toldA){N.toldA=true;toast('大軍團：大軍站在哪一格，子彈就往前打哪一格。左中右選一格：藍色「+人」門加人、紅色桶子打到 0 拿武器、灰色鎖住的門先打開。敵人衝到警戒線會扣人數！');}   /* 2026-10-18.5：長說明只在第一次（每次都跳會蓋住上半個畫面，門和敵人剛好從那裡出現） */};
   function armyEnd(){A.on=false;ATL.m.count=ATL.post.count=0;mySign.scale.set(2.2,0.82,1);REDM.count=CANM.count=ABM.count=ASM.count=0;for(const m of AGUN)m.count=0;for(const s of A.sprites){scene.remove(s);if(s.material.map)s.material.map.dispose();s.material.dispose();}A.sprites=[];for(const g of A.grp||[])grpFree(g);A.grp=[];if(A.boss&&A.boss.bar){scene.remove(A.boss.bar);A.boss.bar.material.map.dispose();A.boss.bar.material.dispose();}A.boss=null;for(const g of A.gates)agFree(g);A.gates=[];for(const b of A.bars||[])barFree(b);A.bars=[];A.pills=[];A.bul=[];EAL.fill(0);eHi=eN=0;eFree.length=0;N.mode=null;
     if(N.lanAll)for(const m of N.lanAll)m.visible=true;ABM.material.color.set('#9fe8ff');ASM.material.color.set('#ffb347');if(N.fov0!=null){camera.fov=N.fov0;camera.updateProjectionMatrix();N.fov0=null;}}
   N.armyEnd=armyEnd;
@@ -6657,11 +6666,11 @@ const NM=(()=>{
       else{const px=b.a+(b.c-b.a)*u;put(ABM,bi++,px,0.6,b.b,0,W.sx,W.s,W.s);}}
     ABM.count=bi;ASM.count=si;ABM.instanceMatrix.needsUpdate=ASM.instanceMatrix.needsUpdate=true;
     mySign.position.set(cx+0.2,1.9,N.cz);mySign.scale.set(1.5,0.56,1);setCount(mySign,N.n);
-    player.pos.set(cx-hw-1.1,N.cz);player.yaw=-Math.PI/2;player.y=0;player.vel.set(0,0);
+    {const sd=N.cz<LC-0.3?-1:N.cz>LC+0.3?1:(A.pSd||1);A.pSd=sd;const tz=N.cz+sd*(hw+0.8);A.pZ=A.pZ==null?tz:A.pZ+(tz-A.pZ)*Math.min(1,dt*6);player.pos.set(cx-hw*0.4,A.pZ);}   /* 2026-10-18.5：自己的人物站在大軍旁邊（靠路邊那一側）；原本站在正後方，橫拿時把一團小兵和綠圈擋掉一大塊 */player.yaw=-Math.PI/2;player.y=0;player.vel.set(0,0);
     if(A.line)A.line.material.opacity=FRONT.length&&EX[FRONT[0]]<WL+10?0.55+0.45*Math.sin(t*12):0.85;   /* 敵人很近：警戒線閃 */
     ATL.m.count=ATL.post.count=0;ringsDraw();fxTick(dt);}
   function armyHud(){N.hudT=(N.hudT||0)-1/60;if(N.hudT>0)return;N.hudT=0.1;const B=A.boss,near=FRONT.length?Math.max(0,EX[FRONT[0]]-WL):99,W=AWP[A.wl];
-    hud.innerHTML=`<b>大軍團</b>・<span style="color:${N.D.c}">${N.D.n}</span>　<span>👥</span><b>${N.n}</b>　<span>${W.e}</span><b>${W.n}</b>${A.pow>1?`<span>×${A.pow.toFixed(1)}</span>`:''}${A.shield?'　<b>🛡️</b>':''}　<span>💀</span><b>${A.kills}</b>　${B?`<span style="color:#ff8a8a">大魔王 ${Math.max(0,Math.ceil(B.hp))}</span>`:`<span>大魔王 ${Math.max(0,Math.ceil(A.bossT-A.t))} 秒後</span>`}　<span style="color:${near<8?'#ff6a6a':'#ffe08a'}">離警戒線 ${near.toFixed(0)} m</span>`;
+    hud.innerHTML=[`<b>大軍團</b>・<span style="color:${N.D.c}">${N.D.n}</span>`,`<span>👥</span><b>${N.n}</b>`,`<span>${W.e}</span><b>${W.n}</b>${A.pow>1?`<span>×${A.pow.toFixed(1)}</span>`:''}${A.shield?' <b>🛡️</b>':''}`,`<span>💀</span><b>${A.kills}</b>`,B?`<span style="color:#ff8a8a">大魔王 ${Math.max(0,Math.ceil(B.hp))}</span>`:`<span>大魔王 ${Math.max(0,Math.ceil(A.bossT-A.t))} 秒後</span>`,`<span style="color:${near<8?'#ff6a6a':'#ffe08a'}">離警戒線 ${near.toFixed(0)} m</span>`].map(s=>`<i>${s}</i>`).join('　');
     for(const b of btns.querySelectorAll('[data-k]')){const k=b.dataset.k;if(!SK[k])continue;b.classList.toggle('cd',N.cdn[k]>0);b.style.setProperty('--p',(N.cdn[k]>0?100-N.cdn[k]/SK[k].cd*100:100)+'%');b.classList.toggle('act',N.sk[k]>0);}}
   function armyResult(win){const sc=Math.round((A.kills*2+A.maxN+(win?3000:0))*N.D.sc),sv=SAVE.army||(SAVE.army={best:0,win:-1});let rec='';if(sc>sv.best){sv.best=sc;rec='（新紀錄！）';}if(win&&N.dk>sv.win)sv.win=N.dk;save();const W=AWP[A.wl];
     const html=win?`<b>🏆 守住了！打倒大魔王</b><br>擊倒 ${A.kills} 個、最多 ${A.maxN} 人、武器 ${W.e} ${W.n}<br>難度 ${N.D.n}・分數 ${sc}${rec}`:`<b>${N.n<=0?'大軍被打光了…':'大魔王闖過警戒線了…'}</b><br>撐了 ${Math.floor(A.t)} 秒、擊倒 ${A.kills} 個、最多 ${A.maxN} 人、武器 ${W.e} ${W.n}<br>難度 ${N.D.n}・分數 ${sc}${rec}<br><small>站在哪一格就打哪一格：先站到紅色敵人前面把他們打光；藍色「+人」門加人、紅色桶子打到 0 換更強的武器</small>`;
