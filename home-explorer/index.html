@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-18.5"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-19.10"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -877,8 +877,15 @@
   <input id="vol" type="range" min="0" max="1" step="0.05" value="0.7">
   <label style="margin-top:8px"><span>靜音</span><input id="mute" type="checkbox"></label>
   <label style="margin-top:8px"><span>環境音（鳥叫、遠處車聲、晚上蟲鳴）</span><input id="amb" type="checkbox" checked></label>
+  <label style="margin-top:8px"><span>背景音樂</span><button id="bgmBox" style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px">🎵 音樂盒（試聽／循環／不要）</button></label>
+  <label style="margin-top:6px"><span>音樂音量</span><span id="bgmVal">60%</span></label>
+  <input id="bgmVol" type="range" min="0" max="1" step="0.05" value="0.6">
+  <p class="note" id="bgmNow" style="margin-top:2px"></p>
+  <label style="margin-top:8px"><span>說話聲</span><span><select id="voiceSel" style="background:var(--panel-2);color:inherit;border:1px solid var(--line);border-radius:8px;padding:4px;font-size:13px;max-width:130px"><option value="sim">模擬咿咿呀呀</option><option value="tts">朗讀文字</option><option value="off">關</option></select> <button id="voiceTest" style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px">▶ 聽聽看</button></span></label>
+  <label style="margin-top:8px"><span>腳步聲</span><input id="stepChk" type="checkbox" checked></label>
   <label style="margin-top:8px"><span>音效試聽</span><span><select id="sfxSel" style="background:var(--panel-2);color:inherit;border:1px solid var(--line);border-radius:8px;padding:4px;font-size:13px;max-width:150px"></select> <button id="sfxPlay" style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px">▶ 播放</button></span></label>
   <p class="note" style="margin-top:4px">第一次點畫面之後才會有聲音；iPhone 側邊的靜音開關打開時網頁沒有聲音。</p>
+  <p class="note" style="margin-top:2px">背景音樂的樂器音色：FluidR3_GM（Frank Wen），CC BY 3.0（creativecommons.org/licenses/by/3.0）。</p>
   <h3 style="margin-top:14px">人物</h3>
   <div class="grid" id="charG"></div>
   <div class="grid" id="charO"></div>
@@ -5843,7 +5850,7 @@ const RACE=(()=>{
        for(const o of [a,a+3]){navCol[o]=c0*fade;navCol[o+1]=c1*fade;navCol[o+2]=c2*fade;}}
      navG.attributes.position.needsUpdate=true;navG.attributes.color.needsUpdate=true;}
     R.hudT=(R.hudT||0)-dt;if(R.hudT<=0){R.hudT=0.1;hudDraw();drawMap();}};
-  function finish(){const pl=R.place,t=R.raceT;EARN([200,140,100,70,50,40,30,30][pl-1]||30,`賽車第 ${pl} 名`);if(R.net&&R.netSend)R.netSend({t:'rFin',tt:t,pl});say(pl===1?'第一名！優勝！做得好':`完賽，第 ${pl} 名`,'boost',true);AUDIO.sfx(pl===1?'bigcheer':'cheer');big(pl===1?'🏆 優勝！':`完賽 第 ${pl} 名`);
+  function finish(){const pl=R.place,t=R.raceT;EARN([200,140,100,70,50,40,30,30][pl-1]||30,`賽車第 ${pl} 名`);AMUS.jingle(pl<=3?'win':pl>=5?'lose':'');if(R.net&&R.netSend)R.netSend({t:'rFin',tt:t,pl});say(pl===1?'第一名！優勝！做得好':`完賽，第 ${pl} 名`,'boost',true);AUDIO.sfx(pl===1?'bigcheer':'cheer');big(pl===1?'🏆 優勝！':`完賽 第 ${pl} 名`);
     setTimeout(()=>{if(!R.on)return;resDraw();syncNetBtn();panel.hidden=false;},2500);}
   // 完賽結果（連線：每個一起跑的人的名次／時間；別人晚一點完賽也會更新）
   function resDraw(){if(!R.fin)return;const pl=R.fin.place,t=R.fin.t;panel.querySelector('.res').innerHTML=`<b>${pl===1?'🏆 優勝！':`第 ${pl} 名`}</b><br>總時間 ${fmtT(t)}　最快圈 ${fmtT(Math.min(...R.lapTimes))}`+
@@ -6381,7 +6388,7 @@ const NM=(()=>{
     for(const t of TIERS)if(t.glow>0&&t.mat.emissive){t.mat.emissive.set('#ffb000');t.mat.emissiveIntensity=0.45+0.25*Math.sin(performance.now()/150);}
     if(N.n<=0&&!flying.length){F.end+=dt;if(F.end>(F.boss?2.4:1.2)&&N.st==='finish'){N.st='done';result(true);}}}
   function result(ok){const F=N.fin||{lv:0,boss:false,n0:0},i=N.stage,stars=!ok?0:F.boss?3:F.lv>=6?2:F.lv>=1?1:0,score=ok?Math.round((F.lv*100+F.n0*5+(F.boss?2000:0))*N.D.sc):0;if(ok&&stars>0&&N.dk>SAVE.dw[i])SAVE.dw[i]=N.dk;
-    EARN(ok?40+stars*30:10,ok?`夜市套圈 ${stars} 星`:'夜市套圈');let msg='';if(stars>SAVE.stars[i])SAVE.stars[i]=stars;if(score>SAVE.best[i]){SAVE.best[i]=score;msg='（新紀錄！）';}
+    EARN(ok?40+stars*30:10,ok?`夜市套圈 ${stars} 星`:'夜市套圈');AMUS.jingle(ok?'win':'lose');let msg='';if(stars>SAVE.stars[i])SAVE.stars[i]=stars;if(score>SAVE.best[i]){SAVE.best[i]=score;msg='（新紀錄！）';}
     let prize='';if(F.boss){const k=['wheel','ball','flame'][i];if(!SAVE.prize[k]){SAVE.prize[k]=true;prize=['🎁 得到大獎：彩虹輪子！（選單「人物 → 直排輪改裝」換輪子顏色）','🎁 得到大獎：金色籃球！（籃球場拿球就是金色的）','🎁 得到大獎：彩虹火焰！（直排輪改裝裡打開）'][i];applyPrizes();}}
     save();for(const t of TIERS){t.mat.emissive.copy(t.base);t.mat.emissiveIntensity=1;}
     const html=ok?`<b>${F.boss?'🏆 套住大老闆！':stars?'過關！':'沒套上獎品塔'}</b><br>帶了 ${F.n0} 人到終點，套到 ×${F.lv}　${'★'.repeat(stars)}${'☆'.repeat(3-stars)}<br>難度 ${N.D.n}・分數 ${score}${msg}${prize?`<br>${prize}`:''}`:`<b>全軍覆沒…</b><br>再試一次！選比較大的數字、閃開障礙`;
@@ -7000,7 +7007,7 @@ const RB=(()=>{
     player.pos.set(CX-8.9,CZ);player.y=0;player.vel.set(0,0);hudDraw();};
   // 慢動作（主迴圈乘上去）
   R.rt=dt=>{if(!R.on)return 1;if(R.slow>0){R.slow-=dt;return 0.28;}return 1;};
-  function result(win){const i=R.stage;let msg='';EARN(win?80+i*20:10,win?`機器人擂台第 ${i+1} 關`:'機器人擂台');
+  function result(win){const i=R.stage;let msg='';EARN(win?80+i*20:10,win?`機器人擂台第 ${i+1} 關`:'機器人擂台');AMUS.jingle(win?'win':'lose');
     if(win){if(i+1>SAVE.cleared){SAVE.cleared=i+1;const rw=OPP[i].reward;if(rw==='gold'){SAVE.gold=true;paint(me,GOLD_C);msg='🏆 冠軍！得到金色塗裝';}else msg=`🎁 解鎖必殺技「${MOVES[rw].n}」！`;}
       const t=Math.round(99-R.time);if(!SAVE.best[i]||t<SAVE.best[i])SAVE.best[i]=t;save();}
     R.pickPanel();panel.querySelector('.res').innerHTML=win?`<b>${i===4?'🏆 冠軍！':'勝利！'}</b><br>打倒 ${R.O.name}（${Math.round(99-R.time)} 秒）${msg?'<br>'+msg:''}`:`<b>輸了…</b><br>${R.O.name} 剩 ${Math.round(F.op.hp)} 血。按住防禦擋重拳、看準空檔反擊，能量滿了放必殺技！`;
@@ -7613,7 +7620,7 @@ const SB=(()=>{
     player.pos.set(S.me.x,S.me.z);player.y=0;player.vel.set(0,0);
     hudDraw();if(S.net)netHost(dt);};
   S.rt=dt=>{if(!S.on||S.net)return 1;if(S.slow>0){S.slow-=dt;return 0.3;}return 1;};
-  function result(win){EARN(win?(S.net?100:80+S.stage*20):10,win?'鬥牛贏了':'鬥牛');if(S.net){netResult(win);return;}const i=S.stage,diff=T[0].score-T[1].score;let msg='';
+  function result(win){EARN(win?(S.net?100:80+S.stage*20):10,win?'鬥牛贏了':'鬥牛');AMUS.jingle(win?'win':'lose');if(S.net){netResult(win);return;}const i=S.stage,diff=T[0].score-T[1].score;let msg='';
     if(win){if(i+1>SAVE.cleared){SAVE.cleared=i+1;const rw=OPP[i].reward;if(rw==='shoes'){SAVE.shoes=true;msg='👟 得到金色球鞋（跑比較快）！';}else if(rw==='gold'){SAVE.gold=true;msg='🏆 冠軍！得到金色球衣';}else msg=`🎁 解鎖必殺技「${SP[rw].n}」！`;}
       if(!SAVE.best[i]||diff>SAVE.best[i])SAVE.best[i]=diff;save();AUDIO.sfx('bigcheer');}else AUDIO.sfx('over');
     const st=S.stats;S.pickPanel();panel.querySelector('.res').innerHTML=(win?`<b>${i===4?'🏆 冠軍！':'勝利！'}</b><br>${T[0].score} : ${T[1].score} 打贏${S.O.name}${msg?'<br>'+msg:''}`:`<b>輸了…</b><br>${T[0].score} : ${T[1].score}，${S.O.name}比較強。對手出手時按「蓋火鍋」、集氣滿了放必殺技！`)
@@ -8330,7 +8337,7 @@ const CU=(()=>{
   function die(force){if(K.dead)return;if(K.coop&&!force){if(!K.down){K.down=true;K.hp=0;K.revT=0;big('倒下了！等同伴來救');note('同伴站到你旁邊 3 秒就能把你救起來');AUDIO.sfx('over');}return;}   /* 合作：先倒地，兩個都倒下才結束（開房間那邊判定） */
     K.dead=true;K.st='dead';K.deadT=0;big(K.mode==='stage'||K.esc?'被作業淹沒了…':'倒下了…');AUDIO.sfx('over');AUDIO.musicStop();setTimeout(()=>{if(K.on&&K.st==='dead')result(false);},1700);}
   function winStart(){K.st='win';K.winT=0;big('🎓 過關！');AUDIO.sfx('cheer');hideTele();}
-  function result(ok){EARN(ok?120+(K.stage|0)*40:Math.min(200,Math.round((K.kills|0)/4)),ok?'校園大逃亡過關':'校園大逃亡');if(K.coop){if(K.chost&&K.netSend)K.netSend({t:'cuEnd',ok});K.coop=false;K.down=false;}const i=K.stage,hpk=Math.max(0,K.hp)/K.hpMax;let html='';K.score=K.kills*10+K.lv*50+(ok?Math.round(hpk*1000)+1000:0);
+  function result(ok){EARN(ok?120+(K.stage|0)*40:Math.min(200,Math.round((K.kills|0)/4)),ok?'校園大逃亡過關':'校園大逃亡');AMUS.jingle(ok?'win':'lose');if(K.coop){if(K.chost&&K.netSend)K.netSend({t:'cuEnd',ok});K.coop=false;K.down=false;}const i=K.stage,hpk=Math.max(0,K.hp)/K.hpMax;let html='';K.score=K.kills*10+K.lv*50+(ok?Math.round(hpk*1000)+1000:0);
     if(K.mode==='stage'||K.esc){const stars=ok?(hpk>=0.6?3:hpk>=0.3?2:1):0,first=ok&&!SAVE.stars[i];if(stars>SAVE.stars[i])SAVE.stars[i]=stars;if(ok&&K.score>SAVE.best[i])SAVE.best[i]=K.score;let grad='';if(ok&&i===4&&!SAVE.grad){SAVE.grad=true;cuGrad=true;grad='<br>🎓 <b>畢業了！</b>得到學士服（衣櫃的「全部」裡，男女都有）';}save();
       html=ok?`<b>🎓 過關！${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</b><br>${K.dept.ico} ${K.dept.n}・擊倒 ${K.kills} 隻・Lv ${K.lv}・剩 ${Math.round(hpk*100)}% 生命・${K.score} 分${first?`<br>📜 得到獎狀：${STG[i].n.split('・')[1]}（大門口的榮譽榜）`:''}${grad}`:`<b>沒逃出去…</b><br>走了 ${Math.round(K.prog*100)}%・擊倒 ${K.kills} 隻・Lv ${K.lv}<br><small>沿路撿武器箱、愛心、護盾；看到大魔王的紅色範圍就閃開；大招冷卻好就按</small>`;}
     else{const t=K.t,rec=t>SAVE.eT;if(rec)SAVE.eT=Math.floor(t);if(K.kills>SAVE.eK)SAVE.eK=K.kills;save();const md=t>=600?'🥇 金牌':t>=360?'🥈 銀牌':t>=180?'🥉 銅牌':'';
@@ -9691,7 +9698,7 @@ const DD=(()=>{
     for(const q of CONES){q.c.rotation.z=Math.sin((D.time||0)*0.9+q.k*1.7)*0.45;q.c.rotation.x=Math.cos((D.time||0)*0.7+q.k)*0.25;const pal=palOf(b);q.m.color.set(pal[(q.k+3)%3]);q.m.opacity=0.1+0.1*Math.pow(1-(((b%1)+1)%1),2);}}
   function finish(){const S=D.S,dv=D.dv,tot=D.nSteps,pct=tot?(D.score/tot)*100:0,fc=!D.failed&&D.cnt[4]===0&&D.cnt[5]===0&&D.ng===0;
     const g=D.failed?'E':pct>=98&&fc?'AAA':pct>=93?'AA':pct>=85?'A':pct>=75?'B':pct>=60?'C':'D',score=Math.round(1e6*D.score/Math.max(1,tot));
-    mzStop(0.4);D.play=false;let rec='';if(!D.auto)EARN((D.failed?10:{AAA:150,AA:120,A:90,B:60,C:40,D:20}[g]||20)*(1+dv*0.25),`跳舞機 ${g}`);
+    mzStop(0.4);D.play=false;let rec='';if(!D.auto)EARN((D.failed?10:{AAA:150,AA:120,A:90,B:60,C:40,D:20}[g]||20)*(1+dv*0.25),`跳舞機 ${g}`);if(!D.auto)AMUS.jingle(D.failed?'lose':/^A/.test(g)?'win':'');
     if(!D.auto){const key=S.id+':'+dv,o=SAVE.best[key];if(!o||score>o.s){SAVE.best[key]={s:score,g,fc:fc||(o&&o.fc)};rec=o?'<br>🎉 新紀錄！':'';save();}else if(fc&&!o.fc){o.fc=true;save();}}
     AUDIO.sfx(D.failed?'over':'cheer');if(fc&&!D.auto)big('FULL COMBO!');
     showPanel(`<div class="grade" style="color:${GCOL[g]}">${g}</div><b>${D.failed?'失敗…（血條歸零）':D.auto?'自動示範結束':'過關！'}</b>　${S.n}・${DIFFN[dv]}${fc?'　<b style="color:#ffd23a">FULL COMBO ★</b>':''}<br>`+
@@ -10304,7 +10311,7 @@ const KF=(()=>{const K={on:false,ph:'idle'};
     if(K.ph==='end'&&K.pt>1.6&&!K.ended){K.ended=true;roundEnd();}
     if(K.ph==='end'&&K.pt>3.4){K.ended=false;if(matchOver()){K.ph='over';K.pt=0;matchEnd();}else roundStart();}
     hud(false);if(K.netHost)K.netSend&&K.netHostSend(dt);};
-  function matchEnd(){const me=F[0],won=me.wins>F[1].wins;K.play=false;hud(true);EARN(won?(K.net?100:K.stage>=7?300:60+K.stage*15)*(SAVE.auto&&!K.net?0.5:1):10,won?(K.net?'武道快打對打贏了':`武道快打第 ${K.stage+1} 關`):'武道快打');
+  function matchEnd(){const me=F[0],won=me.wins>F[1].wins;K.play=false;hud(true);AMUS.jingle(won?'win':'lose');EARN(won?(K.net?100:K.stage>=7?300:60+K.stage*15)*(SAVE.auto&&!K.net?0.5:1):10,won?(K.net?'武道快打對打贏了':`武道快打第 ${K.stage+1} 關`):'武道快打');
     if(K.net){em('me',won?0:1);if(K.netHost&&K.netSend){K.sendT=0;K.netHostSend(0);}if(K.onNetEnd)K.onNetEnd(won);showPanel(`<div class="big" style="color:${won?'#3fbf7a':'#ff5a2a'}">${won?'🏆 你贏了！':'輸了…'}</div>跟 ${K.netName} 對打 ${me.wins}：${F[1].wins}`);return;}
     if(won){const sec=Math.round((performance.now()-K.t0)/1000);if(K.stage+1>SAVE.reach)SAVE.reach=Math.min(8,K.stage+1);
       if(K.stage>=7){const first=!SAVE.clear;SAVE.clear=true;sfx('bigcheer');save();showPanel(`<div class="big" style="color:#ffcf2f">🏆 打倒鋼鐵魔王！武道王！</div>${first?'🎁 解鎖：可以用「鋼鐵魔王」上場（選流派最後一個）':'再打一次也很帥！'}`,true);return;}
@@ -11341,13 +11348,13 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     else if(cu.mood==='happy'){const w=Math.sin(cu.t*12);A.armR.rotation.set(-2.6,0,0.3+w*0.3);A.foreR.rotation.x=-0.3;A.armL.rotation.set(-0.5,0,0);A.foreL.rotation.x=-1.1;}
     else{const k=cu.pat/cu.patMax;A.armL.rotation.set(-0.5,0,-0.1);A.armR.rotation.set(-0.5,0,0.1);A.foreL.rotation.x=A.foreR.rotation.x=-1.0;if(k<0.3){A.head.rotation.y=Math.sin(cu.t*5)*0.4;A.foreR.rotation.x=-1.0+Math.sin(cu.t*14)*0.25;}}}
   function custTick(cu,dt){if(cu.fid){friendTick(cu,dt);return;}cu.t+=dt;const A=cu.A;   /* fid：朋友（真人）客人 */
-    if(cu.st==='in'||cu.st==='out'){const tgt=cu.path[cu.pi];if(!tgt){if(cu.st==='in'){cu.st='wait';cu.pat=cu.patMax;cu.yaw=0;cu.bub.s.visible=true;cu.t=0;tryServe();}else{cu.st='gone';}return;}
+    if(cu.st==='in'||cu.st==='out'){const tgt=cu.path[cu.pi];if(!tgt){if(cu.st==='in'){cu.st='wait';cu.pat=cu.patMax;cu.yaw=0;cu.bub.s.visible=true;cu.t=0;if(!cu.fid)AMUS.talk('我要'+DISH[cu.dish].n+'！',{x:cu.x,z:cu.z},'cu'+cu.seed);tryServe();}else{cu.st='gone';}return;}
       const dx=tgt[0]-cu.x,dz=tgt[1]-cu.z,d=Math.hypot(dx,dz),sp=1.5*dt;if(d<=sp){cu.x=tgt[0];cu.z=tgt[1];cu.pi++;}else{cu.x+=dx/d*sp;cu.z+=dz/d*sp;const ty=Math.atan2(-dx,-dz);let dy=ty-cu.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));cu.yaw+=dy*Math.min(1,dt*10);}
       cu.ph+=dt*7;walkAnim(A,cu.ph,1);A.root.position.set(cu.x,0.03,cu.z);A.root.rotation.y=cu.yaw+Math.PI;
       if(cu.st==='out'&&cu.mood&&cu.t>2.2){cu.bub.s.visible=false;}return;}
     // 坐著：面向廚房
     A.root.position.set(cu.x,0.03,cu.z);{let dy=Math.PI-cu.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));cu.yaw+=dy*Math.min(1,dt*8);}A.root.rotation.y=cu.yaw+Math.PI;
-    if(cu.st==='wait'){if(!cu.coming&&!R.over)cu.pat-=dt;if(cu.pat<=0){cu.mood='sad';leave(cu);stat.miss++;snd('sad');popTxt('😢 等太久了','#ff8a8a',cu.x,2.6,cu.z);}}
+    if(cu.st==='wait'){if(!cu.coming&&!R.over)cu.pat-=dt;if(cu.pat<=0){cu.mood='sad';leave(cu);stat.miss++;snd('sad');if(!cu.fid)AMUS.talk('😢',{x:cu.x,z:cu.z},'cu'+cu.seed,true);popTxt('😢 等太久了','#ff8a8a',cu.x,2.6,cu.z);}}
     else if(cu.st==='eat'){if(cu.t>3.6&&cu.mood!=='happy'){cu.mood='happy';cu.t=3.6;}if(cu.t>4.6){if(cu.dishM){dishFree(cu.dishM);cu.dishM=null;}leave(cu);}}
     sitAnim(A,cu,dt);drawBubble(cu);}
   function leave(cu){cu.st='out';cu.t=0;cu.path=[[cu.T.x,43.35],[52,Z0+0.8],[52,38.4]];cu.pi=0;cu.T.busy=null;if(cu.mood!=='sad')cu.bub.s.visible=false;else drawBubble(cu);}
@@ -11362,7 +11369,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     PASS.forEach((p,i)=>{const q=passPos(i);p.m.position.set(q.x,q.y,q.z);});}
   function served(f){const cu=f.cu;cu.coming=false;if(cu.st!=='wait'){dishFree(f.m);return;}
     cu.st='eat';cu.t=0;cu.q=f.q;cu.dishM=f.m;f.m.position.set(cu.T.x,0.78,cu.T.z-0.12);const D=DISH[cu.dish],pk=cu.pat/cu.patMax;
-    const tip=Math.round(D.price*(0.12*f.q+0.35*pk)*(SAVE.up.decor?1.3:1)),pay=D.price+tip;if(f.q===3)checkStar(cu.dish);stat.coins+=pay;if(cu.fid)NT.send(cu.fid,{t:'rsE',e:'served',k:cu.dish,q:f.q});else{stat.served++;stat.qsum+=f.q;}snd('coin');popTxt(`+${pay} 🪙`,'#ffe14a',cu.x,2.75,cu.z);hudDirty=true;}
+    const tip=Math.round(D.price*(0.12*f.q+0.35*pk)*(SAVE.up.decor?1.3:1)),pay=D.price+tip;if(f.q===3)checkStar(cu.dish);stat.coins+=pay;if(cu.fid)NT.send(cu.fid,{t:'rsE',e:'served',k:cu.dish,q:f.q});else{stat.served++;stat.qsum+=f.q;AMUS.talk(f.q===3?'😋':'👍',{x:cu.x,z:cu.z},'cu'+cu.seed,true);}snd('coin');popTxt(`+${pay} 🪙`,'#ffe14a',cu.x,2.75,cu.z);hudDirty=true;}
   // ================= 做菜（小遊戲） =================
   const ui=document.createElement('div');ui.id='rsUI';ui.hidden=true;
   ui.innerHTML=`<div class="top"><span class="info"></span><button class="exit">離開</button></div><div class="tk"></div><div class="dishes"></div>
@@ -11617,7 +11624,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     let stars=0;if(!early||spawned>=n){if(sv>=Math.ceil(n*0.6))stars=1;if(sv>=Math.ceil(n*0.8)&&aq>=2)stars=2;if(sv>=n&&aq>=2.5)stars=3;}
     const key='d'+R.day,arr=Array.isArray(SAVE.b[key])?SAVE.b[key]:[0,0,0];const nb=stars>(arr[R.diff]|0);arr[R.diff]=Math.max(arr[R.diff]|0,stars);SAVE.b[key]=arr;const unl=stars>=1&&R.day<NDAY&&SAVE.u<R.day+1;if(stars>=1)SAVE.u=Math.max(SAVE.u,Math.min(NDAY,R.day+1));SAVE.coins+=stat.coins;save();
     for(const c of custs)if(c.fid&&c.st!=='gone'){NT.send(c.fid,{t:'rsE',e:'closed'});c.st='gone';}if(nt()&&HELP.size)NT.send('*',{t:'rsE',e:'end',stars,sv,n,coins:stat.coins,day:R.day,diff:R.diff});
-    const money=sv?Math.round(([10,40,70,100][stars]+(stars?(R.day-1)*15:0))*[0.8,1,1.3][R.diff]):0;   /* 一個客人都沒招待到：不給錢（不能一直開店又關掉賺錢） */EARN(money,`小餐館第 ${R.day} 天 ${'⭐'.repeat(stars)||''}`);
+    const money=sv?Math.round(([10,40,70,100][stars]+(stars?(R.day-1)*15:0))*[0.8,1,1.3][R.diff]):0;   /* 一個客人都沒招待到：不給錢（不能一直開店又關掉賺錢） */EARN(money,`小餐館第 ${R.day} 天 ${'⭐'.repeat(stars)||''}`);AMUS.jingle(stars?'win':'lose');
     AUDIO.sfx(stars>=2?'bigcheer':stars?'cheer':'over');
     pn.innerHTML=`<div class="hd"><b>🍳 第 ${R.day} 天 打烊囉！</b></div><div class="big">${starStr(stars)}</div>
       <div class="res"><div>😋 吃到的客人 <b>${sv} / ${n}</b></div><div>⭐ 平均好吃 <b>${aq?aq.toFixed(1):'-'}</b> / 3</div><div>🪙 今天賺了 <b>${stat.coins}</b>（存款 ${SAVE.coins}，可以升級廚房）</div>${stat.miss?`<div>😢 等太久走掉 <b>${stat.miss}</b></div>`:''}</div>
@@ -12879,7 +12886,7 @@ function updatePlace(){
   else if(inR(x,z,NB))t=['側邊空地',''];
   else if(Math.hypot(x-RING.cx,z-RING.cz)<RING.r1+2)t=['大圓環',Math.hypot(x-RING.cx,z-RING.cz)<RING.r0?'安全島（噴水池）':'圓環'];
   else for(const r of ROADS)if(inR(x,z,r)){t=[r.name,'道路'];break;}
-  syncActBtn();
+  syncActBtn();AMUS.see(t[0]);
   const html=`<b>${t[0]}</b><span>${t[1]}</span>`;
   if(html!==lastPlace){placeEl.innerHTML=html;lastPlace=html;}
 }
@@ -12916,7 +12923,9 @@ const AUDIO=(()=>{
     A.send=c.createGain();A.send.gain.value=0.2;A.send.connect(A.verb);
     A.sfx=c.createGain();A.sfx.gain.value=0.85;A.sfx.connect(comp);A.sfx.connect(A.send);
     A.music=c.createGain();A.music.gain.value=0;A.music.connect(comp);{const s=c.createGain();s.gain.value=0.16;A.music.connect(s);s.connect(A.verb);}
-    A.amb=c.createGain();A.amb.gain.value=0;A.amb.connect(comp);{const s=c.createGain();s.gain.value=0.3;A.amb.connect(s);s.connect(A.verb);}}
+    A.amb=c.createGain();A.amb.gain.value=0;A.amb.connect(comp);{const s=c.createGain();s.gain.value=0.3;A.amb.connect(s);s.connect(A.verb);}
+    A.bgm=c.createGain();A.bgm.gain.value=1;A.bgm.connect(comp);{const s=c.createGain();s.gain.value=0.32;A.bgm.connect(s);s.connect(A.verb);}   /* 2026-10-19 區域背景音樂（AMUS） */
+    A.voice=c.createGain();A.voice.gain.value=0.9;A.voice.connect(comp);{const s=c.createGain();s.gain.value=0.08;A.voice.connect(s);s.connect(A.verb);}}   /* 說話聲 */
   function init(){
     try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(_){}   // iPhone：側邊靜音開關打開時網頁也能出聲（Safari 16.4 以上）
     if(A.ctx){if(A.ctx.state!=='running'&&!document.hidden)A.ctx.resume().catch(()=>{});return;}
@@ -13207,6 +13216,773 @@ const AUDIO=(()=>{
     let pk=0,ss=0,last=0;const n=buf.length;for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<n;i++){const v=Math.abs(d[i]);if(!(v<=10))return {type,err:'NaN'};if(v>pk)pk=v;ss+=v*v;if(v>0.003&&i>last)last=i;}}
     return {type,len:+(last/44100).toFixed(2),peak:+pk.toFixed(3),rms:+Math.sqrt(ss/(2*n)).toFixed(4)};}
   return {sfx,chargeSound,musicStart,musicStop,setTempo,skateLoop,skateMusic,engine,A,test,beat:bpm=>A.beat(bpm),syn:{drum,tone,noise,kick,pad,fm}};   /* syn：跳舞機的舞曲用 */
+})();
+
+/* ---------------- 區域背景音樂、說話聲、腳步聲（2026-10-19） ----------------
+   使用者看了別人的網頁遊戲（每句台詞有配音、音樂分探索／頭目、音量分好幾條）後要「改善背景音樂跟音效、互動講話有模擬聲音」：
+   - 背景音樂：要像天堂 1（海音村、亞丁城、說話之島、妖精森林、奇岩村）那種奇幻城鎮音樂 → 那些曲子有版權不能抄，這裡全部是**原創曲**，
+     只取同樣的感覺（長笛、弦樂、豎琴、魯特琴、號角、揚琴，小調／教會調式）。每個區域一首（TR），一首＝A A B A 四段＋結尾約 1～1.5 分鐘；
+     自動模式：放完休息 20～35 秒（只剩環境音）再放；選單可以選一首循環播放、或關掉。玩有自己音樂的小遊戲時淡出，打網球／籃球／小餐館等小聲。
+     撥弦（豎琴、魯特琴、揚琴）用 Karplus-Strong 先算好每 4 個半音一個樣本（ksBuf），播的時候調 playbackRate。
+   - 說話聲（talk）：每個字一個「音節」＝鋸齒／方波經過兩個母音共振峰，音高照字碼選四種聲調起伏（像國語的一二三四聲）；
+     每個人（id）聲音高低、快慢、音色不同；問號尾巴往上、驚嘆號大聲、～拉長；表情符號有對應的笑聲／哇／嗚嗚…；選單可以改成朗讀（瀏覽器語音）或關。
+     說話時背景音樂壓低一點（duck）。
+   - 腳步聲：照走的距離踩一步，室內木頭地板、草地沙沙、外面石板路，很小聲，選單可以關。
+   測試：AMUS.render('home',20) 離線算出音樂的峰值／RMS；AMUS.dbg() 看現在狀態。 */
+const AMUS=(()=>{
+  const A=AUDIO.A,rnd=(a,b)=>a+Math.random()*(b-a),midi=n=>440*Math.pow(2,(n-69)/12);
+  const S={mode:'auto',vol:0.6,voice:'sim',step:true,no:{}};
+  try{Object.assign(S,JSON.parse(localStorage.getItem('home-bgm')||'{}'));}catch(_){}
+  const save=()=>{try{localStorage.setItem('home-bgm',JSON.stringify(S));}catch(_){}};
+  if(!S.no||typeof S.no!=='object')S.no={};
+  let boxDraw=null;
+  const P={T:null,key:null,g:null,out:null,duck:null,u:0,us:0.3,next:0,restUntil:0,cand:null,candT:0,area:'',off:false,night:false,pv:null,pick:{}};   /* pv＝音樂盒試聽／循環 {k,loop}；pick＝每個區域這一輪選中哪一首 */
+  const ok=()=>A.ctx&&(P.off||A.ctx.state==='running');
+  // ---- 音名、和弦、旋律 ----
+  const PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11},acc=s=>s==='#'?1:s==='b'?-1:0;
+  function note(s){const m=/^([A-G])([#b]?)(\d)$/.exec(s);if(!m)throw new Error('AMUS 音名 '+s);return 12*(+m[3]+1)+PC[m[1]]+acc(m[2]);}
+  const CH={};
+  function chordOf(s){if(CH[s])return CH[s];const m=/^([A-G])([#b]?)(m(?!aj))?(maj7|7|9|sus2|sus4|dim)?(?:\/([A-G])([#b]?))?$/.exec(s);if(!m)throw new Error('AMUS 和弦 '+s);const r=48+((PC[m[1]]+acc(m[2])+12)%12),q=m[4]||'';
+    return CH[s]={r,t:q==='sus2'?r+2:q==='sus4'?r+5:q==='dim'?r+3:r+(m[3]?3:4),f:q==='dim'?r+6:r+7,s:q==='7'?r+10:0,x:q==='maj7'?r+11:q==='7'?r+10:q==='9'?r+14:0,bs:m[5]?36+((PC[m[5]]+acc(m[6])+12)%12):r-12};}   /* x＝七音／九音；bs＝低音（斜線和弦 G/B 的 B） */
+  function mel(str,bar,name,nb){const ev=new Map(),seq=[];let u=0;for(const tk of str.trim().split(/\s+/)){const [n,ds]=tk.split(':'),q=ds.split('/'),d=q.length>1?q[0]/q[1]:+ds;if(n!=='r'){const s=Math.floor(u+1e-6),a=ev.get(s)||[],e={d,m:note(n),f:u-s};a.push(e);ev.set(s,a);seq.push(e);}else seq.push(null);u+=d;}
+    for(let i=0;i<seq.length;i++){const e=seq[i];if(!e)continue;if(seq[i+1])e.leg=true;if(i>0&&seq[i-1])e.cont=true;}   /* 連音：後面緊接著另一個音＝延長接上；前面緊接著＝起音輕一點 */
+    if(Math.abs(u-bar*(nb||8))>0.01)console.warn('AMUS 旋律長度不對',name,u,'應該',bar*(nb||8));return ev;}   /* 長度可以寫 1/2（十六分音符）、2/3（三連音） */
+  // ---- 9 首原創曲（每段 8 小節；bar＝每小節幾個八分音符；u＝八分音符幾秒） ----
+  // acc 伴奏：waltz 圓舞曲、arp 豎琴琶音、lute 魯特琴分解和弦、jig 吉格舞、off 反拍、ost 弦樂頑固低音；perc 打擊樂；lead 每一段的主奏樂器、lo 移幾個半音
+  const TR={
+    home:{n:'暖爐小屋',w:'我家',u:60/84/2,bar:6,acc:'waltz',pad:0.7,perc:'none',lead:['flute','bell','flute','flute'],lo:[0,0,0,0],
+      A:['F','C','Dm','Bb','F','Gm','C','F'],B:['Dm','Am','Bb','F','Gm','Dm','C','C'],
+      a:'A4:3 C5:1 F5:2  E5:4 D5:1 C5:1  D5:3 F5:1 A5:2  G5:3 F5:1 D5:2  C5:3 A4:1 C5:2  Bb4:2 D5:2 G5:2  F5:3 E5:1 D5:1 E5:1  F5:6',
+      b:'F5:2 E5:2 D5:2  C5:3 E5:1 A5:2  Bb5:3 A5:1 G5:2  A5:4 F5:2  G5:2 A5:2 Bb5:2  A5:3 F5:1 D5:2  E5:2 G5:2 Bb5:2  G5:3 E5:1 C5:2'},
+    street:{n:'石板路小鎮',w:'街道、空地',u:60/88/2,bar:8,acc:'lute',pad:0.5,perc:'frame',lead:['flute','reed','flute','flute'],lo:[0,0,0,0],
+      A:['Dm','C','Bb','A','Dm','F','G','A'],B:['Bb','C','Am','Dm','Bb','C','A','A'],
+      a:'D5:3 E5:1 F5:2 A5:2  G5:4 E5:2 C5:2  D5:3 F5:1 Bb5:2 A5:2  A5:4 C#5:2 E5:2  F5:3 E5:1 D5:2 A4:2  C5:3 D5:1 F5:2 A5:2  B5:3 A5:1 G5:2 D5:2  E5:6 r:2',
+      b:'F5:2 Bb5:2 D6:3 C6:1  C6:4 G5:2 E5:2  A5:3 G5:1 E5:2 C5:2  D5:6 F5:2  Bb5:3 A5:1 G5:2 F5:2  E5:3 F5:1 G5:4  A5:2 G5:2 F5:2 E5:2  C#5:4 E5:2 r:2'},
+    market:{n:'燈籠市集',w:'夜市',u:60/112/2,bar:8,acc:'off',pad:0,perc:'market',lead:['dulc','dulc','flute','dulc'],lo:[0,0,0,0],
+      A:['G','Em','C','D','G','Em','Am','D'],B:['C','D','Bm','Em','C','D','G','G'],
+      a:'D5:1 E5:1 G5:2 A5:1 G5:1 E5:2  D5:2 B4:1 D5:1 E5:4  G5:1 A5:1 B5:2 A5:1 G5:1 E5:2  A5:3 B5:1 A5:2 D5:2  B5:2 A5:1 G5:1 E5:2 G5:2  A5:1 G5:1 E5:2 D5:2 B4:2  A4:2 B4:1 D5:1 E5:2 G5:2  A5:6 r:2',
+      b:'E6:2 D6:1 B5:1 A5:2 G5:2  A5:2 B5:1 A5:1 D5:4  D6:2 B5:2 A5:1 B5:1 D6:2  E6:6 D6:1 B5:1  A5:2 G5:1 E5:1 G5:2 A5:2  B5:2 A5:2 D6:3 B5:1  A5:1 B5:1 A5:1 G5:1 E5:2 D5:2  G5:6 r:2'},
+    academy:{n:'白塔學院',w:'晴空大學',u:60/76/2,bar:8,acc:'arp',pad:1,perc:'timp',lead:['horn','flute','horn','horn'],lo:[0,0,0,0],
+      A:['Bb','F','Gm','Eb','Bb','F','Eb,F','Bb'],B:['Gm','D','Eb','Bb','Cm','F','Gm,Eb','F'],
+      a:'F4:3 Bb4:1 D5:4  C5:3 A4:1 F4:4  G4:2 Bb4:2 D5:2 G5:2  G5:3 F5:1 Eb5:4  D5:3 Eb5:1 F5:2 Bb5:2  A5:3 G5:1 F5:4  G5:3 Eb5:1 F5:2 C5:2  Bb4:8',
+      b:'D5:3 G5:1 Bb5:4  A5:3 F#5:1 D5:4  Eb5:2 G5:2 Bb5:2 Eb6:2  D6:6 C6:1 Bb5:1  C6:3 Bb5:1 G5:2 Eb5:2  F5:3 G5:1 A5:2 C6:2  Bb5:3 A5:1 G5:2 Eb5:2  F5:4 C5:2 A4:2'},
+    meadow:{n:'晴空草原',w:'運動場、球場、跳台',u:60/100/3,bar:6,acc:'jig',pad:0,perc:'jig',lead:['flute','reed','flute','reed'],lo:[0,0,0,0],
+      A:['D','G','D','A','D','G','A','D'],B:['G','A','F#m','Bm','G','A','G,A','D'],
+      a:'A4:2 D5:1 F#5:2 D5:1  G5:2 B5:1 A5:2 G5:1  F#5:1 E5:1 D5:1 F#5:1 A5:1 F#5:1  E5:3 C#5:2 A4:1  D5:2 F#5:1 A5:2 D6:1  B5:1 A5:1 G5:1 B5:2 G5:1  A5:1 G5:1 F#5:1 E5:2 C#5:1  D5:5 r:1',
+      b:'B5:2 D6:1 B5:2 G5:1  A5:2 C#6:1 E6:2 C#6:1  F#5:1 A5:1 C#6:1 A5:2 F#5:1  B5:3 D6:2 B5:1  G5:2 B5:1 D6:2 B5:1  A5:1 B5:1 C#6:1 E6:3  D6:1 B5:1 G5:1 C#6:1 A5:1 E5:1  D5:5 r:1'},
+    harbor:{n:'港口商店街',w:'商店、餐館、推幣樂園',u:60/100/2,bar:8,acc:'off',pad:0.35,perc:'shaker',lead:['accord','bell','accord','accord'],lo:[0,0,0,0],
+      A:['C','Am','F','G','C','Am','Dm,G','C'],B:['F','G','Em','Am','Dm','E','Am,D','G'],
+      a:'E5:2 G5:2 C6:3 B5:1  A5:2 E5:2 C5:4  F5:2 A5:2 C6:2 A5:2  G5:3 F5:1 D5:4  E5:2 C5:1 E5:1 G5:2 C6:2  B5:2 A5:2 E5:2 C5:2  D5:2 F5:2 B4:2 D5:2  C5:6 r:2',
+      b:'A5:3 G5:1 F5:2 C5:2  D5:3 E5:1 F5:2 B4:2  E5:2 G5:2 B5:3 A5:1  A5:6 G5:2  F5:3 E5:1 D5:2 A5:2  G#5:4 B5:2 E5:2  C6:2 A5:2 F#5:2 A5:2  G5:4 B4:2 D5:2'},
+    arena:{n:'勇者競技場',w:'賽車場、擂台',u:60/120/2,bar:8,acc:'ost',pad:0.7,perc:'march',lead:['horn','horn','reed','horn'],lo:[-12,0,-12,-12],
+      A:['Dm','Bb','C','Dm','Dm','Bb','C','A'],B:['Bb','C','F','A','Bb','C','Dm,Bb','A'],
+      a:'D5:3 D5:1 A5:4  Bb5:2 A5:2 G5:2 F5:2  G5:3 E5:1 C5:4  D5:2 E5:2 F5:4  A5:3 A5:1 D6:4  C6:2 Bb5:2 A5:2 F5:2  G5:2 A5:1 Bb5:1 C6:2 E5:2  A5:6 C#5:2',
+      b:'F5:3 G5:1 Bb5:4  C6:3 Bb5:1 G5:4  A5:2 F5:2 C5:2 F5:2  E5:6 A4:2  D5:2 F5:2 Bb5:3 A5:1  G5:2 C6:2 E6:3 D6:1  D6:2 A5:2 Bb5:2 F5:2  E5:4 C#5:2 A4:2'},
+    sky:{n:'雲之歌',w:'熱氣球',u:60/66/2,bar:8,acc:'arp',pad:1,perc:'none',lead:['flute','bell','flute','bell'],lo:[0,0,0,0],
+      A:['E','F#','E','F#','C#m','B','A','B'],B:['A','E','A','B','G#m','C#m','A','B'],
+      a:'B5:4 G#5:2 B5:2  A#5:6 F#5:2  G#5:3 B5:1 E6:4  C#6:4 A#5:4  E6:3 C#6:1 G#5:4  F#5:3 B5:1 D#6:4  C#6:3 B5:1 A5:2 E5:2  F#5:8',
+      b:'E6:4 C#6:2 A5:2  B5:6 G#5:2  A5:3 B5:1 C#6:2 E6:2  D#6:6 B5:2  B5:3 G#5:1 D#5:4  E5:4 G#5:2 C#6:2  C#6:3 B5:1 A5:2 C#6:2  B5:8'},
+    moon:{n:'月光森林',w:'晚上的街道',u:60/72/2,bar:6,acc:'arp',pad:0.8,perc:'none',lead:['flute','bell','flute','harp'],lo:[0,0,0,0],
+      A:['Em','C','G','D','Em','Am','B','Em'],B:['C','D','Bm','Em','C','D','B','B'],
+      a:'B4:2 E5:2 G5:2  G5:3 E5:1 C5:2  D5:2 G5:2 B5:2  A5:4 F#5:2  G5:3 F#5:1 E5:2  C6:3 B5:1 A5:2  F#5:2 D#5:2 B4:2  E5:6',
+      b:'E6:3 D6:1 C6:2  D6:3 C6:1 A5:2  B5:2 F#5:2 D5:2  E5:4 G5:2  G5:3 A5:1 C6:2  B5:2 A5:2 F#5:2  F#5:3 D#5:1 B4:2  B4:4 r:2'}};
+  const ORDER=['home','street','market','academy','meadow','harbor','arena','sky','moon'];
+  const DESC={home:'溫暖的三拍圓舞曲，長笛＋豎琴',street:'D 小調，魯特琴分解和弦，有點懷舊',market:'五聲音階，揚琴＋手鼓鈴鼓，熱鬧',academy:'降 B 大調，號角＋定音鼓，莊嚴',meadow:'6/8 吉格舞，長笛＋雙簧，輕快',harbor:'手風琴＋撥弦貝斯＋沙鈴，生活感',arena:'D 小調，弦樂頑固低音＋號角，英勇',sky:'E 利底亞，豎琴琶音＋長笛，空靈',moon:'E 小調三拍，豎琴＋長笛＋鐘琴，神秘'};
+  for(const k of ORDER){const T=TR[k];T.ar=T.ar||k;T.g=T.g||'我家漫遊原創・第一版';T.d=T.d||DESC[k]||'';}
+  // ---- 天堂參考・第一批（2026-10-19）：每一項 3 首「類似感覺」的原創曲（旋律都是自己寫的，不抄原曲），放進音樂盒讓使用者挑 ----
+  // 方向照開發進度第 8 節「天堂音樂分析清單」＋使用者給的另一份 AI 分析（三層編曲：主旋律＋分解和弦＋低音、旋律留 2～4 拍呼吸）。
+  // 畫面上的群組名稱不寫遊戲名、地名（L02＝清單編號）；ar＝放在哪個區域（login＝一進入遊戲先放一首序曲）；dbl＝某幾段另一個樂器跟著吹（i＝移幾個半音）
+  const LIN=[
+    {g:'L02 初心之島・港灣民謠',ar:'street',list:[
+      {k:'l02a',n:'初心港灣',d:'C 大調 78 拍，雙簧管＋尼龍吉他分解和弦，第二、四段長笛高八度跟著吹',u:60/78/2,bar:8,acc:'guitar',pad:0.3,perc:'none',lead:['oboe','oboe','oboe','oboe'],lo:[0,0,0,0],dbl:{p:[1,3],ins:'flute',i:12,v:0.4},
+        A:['C','G/B','Am','F','C','G/B','F','G'],B:['Am','Em','F','C','Dm','Am','F','G'],
+        a:'G4:2 C5:2 E5:3 D5:1  D5:4 r:2 B4:2  C5:2 E5:2 A5:3 G5:1  F5:4 r:4  E5:2 G5:2 C6:3 B5:1  A5:2 G5:2 D5:4  F5:2 E5:2 D5:2 C5:2  D5:6 r:2',
+        b:'A5:3 G5:1 E5:4  G5:2 B5:2 E5:4  A5:2 G5:2 F5:2 C5:2  E5:6 r:2  F5:3 E5:1 D5:2 A4:2  C5:2 E5:2 A5:4  G5:2 F5:2 E5:2 D5:2  D5:4 B4:2 r:2'},
+      {k:'l02b',n:'出航前夕',d:'C 大調 84 拍，長笛和雙簧管輪流，比較輕快，有一點沙鈴',u:60/84/2,bar:8,acc:'guitar',pad:0.25,perc:'shaker',lead:['flute','oboe','flute','oboe'],lo:[0,0,0,0],
+        A:['C','G','Am','F','C','G','F,G','C'],B:['F','G','Em','Am','F','G','Am,F','G'],
+        a:'C5:1 D5:1 E5:2 G5:2 E5:2  D5:3 B4:1 G4:4  A4:1 B4:1 C5:2 E5:2 C5:2  A4:6 r:2  G5:1 F5:1 E5:2 G5:2 C6:2  B5:2 A5:1 G5:1 D5:4  C5:2 A4:2 B4:2 D5:2  C5:6 r:2',
+        b:'A5:3 G5:1 F5:2 C5:2  D5:3 E5:1 G5:4  B5:3 A5:1 G5:2 E5:2  A5:6 r:2  C6:3 A5:1 F5:2 A5:2  G5:3 F5:1 D5:4  E5:2 A5:2 F5:2 A5:2  G5:4 r:4'},
+      {k:'l02c',n:'海風小徑',d:'C 大調三拍子 72 拍，雙簧管＋吉他，像輕輕搖晃的小船',u:60/72/2,bar:6,acc:'guitar',pad:0.4,perc:'none',lead:['oboe','flute','oboe','oboe'],lo:[0,0,0,0],dbl:{p:[3],ins:'bell',i:12,v:0.35},
+        A:['C','G/B','Am','Em','F','C','Dm','G'],B:['Am','F','C','G','Am','F','Dm','G'],
+        a:'E5:3 F5:1 G5:2  D5:4 B4:2  C5:3 D5:1 E5:2  B4:4 r:2  A4:2 C5:2 F5:2  E5:3 D5:1 C5:2  D5:2 F5:2 A5:2  G5:4 r:2',
+        b:'A5:3 G5:1 E5:2  F5:3 E5:1 C5:2  E5:2 G5:2 C6:2  B5:4 r:2  C6:3 B5:1 A5:2  A5:2 G5:2 F5:2  F5:2 E5:2 D5:2  D5:4 r:2'}]},
+    {g:'L14 精靈森林・多利亞神秘',ar:'moon',list:[
+      {k:'l14a',n:'星露神木',d:'A 多利亞 72 拍，長笛＋豎琴琶音（像水珠滴落）＋溫暖長音，鐘琴高八度',u:60/72/2,bar:8,acc:'arp',pad:0.9,perc:'none',lead:['flute','flute','flute','flute'],lo:[0,0,0,0],dbl:{p:[1,3],ins:'bell',i:12,v:0.3},
+        A:['Am9','D/F#','G','Am','C','D','Em','Am'],B:['Em','D','C','G','Am','Bm','C','D'],
+        a:'E5:3 F#5:1 G5:2 B5:2  A5:4 r:2 F#5:2  G5:3 A5:1 B5:2 D6:2  C6:2 B5:2 A5:2 r:2  G5:3 E5:1 C5:2 E5:2  F#5:4 A5:2 D6:2  B5:3 A5:1 G5:2 E5:2  A5:6 r:2',
+        b:'G5:2 B5:2 E6:4  D6:3 C6:1 A5:4  G5:3 E5:1 C6:2 B5:2  B5:4 r:2 D5:2  E5:2 A5:2 C6:3 B5:1  B5:2 F#5:2 D5:4  E5:2 G5:2 A5:2 B5:2  A5:4 F#5:2 r:2'},
+      {k:'l14b',n:'月下泉水',d:'A 多利亞三拍子 66 拍，更安靜，第二段鐘琴點點',u:60/66/2,bar:6,acc:'arp',pad:1,perc:'none',lead:['flute','bell','flute','flute'],lo:[0,0,0,0],
+        A:['Am','D/F#','Am','G','Em','D','C,D','Am'],B:['C','G','D','Am','C','G','D','D'],
+        a:'A4:2 C5:2 E5:2  F#5:4 E5:2  E5:4 r:2  D5:2 B4:2 G4:2  G4:2 B4:2 E5:2  F#5:3 E5:1 D5:2  E5:2 C5:1 D5:1 F#5:2  A5:4 r:2',
+        b:'G5:3 E5:1 C5:2  D5:4 B4:2  A5:3 F#5:1 D5:2  E5:4 r:2  C6:3 B5:1 G5:2  B5:2 A5:2 G5:2  F#5:2 A5:2 D6:2  A5:4 r:2'},
+      {k:'l14c',n:'精靈的低語',d:'A 多利亞 76 拍，每句前面先留白，像在耳邊說悄悄話',u:60/76/2,bar:8,acc:'arp',pad:0.8,perc:'none',lead:['flute','flute','oboe','flute'],lo:[0,0,0,0],dbl:{p:[0,3],ins:'bell',i:12,v:0.25},
+        A:['Am','G','D','Am','Am','G','D','Em'],B:['C','G','D','Am','C','Em','D','D'],
+        a:'r:2 E5:2 A5:2 B5:2  C6:3 B5:1 G5:4  F#5:2 A5:2 D5:4  E5:6 r:2  r:2 A5:2 C6:2 D6:2  E6:3 D6:1 B5:4  A5:2 F#5:2 D5:2 E5:2  B4:6 r:2',
+        b:'G5:4 E5:2 G5:2  D6:4 B5:4  A5:3 B5:1 C6:2 A5:2  E5:6 r:2  G5:3 A5:1 B5:2 C6:2  B5:4 G5:4  F#5:2 E5:2 D5:2 F#5:2  A5:6 r:2'}]},
+    {g:'L09 水之都・抒情圓舞曲',ar:'home',list:[
+      {k:'l09a',n:'運河光影',d:'F 大調圓舞曲 80 拍，單簧管＋鐵琴（像水波反光）＋弦樂，第二段鐘琴高八度',u:60/80/2,bar:6,acc:'vibe',pad:0.6,perc:'none',lead:['clar','clar','clar','clar'],lo:[0,0,0,0],dbl:{p:[1],ins:'bell',i:12,v:0.35},
+        A:['F','Dm','Gm','C7','F','Dm','Gm,C7','F'],B:['Bb','Am','Gm','F','Bb','F','G7','C7'],
+        a:'C5:2 F5:2 A5:2  A5:3 G5:1 F5:2  G5:2 Bb5:2 D6:2  C6:4 r:2  A5:2 G5:1 F5:1 C5:2  D5:2 F5:2 A5:2  Bb5:3 G5:2 E5:1  F5:4 r:2',
+        b:'D6:3 C6:1 Bb5:2  C6:2 A5:2 E5:2  Bb5:3 A5:1 G5:2  A5:4 r:2  F5:2 Bb5:2 D6:2  C6:3 A5:1 F5:2  G5:2 B5:2 D6:2  C6:2 Bb5:2 G5:2'},
+      {k:'l09b',n:'水都夜曲',d:'F 大調三拍子 72 拍，更慢更溫柔，中段換小提琴',u:60/72/2,bar:6,acc:'vibe',pad:0.8,perc:'none',lead:['clar','violin','clar','clar'],lo:[0,0,0,0],
+        A:['F','Bb','F','C','Dm','Bb','Gm','C'],B:['Dm','Am','Bb','F','Gm','Am','Bb','C'],
+        a:'A5:4 C6:2  Bb5:3 A5:1 G5:2  A5:4 F5:2  E5:4 r:2  F5:2 A5:2 D6:2  D6:3 C6:1 Bb5:2  G5:3 F5:1 E5:2  C5:4 r:2',
+        b:'D6:3 C6:1 A5:2  C6:3 B5:1 A5:2  F5:2 Bb5:2 D6:2  C6:4 r:2  Bb5:3 A5:1 G5:2  A5:2 E5:2 C5:2  D5:2 F5:2 Bb5:2  G5:4 r:2'},
+      {k:'l09c',n:'星光貢多拉',d:'F 大調 6/8 船歌，單簧管＋鐵琴，搖搖晃晃的水上小船',u:0.24,bar:6,acc:'vibe',pad:0.5,perc:'none',lead:['clar','clar','violin','clar'],lo:[0,0,0,0],dbl:{p:[3],ins:'bell',i:12,v:0.3},
+        A:['F','C','Dm','Bb','F','C','Bb,C','F'],B:['Dm','Am','Bb','F','Gm','Dm','C','C'],
+        a:'A5:2 G5:1 F5:2 C5:1  E5:2 G5:1 C6:3  D6:2 C6:1 A5:2 F5:1  D5:3 r:3  C5:1 F5:1 A5:1 C6:2 A5:1  G5:2 E5:1 C5:3  D5:2 F5:1 E5:2 G5:1  F5:3 r:3',
+        b:'F5:2 A5:1 D6:3  C6:2 B5:1 A5:2 E5:1  F5:2 G5:1 Bb5:3  A5:3 r:3  G5:2 Bb5:1 D6:2 C6:1  A5:2 F5:1 D5:3  E5:2 G5:1 C6:2 Bb5:1  G5:3 r:3'}]},
+    {g:'L08 商業大城・巴洛克市集',ar:'market',list:[
+      {k:'l08a',n:'萬商之都',d:'C 大調巴洛克 104 拍，大鍵琴／小提琴快速十六分音符＋撥弦走路低音＋三角鐵、鈴鼓',u:60/104/2,bar:8,acc:'baroque',pad:0,perc:'tri',lead:['harpsi','violin','harpsi','violin'],lo:[0,0,0,0],
+        A:['C','Am','F','G','C','Am','Dm,G','C'],B:['F','G','Em','Am','Dm','G','C,Am','Dm,G'],
+        a:'C5:1 E5:1 G5:1 C6:1 B5:1/2 C6:1/2 D6:1 E6:2  C6:1 A5:1 E5:1 A5:1 C6:2 r:2  A5:1/2 G5:1/2 F5:1 A5:1 C6:1 F6:2 E6:1 D6:1  D6:3 B5:1 G5:2 r:2  E5:1 G5:1 C6:1 E6:1 D6:1/2 C6:1/2 B5:1 C6:2  A5:1 C6:1 E6:1 C6:1 A5:2 r:2  F5:1 A5:1 D6:1 F5:1 G5:1 B5:1 D6:1 B5:1  C6:4 r:4',
+        b:'A5:1 C6:1 F6:2 E6:1/2 F6:1/2 E6:1 D6:1 C6:1  B5:1 D6:1 G5:2 r:4  G5:1 B5:1 E6:2 D6:1/2 E6:1/2 D6:1 B5:2  C6:3 A5:1 E5:2 r:2  F5:1/2 E5:1/2 F5:1 A5:1 D6:1 C6:1 A5:1 F5:2  G5:1 B5:1 D6:1 G6:1 F6:2 r:2  E6:1 D6:1 C6:1 G5:1 A5:1 C6:1 E6:2  D6:2 C6:1 A5:1 B5:2 r:2'},
+      {k:'l08b',n:'金幣廣場',d:'C 大調小步舞曲（三拍子）112 拍，大鍵琴，宮廷感',u:60/112/2,bar:6,acc:'baroque',pad:0,perc:'tri',lead:['harpsi','harpsi','violin','harpsi'],lo:[0,0,0,0],
+        A:['C','G','Am','Em','F','C','Dm,G','C'],B:['Am','Em','F','C','Dm','G','Em,Am','G'],
+        a:'G5:2 C6:1 D6:1 E6:2  D6:2 B5:1 C6:1 D6:2  C6:1 B5:1 A5:2 E5:2  G5:4 r:2  A5:1 G5:1 F5:1 A5:1 C6:2  E6:2 D6:1 C6:1 G5:2  F5:1 A5:1 D6:1 B5:1 D6:1 G5:1  C6:4 r:2',
+        b:'E6:2 C6:1 A5:1 C6:2  B5:2 G5:1 E5:1 G5:2  A5:1 C6:1 F6:2 E6:1 D6:1  C6:4 r:2  D6:1 E6:1 F6:2 A5:2  B5:2 D6:1 C6:1 B5:2  G5:1 B5:1 E6:1 C6:1 A5:1 E5:1  D6:4 r:2'},
+      {k:'l08c',n:'旅人酒館',d:'C 大調 104 拍，小提琴民謠感＋鈴鼓，熱鬧的酒館',u:60/104/2,bar:8,acc:'baroque',pad:0.2,perc:'tri',lead:['violin','violin','harpsi','violin'],lo:[0,0,0,0],
+        A:['C','F','G','C','Am','F','G','C'],B:['Am','Em','F','C','F','G','Am','G'],
+        a:'E5:1 F5:1 G5:2 G5:1 A5:1 G5:2  F5:1 A5:1 C6:2 A5:2 F5:2  D5:1/2 E5:1/2 F5:1 G5:1 B5:1 D6:2 r:2  C6:1 B5:1 C6:1 G5:1 E5:2 r:2  A5:1 B5:1 C6:2 B5:1 A5:1 E5:2  F5:1 G5:1 A5:2 C6:2 A5:2  G5:1 F5:1 E5:1 D5:1 B4:2 D5:2  C5:4 r:4',
+        b:'A5:2 C6:1 E6:1 E6:2 D6:2  B5:1 A5:1 G5:2 E5:2 r:2  F5:1 A5:1 C6:1 F6:1 E6:2 C6:2  D6:1 C6:1 G5:2 r:4  A5:1/2 B5:1/2 C6:1 A5:2 F5:1 A5:1 C6:2  B5:1 C6:1 D6:2 G5:2 B5:2  C6:1 B5:1 A5:2 E5:2 C6:2  B5:4 G5:2 r:2'}]},
+    {g:'E4 攻城戰・戰鼓號角',ar:'arena',list:[
+      {k:'e4a',n:'兵臨城下',d:'C 小調 136 拍，小號三連音號角＋密集戰鼓＋定音鼓，後半合唱進來',u:60/136/2,bar:8,acc:'siege',pad:0.6,perc:'war',lead:['trumpet','trumpet','trumpet','trumpet'],lo:[0,0,0,0],dbl:{p:[2,3],ins:'choir',i:-12,v:0.8},
+        A:['Cm','Ab','Bb','Cm','Cm','Ab','Bb','G'],B:['Fm','Cm','Ab','Bb','Fm','Cm','Ab,Bb','G'],
+        a:'G4:2/3 G4:2/3 G4:2/3 C5:2 G4:2 Eb5:2  Eb5:3 C5:1 Ab4:4  F4:2/3 F4:2/3 F4:2/3 Bb4:2 D5:2 F5:2  Eb5:4 r:2 G4:2/3 G4:2/3 G4:2/3  C5:2 Eb5:2 G5:3 F5:1  Eb5:2 C5:2 Ab4:2 C5:2  D5:2/3 Eb5:2/3 F5:2/3 Bb5:2 F5:2 D5:2  G5:6 r:2',
+        b:'C5:2 F5:2 Ab5:3 G5:1  G5:4 Eb5:2 C5:2  Eb5:2/3 F5:2/3 G5:2/3 Ab5:2 C6:2 Ab5:2  Bb5:6 r:2  Ab5:3 G5:1 F5:2 C5:2  Eb5:2 G5:2 C6:4  C6:2 Ab5:2 D6:2 Bb5:2  B5:4 G5:2/3 G5:2/3 G5:2/3 r:2'},
+      {k:'e4b',n:'榮耀衝鋒',d:'C 小調 140 拍，更快，一路往下走的悲壯和弦',u:60/140/2,bar:8,acc:'siege',pad:0.5,perc:'war',lead:['trumpet','horn','trumpet','trumpet'],lo:[0,0,0,0],dbl:{p:[3],ins:'choir',i:-12,v:0.7},
+        A:['Cm','Bb','Ab','G','Cm','Bb','Ab','G'],B:['Ab','Bb','Cm','Cm','Fm','G','Ab','G'],
+        a:'C5:3 Eb5:1 G5:2/3 F5:2/3 Eb5:2/3 D5:2  D5:4 F5:2 Bb4:2  C5:3 Eb5:1 Ab5:2/3 G5:2/3 F5:2/3 Eb5:2  D5:4 r:2 B4:2  G5:2/3 G5:2/3 G5:2/3 C6:3 G5:1 Eb5:2  F5:2/3 F5:2/3 F5:2/3 Bb5:3 F5:1 D5:2  Eb5:2 C5:2 Ab5:2 C6:2  B5:6 r:2',
+        b:'Eb5:4 Ab5:2 C6:2  D6:3 C6:1 Bb5:4  C6:2/3 Bb5:2/3 G5:2/3 Eb5:2 G5:2 C6:2  C6:6 r:2  F5:2 Ab5:2 C6:3 Bb5:1  B5:2 D6:2 G5:4  Ab5:2/3 G5:2/3 F5:2/3 Eb5:2 C5:2 Eb5:2  D5:4 G4:2/3 G4:2/3 G4:2/3 r:2'},
+      {k:'e4c',n:'城門之戰',d:'C 小調 120 拍，比較沉重，低音號角＋合唱長音',u:60/120/2,bar:8,acc:'siege',pad:0.9,perc:'war',lead:['horn','choir','horn','horn'],lo:[-12,-12,-12,-12],dbl:{p:[0,2,3],ins:'choir',i:0,v:0.6},
+        A:['Cm','Cm','Ab','Ab','Fm','Fm','G','G'],B:['Eb','Bb','Cm','Ab','Fm','Cm','Ab,Bb','G'],
+        a:'C5:6 Eb5:2  G5:4 F5:2 Eb5:2  Ab5:6 G5:2  Eb5:4 r:4  F5:3 G5:1 Ab5:2 C6:2  C6:4 Ab5:2 F5:2  G5:3 Ab5:1 G5:2 F5:2  D5:4 B4:2/3 C5:2/3 D5:2/3 r:2',
+        b:'G5:4 Bb5:2 Eb6:2  D6:4 Bb5:2 F5:2  Eb6:3 D6:1 C6:4  Ab5:6 r:2  C6:3 Bb5:1 Ab5:2 F5:2  G5:4 Eb5:4  C6:2 Ab5:2 D6:2 Bb5:2  B5:6 r:2'}]},
+    {g:'E1 遊戲開始・史詩序曲',ar:'login',list:[
+      {k:'e1a',n:'命運之門',d:'C 大調→G 大調 82 拍，圓號獨奏＋弦樂＋豎琴＋定音鼓滾奏，後半合唱',u:60/82/2,bar:8,acc:'arp',pad:1.2,cb:1,perc:'timp',lead:['horn','horn','horn','horn'],lo:[0,0,0,0],dbl:{p:[2,3],ins:'choir',i:-12,v:0.5},
+        A:['C','Em','F','G7','C','Em','F','G'],B:['G','Bm','C','D7','G','Em','C,D','G'],
+        a:'G4:3 C5:1 G5:4  E5:3 D5:1 B4:4  C5:2 F5:2 A5:3 G5:1  G5:6 r:2  E5:3 G5:1 C6:4  B5:3 A5:1 G5:4  A5:2 G5:2 F5:2 D5:2  D5:6 r:2',
+        b:'D5:3 G5:1 B5:4  A5:3 F#5:1 D5:4  E5:2 G5:2 C6:3 B5:1  A5:6 r:2  B5:2 D6:2 B5:2 G5:2  E5:3 F#5:1 G5:4  E5:2 C5:2 F#5:2 A5:2  G5:6 r:2'},
+      {k:'e1b',n:'黎明的號角',d:'C 大調 72 拍，慢慢展開，像天剛亮，中段長笛',u:60/72/2,bar:8,acc:'arp',pad:1.1,cb:1,perc:'timp',lead:['horn','flute','horn','horn'],lo:[0,0,0,0],
+        A:['C','G','Am','F','C','G','F','C'],B:['Am','Em','F','C','Dm','G','F,G','C'],
+        a:'C5:6 E5:2  D5:6 r:2  E5:3 A5:1 G5:4  F5:6 r:2  G5:3 C6:1 B5:2 G5:2  D6:6 B5:2  C6:3 A5:1 F5:2 A5:2  G5:6 r:2',
+        b:'A5:3 B5:1 C6:4  B5:3 G5:1 E5:4  F5:2 A5:2 C6:3 D6:1  E6:6 r:2  D6:3 C6:1 A5:2 F5:2  G5:3 B5:1 D6:4  C6:2 A5:2 B5:2 D6:2  C6:6 r:2'},
+      {k:'e1c',n:'傳說揭幕',d:'C 大調 82 拍，中段轉 G 大調，最後一段合唱一起進來',u:60/82/2,bar:8,acc:'arp',pad:1.3,cb:1,perc:'timp',lead:['horn','trumpet','horn','horn'],lo:[0,0,0,0],dbl:{p:[3],ins:'choir',i:-12,v:0.6},
+        A:['C','F','C','G','Em','Am','D','G'],B:['C','G/B','Am','Em','F','C/E','Dm','G7'],
+        a:'E5:4 G5:2 C6:2  A5:4 F5:4  G5:3 E5:1 C5:4  D5:6 r:2  G5:3 B5:1 E6:4  C6:3 B5:1 A5:4  F#5:2 A5:2 D6:3 C6:1  B5:6 r:2',
+        b:'C6:4 G5:2 E5:2  D5:4 G5:4  A5:3 G5:1 E5:4  B4:6 r:2  F5:2 A5:2 C6:4  G5:3 E5:1 C6:4  D6:2 C6:2 A5:2 F5:2  G5:6 r:2'}]}];
+  // ---- 天堂參考・第二批（2026-10-19）：L01、L03、L04、L05、L06、L07 各 3 首 ----
+  // pm＝每一段長音（弦樂）的倍數（漸強用）；pp＝哪幾段才打鼓；ai＝琶音用哪個樂器；ar 可以每首自己設（肯特丙是進行曲 → 放學院）
+  LIN.push(
+    {g:'L01 出發之谷・溫柔多利亞',ar:'academy',list:[
+      {k:'l01a',n:'晨霧小屋',d:'D 多利亞三拍子 72 拍，長笛＋豎琴琶音＋弦樂，柔和裡帶一點不安',u:60/72/2,bar:6,acc:'arp',pad:0.7,perc:'none',lead:['flute','flute','flute','flute'],lo:[0,0,0,0],dbl:{p:[1],ins:'bell',i:12,v:0.3},
+        A:['Dm','G','Dm','C','Dm','G','Am','Dm'],B:['F','C','G','Dm','F','C','G','Am'],
+        a:'A4:2 D5:2 F5:2  E5:3 D5:1 B4:2  D5:4 r:2  C5:2 E5:2 G5:2  F5:3 E5:1 D5:2  B4:2 D5:2 G5:2  A5:3 G5:1 E5:2  D5:4 r:2',
+        b:'C6:3 A5:1 F5:2  G5:3 E5:1 C5:2  D5:2 G5:2 B5:2  A5:4 r:2  A5:3 C6:1 A5:2  G5:2 E5:2 C5:2  B4:2 D5:2 G5:2  E5:4 r:2'},
+      {k:'l01b',n:'第一步',d:'D 多利亞 80 拍，吉他分解和弦，像在說「加油，往前走」',u:60/80/2,bar:8,acc:'guitar',pad:0.5,perc:'none',lead:['flute','oboe','flute','flute'],lo:[0,0,0,0],
+        A:['Dm','C','G','Dm','F','C','G','Dm'],B:['F','G','Am','Dm','F','G','Am','C'],
+        a:'D5:3 E5:1 F5:2 A5:2  G5:4 r:2 E5:2  D5:3 B4:1 G4:2 B4:2  A4:6 r:2  C5:2 F5:2 A5:3 G5:1  E5:3 D5:1 C5:2 E5:2  D5:2 G5:2 B5:2 A5:2  D5:6 r:2',
+        b:'A5:3 G5:1 F5:2 C5:2  B5:4 G5:2 r:2  C6:3 B5:1 A5:2 E5:2  F5:6 r:2  A5:2 C6:2 F5:2 A5:2  G5:3 A5:1 B5:4  C6:2 B5:2 A5:2 G5:2  E5:4 G5:2 r:2'},
+      {k:'l01c',n:'谷間小溪',d:'D 多利亞三拍子 84 拍，比較輕快，中段鐘琴',u:60/84/2,bar:6,acc:'arp',pad:0.5,perc:'none',lead:['flute','bell','flute','oboe'],lo:[0,0,0,0],
+        A:['Dm','Am','G','Dm','Dm','C','G','Dm'],B:['C','G','Dm','Am','C','G','Am','Am'],
+        a:'F5:1 E5:1 D5:2 A5:2  E5:4 C5:2  D5:1 E5:1 G5:2 B5:2  A5:4 r:2  D6:2 C6:1 A5:1 F5:2  E5:2 G5:2 C6:2  B5:2 A5:1 G5:1 D5:2  D5:4 r:2',
+        b:'E5:2 G5:2 C6:2  B5:3 A5:1 G5:2  F5:2 A5:2 D6:2  C6:4 r:2  G5:3 A5:1 G5:2  D5:2 G5:2 B5:2  A5:3 G5:1 E5:2  E5:4 r:2'}]},
+    {g:'L03 騎士之村・修練進行曲',ar:'meadow',list:[
+      {k:'l03a',n:'木人樁前',d:'D 旋律小調進行曲 90 拍，圓號＋鋼弦吉他掃弦＋小鼓滾奏',u:60/90/2,bar:8,acc:'strum',pad:0.3,perc:'drill',lead:['horn','oboe','horn','horn'],lo:[0,0,0,0],
+        A:['Dm','F','G','A7','Dm','F','G,A7','Dm'],B:['Bb','F','Gm','A','Bb','C','Gm','A7'],
+        a:'D4:2 F4:1 A4:1 D5:4  C5:3 A4:1 F4:4  G4:2 B4:1 D5:1 G5:3 F5:1  E5:4 C#5:2 A4:2  D5:3 E5:1 F5:2 A5:2  A5:3 G5:1 F5:2 C5:2  D5:2 B4:2 C#5:2 E5:2  D5:6 r:2',
+        b:'F5:3 D5:1 Bb4:4  C5:3 F5:1 A5:4  Bb5:3 A5:1 G5:2 D5:2  C#5:6 r:2  D5:2 F5:2 Bb5:3 A5:1  G5:3 E5:1 C5:4  D5:2 G5:2 Bb5:2 G5:2  A5:4 E5:2 C#5:2'},
+      {k:'l03b',n:'磨劍出征',d:'D 小調 96 拍，附點節奏往前衝，雙簧管和圓號輪流',u:60/96/2,bar:8,acc:'strum',pad:0.3,perc:'drill',lead:['oboe','horn','oboe','horn'],lo:[0,0,0,0],
+        A:['Dm','C','Bb','A','Dm','C','Bb,A','Dm'],B:['Gm','Dm','Gm','A','Bb','F','G','A7'],
+        a:'A4:3/2 A4:1/2 D5:2 F5:3/2 E5:1/2 D5:2  E5:3/2 D5:1/2 C5:2 G4:4  F4:3/2 G4:1/2 Bb4:2 D5:3/2 C5:1/2 Bb4:2  A4:6 r:2  D5:3/2 D5:1/2 F5:2 A5:3/2 G5:1/2 F5:2  G5:3/2 F5:1/2 E5:2 C5:4  D5:2 Bb4:2 C#5:2 E5:2  D5:6 r:2',
+        b:'G5:3/2 F5:1/2 D5:2 Bb4:4  A4:3/2 Bb4:1/2 D5:2 F5:4  G5:3/2 A5:1/2 Bb5:2 D6:3/2 C6:1/2 Bb5:2  A5:6 r:2  F5:2 D5:2 Bb4:2 D5:2  C5:2 F5:2 A5:2 C6:2  B5:3/2 A5:1/2 G5:2 D5:4  E5:4 C#5:2 r:2'},
+      {k:'l03c',n:'騎士之誓',d:'D 小調 84 拍，比較抒情，中段小提琴',u:60/84/2,bar:8,acc:'strum',pad:0.5,perc:'drill',lead:['horn','violin','horn','horn'],lo:[0,0,0,0],
+        A:['Dm','Bb','F','C','Dm','Bb','Gm','A'],B:['F','C','Dm','Bb','Gm','Dm','Bb','A7'],
+        a:'F5:4 E5:2 D5:2  D5:3 C5:1 Bb4:4  A4:2 C5:2 F5:3 E5:1  G5:4 r:4  A5:3 G5:1 F5:2 D5:2  F5:3 E5:1 D5:4  Bb4:2 D5:2 G5:2 E5:2  C#5:6 r:2',
+        b:'C6:4 A5:2 F5:2  G5:3 E5:1 C5:4  D5:2 F5:2 A5:3 G5:1  F5:6 r:2  G5:3 A5:1 Bb5:2 G5:2  F5:3 E5:1 D5:4  D5:2 F5:2 Bb5:2 A5:2  G5:4 E5:2 C#5:2'}]},
+    {g:'L04 沙漠綠洲・弗里吉亞',ar:'box',list:[
+      {k:'l04a',n:'黃沙驛站',d:'E 弗里吉亞屬調 84 拍（F→G# 的異國音程），西塔琴＋鋼弦吉他切分掃弦＋響板鈴鼓，低音長音',u:60/84/2,bar:8,acc:'flam',pad:0.3,cb:0.6,perc:'cast',lead:['sitar','oboe','sitar','sitar'],lo:[0,0,0,0],
+        A:['E','F','E','Am','Dm','F','E','E'],B:['Am','G','F','E','Am','G','F','E'],
+        a:'E5:3 F5:1 G#5:2 F5:2  A5:3 G#5:1 F5:4  E5:2 G#5:1 F5:1 E5:4  C5:2 B4:1 A4:1 E4:4  D5:3 E5:1 F5:2 A5:2  C6:3 B5:1 A5:2 F5:2  G#5:3 F5:1 E5:2 D5:2  E5:6 r:2',
+        b:'A5:3 B5:1 C6:2 B5:2  B5:3/2 A5:1/2 G5:2 D5:4  A5:2 C6:2 B5:2 A5:2  G#5:6 r:2  E5:2 A5:2 C6:3 B5:1  D6:3 C6:1 B5:4  A5:2 G#5:2 F5:2 D5:2  E5:6 r:2'},
+      {k:'l04b',n:'蠍子的影子',d:'E 弗里吉亞 76 拍，比較暗、留白多，雙簧管為主',u:60/76/2,bar:8,acc:'flam',pad:0.4,cb:0.7,perc:'cast',lead:['oboe','sitar','oboe','oboe'],lo:[0,0,0,0],
+        A:['E','E','F','E','Dm','E','F','E'],B:['Am','Dm','E','Am','F','Dm','E','E'],
+        a:'r:2 B4:2 C5:2 B4:2  G#4:4 E4:4  A4:2 C5:2 F5:3 E5:1  E5:6 r:2  F5:3 E5:1 D5:2 A4:2  G#4:2 B4:2 E5:4  F5:2 E5:2 D5:2 C5:2  B4:6 r:2',
+        b:'A5:4 G#5:2 A5:2  F5:4 D5:4  E5:3 F5:1 G#5:4  A5:6 r:2  C6:3 B5:1 A5:4  F5:3 E5:1 D5:4  E5:2 F5:2 G#5:2 B5:2  E5:6 r:2'},
+      {k:'l04c',n:'綠洲之夜',d:'E 弗里吉亞 6/8 舞曲，揚琴和西塔琴，比較熱鬧',u:0.2,bar:6,acc:'flam',pad:0.2,cb:0.5,perc:'cast',lead:['dulc','oboe','dulc','sitar'],lo:[0,0,0,0],
+        A:['E','F','E','Am','Dm','E','F','E'],B:['Am','G','F','E','Am','G','F','E'],
+        a:'E5:1 F5:1 G#5:1 A5:2 G#5:1  F5:2 E5:1 F5:3  G#5:1 F5:1 E5:1 B4:3  C5:2 B4:1 A4:3  D5:1 E5:1 F5:1 A5:2 F5:1  G#5:2 F5:1 E5:3  A5:2 G#5:1 F5:2 D5:1  E5:3 r:3',
+        b:'A5:1 B5:1 C6:1 E6:2 C6:1  B5:2 A5:1 G5:3  A5:1 C6:1 B5:1 A5:3  G#5:3 r:3  E5:1 A5:1 C6:1 B5:2 A5:1  G5:2 B5:1 D6:3  C6:2 B5:1 A5:2 F5:1  E5:3 r:3'}]},
+    {g:'L05 沒落王城・陰影與榮光',ar:'moon',list:[
+      {k:'l05a',n:'灰燼王座',d:'C 和聲小調三拍子 66 拍，大提琴＋大鍵琴分解和弦，詭異沉悶（照玩家的描述）',u:60/66/2,bar:6,acc:'arp',ai:'harpsi',pad:0.6,cb:0.8,perc:'none',lead:['cello','flute','cello','cello'],lo:[0,0,0,0],
+        A:['Cm','Ab','Fm','G','Cm','Ab','Fm,G','Cm'],B:['Eb','Bb','Cm','Ab','Fm','Cm','Ab,G','G'],
+        a:'G4:3 Ab4:1 G4:2  C5:4 Eb5:2  Ab4:3 G4:1 F4:2  B3:4 r:2  C4:2 Eb4:2 G4:2  Ab4:3 C5:1 Eb5:2  Ab4:2 F4:1 B3:2 D4:1  C4:4 r:2',
+        b:'G4:3 Bb4:1 Eb5:2  D5:4 F4:2  Eb5:3 D5:1 C5:2  C5:4 r:2  F4:2 Ab4:2 C5:2  Eb5:3 D5:1 C5:2  C5:2 Ab4:1 B4:2 D5:1  G4:4 r:2'},
+      {k:'l05b',n:'森林的腳步',d:'C 小調 70 拍，撥弦低音一步一步走，單簧管低音區，像在森林裡被跟著',u:60/70/2,bar:8,acc:'baroque',pad:0.5,perc:'none',lead:['clar','oboe','clar','clar'],lo:[0,0,0,0],
+        A:['Cm','Cm','Fm','G','Ab','Fm','G','Cm'],B:['Eb','Bb','Ab','G','Cm','Ab','Fm','G'],
+        a:'r:2 G4:2 C5:2 Eb5:2  D5:3 C5:1 G4:4  r:2 Ab4:2 C5:2 F5:2  Eb5:3 D5:1 B4:4  C5:3 Eb5:1 Ab5:4  G5:3 F5:1 C5:4  D5:2 F5:2 Eb5:2 D5:2  C5:6 r:2',
+        b:'G5:4 Bb5:2 G5:2  F5:3 D5:1 Bb4:4  C5:2 Eb5:2 Ab5:3 G5:1  G5:6 r:2  Eb5:3 F5:1 G5:2 C6:2  C6:3 Bb5:1 Ab5:4  F5:2 Ab5:2 G5:2 F5:2  D5:4 B4:2 r:2'},
+      {k:'l05c',n:'城門鐵衛',d:'C 大調進行曲 92 拍，小號＋號角和弦＋定音鼓小鼓（照另一份 AI 分析的說法）',u:60/92/2,bar:8,acc:'march',pad:0.4,perc:'march',ar:'academy',lead:['trumpet','horn','trumpet','trumpet'],lo:[0,0,0,0],
+        A:['C','F','G','C','C','F','G','C'],B:['Am','Em','F','G','Am','F','D7','G'],
+        a:'G4:3/2 G4:1/2 C5:2 E5:3/2 D5:1/2 C5:2  F5:3 E5:1 C5:4  D5:3/2 D5:1/2 G5:2 F5:3/2 E5:1/2 D5:2  E5:4 C5:2 r:2  G5:3/2 G5:1/2 E5:2 C6:3 G5:1  A5:3 G5:1 F5:2 C5:2  B4:2 D5:2 G5:2 F5:2  E5:6 r:2',
+        b:'A5:3 G5:1 E5:4  G5:3 E5:1 B4:4  C5:2 F5:2 A5:3 G5:1  G5:6 r:2  E5:3/2 E5:1/2 A5:2 C6:3/2 B5:1/2 A5:2  F5:2 A5:2 C6:4  F#5:2 A5:2 C6:2 D6:2  B5:4 G5:2 D5:2'}]},
+    {g:'L06 獸人部落・圖騰戰鼓',ar:'arena',list:[
+      {k:'l06a',n:'圖騰之火',d:'A 五聲音階＋降 E（不安的三全音）82 拍，長號＋太鼓＋低音合唱',u:60/82/2,bar:8,acc:'tribal',pad:0,perc:'tribe',lead:['tbone','tbone','choir','tbone'],lo:[-12,-12,-12,-12],
+        A:['Am','Eb','Dm','Am','Am','Eb','Dm','Am'],B:['Dm','Am','G','Am','Dm','Am','Eb','Am'],
+        a:'A4:2 C5:1 D5:1 E5:4  Eb5:3 D5:1 Bb4:4  D5:2 A4:2 C5:2 D5:2  A4:6 r:2  E5:2 G5:1 E5:1 A5:4  G5:3 Eb5:1 Bb4:4  C5:2 D5:2 A4:2 G4:2  A4:6 r:2',
+        b:'D5:3 E5:1 G5:2 A5:2  E5:6 r:2  D5:3 E5:1 G5:4  A5:6 r:2  A5:3 G5:1 D5:4  C5:3 D5:1 E5:4  Eb5:3 D5:1 Bb4:2 G4:2  A4:6 r:2'},
+      {k:'l06b',n:'蠻荒狩獵',d:'A 小調 96 拍，重複的狩獵節奏，長號和號角輪流',u:60/96/2,bar:8,acc:'tribal',pad:0,perc:'tribe',lead:['tbone','horn','tbone','tbone'],lo:[-12,-12,-12,-12],
+        A:['Am','Am','G','Am','Am','Am','Eb','Am'],B:['Dm','Dm','Am','Am','G','G','Eb','Am'],
+        a:'A4:1 A4:1 C5:2 A4:1 A4:1 D5:2  E5:2 D5:1 C5:1 A4:4  G4:1 G4:1 D5:2 C5:2 A4:2  A4:6 r:2  E5:1 E5:1 G5:2 E5:1 D5:1 C5:2  D5:2 C5:2 A4:4  Bb4:2 Eb5:2 D5:2 Bb4:2  A4:6 r:2',
+        b:'D5:2 A5:2 G5:2 E5:2  D5:6 r:2  E5:2 A5:2 C6:2 A5:2  A5:6 r:2  G5:2 D5:2 G5:2 A5:2  G5:6 r:2  Eb5:2 G5:2 Bb5:2 G5:2  A5:4 E5:2 r:2'},
+      {k:'l06c',n:'獸人營火',d:'A 小調 72 拍，很慢很重，低音合唱唱主旋律',u:60/72/2,bar:8,acc:'tribal',pad:0,perc:'tribe',lead:['choir','tbone','choir','choir'],lo:[-12,-12,-12,-12],
+        A:['Am','Am','Dm','Am','Eb','Dm','Eb','Am'],B:['Dm','Am','G','Am','Dm','Am','Eb','Am'],
+        a:'A4:4 C5:4  E5:6 D5:2  D5:4 A4:4  C5:6 r:2  Eb5:4 D5:2 Bb4:2  A4:4 D5:4  G4:4 Bb4:2 Eb5:2  A4:6 r:2',
+        b:'D5:4 E5:2 G5:2  A5:6 r:2  G5:4 D5:4  E5:6 r:2  A5:3 G5:1 D5:4  E5:3 D5:1 C5:4  Eb5:4 D5:2 Bb4:2  A4:6 r:2'}]},
+    {g:'L07 孤獨旅人・漸強的遠方',ar:'street',list:[
+      {k:'l07a',n:'獨行者',d:'D 小調 76 拍，一開始只有長笛和魯特琴，越來越多樂器，最後小提琴＋弦樂＋定音鼓',u:60/76/2,bar:8,acc:'lute',pad:1,cb:1,pm:[0.15,0.5,0.9,1.6],pp:[3],perc:'timp',lead:['flute','flute','oboe','violin'],lo:[0,0,0,0],
+        A:['Dm','Bb','F','C','Dm','Bb','Gm','A'],B:['Bb','C','Am','Dm','Gm','C','F','A'],
+        a:'A4:3 D5:1 F5:2 E5:2  D5:4 r:2 F4:2  A4:3 C5:1 F5:2 A5:2  G5:6 r:2  F5:3 E5:1 D5:2 A4:2  Bb4:2 D5:2 F5:2 D5:2  G4:2 Bb4:2 D5:2 E5:2  C#5:6 r:2',
+        b:'F5:3 G5:1 Bb5:4  G5:3 E5:1 C5:4  E5:2 A5:2 C6:4  A5:6 r:2  Bb5:3 A5:1 G5:2 D5:2  E5:3 F5:1 G5:4  A5:2 G5:2 F5:2 C5:2  E5:4 C#5:2 r:2'},
+      {k:'l07b',n:'歸途的黃昏',d:'D 小調三拍子 66 拍，比較哀傷，雙簧管→最後小提琴',u:60/66/2,bar:6,acc:'arp',pad:1,cb:0.8,pm:[0.25,0.6,1,1.5],pp:[3],perc:'timp',lead:['oboe','flute','oboe','violin'],lo:[0,0,0,0],
+        A:['Dm','Gm','C','F','Bb','Gm','A','Dm'],B:['Bb','F','C','Dm','Bb','F','Gm','A'],
+        a:'D5:3 E5:1 F5:2  G5:4 D5:2  E5:3 F5:1 G5:2  A5:4 r:2  Bb5:3 A5:1 G5:2  F5:2 D5:2 Bb4:2  C#5:2 E5:2 A5:2  D5:4 r:2',
+        b:'D6:3 C6:1 Bb5:2  A5:3 G5:1 F5:2  E5:2 G5:2 C6:2  A5:4 r:2  F5:2 Bb5:2 D6:2  C6:3 A5:1 F5:2  D6:2 Bb5:2 G5:2  E5:4 r:2'},
+      {k:'l07c',n:'遠方的城牆',d:'D 小調 80 拍，漸強最大：長笛獨奏 → 號角＋合唱＋全弦樂＋定音鼓',u:60/80/2,bar:8,acc:'arp',pad:1,cb:1,pm:[0.1,0.5,1.1,1.8],pp:[2,3],perc:'timp',lead:['flute','flute','horn','horn'],lo:[0,0,0,0],dbl:{p:[3],ins:'choir',i:-12,v:0.6},
+        A:['Dm','C','Bb','C','Dm','F','Gm','A'],B:['Bb','F','C','Dm','Bb','F','C','A'],
+        a:'D5:2 F5:2 A5:3 G5:1  E5:4 r:2 C5:2  D5:3 C5:1 Bb4:4  C5:4 E5:2 G5:2  F5:3 G5:1 A5:2 D6:2  C6:3 A5:1 F5:4  Bb5:3 A5:1 G5:2 Bb5:2  A5:6 r:2',
+        b:'D6:4 C6:2 Bb5:2  A5:4 F5:2 C6:2  G5:3 A5:1 G5:2 E5:2  F5:6 r:2  F5:2 Bb5:2 D6:3 C6:1  C6:2 A5:2 F5:4  E5:2 G5:2 C6:2 E6:2  C#6:4 A5:2 E5:2'}]});
+  // ---- 天堂參考・第三批（2026-10-19）：L10、L11、L12、L13、L15、L16 各 3 首 ----
+  // ph＝弦樂長音移高幾個半音（冷冷的高音弦樂）；org＝和弦換的時候加管風琴長音
+  LIN.push(
+    {g:'L10 山嶽前哨・排笛民謠',ar:'meadow',list:[
+      {k:'l10a',n:'山風前哨',d:'G 大調山嶽民謠 76 拍，排笛＋12 弦吉他＋木魚（照另一份 AI 分析）',u:60/76/2,bar:8,acc:'guitar12',pad:0.3,perc:'wood',lead:['pan','oboe','pan','pan'],lo:[0,0,0,0],
+        A:['G','D','Em','C','G','D','C,D','G'],B:['Em','C','G','D','Em','C','Am','D'],
+        a:'D5:3 B4:1 G4:2 B4:2  A4:4 r:2 F#4:2  G4:2 B4:2 E5:3 D5:1  E5:2 D5:2 C5:2 r:2  B4:2 D5:2 G5:3 F#5:1  A5:4 F#5:2 D5:2  E5:2 C5:2 D5:2 F#5:2  G5:6 r:2',
+        b:'B5:3 A5:1 G5:2 E5:2  G5:3 E5:1 C5:4  D5:2 G5:2 B5:3 A5:1  A5:6 r:2  G5:2 B5:2 E6:3 D6:1  C6:3 B5:1 G5:4  E5:2 A5:2 C6:2 B5:2  A5:4 F#5:2 r:2'},
+      {k:'l10b',n:'矮人鍛爐',d:'G 大調三拍子 84 拍，雙簧管和排笛，像打鐵的節奏',u:60/84/2,bar:6,acc:'guitar12',pad:0.3,perc:'wood',lead:['oboe','pan','oboe','oboe'],lo:[0,0,0,0],
+        A:['G','C','G','D','Em','C','D','G'],B:['C','G','Am','D','C','G','Am,D','G'],
+        a:'G4:2 B4:2 D5:2  E5:3 D5:1 C5:2  B4:2 D5:2 G5:2  F#5:4 r:2  E5:2 G5:2 B5:2  A5:3 G5:1 E5:2  D5:2 F#5:2 A5:2  G5:4 r:2',
+        b:'C6:3 B5:1 A5:2  B5:2 G5:2 D5:2  C6:2 A5:2 E5:2  F#5:4 r:2  E5:2 G5:2 C6:2  D6:3 C6:1 B5:2  A5:2 C6:1 F#5:2 A5:1  G5:4 r:2'},
+      {k:'l10c',n:'湖邊營火',d:'E 小調三拍子 84 拍，排笛＋雙簧，樸素的北方湖邊（照我們的清單）',u:60/84/2,bar:6,acc:'guitar12',pad:0.5,perc:'none',lead:['pan','reed','pan','pan'],lo:[0,0,0,0],
+        A:['Em','G','D','Em','Em','C','D','Em'],B:['C','G','D','Em','C','G','Am','B'],
+        a:'B4:2 E5:2 G5:2  D5:3 B4:1 G4:2  A4:2 D5:2 F#5:2  E5:4 r:2  G5:3 F#5:1 E5:2  E5:2 G5:2 C6:2  B5:3 A5:1 F#5:2  E5:4 r:2',
+        b:'G5:3 A5:1 G5:2  D5:2 G5:2 B5:2  A5:3 G5:1 F#5:2  G5:4 r:2  E6:3 D6:1 C6:2  B5:2 G5:2 D5:2  C5:2 E5:2 A5:2  F#5:2 D#5:2 B4:2'}]},
+    {g:'L11 雪國魔塔・冰晶與大提琴',ar:'moon',list:[
+      {k:'l11a',n:'冰封之窗',d:'D 自然小調 66 拍，大提琴獨奏＋水晶鐘琶音＋高音弦樂＋風鈴（照另一份 AI 分析）',u:60/66/2,bar:8,acc:'arp',ai:'glass',pad:0.8,ph:12,perc:'chime',lead:['cello','cello','flute','cello'],lo:[0,0,12,0],
+        A:['Dm','Bb','C','Dm','Dm','Bb','Gm,C','Dm'],B:['Gm','Dm','Bb','C','Gm','Dm','Bb','A'],
+        a:'D4:3 E4:1 F4:2 A4:2  Bb4:4 A4:2 F4:2  G4:3 E4:1 C4:4  D4:6 r:2  A4:3 C5:1 D5:4  D5:3 C5:1 Bb4:4  Bb4:2 G4:2 E4:2 G4:2  F4:2 E4:2 D4:2 r:2',
+        b:'G4:3 A4:1 Bb4:4  A4:3 F4:1 D4:4  D5:3 C5:1 Bb4:2 F4:2  G4:6 r:2  Bb4:3 C5:1 D5:4  F5:3 E5:1 D5:4  D5:2 C5:2 Bb4:2 A4:2  A4:6 r:2'},
+      {k:'l11b',n:'象牙塔的鐘',d:'D 小調三拍子 60 拍，水晶鐘唱主旋律，最後一段換大提琴',u:60/60/2,bar:6,acc:'arp',ai:'harp',pad:0.9,ph:12,perc:'chime',lead:['glass','flute','glass','cello'],lo:[0,0,0,-24],
+        A:['Dm','C','Bb','A','Dm','C','Bb','A'],B:['Bb','F','C','Dm','Bb','F','Gm','A'],
+        a:'A5:2 D6:2 F6:2  E6:3 D6:1 C6:2  D6:4 Bb5:2  A5:4 r:2  F5:2 A5:2 D6:2  C6:2 E6:2 G5:2  Bb5:3 A5:1 G5:2  C#6:4 r:2',
+        b:'D6:3 C6:1 Bb5:2  A5:2 C6:2 F6:2  E6:4 G5:2  F5:4 r:2  F5:2 Bb5:2 D6:2  C6:3 A5:1 F5:2  G5:2 Bb5:2 D6:2  C#6:4 r:2'},
+      {k:'l11c',n:'雪原獨白',d:'D 小調 70 拍，大提琴每句先留白，中段水晶鐘',u:60/70/2,bar:8,acc:'arp',ai:'glass',pad:0.7,ph:12,perc:'chime',lead:['cello','glass','cello','cello'],lo:[-12,0,-12,-12],
+        A:['Dm','F','C','Gm','Dm','Bb','C','Dm'],B:['Bb','C','Am','Dm','Bb','C','A','A'],
+        a:'r:2 D5:2 F5:2 A5:2  C6:3 A5:1 F5:4  G5:3 E5:1 C5:4  D5:6 r:2  r:2 A5:2 D6:2 C6:2  Bb5:3 A5:1 F5:4  E5:2 G5:2 C6:2 E5:2  D5:6 r:2',
+        b:'F5:4 Bb5:2 D6:2  E6:3 D6:1 C6:4  A5:2 C6:2 E6:4  D6:6 r:2  D6:3 C6:1 Bb5:2 F5:2  G5:3 A5:1 G5:2 E5:2  C#6:4 A5:2 E5:2  A5:6 r:2'}]},
+    {g:'L12 帝國王都・銅管與管風琴',ar:'academy',list:[
+      {k:'l12a',n:'王座之廳',d:'降 E 大調 88 拍，圓號＋小號齊奏、全弦樂、管風琴長音、定音鼓和鈸（照另一份 AI 分析）',u:60/88/2,bar:8,acc:'arp',pad:1.2,cb:1,org:0.7,perc:'royal',lead:['horn','trumpet','horn','horn'],lo:[0,0,0,0],dbl:{p:[2,3],ins:'trumpet',i:0,v:0.5},
+        A:['Eb','Ab','Bb','Eb','Cm','Ab','Bb','Eb'],B:['Ab','Eb','Fm','Bb','Ab','Eb/G','Fm','Bb'],
+        a:'Bb4:3 Eb5:1 G5:4  Ab5:3 G5:1 F5:2 Eb5:2  D5:3 F5:1 Bb5:4  G5:6 r:2  G5:3 Eb5:1 C5:4  C5:2 Eb5:2 Ab5:3 G5:1  F5:2 D5:2 Bb4:2 D5:2  Eb5:6 r:2',
+        b:'C6:4 Ab5:2 Eb5:2  G5:4 Bb5:2 Eb6:2  Ab5:3 G5:1 F5:2 C5:2  D5:6 r:2  Eb5:2 Ab5:2 C6:3 Bb5:1  Bb5:3 G5:1 Eb5:4  F5:2 Ab5:2 C6:2 Ab5:2  Bb5:4 F5:2 D5:2'},
+      {k:'l12b',n:'大教堂的鐘聲',d:'降 E 大調三拍子 72 拍，管風琴唱主旋律、中段合唱',u:60/72/2,bar:6,acc:'arp',pad:1,cb:0.8,perc:'royal',lead:['organ','choir','organ','organ'],lo:[0,-12,0,0],
+        A:['Eb','Bb','Cm','Ab','Eb','Bb','Ab,Bb','Eb'],B:['Ab','Eb','Fm','Bb','Cm','Ab','Fm','Bb'],
+        a:'G5:4 Eb5:2  F5:4 D5:2  Eb5:3 D5:1 C5:2  C5:4 r:2  Bb5:4 G5:2  F5:3 G5:1 Ab5:2  C6:2 Ab5:1 D6:2 Bb5:1  Eb6:4 r:2',
+        b:'C6:4 Eb6:2  Bb5:4 G5:2  Ab5:3 G5:1 F5:2  D5:4 r:2  Eb5:2 G5:2 C6:2  C6:3 Bb5:1 Ab5:2  F5:2 Ab5:2 C6:2  Bb5:4 r:2'},
+      {k:'l12c',n:'凱旋大道',d:'降 E 大調進行曲 96 拍，小號號角（圓號低八度跟著）、管風琴、定音鼓小鼓',u:60/96/2,bar:8,acc:'march',pad:0.6,org:0.4,perc:'march',lead:['trumpet','horn','trumpet','trumpet'],lo:[0,0,0,0],dbl:{p:[0,3],ins:'horn',i:-12,v:0.6},
+        A:['Eb','Bb','Eb','Ab','Eb','Bb','Ab,Bb','Eb'],B:['Cm','Ab','Bb','Eb','Cm','Fm','Bb','Bb7'],
+        a:'Eb5:3/2 Eb5:1/2 G5:2 Bb5:3/2 G5:1/2 Eb5:2  F5:3 D5:1 Bb4:4  G5:3/2 G5:1/2 Bb5:2 Eb6:3 D6:1  C6:4 Ab5:2 r:2  Bb5:3/2 G5:1/2 Eb5:2 G5:3/2 Bb5:1/2 Eb6:2  D6:3 C6:1 Bb5:4  C6:2 Ab5:2 D6:2 F5:2  Eb5:6 r:2',
+        b:'G5:3 Eb5:1 C5:4  Eb5:3 Ab5:1 C6:4  D6:3/2 C6:1/2 Bb5:2 F5:4  G5:6 r:2  C6:3 Bb5:1 G5:2 Eb5:2  F5:2 Ab5:2 C6:4  Bb5:3/2 Bb5:1/2 D6:2 C6:2 Bb5:2  Ab5:4 F5:2 D5:2'}]},
+    {g:'L13 熱鬧商店街・手風琴與音樂盒',ar:'harbor',list:[
+      {k:'l13a',n:'麵包店的早晨',d:'C 大調波卡舞曲 112 拍，手風琴＋嗯吧嗯吧低音＋沙鈴',u:60/112/2,bar:8,acc:'off',pad:0,perc:'shaker',lead:['accord','accord','bell','accord'],lo:[0,0,0,0],
+        A:['C','G','G','C','C','F','G','C'],B:['F','C','G','C','F','C','D7','G'],
+        a:'E5:1 E5:1 G5:2 E5:1 E5:1 C5:2  D5:1 D5:1 G5:2 B4:2 r:2  D5:1 E5:1 F5:1 D5:1 B4:2 G4:2  C5:4 E5:2 r:2  G5:1 G5:1 C6:2 G5:1 G5:1 E5:2  F5:1 E5:1 F5:1 A5:1 C6:2 A5:2  G5:1 F5:1 E5:1 D5:1 B4:2 D5:2  C5:4 r:4',
+        b:'A5:2 C6:2 A5:1 G5:1 F5:2  G5:2 E5:2 C5:4  B4:1 C5:1 D5:1 E5:1 F5:2 D5:2  E5:4 r:4  F5:1 A5:1 C6:2 C6:1 A5:1 F5:2  E5:1 G5:1 C6:2 G5:2 E5:2  F#5:2 A5:2 C6:2 A5:2  G5:4 D5:2 r:2'},
+      {k:'l13b',n:'音樂盒小店',d:'C 大調圓舞曲 96 拍，音樂盒＋豎琴，中段單簧管',u:60/96/2,bar:6,acc:'waltz',pad:0.3,perc:'none',lead:['mbox','mbox','clar','mbox'],lo:[0,0,-12,0],
+        A:['C','Am','F','G','C','Am','Dm,G','C'],B:['F','C','G','Am','F','C','D7','G'],
+        a:'G5:2 E6:2 D6:2  C6:4 A5:2  A5:2 C6:2 F6:2  D6:4 r:2  E6:2 D6:1 C6:1 G5:2  A5:3 B5:1 C6:2  F6:2 D6:1 B5:2 D6:1  C6:4 r:2',
+        b:'C6:2 F6:2 A6:2  G6:4 E6:2  D6:3 B5:1 G5:2  A5:4 r:2  F6:3 E6:1 C6:2  E6:2 C6:2 G5:2  C6:2 A5:2 F#5:2  G5:4 r:2'},
+      {k:'l13c',n:'水果攤的叫賣',d:'A 小調→C 大調 6/8 快舞曲，曼陀林輪指＋響板',u:0.18,bar:6,acc:'jig',pad:0,perc:'cast',lead:['mando','mando','accord','mando'],lo:[0,0,0,0],
+        A:['Am','E','Am','E','Am','Dm','E','Am'],B:['C','G','C','G','F','C','G','E'],
+        a:'E5:1 A5:1 C6:1 B5:1 A5:1 E5:1  G#5:1 B5:1 E6:1 D6:1 B5:1 G#5:1  A5:1 C6:1 E6:1 C6:1 A5:1 E5:1  B5:3 r:3  C6:1 B5:1 A5:1 B5:1 C6:1 D6:1  D6:1 F6:1 E6:1 D6:1 A5:2  B5:1 G#5:1 E5:1 G#5:1 B5:1 D6:1  A5:3 r:3',
+        b:'G5:1 C6:1 E6:1 D6:1 C6:1 G5:1  B5:1 D6:1 F6:1 D6:1 B5:1 G5:1  E6:1 D6:1 C6:1 G5:2 E5:1  D5:3 r:3  A5:1 C6:1 F6:1 E6:1 D6:1 C6:1  G5:2 C6:1 E6:3  D6:1 B5:1 G5:1 B5:1 D6:1 F6:1  E6:3 r:3'}]},
+    {g:'L15 海盜港灣・6/8 船歌',ar:'harbor',list:[
+      {k:'l15a',n:'黑帆揚起',d:'D 小調 6/8 船歌，小提琴＋手風琴，搖晃的甲板',u:0.26,bar:6,acc:'jig',pad:0.3,perc:'jig',lead:['violin','accord','violin','violin'],lo:[0,0,0,0],
+        A:['Dm','C','Dm','A','Dm','C','Bb,A','Dm'],B:['F','C','Dm','A','F','C','Gm,A','Dm'],
+        a:'A4:2 D5:1 D5:2 E5:1  E5:2 C5:1 G4:3  F5:2 E5:1 D5:2 A4:1  C#5:3 r:3  A5:2 G5:1 F5:2 D5:1  E5:2 G5:1 C6:3  D6:2 Bb5:1 C#6:2 A5:1  D6:3 r:3',
+        b:'C6:2 A5:1 F5:2 A5:1  G5:2 E5:1 C5:3  D5:1 F5:1 A5:1 D6:2 C6:1  A5:2 E5:1 C#5:3  F5:2 G5:1 A5:2 C6:1  E6:2 D6:1 C6:3  Bb5:2 G5:1 C#6:2 E6:1  D6:3 r:3'},
+      {k:'l15b',n:'醉酒的水手',d:'D 小調 6/8 快一點，手風琴主奏，熱鬧的港口酒館',u:0.22,bar:6,acc:'jig',pad:0,perc:'jig',lead:['accord','violin','accord','accord'],lo:[0,0,0,0],
+        A:['Dm','Dm','C','C','Dm','Dm','A','Dm'],B:['Bb','F','C','Dm','Bb','F','Gm,A','Dm'],
+        a:'D5:1 E5:1 F5:1 E5:1 D5:1 A4:1  D5:2 F5:1 A5:3  G5:1 F5:1 E5:1 D5:1 C5:1 G4:1  C5:2 E5:1 G5:3  A5:1 G5:1 F5:1 G5:1 A5:1 D6:1  A5:2 F5:1 D5:3  E5:1 F5:1 G5:1 E5:1 C#5:1 A4:1  D5:3 r:3',
+        b:'F5:2 Bb5:1 D6:2 Bb5:1  C6:2 A5:1 F5:3  E5:1 G5:1 C6:1 E6:2 C6:1  D6:2 A5:1 F5:3  D6:1 C6:1 Bb5:1 A5:1 G5:1 F5:1  A5:2 F5:1 C5:3  Bb4:1 D5:1 G5:1 C#5:1 E5:1 A5:1  D5:3 r:3'},
+      {k:'l15c',n:'深海的傳說',d:'D 小調慢 6/8，大提琴講古，最後一段合唱',u:0.32,bar:6,acc:'jig',pad:0.6,cb:0.6,perc:'none',lead:['cello','violin','cello','choir'],lo:[0,12,0,0],
+        A:['Dm','Bb','Gm','A','Dm','Bb','Gm,A','Dm'],B:['F','C','Bb','A','Dm','C','Bb,A','Dm'],
+        a:'D4:3 F4:2 A4:1  Bb4:3 A4:2 F4:1  G4:2 Bb4:1 D5:3  C#5:3 r:3  F5:2 E5:1 D5:3  D5:2 C5:1 Bb4:3  Bb4:2 G4:1 A4:3  D4:3 r:3',
+        b:'A4:2 C5:1 F5:3  E5:2 G5:1 C5:3  D5:2 Bb4:1 F4:3  E4:2 A4:1 C#5:3  D5:2 F5:1 A5:3  G5:2 E5:1 C5:3  D5:2 Bb4:1 C#5:2 A4:1  D5:3 r:3'}]},
+    {g:'L16 夢幻之島・飄浮的夢',ar:'sky',list:[
+      {k:'l16a',n:'雲上的花園',d:'A 大調三拍子 60 拍（有降 6、降 7 的夢幻和弦），長笛＋水晶鐘琶音＋風鈴，最後一段合唱',u:0.5,bar:6,acc:'arp',ai:'glass',pad:1,perc:'chime',lead:['flute','bell','flute','choir'],lo:[0,0,0,-12],
+        A:['A','G','D','A','F','G','A','A'],B:['D','A','G','D','F','G','E','E'],
+        a:'E5:2 A5:2 C#6:2  B5:4 G5:2  F#5:2 A5:2 D6:2  C#6:4 r:2  C6:2 A5:2 F5:2  D6:3 B5:1 G5:2  E5:2 A5:2 C#6:2  E6:4 r:2',
+        b:'F#6:3 E6:1 D6:2  C#6:2 A5:2 E5:2  D6:3 B5:1 G5:2  A5:4 r:2  A5:2 C6:2 F6:2  D6:2 G6:2 B5:2  E6:3 D6:1 B5:2  G#5:4 r:2'},
+      {k:'l16b',n:'夢的漣漪',d:'A 大調 66 拍，大七和弦飄來飄去，水晶鐘主奏、最後合唱',u:60/66/2,bar:8,acc:'arp',ai:'harp',pad:1,perc:'chime',lead:['glass','flute','glass','glass'],lo:[0,0,0,0],dbl:{p:[3],ins:'choir',i:-12,v:0.5},
+        A:['Amaj7','Gmaj7','Fmaj7','E','Amaj7','Gmaj7','Fmaj7','E'],B:['Dmaj7','C#m','Bm','E','Dmaj7','C#m','F','E'],
+        a:'C#6:2 E6:2 G#6:4  F#6:3 D6:1 B5:4  A5:2 C6:2 E6:3 C6:1  B5:6 r:2  E6:2 C#6:2 A5:2 G#5:2  B5:3 D6:1 F#6:4  E6:2 C6:2 A5:2 F5:2  G#5:6 r:2',
+        b:'F#5:3 A5:1 C#6:4  E6:3 C#6:1 G#5:4  D6:2 B5:2 F#5:4  G#5:6 r:2  A5:2 C#6:2 F#6:4  E6:3 C#6:1 B5:4  C6:2 A5:2 F5:2 A5:2  B5:6 r:2'},
+      {k:'l16c',n:'漂流的星星',d:'A 大調三拍子 54 拍，很慢，低音合唱唱主旋律＋鐘琴',u:60/54/2,bar:6,acc:'arp',ai:'glass',pad:1.1,perc:'chime',lead:['choir','bell','choir','choir'],lo:[-12,0,-12,-12],
+        A:['A','E','F#m','D','A','E','D','A'],B:['F','G','A','A','F','G','E','E'],
+        a:'A5:4 B5:2  G#5:4 E5:2  F#5:3 E5:1 C#5:2  D5:4 r:2  E5:2 A5:2 C#6:2  B5:4 G#5:2  A5:3 F#5:1 D5:2  E5:4 r:2',
+        b:'A5:4 C6:2  B5:4 D6:2  C#6:4 E6:2  E6:4 r:2  C6:3 A5:1 F5:2  D6:3 B5:1 G5:2  B5:2 G#5:2 E5:2  E5:4 r:2'}]});
+  // ---- 天堂參考・第四批（2026-10-19，最後一批）：L17、L18、E2、E3、E5 各 3 首 ----
+  // 短曲：nb＝每段幾小節（預設 8）、form＝放哪幾段（預設 A A B A）、tail＝結尾幾小節（預設 2）、end＝結尾停在哪個和弦
+  // ar：win＝小遊戲贏了、lose＝小遊戲輸了、bye＝按「上一頁」準備離開（AMUS.jingle 放）
+  LIN.push(
+    {g:'L17 遺忘之島・荒涼的危險',ar:'box',list:[
+      {k:'l17a',n:'迷霧海岸',d:'F 小調 70 拍（有降 2 級的拿坡里和弦），大提琴＋低音弦樂顫音＋零星太鼓',u:60/70/2,bar:8,acc:'trem',pad:0.6,perc:'sparse',lead:['cello','oboe','cello','cello'],lo:[0,12,0,0],
+        A:['Fm','Gb','C','Fm','Fm','Db','C7','Fm'],B:['Bbm','Fm','Gb','C','Bbm','Fm','Db','C'],
+        a:'F4:4 Ab4:2 C5:2  Db5:4 Bb4:2 Gb4:2  G4:3 E4:1 C4:4  F4:6 r:2  C5:3 Db5:1 C5:2 Ab4:2  F4:2 Ab4:2 Db5:4  E4:2 G4:2 Bb4:2 G4:2  F4:6 r:2',
+        b:'Bb4:3 C5:1 Db5:4  C5:3 Ab4:1 F4:4  Gb4:2 Bb4:2 Db5:3 C5:1  E4:6 r:2  F4:2 Bb4:2 Db5:3 C5:1  Ab4:4 F4:4  F4:2 Ab4:2 Db5:2 C5:2  G4:4 E4:2 r:2'},
+      {k:'l17b',n:'被遺忘的墓碑',d:'F 小調三拍子 60 拍，很空，鐘聲一下一下，最後合唱',u:60/60/2,bar:6,acc:'trem',pad:0.7,perc:'sparse',lead:['bell','cello','bell','choir'],lo:[0,-12,0,-12],
+        A:['Fm','Fm','Gb','C','Fm','Db','Gb','C'],B:['Db','Ab','Gb','C','Bbm','Fm','Gb','C'],
+        a:'C5:4 r:2  Ab5:2 G5:2 F5:2  Gb5:4 r:2  E5:4 r:2  F5:2 Ab5:2 C6:2  Db6:3 C6:1 Ab5:2  Bb5:2 Gb5:2 Db5:2  C5:4 r:2',
+        b:'F5:3 Ab5:1 Db6:2  C6:4 Eb5:2  Db5:2 Gb5:2 Bb5:2  E5:4 r:2  Db5:2 F5:2 Bb5:2  Ab5:3 G5:1 F5:2  Gb5:2 F5:2 Db5:2  E5:4 r:2'},
+      {k:'l17c',n:'暗潮',d:'F 小調 84 拍，緊張的重複音，雙簧管＋長號',u:60/84/2,bar:8,acc:'trem',pad:0.5,cb:0.8,perc:'sparse',lead:['oboe','tbone','oboe','oboe'],lo:[0,-12,0,0],
+        A:['Fm','Fm','Gb','Fm','Fm','Fm','Gb','C'],B:['Bbm','Bbm','Fm','Fm','Gb','Db','C','C'],
+        a:'F5:1 F5:1 Ab5:2 G5:1 F5:1 C5:2  Eb5:3 Db5:1 C5:4  Db5:1 Db5:1 Gb5:2 F5:1 Eb5:1 Db5:2  C5:6 r:2  C6:2 Bb5:1 Ab5:1 G5:2 F5:2  Ab5:3 G5:1 F5:4  Gb5:2 F5:2 Eb5:2 Db5:2  E5:4 C5:2 r:2',
+        b:'Bb4:2 Db5:2 F5:3 Gb5:1  F5:4 Db5:4  C5:2 F5:2 Ab5:3 G5:1  F5:6 r:2  Db6:3 C6:1 Bb5:2 Gb5:2  Ab5:3 F5:1 Db5:4  E5:2 G5:2 Bb5:2 C6:2  C6:4 E5:2 r:2'}]},
+    {g:'L18 高塔試煉・往上爬的緊張',ar:'arena',list:[
+      {k:'l18a',n:'第一百層',d:'C 小調＋減和弦 100 拍，弦樂頑固低音＋管風琴＋鼓，圓號主奏',u:60/100/2,bar:8,acc:'ost',pad:0.6,org:0.5,perc:'tower',lead:['horn','violin','horn','horn'],lo:[0,0,0,0],
+        A:['Cm','Ddim','G','Cm','Ab','Ddim','G','G'],B:['Fm','Cm','Ddim','G','Fm','Cm','Ab','G'],
+        a:'C5:2 Eb5:2 G5:3 F5:1  Ab5:3 G5:1 F5:2 D5:2  B4:2 D5:2 G5:4  Eb5:6 r:2  C5:2 Eb5:2 Ab5:3 G5:1  F5:3 Ab5:1 D5:4  G5:2 F5:2 D5:2 B4:2  D5:6 r:2',
+        b:'F5:3 Ab5:1 C6:4  Eb6:3 D6:1 C6:4  Ab5:2 F5:2 D5:2 F5:2  G5:6 r:2  C6:3 Bb5:1 Ab5:2 F5:2  G5:3 Ab5:1 G5:2 Eb5:2  C5:2 Eb5:2 Ab5:2 C6:2  B5:6 r:2'},
+      {k:'l18b',n:'無盡的階梯',d:'C 小調 108 拍，小提琴一路往上爬的八分音符',u:60/108/2,bar:8,acc:'ost',pad:0.5,org:0.6,perc:'tower',lead:['violin','violin','horn','violin'],lo:[0,0,0,0],
+        A:['Cm','Cm','Ddim','G','Cm','Cm','Ab,Ddim','G'],B:['Fm','Fm','Cm','Cm','Ab','Ddim','G','G'],
+        a:'G4:1 C5:1 Eb5:1 G5:1 F5:1 Eb5:1 D5:1 C5:1  Eb5:2 D5:1 C5:1 G4:4  Ab4:1 D5:1 F5:1 Ab5:1 G5:1 F5:1 Eb5:1 D5:1  B4:4 D5:2 r:2  C5:1 Eb5:1 G5:1 C6:1 Bb5:1 Ab5:1 G5:1 F5:1  Eb5:4 C5:2 r:2  Ab5:1 G5:1 F5:1 Eb5:1 D5:1 F5:1 Ab5:1 D5:1  G5:4 B4:2 r:2',
+        b:'F5:1 Ab5:1 C6:1 Ab5:1 F5:1 C5:1 F5:2  Ab5:3 G5:1 F5:4  G5:1 C6:1 Eb6:1 C6:1 G5:1 Eb5:1 G5:2  C6:6 r:2  Eb5:1 Ab5:1 C6:1 Eb6:1 D6:1 C6:1 Ab5:2  F5:2 Ab5:2 D6:4  B5:2 D6:1 C6:1 B5:2 G5:2  D6:4 B5:2 r:2'},
+      {k:'l18c',n:'塔頂的審判',d:'C 小調三拍子 84 拍，管風琴主奏＋大鍵琴琶音，中段合唱',u:60/84/2,bar:6,acc:'arp',ai:'harpsi',pad:0.7,perc:'timp',lead:['organ','choir','organ','organ'],lo:[0,-12,0,0],
+        A:['Cm','Ddim','G','Cm','Fm','Ddim','G','Cm'],B:['Ab','Eb','Fm','G','Ab','Eb','Ddim','G'],
+        a:'C5:2 Eb5:2 G5:2  Ab5:4 F5:2  G5:3 F5:1 D5:2  Eb5:4 r:2  F5:2 Ab5:2 C6:2  Ab5:3 F5:1 D5:2  B4:2 D5:2 F5:2  C5:4 r:2',
+        b:'C6:3 Bb5:1 Ab5:2  G5:4 Eb5:2  F5:2 Ab5:2 C6:2  B5:4 r:2  Eb6:3 D6:1 C6:2  Bb5:2 G5:2 Eb5:2  D5:2 F5:2 Ab5:2  G5:4 r:2'}]},
+    {g:'E2 遊戲結束・依依不捨',ar:'bye',list:[
+      {k:'e2a',n:'道別的鋼琴',d:'C 小調→降 E 大調收尾，三拍子 60 拍，鋼琴，後段弦樂進來（約 50 秒）',u:60/60/2,bar:6,acc:'arp',pad:0.6,pm:[0.4,1.3],perc:'none',form:['A','B'],end:'Eb',lead:['piano','piano'],lo:[0,0],
+        A:['Cm','Fm','Bb','Eb','Ab','Fm','G','Cm'],B:['Ab','Eb','Fm','Bb','Ab','Eb/G','Fm,Bb','Eb'],
+        a:'G5:3 F5:1 Eb5:2  F5:2 Ab5:2 C6:2  D6:3 C6:1 Bb5:2  G5:4 r:2  C6:3 Bb5:1 Ab5:2  Ab5:2 F5:2 C5:2  D5:2 F5:2 B4:2  C5:4 r:2',
+        b:'Eb5:2 Ab5:2 C6:2  Bb5:3 G5:1 Eb5:2  Ab5:3 G5:1 F5:2  D5:4 r:2  C6:2 Eb6:2 Ab5:2  G5:3 Bb5:1 Eb6:2  F5:2 Ab5:1 D5:2 F5:1  Eb5:4 r:2'},
+      {k:'e2b',n:'再會了，冒險者',d:'A 小調 58 拍 Am–F–Dm–E7（照另一份 AI 分析），鋼琴→大提琴（約 70 秒）',u:60/58/2,bar:8,acc:'arp',pad:0.7,pm:[0.5,1.2],perc:'none',form:['A','B'],end:'Am',lead:['piano','cello'],lo:[0,-12],
+        A:['Am','F','Dm','E7','Am','F','Dm,E7','Am'],B:['F','C','Dm','Am','F','C','Dm','E7'],
+        a:'E5:3 A5:1 C6:4  A5:3 G5:1 F5:4  D5:2 F5:2 A5:3 G5:1  G#5:6 r:2  A5:3 B5:1 C6:2 E6:2  C6:3 A5:1 F5:4  F5:2 D5:2 E5:2 G#5:2  A5:6 r:2',
+        b:'A5:3 C6:1 F6:4  E6:3 D6:1 C6:4  D6:2 A5:2 F5:3 E5:1  E5:6 r:2  F5:2 A5:2 C6:3 B5:1  C6:3 G5:1 E5:4  F5:2 A5:2 D6:2 C6:2  B5:4 G#5:2 r:2'},
+      {k:'e2c',n:'營火熄滅前',d:'E 小調三拍子 66 拍，長笛＋吉他，最後雙簧管（約 45 秒）',u:60/66/2,bar:6,acc:'guitar',pad:0.5,pm:[0.3,1],perc:'none',form:['A','B'],end:'Em',lead:['flute','oboe'],lo:[0,0],
+        A:['Em','C','G','D','Em','C','Am,B','Em'],B:['C','G','Am','Em','C','G','Am','B'],
+        a:'B5:3 A5:1 G5:2  E5:4 G5:2  D5:3 B4:1 D5:2  F#5:4 r:2  G5:2 B5:2 E6:2  D6:3 C6:1 B5:2  A5:2 C6:1 B5:2 F#5:1  E5:4 r:2',
+        b:'G5:3 A5:1 G5:2  D6:4 B5:2  C6:3 B5:1 A5:2  G5:4 r:2  E6:3 D6:1 C6:2  B5:2 G5:2 D5:2  C5:2 E5:2 A5:2  F#5:2 D#5:2 B4:2'}]},
+    {g:'E3 失敗・長眠的嘆息',ar:'lose',list:[
+      {k:'e3a',n:'灰白的世界',d:'A 小調三拍子 58 拍 Am–F–Dm–E7，大提琴（約 15 秒）',u:60/58/2,bar:6,acc:'arp',pad:0.8,perc:'none',nb:4,form:['A'],tail:1,end:'Am',lead:['cello'],lo:[0],
+        A:['Am','F','Dm','E7'],a:'E4:3 C4:1 A3:2  A3:2 C4:2 F4:2  F4:3 E4:1 D4:2  D4:2 B3:2 G#3:2'},
+      {k:'e3b',n:'落下的鐘',d:'A 小調，鐘聲一路往下＋低音弦樂（約 14 秒）',u:60/56/2,bar:6,acc:'trem',pad:0.9,perc:'none',nb:4,form:['A'],tail:1,end:'Am',lead:['bell'],lo:[0],
+        A:['Am','Dm','Am','E'],a:'E6:2 C6:2 A5:2  F5:3 E5:1 D5:2  C5:2 B4:2 A4:2  G#4:4 r:2'},
+      {k:'e3c',n:'遠方的鎮魂',d:'D 小調，低音合唱慢慢唱（約 18 秒）',u:60/66/2,bar:8,acc:'arp',pad:1,perc:'none',nb:4,form:['A'],tail:1,end:'Dm',lead:['choir'],lo:[-12],
+        A:['Dm','Bb','Gm','A'],a:'A5:4 F5:2 D5:2  F5:3 D5:1 Bb4:4  G4:2 Bb4:2 D5:3 C#5:1  C#5:4 A4:2 r:2'}]},
+    {g:'E5 勝利・凱旋',ar:'win',list:[
+      {k:'e5a',n:'凱旋號角',d:'D 大調 100 拍，小號三連音號角＋圓號＋鈸（約 14 秒）',u:60/100/2,bar:8,acc:'march',pad:0.8,org:0.3,perc:'royal',nb:4,form:['A'],end:'D',lead:['trumpet'],lo:[0],dbl:{p:[0],ins:'horn',i:-12,v:0.6},
+        A:['D','A','Bm,G','D'],a:'A4:2/3 A4:2/3 A4:2/3 D5:2 F#5:2 A5:2  E5:2/3 E5:2/3 E5:2/3 A5:2 C#6:2 E6:2  D6:2 B5:2 B5:2 D6:2  D6:6 r:2'},
+      {k:'e5b',n:'凱旋與鎮魂',d:'D 大調 72 拍，圓號＋合唱，莊嚴的勝利（約 20 秒）',u:60/72/2,bar:8,acc:'arp',pad:1.2,cb:1,perc:'timp',nb:4,form:['A'],end:'D',lead:['horn'],lo:[0],dbl:{p:[0],ins:'choir',i:-12,v:0.7},
+        A:['D','G','Bm','A'],a:'D5:3 F#5:1 A5:4  B5:3 A5:1 G5:4  F#5:2 B5:2 D6:3 C#6:1  C#6:4 E5:2 r:2'},
+      {k:'e5c',n:'勝利的鐘聲',d:'C 大調 112 拍，小號＋水晶鐘＋鈴鼓，最明亮（約 12 秒）',u:60/112/2,bar:8,acc:'march',pad:0.6,perc:'royal',nb:4,form:['A'],end:'C',lead:['trumpet'],lo:[0],dbl:{p:[0],ins:'glass',i:0,v:0.5},
+        A:['C','F','G','C'],a:'G5:2/3 G5:2/3 G5:2/3 C6:2 E6:2 G6:2  A5:2/3 A5:2/3 A5:2/3 C6:2 F6:2 A5:2  B5:2 D6:2 G6:2 F6:2  E6:6 r:2'}]});
+  const AW={win:'小遊戲贏了',lose:'小遊戲輸了、打殭屍結束',bye:'按「上一頁」準備離開時',harbor:'商店、餐館、推幣樂園',sky:'熱氣球',home:'我家',street:'白天的街道、空地',moon:'晚上的街道',market:'夜市',arena:'賽車場、擂台',login:'一進入遊戲先放',academy:'晴空大學',meadow:'運動場、球場、跳台',box:'只在音樂盒（自動模式不放）'};   /* 音樂盒上寫「放在哪裡」 */
+  for(const G of LIN)for(const it of G.list){const ar=it.ar||G.ar;TR[it.k]=Object.assign(it,{g:G.g,ar,w:AW[ar]||ar});ORDER.push(it.k);}
+  // ---- 2026-10-19 照 YouTube 實測重做 13 個村莊（使用者：「照實測結果開始改」）：調性／調式、速度、主旋律樂器、起音、顫音 ----
+  // 旋律輪廓保留（都是自己寫的），用 tx 把每個音照「音階第幾級」換到實測的調式：fr 原本的主音（MIDI）、fm 原本調式、tm 目標調式、sh 主音移幾個半音、
+  // pc 個別音級改成別的（燃柳：降 E → 降 B）、ch 和弦代換。小調換大調時，原本升高的 6、7 級對到大調的 6、7 級（導音不會亂掉）。
+  const SCL={maj:[0,2,4,5,7,9,11],min:[0,2,3,5,7,8,10],dor:[0,2,3,5,7,9,10],phr:[0,1,3,5,7,8,10],phrd:[0,1,4,5,7,8,10],hmin:[0,2,3,5,7,8,11]};
+  function txf(tx){if(tx._f)return tx._f;const F=SCL[tx.fm],G=SCL[tx.tm],mi=tx.fm!=='maj'&&tx.fm!=='phrd';
+    return tx._f=m=>{const d0=m-tx.fr,oc=Math.floor(d0/12),rel=d0-oc*12;let nr;if(tx.pc&&tx.pc[rel]!==undefined)nr=tx.pc[rel];else if(mi&&tx.tm==='maj'&&(rel===9||rel===11))nr=rel;
+      else{const i=F.indexOf(rel);if(i>=0)nr=G[i];else{let j=F.length-1;while(j>0&&F[j]>rel)j--;nr=G[j]+(rel-F[j]);}}return tx.fr+tx.sh+oc*12+nr;};}
+  const VL={padIns:'synth_strings_1',warm:0.6},INAME={flute:'直笛',shaku:'尺八',horn:'圓號',choir:'合唱',wpad:'溫暖墊音',sstr:'合成弦樂',trumpet:'小號',bell:'鐘琴',mbox:'音樂盒'};
+  const RT=(grp,name,key,bpm,o,each)=>{for(const k of ['a','b','c']){const T=TR[grp+k];if(!T)continue;Object.assign(T,VL,{u:60/bpm/2},o,(each&&each[k])||{});T.g=`${grp.toUpperCase()} ${name}（照實測）`;
+    T.d=`${key}${T.bar===6?'・三拍子':''}，約 ${bpm} 拍（照 YouTube 實測重做），主旋律：${[...new Set(T.lead)].map(i=>INAME[i]||i).join('→')}＋合成弦樂、溫暖墊音`;}};
+  RT('l01','出發之谷・G 小調','G 小調',70,{tx:{fr:62,fm:'dor',tm:'min',sh:5},att:0.09,vr:2.6,vc:6},{a:{lead:['flute','shaku','flute','flute']},b:{lead:['shaku','flute','shaku','shaku']},c:{lead:['flute','bell','flute','shaku']}});
+  RT('l02','初心之島・B 大調','B 大調',64,{tx:{fr:60,fm:'maj',tm:'maj',sh:-1},att:0.1,vr:3.5,vc:8},{a:{lead:['shaku','flute','shaku','shaku'],perc:'frame',dbl:null},b:{lead:['flute','shaku','flute','flute']},c:{lead:['shaku','flute','shaku','shaku'],perc:'frame',dbl:null}});
+  RT('l03','騎士之村・降 A 大調','降 A 大調',100,{tx:{fr:62,fm:'min',tm:'maj',sh:-6},att:0.25,vr:2.4,vc:4,acc:'arp',perc:'none',pad:0.8},{a:{lead:['horn','shaku','horn','horn']},b:{lead:['horn','flute','horn','horn']},c:{lead:['horn','sstr','horn','horn']}});
+  RT('l04','沙漠綠洲・F 弗里吉亞','F 弗里吉亞（小調＋降 2 級）',100,{tx:{fr:64,fm:'phrd',tm:'phr',sh:1},att:0.22,vr:2.4,vc:12},{a:{lead:['horn','wpad','horn','horn'],acc:'arp',perc:'frame'},b:{lead:['wpad','horn','wpad','wpad'],acc:'arp',perc:'frame'},c:{lead:['flute','shaku','flute','flute']}});
+  RT('l05','沒落王城・G 小調','G 小調',88,{att:0.1,vr:2.7,vc:10,ar:'moon',w:'晚上的街道'},{a:{tx:{fr:60,fm:'hmin',tm:'min',sh:7},lead:['shaku','wpad','shaku','shaku']},b:{tx:{fr:60,fm:'hmin',tm:'min',sh:7},lead:['flute','shaku','flute','flute']},
+    c:{tx:{fr:60,fm:'maj',tm:'min',sh:7},lead:['wpad','shaku','wpad','wpad'],acc:'arp',ai:'harpsi',perc:'none'}});
+  RT('l06','獸人部落・A 調（降 B）','A 調（大小調混合＋降 B）',64,{tx:{fr:57,fm:'min',tm:'min',sh:0,pc:{6:1},ch:{Eb:'Bb'}},att:0.2,vr:2.5,vc:14,lo:[0,0,0,0]},{a:{lead:['flute','shaku','flute','flute']},b:{lead:['shaku','flute','shaku','shaku']},c:{lead:['flute','choir','flute','flute']}});
+  RT('l07','孤獨旅人・G 小調','G 小調',117,{tx:{fr:62,fm:'min',tm:'min',sh:-7},att:0.09,vr:2.9,vc:14},{a:{lead:['flute','sstr','horn','sstr']},b:{lead:['shaku','sstr','horn','sstr']},c:{lead:['sstr','flute','horn','horn']}});
+  RT('l08','商業大城・E 小調','E 小調',88,{tx:{fr:60,fm:'maj',tm:'min',sh:4},att:0.1,vr:3.5,vc:7,pad:0.5},{a:{lead:['flute','shaku','flute','shaku']},b:{lead:['flute','flute','shaku','flute']},c:{lead:['shaku','shaku','flute','shaku']}});
+  RT('l09','水之都・A 小調','A 小調',88,{tx:{fr:65,fm:'maj',tm:'min',sh:4},att:0.1,vr:0.9,vc:25,acc:'arp',dbl:null},{a:{lead:['choir','shaku','choir','choir']},b:{lead:['choir','flute','choir','choir']},c:{lead:['shaku','choir','shaku','shaku'],u:0.227}});
+  RT('l10','山嶽前哨・升 C 小調','升 C 小調',100,{att:0.22,vr:2.9,vc:8},{a:{tx:{fr:55,fm:'maj',tm:'min',sh:-6},lead:['shaku','wpad','shaku','shaku']},b:{tx:{fr:55,fm:'maj',tm:'min',sh:-6},lead:['wpad','shaku','wpad','wpad']},c:{tx:{fr:52,fm:'min',tm:'min',sh:-3},lead:['shaku','flute','shaku','shaku']}});
+  RT('l11','雪國・D 大調','D 大調',96,{tx:{fr:62,fm:'min',tm:'maj',sh:0},att:0.1,vr:2.9,vc:15,ai:'harp',ph:0,perc:'frame',lo:[0,0,0,0]},{a:{lead:['flute','choir','flute','flute']},b:{lead:['choir','flute','choir','choir']},c:{lead:['flute','choir','flute','flute']}});
+  RT('l12','帝國王都・F 大調','F 大調',64,{tx:{fr:63,fm:'maj',tm:'maj',sh:2},att:0.12,vr:2.0,vc:8},{a:{lead:['sstr','horn','sstr','sstr'],dbl:{p:[2,3],ins:'horn',i:-12,v:0.5}},b:{lead:['sstr','choir','sstr','sstr'],lo:[0,-12,0,0]},c:{lead:['trumpet','horn','sstr','trumpet']}});
+  RT('l13','熱鬧商店街・A 小調','A 小調',118,{att:0.1,vr:1.8,vc:10},{a:{tx:{fr:60,fm:'maj',tm:'min',sh:-3},lead:['shaku','flute','shaku','shaku']},b:{tx:{fr:60,fm:'maj',tm:'min',sh:-3},lead:['shaku','mbox','shaku','shaku'],lo:[0,0,0,0]},c:{lead:['shaku','shaku','flute','shaku']}});
+  const unitsOf=T=>T.bar*(T.nb||8)*(T.form||['A','A','B','A']).length+T.bar*(T.tail||2);   /* 一首有幾個八分音符（預設 A A B A＋結尾 2 小節） */
+  for(const k of ORDER){const T=TR[k];T.k=k;T.evA=mel(T.a,T.bar,k+'A',T.nb);T.evB=T.b?mel(T.b,T.bar,k+'B',T.nb):new Map();if(T.tx){const f=txf(T.tx);for(const ev of [T.evA,T.evB])for(const a of ev.values())for(const n of a)n.m=f(n.m);}}   /* 照實測換調 */
+  // ---- 樂器 ----
+  function osc(type,f,t,end){const o=A.ctx.createOscillator();o.type=type;o.frequency.value=f;o.start(t);o.stop(end);return o;}
+  function envG(g,t,a,v,hold,rel){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(0.0002,v),t+a);g.gain.setValueAtTime(Math.max(0.0002,v),Math.max(t+a,hold));g.gain.exponentialRampToValueAtTime(0.0001,Math.max(t+a,hold)+rel);}
+  function vib(os,f,t,depth,rate,delay,end){const c=A.ctx,l=c.createOscillator(),g=c.createGain();l.frequency.value=rate;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(f*depth,t+delay);l.connect(g);for(const o of os)g.connect(o.frequency);l.start(t);l.stop(end);}
+  function nz(t,dur,v,o,type,f,q,col){const c=A.ctx,s=c.createBufferSource(),fl=c.createBiquadFilter(),g=c.createGain();s.buffer=col==='w'?A.noise:A.pink;s.loop=true;fl.type=type;fl.frequency.value=f;if(q)fl.Q.value=q;
+    s.connect(fl);fl.connect(g);g.connect(o);g.gain.setValueAtTime(Math.max(0.0002,v),t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);s.start(t,Math.random()*1.5);s.stop(t+dur+0.02);}
+  function sn(t,f,dur,v,o,f1){const c=A.ctx,a=osc('sine',f,t,t+dur+0.02),g=c.createGain();a.frequency.setValueAtTime(f,t);a.frequency.exponentialRampToValueAtTime(f1||f*0.6,t+dur);a.connect(g);g.connect(o);g.gain.setValueAtTime(Math.max(0.0002,v),t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);}
+  // 撥弦（Karplus-Strong）：每 4 個半音算一個 2.4 秒的樣本（22050 Hz），低音比較長、高音比較短
+  // ---- 真實樂器取樣（2026-10-19 使用者：「現在那是什麼東西在吹奏，好難聽」→ 改用 FluidR3 General MIDI 音色庫，CC BY 3.0，作者 Frank Wen） ----
+  // gm/<樂器>/<MIDI>.mp3：每 4 個半音一個音（下載時只取用得到的音域），中間的音調 playbackRate。用到才載入（start 前先把這首會用到的音載好，最多等 3 秒），
+  // 載入後轉單聲道、降一半取樣率、去掉後面的安靜、峰值拉到 0.9（省記憶體：一個音約 0.3 MB，最多留 120 個）；還沒載好的音先用原本的合成聲。
+  const GMR={recorder:[60,100],shakuhachi:[52,96],pad_2_warm:[32,92],synth_strings_1:[32,92],flute:[60,100],pan_flute:[52,96],oboe:[52,96],clarinet:[44,92],french_horn:[40,88],trumpet:[52,100],trombone:[36,76],violin:[52,100],cello:[32,80],
+    choir_aahs:[40,88],church_organ:[36,92],acoustic_grand_piano:[44,100],orchestral_harp:[32,100],harpsichord:[36,100],dulcimer:[56,104],accordion:[52,96],
+    celesta:[60,108],glockenspiel:[68,108],music_box:[68,108],vibraphone:[56,100],sitar:[48,92],acoustic_guitar_nylon:[40,92],acoustic_guitar_steel:[40,92],
+    acoustic_bass:[24,64],brass_section:[44,84],pizzicato_strings:[32,88],string_ensemble_1:[32,92],tremolo_strings:[32,76],timpani:[32,56],taiko_drum:[48,48]};
+  const GMB=new Map(),GML=new Map(),SM={off:false,fail:0};
+  const gmKey=(ins,m)=>{const [lo,hi]=GMR[ins];return Math.max(lo,Math.min(hi,lo+4*Math.round((m-lo)/4)));};
+  function gmLoad(ins,b){const key=ins+':'+b;if(GMB.has(key))return Promise.resolve(GMB.get(key));if(GML.has(key))return GML.get(key);const c=A.ctx;if(!c||P.off)return Promise.resolve(null);
+    const p=fetch(`gm/${ins}/${b}.mp3`).then(r=>{if(!r.ok)throw new Error(r.status);return r.arrayBuffer();}).then(ab=>new Promise((res,rej)=>c.decodeAudioData(ab,res,rej))).then(B=>{
+      const n=B.length,a=B.getChannelData(0),z=B.numberOfChannels>1?B.getChannelData(1):null,h=B.sampleRate>=44100?2:1;let pk=0,last=0;
+      for(let i=0;i<n;i++){const v=Math.abs(z?(a[i]+z[i])*0.5:a[i]);if(v>pk)pk=v;if(v>0.002)last=i;}
+      const L=Math.max(1,Math.floor(Math.min(n,last+B.sampleRate*0.05)/h)),O=c.createBuffer(1,L,B.sampleRate/h),d=O.getChannelData(0),k=pk>0?0.9/pk:1;
+      for(let i=0;i<L;i++){let s=0;for(let j=0;j<h;j++){const q=i*h+j;s+=z?(a[q]+z[q])*0.5:a[q];}d[i]=s/h*k;}
+      const fo=Math.min(L,Math.floor(O.sampleRate*0.03));for(let i=0;i<fo;i++)d[L-1-i]*=i/fo;   /* 結尾 30 ms 淡出（沒有喀聲） */
+      GMB.set(key,O);GML.delete(key);while(GMB.size>120)GMB.delete(GMB.keys().next().value);return O;})
+      .catch(e=>{GML.delete(key);SM.fail++;return null;});
+    GML.set(key,p);return p;}
+  const gmLoadKey=s=>{const i=s.lastIndexOf(':');return gmLoad(s.slice(0,i),+s.slice(i+1));};
+  // 播一個取樣音：op.sus＝長音（比取樣長就中段重複）、op.att 起音、op.rel 放開後多久消失、op.ring＝不管 d，讓它自己響完（鐘、定音鼓）
+  function smp(ins,t,f,d,v,o,op={}){if(SM.off||!GMR[ins]||!(f>0))return false;const m=12*Math.log2(f/440)+69,b=gmKey(ins,m),key=ins+':'+b;
+    if(P.collect){P.collect.add(key);return true;}
+    const B=GMB.get(key);if(!B){gmLoad(ins,b);return false;}GMB.delete(key);GMB.set(key,B);
+    const c=A.ctx,s=c.createBufferSource(),g=c.createGain(),rate=Math.pow(2,(m-b)/12),dur=B.duration/rate,rel=op.rel||0.2,a=Math.max(op.att||0,op.sw||0),vv=Math.max(0.0002,v);
+    s.buffer=B;s.playbackRate.value=rate;s.connect(g);g.connect(o);
+    if(s.detune&&(op.vc||op.bend)){if(op.bend){s.detune.setValueAtTime(-70,t);s.detune.linearRampToValueAtTime(0,t+0.09);}   /* 尺八：起音往上滑一點 */
+      if(op.vc){const l=c.createOscillator(),lg=c.createGain();l.frequency.value=op.vr||2.8;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(op.vc,t+Math.min(0.5,Math.max(0.15,d*0.4)));l.connect(lg);lg.connect(s.detune);l.start(t);l.stop(t+Math.max(0.2,d)+1.5);}}   /* 慢顫音 */
+    if(op.sw){g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vv*0.5,t+0.05);g.gain.linearRampToValueAtTime(vv,t+a);}   /* 號角長音：先一半再慢慢變大 */
+    else if(a>0.01){g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vv,t+a);}else g.gain.setValueAtTime(vv,t);if(op.wet&&P.wb&&!P.off)g.connect(P.wb);
+    if(op.ring){s.start(t);s.stop(t+dur+0.05);return true;}
+    const end=Math.max(t+a,t+Math.max(0.05,d));
+    if(op.sus&&end-t>dur-0.25){s.loop=true;s.loopStart=Math.min(1.0,B.duration*0.35);s.loopEnd=Math.max(s.loopStart+0.3,B.duration-0.1);}
+    if(op.sus||end-t<dur){g.gain.setValueAtTime(vv,end);g.gain.setTargetAtTime(0.0001,end,rel/3);s.start(t);s.stop(end+rel*2);}else{s.start(t);s.stop(t+dur+0.05);}
+    return true;}
+  function smpReady(ins,f){if(SM.off||!GMR[ins])return false;const b=gmKey(ins,12*Math.log2(f/440)+69),key=ins+':'+b;if(P.collect){P.collect.add(key);return true;}if(GMB.has(key))return true;gmLoad(ins,b);return false;}
+  // 這首會用到哪些音：用一個很小的離線 context 把整首「空跑」一次，取樣函式只記下要哪些音
+  function needKeys(k){const O=window.OfflineAudioContext||window.webkitOfflineAudioContext;if(!O||!A.ctx)return [];const set=new Set(),sv={...P},sc=A.ctx,c=new O(1,128,22050);
+    try{A.ctx=c;P.off=true;P.collect=set;P.lay=null;P.pick={};const T=TR[k];P.T=T;P.u=0;P.us=T.u;P.night=false;P.g=c.createGain();P.next=0.05;let n=0;while(P.T&&n++<6000)stepU();
+      const C=chd(T,T.A[0].split(',')[0]);for(const m of [C.r,C.t,C.f,C.r+12,C.t+12,C.f+12,C.r+24])smp('orchestral_harp',0,midi(m),1,0.1,c.destination);}
+    catch(e){console.warn('AMUS needKeys',e);}finally{A.ctx=sc;Object.assign(P,sv);P.collect=null;}return [...set];}
+  const KS=new Map();
+  function ksBuf(m){let r=KS.get(m);if(r)return r;const sr=22050,f=midi(m),N=Math.max(2,Math.round(sr/f-0.5)),L=Math.floor(sr*2.4),b=A.ctx.createBuffer(1,L,sr),d=b.getChannelData(0);
+    const T60=Math.max(0.7,3.6*Math.pow(2,-(m-48)/22)),k=Math.pow(0.001,1/(T60*f));let lp=0,mean=0;
+    for(let i=0;i<N;i++){lp+=((Math.random()*2-1)-lp)*0.6;d[i]=lp;mean+=lp;}mean/=N;for(let i=0;i<N;i++)d[i]-=mean;
+    d[N]=k*d[0]*0.5;for(let i=N+1;i<L;i++)d[i]=k*0.5*(d[i-N]+d[i-N-1]);
+    let pk=0;for(let i=0;i<Math.min(L,N*4);i++)pk=Math.max(pk,Math.abs(d[i]));if(pk>0)for(let i=0;i<L;i++)d[i]/=pk;
+    r={b,f:sr/(N+0.5)};KS.set(m,r);return r;}
+  function warmKS(){for(let m=28;m<=100;m+=4)ksBuf(m);}
+  function pl(t,f,d,v,o,lpF,rel){if(!SM.off&&smp(lpF<800?'acoustic_bass':lpF<1000?'pizzicato_strings':lpF<=4500?'acoustic_guitar_nylon':'acoustic_guitar_steel',t,f,d,v*0.75,o,{rel:Math.max(0.15,rel||0.2)}))return;   /* 有取樣就用取樣 */
+   const c=A.ctx,m=12*Math.log2(f/440)+69,bm=Math.max(28,Math.min(100,28+4*Math.round((m-28)/4))),K=ksBuf(bm),s=c.createBufferSource(),fl=c.createBiquadFilter(),g=c.createGain(),rate=f/K.f;
+    s.buffer=K.b;s.playbackRate.value=rate;fl.type='lowpass';fl.frequency.value=lpF;s.connect(fl);fl.connect(g);g.connect(o);const end=t+Math.max(0.12,d);
+    g.gain.setValueAtTime(Math.max(0.0002,v),t);g.gain.setTargetAtTime(0.0001,end,rel*0.3);s.start(t);s.stop(Math.min(t+2.39/rate,end+rel*1.8));}
+  const INS={
+    flute(t,f,d,v,o){const c=A.ctx,end=t+d,a=osc('sine',f,t,end+0.3),b=osc('triangle',f,t,end+0.3),g=c.createGain(),gb=c.createGain();gb.gain.value=0.22;a.connect(g);b.connect(gb);gb.connect(g);g.connect(o);
+      vib([a,b],f,t,0.006,5,Math.min(0.35,d*0.5),end+0.3);envG(g,t,0.055,v,end-0.04,0.2);nz(t,0.09,v*0.3,o,'bandpass',Math.min(8000,f*2),1.5);},
+    reed(t,f,d,v,o){const c=A.ctx,end=t+d,a=osc('sawtooth',f,t,end+0.25),fl=c.createBiquadFilter(),g=c.createGain();fl.type='lowpass';fl.frequency.value=Math.min(9000,f*3.5);fl.Q.value=2;a.connect(fl);fl.connect(g);g.connect(o);
+      vib([a],f,t,0.007,5.5,Math.min(0.3,d*0.5),end+0.25);envG(g,t,0.04,v*0.45,end-0.03,0.13);},
+    horn(t,f,d,v,o){const c=A.ctx,end=t+d,fl=c.createBiquadFilter(),g=c.createGain();fl.type='lowpass';fl.Q.value=0.8;fl.frequency.setValueAtTime(f*1.2,t);fl.frequency.exponentialRampToValueAtTime(Math.min(6000,f*3.5),t+0.12);fl.frequency.setTargetAtTime(f*2.4,t+0.15,0.3);
+      const os=[];for(const dt of [-5,5]){const a=osc('sawtooth',f,t,end+0.3);a.detune.value=dt;a.connect(fl);os.push(a);}vib(os,f,t,0.004,4.8,Math.min(0.4,d*0.6),end+0.3);fl.connect(g);g.connect(o);envG(g,t,0.07,v*0.42,end-0.05,0.2);},
+    bell(t,f,d,v,o){const c=A.ctx,L=Math.max(0.9,Math.min(1.8,d+0.6)),car=osc('sine',f,t,t+L+0.05),mod=osc('sine',f*3.5,t,t+L+0.05),mg=c.createGain(),g=c.createGain();
+      mg.gain.setValueAtTime(f*1.4,t);mg.gain.exponentialRampToValueAtTime(f*0.04,t+0.7);mod.connect(mg);mg.connect(car.frequency);car.connect(g);g.connect(o);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v*0.75,t+0.004);g.gain.exponentialRampToValueAtTime(0.0001,t+L);
+      sn(t,f*2,0.5,v*0.18,o,f*2);},
+    harp(t,f,d,v,o){pl(t,f,d,v*1.2,o,3200,0.6);},
+    dulc(t,f,d,v,o){pl(t,f,d,v*1.1,o,6500,0.25);pl(t+0.012,f*2,d,v*0.35,o,7000,0.2);},
+    accord(t,f,d,v,o){const c=A.ctx,end=t+d,fl=c.createBiquadFilter(),g=c.createGain();fl.type='lowpass';fl.frequency.value=Math.min(6000,f*4);fl.Q.value=1;
+      for(const [ty,m,dt,gg] of [['square',1,-9,0.45],['sawtooth',1,9,0.5],['square',2,4,0.15]]){const a=osc(ty,f*m,t,end+0.2);a.detune.value=dt;const ga=c.createGain();ga.gain.value=gg;a.connect(ga);ga.connect(fl);}
+      fl.connect(g);g.connect(o);envG(g,t,0.035,v*0.3,end-0.03,0.1);},
+    oboe(t,f,d,v,o){const c=A.ctx,end=t+d,a=osc('sawtooth',f,t,end+0.25),pk=c.createBiquadFilter(),lp=c.createBiquadFilter(),g=c.createGain();pk.type='peaking';pk.frequency.value=Math.min(6000,f*3);pk.Q.value=1.5;pk.gain.value=9;lp.type='lowpass';lp.frequency.value=Math.min(9000,f*6);   /* 雙簧管：鼻音（中高頻凸起） */
+      a.connect(pk);pk.connect(lp);lp.connect(g);g.connect(o);vib([a],f,t,0.005,5.5,Math.min(0.3,d*0.5),end+0.25);envG(g,t,0.03,v*0.3,end-0.03,0.1);},
+    clar(t,f,d,v,o){const c=A.ctx,end=t+d,a=osc('square',f,t,end+0.25),lp=c.createBiquadFilter(),g=c.createGain();lp.type='lowpass';lp.frequency.value=Math.min(5000,f*3.2);lp.Q.value=0.7;a.connect(lp);lp.connect(g);g.connect(o);   /* 單簧管：方波（只有奇數泛音）、圓圓的 */
+      vib([a],f,t,0.003,5,Math.min(0.4,d*0.6),end+0.25);envG(g,t,0.05,v*0.3,end-0.04,0.14);},
+    violin(t,f,d,v,o){const c=A.ctx,end=t+d,lp=c.createBiquadFilter(),pk=c.createBiquadFilter(),g=c.createGain();lp.type='lowpass';lp.frequency.value=Math.min(9000,f*6);pk.type='peaking';pk.frequency.value=2800;pk.Q.value=1;pk.gain.value=5;
+      const os=[];for(const dt of [-4,4]){const a=osc('sawtooth',f,t,end+0.25);a.detune.value=dt;a.connect(lp);os.push(a);}lp.connect(pk);pk.connect(g);g.connect(o);vib(os,f,t,0.007,5.8,Math.min(0.2,d*0.4),end+0.25);envG(g,t,0.035,v*0.25,end-0.03,0.12);},
+    trumpet(t,f,d,v,o){const c=A.ctx,end=t+d,fl=c.createBiquadFilter(),g=c.createGain();fl.type='lowpass';fl.Q.value=1.2;fl.frequency.setValueAtTime(f*1.5,t);fl.frequency.exponentialRampToValueAtTime(Math.min(9000,f*7),t+0.05);fl.frequency.setTargetAtTime(Math.min(8000,f*4.5),t+0.06,0.15);   /* 小號：起音很快、很亮 */
+      const os=[];for(const dt of [-3,3]){const a=osc('sawtooth',f,t,end+0.2);a.detune.value=dt;a.connect(fl);os.push(a);}vib(os,f,t,0.004,5.2,Math.min(0.35,d*0.6),end+0.2);fl.connect(g);g.connect(o);envG(g,t,0.025,v*0.35,end-0.03,0.1);},
+    harpsi(t,f,d,v,o){pl(t,f,d*0.8,v,o,9000,0.12);pl(t+0.004,f*2,d*0.6,v*0.35,o,9000,0.1);},   /* 大鍵琴：很亮的撥弦＋高八度 */
+    vibe(t,f,d,v,o){const c=A.ctx,L=Math.max(1.2,d+0.8),a=osc('sine',f,t,t+L),b=osc('sine',f*4,t,t+0.4),g=c.createGain(),gb=c.createGain(),tr=c.createGain(),l=c.createOscillator(),lg=c.createGain();   /* 鐵琴：正弦＋一點點泛音、5.5 Hz 顫動 */
+      l.frequency.value=5.5;lg.gain.value=0.3;l.connect(lg);lg.connect(tr.gain);tr.gain.value=0.7;l.start(t);l.stop(t+L);a.connect(g);b.connect(gb);gb.connect(g);gb.gain.setValueAtTime(0.25,t);gb.gain.exponentialRampToValueAtTime(0.001,t+0.3);g.connect(tr);tr.connect(o);
+      g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(0.0002,v),t+0.003);g.gain.exponentialRampToValueAtTime(0.0001,t+L);},
+    sitar(t,f,d,v,o){const c=A.ctx,m=12*Math.log2(f/440)+69,bm=Math.max(28,Math.min(100,28+4*Math.round((m-28)/4))),K=ksBuf(bm),rate=f/K.f,end=t+Math.max(0.15,d);   /* 西塔琴：亮的撥弦、一開始音高往上滑一點、中頻嗡嗡聲、兩根弦微微走音 */
+      for(const [dt,vv] of [[1,1],[1.004,0.5]]){const s=c.createBufferSource(),fl=c.createBiquadFilter(),pk=c.createBiquadFilter(),g=c.createGain();s.buffer=K.b;s.playbackRate.setValueAtTime(rate*dt*0.982,t);s.playbackRate.exponentialRampToValueAtTime(rate*dt,t+0.06);
+        fl.type='lowpass';fl.frequency.value=5000;pk.type='peaking';pk.frequency.value=2200;pk.Q.value=2;pk.gain.value=6;s.connect(pk);pk.connect(fl);fl.connect(g);g.connect(o);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(Math.max(0.0002,v*vv),t+0.02);g.gain.setTargetAtTime(0.0001,end,0.12);s.start(t);s.stop(Math.min(t+2.3/rate,end+0.6));}},
+    cello(t,f,d,v,o){const c=A.ctx,end=t+d,lp=c.createBiquadFilter(),g=c.createGain();lp.type='lowpass';lp.frequency.value=Math.min(4000,f*5);lp.Q.value=0.8;const os=[];for(const dt of [-5,5]){const a=osc('sawtooth',f,t,end+0.35);a.detune.value=dt;a.connect(lp);os.push(a);}   /* 大提琴：慢一點起音、揉弦 */
+      lp.connect(g);g.connect(o);vib(os,f,t,0.006,5,Math.min(0.35,d*0.5),end+0.35);envG(g,t,0.09,v*0.3,end-0.05,0.25);},
+    tbone(t,f,d,v,o){const c=A.ctx,end=t+d,fl=c.createBiquadFilter(),g=c.createGain();fl.type='lowpass';fl.Q.value=1.5;fl.frequency.setValueAtTime(f*1.2,t);fl.frequency.exponentialRampToValueAtTime(Math.min(5000,f*5),t+0.08);fl.frequency.setTargetAtTime(f*3,t+0.1,0.25);   /* 長號：低沉、粗一點（加低八度方波） */
+      for(const dt of [-6,6]){const a=osc('sawtooth',f,t,end+0.25);a.detune.value=dt;a.connect(fl);}const sq=osc('square',f*0.5,t,end+0.25),sg=c.createGain();sg.gain.value=0.25;sq.connect(sg);sg.connect(fl);fl.connect(g);g.connect(o);envG(g,t,0.05,v*0.4,end-0.05,0.15);},
+    pan(t,f,d,v,o){const c=A.ctx,end=t+d,a=osc('sine',f,t,end+0.3),b=osc('triangle',f*2,t,end+0.3),g=c.createGain(),gb=c.createGain();gb.gain.value=0.08;a.connect(g);b.connect(gb);gb.connect(g);g.connect(o);   /* 排笛：很純的正弦＋很多氣音 */
+      vib([a],f,t,0.004,4.5,Math.min(0.4,d*0.6),end+0.3);envG(g,t,0.045,v,end-0.04,0.18);nz(t,Math.min(0.25,d),v*0.55,o,'bandpass',Math.min(9000,f*1.5),2.5);nz(t,0.06,v*0.4,o,'highpass',3000,0,'w');},
+    glass(t,f,d,v,o){const c=A.ctx,L=Math.max(1,Math.min(2.2,d+1)),car=osc('sine',f,t,t+L+0.05),mod=osc('sine',f*2,t,t+L+0.05),mg=c.createGain(),g=c.createGain();   /* 水晶鐘：FM 1:2、很清亮、尾巴長 */
+      mg.gain.setValueAtTime(f*0.9,t);mg.gain.exponentialRampToValueAtTime(f*0.02,t+0.5);mod.connect(mg);mg.connect(car.frequency);car.connect(g);g.connect(o);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(0.0002,v),t+0.003);g.gain.exponentialRampToValueAtTime(0.0001,t+L);
+      sn(t,f*3.01,0.35,v*0.12,o,f*3.01);},
+    organ(t,f,d,v,o){const c=A.ctx,end=t+d,g=c.createGain();for(const [m,vv,dt] of [[1,1,-3],[1,0.7,4],[2,0.55,0],[4,0.3,0],[0.5,0.45,0]]){const a=osc('sine',f*m,t,end+0.2),ga=c.createGain();a.detune.value=dt;ga.gain.value=vv;a.connect(ga);ga.connect(g);}   /* 管風琴：好幾個八度的正弦疊起來 */
+      g.connect(o);envG(g,t,0.04,v*0.5,end-0.03,0.18);},
+    mbox(t,f,d,v,o){const c=A.ctx,L=Math.max(0.7,Math.min(1.4,d+0.5));sn(t,f,L,v,o,f);sn(t,f*4.2,0.18,v*0.35,o,f*4.2);sn(t,f*2,0.4,v*0.2,o,f*2);},   /* 音樂盒：短短的叮＋高泛音 */
+    mando(t,f,d,v,o){const n=Math.max(1,Math.round(d/0.065));for(let i=0;i<n;i++)pl(t+i*0.065,f,0.12,v*(i?0.6:1),o,6000,0.08);},   /* 曼陀林：輪指（很快重複撥） */
+    piano(t,f,d,v,o){const c=A.ctx,dec=Math.max(0.8,Math.min(4,2.6*Math.sqrt(262/f))),end=t+Math.max(0.1,d),g=c.createGain();g.connect(o);   /* 鋼琴：好幾個泛音各自衰減（高的比較快）＋一點琴槌聲；放開就停 */
+      for(const [m,vv,dk] of [[1,1,1],[2,0.45,0.6],[3,0.2,0.4],[4,0.1,0.3]]){const a=osc(m===1?'triangle':'sine',f*m*(1+0.0004*m*m),t,end+0.4),ga=c.createGain();a.connect(ga);ga.connect(g);ga.gain.setValueAtTime(0.0001,t);ga.gain.exponentialRampToValueAtTime(vv,t+0.004);ga.gain.exponentialRampToValueAtTime(Math.max(0.0002,vv*0.05),t+dec*dk);}
+      g.gain.setValueAtTime(Math.max(0.0002,v*0.5),t);g.gain.setValueAtTime(Math.max(0.0002,v*0.5),end);g.gain.exponentialRampToValueAtTime(0.0001,end+0.35);nz(t,0.02,v*0.15,o,'bandpass',Math.min(8000,f*4),1);},
+    choir(t,f,d,v,o){const c=A.ctx,end=t+d,src=c.createGain(),g=c.createGain();const os=[];for(const dt of [-10,0,10]){const a=osc('sawtooth',f,t,end+0.5);a.detune.value=dt;a.connect(src);os.push(a);}vib(os,f,t,0.006,5,0.3,end+0.5);   /* 合唱「啊～」：三個走音的鋸齒波經過 a 母音共振峰 */
+      for(const [ff,q,gg] of [[800,5,1],[1150,6,0.7],[2900,8,0.25]]){const bp=c.createBiquadFilter(),gn=c.createGain();bp.type='bandpass';bp.frequency.value=ff;bp.Q.value=q;gn.gain.value=gg;src.connect(bp);bp.connect(gn);gn.connect(g);}g.connect(o);envG(g,t,0.25,v,end-0.1,0.4);}};
+  // 樂器 → General MIDI 音色；GK＝取樣的音量（合成版主旋律的 v 已經乘了 LV，所以這裡除回來）
+  const SYN=Object.assign({},INS);SYN.shaku=SYN.flute;SYN.wpad=SYN.choir;SYN.sstr=SYN.violin;   /* 新樂器沒有合成版：先用相近的 */
+  const GMI={flute:'recorder',shaku:'shakuhachi',wpad:'pad_2_warm',sstr:'synth_strings_1',reed:'oboe',oboe:'oboe',clar:'clarinet',horn:'french_horn',trumpet:'trumpet',tbone:'trombone',violin:'violin',cello:'cello',
+    choir:'choir_aahs',organ:'church_organ',piano:'acoustic_grand_piano',harp:'orchestral_harp',harpsi:'harpsichord',dulc:'dulcimer',accord:'accordion',bell:'celesta',
+    glass:'glockenspiel',mbox:'music_box',vibe:'vibraphone',sitar:'sitar',pan:'shakuhachi'};   /* 2026-10-19 照實測：笛聲換直笛、排笛換尺八（原曲主旋律最像直笛／尺八，FluidR3 長笛太亮） */
+  const SUS=new Set(['flute','shaku','wpad','sstr','reed','oboe','clar','horn','trumpet','tbone','violin','cello','choir','organ','accord','pan']),RING=new Set(['bell','glass','mbox','vibe']);
+  const GK={shaku:2.5,wpad:1.1,sstr:0.52,flute:1.57,reed:0.71,oboe:0.66,clar:0.54,horn:0.91,trumpet:0.9,tbone:0.67,violin:0.87,cello:0.71,choir:1.1,organ:1.94,piano:1.55,harp:1.18,harpsi:0.5,dulc:0.89,accord:0.6,bell:0.84,glass:1.7,mbox:1.35,vibe:0.8,sitar:1.07,pan:1.52};   /* 離線量過：同樣的主旋律音符都調到 RMS 約 0.025 */
+  for(const k of Object.keys(GMI))INS[k]=(t,f,d,v,o,x)=>{const op=SUS.has(k)?{sus:1,att:k==='choir'||k==='organ'?0.08:0.025,rel:k==='organ'?0.12:0.25}:RING.has(k)?{ring:1}:{rel:k==='piano'?0.35:k==='harp'?0.8:0.3};
+    if(x){const T=P.T||{};if(SUS.has(k)){op.att=T.att||0.12;if(x.cont)op.att*=0.6;op.vr=T.vr||2.8;op.vc=T.vc!==undefined?T.vc:8;if(k==='shaku'&&!x.cont)op.bend=1;}if(x.sw)op.sw=Math.min(0.6,d*0.45);}   /* 照實測：起音 90～280 ms、顫音 2～3.5 Hz ±3～17 音分 */if(BR.has(k))op.wet=1;   /* 連音的音起音輕一點、號角長音漸強、號角多送一點回音 */
+    if(smp(GMI[k],t,f,d,v*GK[k],o,op))return;SM.off=true;try{SYN[k](t,f,d,v,o);}finally{SM.off=false;}};
+  const BSG=1,brs=(t,f,d,v,o)=>{if(!smp('brass_section',t,f,d,v*BSG,o,{att:0.02,rel:0.15}))INS.horn(t,f,d,v,o);};   /* 和弦重擊：銅管組（好幾支銅管一起），沒有取樣才用圓號 */
+  const PADG={string_ensemble_1:2,synth_strings_1:2,pad_2_warm:2};
+  function strings(t,ms,d,v,o){const T=P.T||{},SI=T.padIns||'synth_strings_1',W=T.warm!==undefined?T.warm:0.5;   /* 照實測：長音用合成弦樂＋溫暖墊音 */
+    if(ms.every(m=>smpReady(SI,midi(m)))){const at=Math.min(0.6,d*0.4);for(const m of ms)smp(SI,t,midi(m),d,v*PADG[SI],o,{sus:1,att:at,rel:0.6});if(W>0&&ms.every(m=>smpReady('pad_2_warm',midi(m))))for(const m of ms)smp('pad_2_warm',t,midi(m),d,v*PADG.pad_2_warm*W,o,{sus:1,att:at,rel:0.8});return;}   /* 有取樣就用真的弦樂 */
+    const c=A.ctx,end=t+d,fl=c.createBiquadFilter(),g=c.createGain();fl.type='lowpass';fl.frequency.value=1500;fl.Q.value=0.6;fl.connect(g);g.connect(o);
+    for(const m of ms)for(const dt of [-7,7]){const a=osc('sawtooth',midi(m),t,end+0.9);a.detune.value=dt+rnd(-2,2);a.connect(fl);}
+    const at=Math.min(0.6,d*0.4);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+at);g.gain.setValueAtTime(v,Math.max(t+at,end-0.1));g.gain.exponentialRampToValueAtTime(0.0001,Math.max(t+at,end-0.1)+0.8);}
+  function drum(k,t,v,o,f){
+    if(k==='frame'||k==='bod'){const b=k==='bod';sn(t,b?120:150,0.3,v,o,b?58:78);nz(t,0.04,v*0.4,o,'lowpass',900);}
+    else if(k==='tap'){nz(t,0.05,v,o,'bandpass',1800,1.2);sn(t,340,0.1,v*0.5,o,300);}
+    else if(k==='tamb'){nz(t,0.12,v,o,'highpass',6500,0,'w');nz(t,0.16,v*0.5,o,'bandpass',9000,6,'w');}
+    else if(k==='shk')nz(t,0.045,v,o,'highpass',7000,0,'w');
+    else if(k==='snr')nz(t,0.09,v,o,'bandpass',2600,0.9,'w');
+    else if(k==='taiko'){if(smp('taiko_drum',t,midi(48),0.8,v*0.9,o,{ring:1}))return;sn(t,78,0.55,v,o,40);nz(t,0.12,v*0.5,o,'lowpass',320);}
+    else if(k==='tri'){for(const [m,vv] of [[4200,1],[6150,0.5],[8350,0.3]])sn(t,m,0.9,v*vv,o,m*0.999);}
+    else if(k==='cym')nz(t,1.4,v,o,'highpass',5000,0,'w');
+    else if(k==='wood'){sn(t,900,0.05,v,o,880);nz(t,0.03,v*0.4,o,'bandpass',1800,4,'w');}
+    else if(k==='chime'){for(let i=0;i<3+Math.floor(Math.random()*3);i++){const ff=rnd(2600,5200),tt=t+i*rnd(0.08,0.2);sn(tt,ff,rnd(0.6,1.2),v*rnd(0.5,1),o,ff);sn(tt,ff*2.7,0.25,v*0.2,o,ff*2.7);}}
+    else if(k==='cast'){nz(t,0.025,v,o,'bandpass',3200,3,'w');nz(t+0.018,0.02,v*0.6,o,'bandpass',3600,3,'w');}
+    else if(k==='timp'){f=f||73.4;if(smp('timpani',t,f,1.6,v*1.0,o,{ring:1}))return;for(const [m,dd,vv] of [[1,1.5,1],[1.5,0.6,0.3],[2,0.4,0.18]])sn(t,f*m*1.02,dd,v*vv,o,f*m);nz(t,0.08,v*0.35,o,'lowpass',500);}}
+  // ---- 一個八分音符：主旋律、伴奏、長音、打擊 ----
+  function chd(T,s){if(!T.tx)return chordOf(s);const c=T._cc||(T._cc={});if(c[s])return c[s];const tx=T.tx,B=chordOf((tx.ch&&tx.ch[s])||s),f=txf(tx);   /* 換調後的和弦：每個和弦音照音級換過去 */
+    const o={r:f(B.r),t:f(B.t),f:f(B.f),s:B.s?f(B.s):0,x:B.x?f(B.x):0,bs:f(B.bs)},k=o.r<45?12:o.r>=60?-12:0;for(const q of ['r','t','f','s','x','bs'])if(o[q])o[q]+=k;if(o.bs>o.r)o.bs-=12;return c[s]=o;}
+  function chordAt(T,sec,b,ub){const s=(sec==='B'?T.B:T.A)[b].split(','),i=Math.min(s.length-1,Math.floor(ub/(T.bar/s.length)));return {C:chd(T,s[i]),start:ub===i*(T.bar/s.length),len:T.bar/s.length};}
+  function accomp(T,C,ub,t,o,us){const r=C.r,L=[r,r+7,r+12,C.t+12,r+19,C.t+24];
+    switch(T.acc){
+      case 'waltz':if(ub===0)INS.harp(t,midi(r-12),us*6,0.09,o);else if(ub===2||ub===4){[C.t,C.f,r+12].forEach((m,i)=>INS.harp(t+i*0.012,midi(m),us*2,0.035,o));}break;
+      case 'arp':{const pat=T.bar===6?[0,1,2,3,2,1]:[0,1,2,3,4,3,2,1],I=INS[T.ai||'harp'];I(t,midi(L[pat[ub]]),us*2,ub===0?0.06:0.04,o);if(ub===0)I(t,midi(r-12),us*T.bar,0.06,o);break;}
+      case 'lute':{const pat=[0,3,2,4,1,3,2,4];pl(t,midi(L[pat[ub]]),us*1.5,ub===0?0.065:0.042,o,4200,0.2);if(ub===0||ub===4)pl(t,midi(ub===0?r-12:r-5),us*4,0.08,o,1500,0.4);break;}
+      case 'jig':if(ub===0)pl(t,midi(r-12),us*3,0.1,o,1500,0.3);else if(ub===3)pl(t,midi(r-5),us*3,0.08,o,1500,0.3);else if(ub===2||ub===5){[C.t,C.f,r+12].forEach((m,i)=>pl(t+i*0.008,midi(m),us*0.8,0.03,o,5000,0.1));}break;
+      case 'off':if(ub===0)pl(t,midi(r-12),us*2,0.12,o,900,0.15);else if(ub===4)pl(t,midi(r-5),us*2,0.1,o,900,0.15);else if(ub===2||ub===6){[C.t,C.f,r+12].forEach((m,i)=>pl(t+i*0.008,midi(m),us*0.9,0.032,o,5200,0.1));}break;
+      case 'ost':{const pat=[0,0,7,0,0,0,12,0];if(smp('cello',t,midi(r-12+pat[ub]),us*0.9,ub===0?0.05:0.035,o,{rel:0.08})){if(ub===0)pl(t,midi(r-12),us*8,0.1,o,500,0.5);break;}const c=A.ctx,a=osc('sawtooth',midi(r-12+pat[ub]),t,t+us+0.1),fl=c.createBiquadFilter(),g=c.createGain();fl.type='lowpass';fl.frequency.value=900;a.connect(fl);fl.connect(g);g.connect(o);
+        g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(ub===0?0.045:0.03,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+us*0.9);if(ub===0)pl(t,midi(r-12),us*8,0.1,o,500,0.5);break;}
+      case 'guitar':{const pat=T.bar===6?[0,1,2,3,2,1]:[0,1,2,3,4,3,2,1],Lg=[r,r+7,r+12,C.t+12,C.x?C.x+12:r+19];   /* 尼龍吉他分解和弦＋低音（第 1、3 拍） */
+        if(ub>0||T.bar===6)pl(t,midi(Lg[pat[ub]]),us*2,ub===0?0.05:0.038,o,2600,0.3);if(ub===0||(ub===4&&T.bar===8))pl(t,midi(ub===0?C.bs:C.bs+7),us*3,0.11,o,700,0.4);break;}
+      case 'guitar12':{const pat=T.bar===6?[0,1,2,3,2,1]:[0,1,2,3,4,3,2,1],Lg=[r,r+7,r+12,C.t+12,C.x?C.x+12:r+19],m=Lg[pat[ub]];   /* 12 弦吉他：分解和弦每個音加一根高八度的弦 */
+        if(ub>0||T.bar===6){pl(t,midi(m),us*2,ub===0?0.045:0.034,o,3200,0.3);pl(t+0.006,midi(m+12),us*1.6,0.016,o,6000,0.25);}if(ub===0||(ub===4&&T.bar===8))pl(t,midi(ub===0?C.bs:C.bs+7),us*3,0.11,o,700,0.4);break;}
+      case 'trem':{if(smpReady('tremolo_strings',midi(C.bs+12))&&smpReady('tremolo_strings',midi(C.bs+19))){if(ub===0){smp('tremolo_strings',t,midi(C.bs+12),us*T.bar,0.035,o,{sus:1,att:0.05,rel:0.3});smp('tremolo_strings',t,midi(C.bs+19),us*T.bar,0.03,o,{sus:1,att:0.05,rel:0.3});pl(t,midi(C.bs),us*T.bar,0.1,o,400,0.6);}break;}const c=A.ctx;for(const [m,dt] of [[C.bs+12,0],[C.bs+19,us/2]]){const a=osc('sawtooth',midi(m),t+dt,t+dt+us*0.5),fl=c.createBiquadFilter(),g=c.createGain();fl.type='lowpass';fl.frequency.value=800;a.connect(fl);fl.connect(g);g.connect(o);   /* 低音弦樂顫音（十六分音符一直抖） */
+        g.gain.setValueAtTime(0.0001,t+dt);g.gain.exponentialRampToValueAtTime(0.018,t+dt+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+dt+us*0.45);}if(ub===0)pl(t,midi(C.bs),us*T.bar,0.1,o,400,0.6);break;}
+      case 'vibe':if(ub===0)pl(t,midi(C.bs),us*3,0.12,o,700,0.3);else if(ub===2||ub===4){[C.t,C.f,C.x||r+12].forEach((m,i)=>INS.vibe(t+i*0.01,midi(m+12),us*2,0.022,o));}break;   /* 圓舞曲：撥弦低音＋鐵琴和弦在第 2、3 拍 */
+      case 'baroque':{const bp=[0,7,12,7],Lb=[r+12,C.t+12,C.f+12,r+24];if(ub%2===0)pl(t,midi(C.bs+bp[(ub/2)%4]),us*1.6,0.1,o,900,0.2);else INS.harp(t,midi(Lb[(ub>>1)%4]),us*1.5,0.03,o);break;}   /* 巴洛克：撥弦走路低音＋豎琴 */
+      case 'siege':{if(smp('cello',t,midi(C.bs+12),us*0.8,(ub===0||ub===3||ub===6)?0.055:0.03,o,{rel:0.06})){if(ub===0)pl(t,midi(C.bs),us*8,0.12,o,450,0.5);if(ub===0||ub===3)[C.t,C.f,r+12].forEach(m=>brs(t,midi(m),us*(ub===0?2.5:1.2),0.022,o));break;}const c=A.ctx,a=osc('sawtooth',midi(C.bs+12),t,t+us+0.05),fl=c.createBiquadFilter(),g=c.createGain(),ac=ub===0||ub===3||ub===6;fl.type='lowpass';fl.frequency.value=1100;a.connect(fl);fl.connect(g);g.connect(o);   /* 攻城：低音弦樂 3＋3＋2 重音往前推＋號角和弦重擊 */
+        g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(ac?0.05:0.025,t+0.008);g.gain.exponentialRampToValueAtTime(0.0001,t+us*0.8);
+        if(ub===0)pl(t,midi(C.bs),us*8,0.12,o,450,0.5);if(ub===0||ub===3)[C.t,C.f,r+12].forEach(m=>brs(t,midi(m),us*(ub===0?2.5:1.2),0.022,o));break;}
+      case 'strum':{const V=[r,C.f,r+12,C.t+12,C.f+12],sm=(dn,v)=>(dn?V:V.slice().reverse()).forEach((m,i)=>pl(t+i*0.012,midi(m),us*1.8,v,o,5000,0.2));   /* 鋼弦吉他掃弦：下（強）、上（輕）＋低音 */
+        if(ub===0||ub===4)sm(true,0.03);else if(ub===3||ub===6)sm(false,0.016);if(ub===0||ub===4)pl(t,midi(ub===0?C.bs:C.bs+7),us*3,0.11,o,800,0.3);break;}
+      case 'flam':{const V=[r,C.f,r+12,C.t+12,C.f+12],sm=(dn,v)=>(dn?V:V.slice().reverse()).forEach((m,i)=>pl(t+i*0.009,midi(m),us*1.2,v,o,6000,0.15)),hit=T.bar===6?[0,3]:[0,3,6],lt=T.bar===6?[2,5]:[2,7];   /* 佛朗明哥：3＋3＋2 重音掃弦＋手指低音 */
+        if(hit.includes(ub))sm(true,0.026);else if(lt.includes(ub))sm(false,0.014);if(ub===0||(T.bar===8&&ub===4)||(T.bar===6&&ub===3))pl(t,midi(ub===0?C.bs:C.bs+7),us*2,0.12,o,900,0.2);break;}
+      case 'march':{if(ub===0||ub===4)pl(t,midi(ub===0?C.bs:C.bs+7),us*2.5,0.12,o,700,0.3);if(ub%2===0)[C.t,C.f,r+12].forEach(m=>brs(t,midi(m),us*(ub===0?1.4:0.8),ub===0?0.02:0.012,o));break;}   /* 進行曲：低音＋號角和弦每拍 */
+      case 'tribal':{const c=A.ctx;if(ub===0||ub===3||ub===6){const a=osc('sawtooth',midi(C.bs),t,t+us*2+0.1),s2=osc('sine',midi(C.bs),t,t+us*2+0.1),fl=c.createBiquadFilter(),g=c.createGain();fl.type='lowpass';fl.frequency.value=350;a.connect(fl);s2.connect(g);fl.connect(g);g.connect(o);   /* 部落：合成低音 3＋3＋2＋低音合唱長音 */
+          g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(ub===0?0.09:0.06,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+us*1.8);}
+        if(ub===0){INS.choir(t,midi(r-12),us*T.bar,0.035,o);INS.choir(t,midi(r-5),us*T.bar,0.025,o);}break;}}}
+  function perc(T,b,ub,t,o,C,k){const p=T.perc;
+    if(p==='frame'){if(ub===0)drum('frame',t,0.06*k,o);else if(ub===4)drum('frame',t,0.035*k,o);if(ub===6)drum('tamb',t,0.012*k,o);}
+    else if(p==='market'){if(ub===0||ub===3||ub===4)drum('frame',t,(ub===0?0.07:0.045)*k,o);if(ub===6||ub===7)drum('tap',t,0.035*k,o);if(ub===2||ub===6)drum('tamb',t,0.02*k,o);else drum('shk',t,0.01*k,o);}
+    else if(p==='jig')drum('bod',t,(ub===0?0.08:ub===3?0.055:0.022)*k,o);
+    else if(p==='shaker'){drum('shk',t,(ub%2?0.01:0.017)*k,o);if(ub===0)drum('frame',t,0.035*k,o);}
+    else if(p==='timp'){if(ub===0&&b%4===0)drum('timp',t,0.12*k,o,midi(C.r-12));if(b===7&&ub>=4)drum('timp',t,(0.025+ub*0.004)*k,o,midi(C.r-12));}
+    else if(p==='march'){if(ub===0)drum('timp',t,0.065*k,o,midi(C.r-12));else if(ub===4)drum('timp',t,0.04*k,o,midi(C.r-12));if(ub===2||ub===6)drum('snr',t,0.022*k,o);else if(ub===7)drum('snr',t,0.01*k,o);}
+    else if(p==='tri'){if(ub===2||ub===6)drum('tamb',t,0.014*k,o);if(ub===0&&b%2===0)drum('tri',t,0.03*k,o);}
+    else if(p==='war'){if(ub===0||ub===3||ub===6)drum('taiko',t,(ub===0?0.16:0.1)*k,o);else if(ub===4)drum('taiko',t,0.07*k,o);if(ub===0&&b%4===0){drum('timp',t,0.09*k,o,midi(C.r-12));drum('cym',t,0.03*k,o);}   /* 戰鼓 3＋3＋2、四小節一次定音鼓＋鈸、每兩小節最後三連音小鼓 */
+      if(ub===2||ub===6)drum('snr',t,0.014*k,o);if(b%2===1&&ub>=6)for(let i=0;i<3;i++)drum('snr',t+i*P.us/3,0.01*k,o);}
+    else if(p==='wood'){if(ub===2||ub===6)drum('wood',t,0.03*k,o);else if(T.bar===6&&ub===4)drum('wood',t,0.022*k,o);}   /* 木魚：第 2、4 拍 */
+    else if(p==='chime'){if(ub===0&&Math.random()<0.45)drum('chime',t+rnd(0,P.us*2),0.012*k,o);}   /* 風鈴：偶爾叮叮叮 */
+    else if(p==='royal'){if(ub===0&&b%2===0)drum('timp',t,0.09*k,o,midi(C.r-12));if(ub===0&&b===0)drum('cym',t,0.025*k,o);if(b===7&&ub>=T.bar-2)for(let i=0;i<3;i++)drum('snr',t+i*P.us/3,0.012*k,o);}   /* 王宮：定音鼓、每段開頭鈸、段尾小鼓滾奏 */
+    else if(p==='sparse'){if(ub===0&&b%2===0)drum('taiko',t,0.07*k,o);if(ub===T.bar-2&&b%4===3)drum('wood',t,0.015*k,o);}   /* 零星：兩小節一下太鼓 */
+    else if(p==='tower'){if(ub===0)drum('taiko',t,0.12*k,o);else if(ub===4)drum('taiko',t,0.08*k,o);if(ub===6)drum('snr',t,0.02*k,o);else if(ub===7)drum('snr',t,0.014*k,o);if(ub===0&&b===0)drum('cym',t,0.02*k,o);}   /* 高塔：太鼓＋小鼓 */
+    else if(p==='drill'){if(ub===0||ub===4)drum('frame',t,0.045*k,o);if(ub===2||ub===6)drum('snr',t,0.02*k,o);if(b%2===1&&ub===7)for(let i=0;i<3;i++)drum('snr',t+i*P.us/3,0.012*k,o);}   /* 修練：輕軍鼓＋滾奏 */
+    else if(p==='cast'){const st=T.bar===6?[0,3]:[0,3,6],lt=T.bar===6?[2,5]:[7];if(st.includes(ub))drum('cast',t,0.035*k,o);else if(lt.includes(ub))drum('cast',t,0.016*k,o);if(T.bar===8&&ub===4)drum('tamb',t,0.012*k,o);}   /* 響板 3＋3＋2 */
+    else if(p==='tribe'){if(ub===0)drum('taiko',t,0.15*k,o);else if(ub===4)drum('taiko',t,0.1*k,o);if(ub===2||ub===3||ub===6||ub===7)drum('frame',t,0.045*k,o);drum('shk',t,0.008*k,o);}}
+  const SECS=['A','A','B','A'];
+  const LV={shaku:0.37,wpad:1.2,sstr:1.4,flute:0.37,reed:1.3,horn:1.1,bell:1.25,harp:2.4,dulc:2.6,accord:2.1,oboe:1.4,clar:1.2,violin:1.4,trumpet:1.25,harpsi:2.6,vibe:1.1,choir:1.2,sitar:2.6,cello:1.65,tbone:1.1,pan:0.43,glass:0.87,organ:0.6,mbox:1,mando:1.55,piano:1.3};   /* 鋼琴量過 0.019 */   /* 第三批（量過：排笛 0.058、水晶鐘 0.029、管風琴 0.042、音樂盒 0.025、曼陀林 0.016） */   /* 第二批（量過：西塔琴 0.0075（撥弦、峰值高）、大提琴 0.015、長號 0.023） */   /* 第一批新樂器（量過：同樣音符 雙簧管 0.018、單簧管 0.021、小提琴 0.018、小號 0.020、大鍵琴 0.007、鐵琴 0.023、合唱 0.021） */   /* 主旋律各樂器的音量（離線量過：同樣的音符，長笛 RMS 0.068、揚琴只有 0.008 → 調成差不多大聲，約是伴奏的 2 倍） */
+  // 2026-10-19 使用者：「吹喇叭的時候都不好聽」→ 查到圓號常吹到 C5～E6（真的圓號最高的極限，又尖又細）、小號到 G6；
+  // 改：圓號超過 G5、小號超過 D6、長號超過 C5 的那一段整段降八度；號角下面弦樂低八度陪著吹；連音；長音漸強；多一點回音；和弦用銅管組
+  const BR=new Set(['horn','trumpet','tbone']),LEG=new Set(['flute','shaku','wpad','sstr','reed','oboe','clar','horn','trumpet','tbone','violin','cello','pan','accord','choir']),BRMAX={horn:79,trumpet:86,tbone:72};
+  const RMAX={horn:79,trumpet:86,tbone:72,flute:93,shaku:88,choir:81,wpad:84,sstr:88,oboe:91,reed:91,clar:89,violin:96,cello:72,pan:88,accord:91,organ:88},RMIN={flute:60,shaku:55,choir:45,wpad:45,sstr:45,oboe:58,reed:58,clar:50,violin:55,cello:36,horn:41,trumpet:55,tbone:40,pan:55};
+  function bShift(T,pass,ins,add,sec){const key=pass+':'+ins+':'+add,c=T._bs||(T._bs={});if(key in c)return c[key];let hi=0,lo=999;for(const a of (sec==='B'?T.evB:T.evA).values())for(const n of a){const m=n.m+T.lo[pass]+add;hi=Math.max(hi,m);lo=Math.min(lo,m);}   /* 每種主旋律樂器的合理音域：太高整段降八度、太低升八度 */
+    const mx=RMAX[ins]||127,mn=RMIN[ins]||0;let s=0;if(hi>mx&&(lo-12>=mn-5||hi>mx+12))s=-12;else if(lo<mn&&hi+12<=mx+3)s=12;return c[key]=s;}
+  function stepU(){const T=P.T,o=P.g,secU=T.bar*(T.nb||8),F=T.form||SECS,u=P.u,pass=Math.floor(u/secU),uu=u%secU,b=Math.floor(uu/T.bar),ub=uu%T.bar,us=P.us,t=P.next+rnd(-0.004,0.004),k=P.night?0.5:1;
+    if(pass>=F.length){   /* 結尾：主和弦 2 小節（豎琴往上撥＋長音） */
+      if(uu===0){const C=chd(T,T.end||T.A[0].split(',')[0]);[C.r-12,C.r,C.t,C.f,C.r+12,C.t+12,C.f+12,C.r+24].forEach((m,i)=>INS.harp(t+i*0.07,midi(m),us*T.bar,0.045,o));if(T.pad)strings(t,[C.t,C.f,C.r+12],us*T.bar*(T.tail||2),0.014*T.pad,o);}
+      if(uu>=T.bar*(T.tail||2)){P.T=null;ended();return;}
+      P.u++;P.next+=us;return;}
+    const sec=F[pass],ch=chordAt(T,sec,b,ub),C=ch.C;
+    const Ly=P.lay;if(!Ly||Ly==='lead')for(const n of (sec==='B'?T.evB:T.evA).get(uu)||[]){const v=0.1*(pass===3&&b>=6?1.1:1),tt=t+(n.f||0)*us,ins=T.lead[pass],D=T.dbl,dd=n.leg&&LEG.has(ins)?n.d*us+0.05:n.d*us*0.95,
+        x=LEG.has(ins)?{cont:n.cont,sw:BR.has(ins)&&n.d*us>0.8}:null,m0=n.m+T.lo[pass]+bShift(T,pass,ins,0,sec);
+      INS[ins](tt,midi(m0),dd,v*LV[ins],o,x);if(BR.has(ins))smp('string_ensemble_1',tt,midi(m0-12),dd,0.022,o,{sus:1,att:0.12,rel:0.4});   /* 號角下面弦樂低八度陪著吹 */
+      if(D&&D.p.includes(pass)){const m1=n.m+T.lo[pass]+D.i+bShift(T,pass,D.ins,D.i,sec);INS[D.ins](tt,midi(m1),dd,v*LV[D.ins]*D.v,o,LEG.has(D.ins)?x:null);}}
+    if(!Ly||Ly==='acc')accomp(T,C,ub,t,o,us);
+    const pm=T.pm?T.pm[pass]:1;if((!Ly||Ly==='pad')&&T.org&&ch.start)[C.r,C.t,C.f].forEach(m=>INS.organ(t,midi(m),ch.len*us,0.012*T.org,o));
+    if((!Ly||Ly==='pad')&&T.pad&&ch.start){strings(t,[C.t,C.f,C.r+12].concat(C.x?[C.x]:[]).map(m=>m+(T.ph||0)),ch.len*us,0.011*T.pad*pm*(sec==='B'?1.35:1),o);if(T.cb)strings(t,[C.bs],ch.len*us,0.02*T.cb*Math.min(1,pm*1.5),o);}
+    if((!Ly||Ly==='perc')&&(T.pp?T.pp.includes(pass):(T.perc!=='none'&&pass>0||T.perc==='timp'||T.perc==='march'||T.perc==='war')))perc(T,b,ub,t,o,C,k);   /* 第一段不打鼓（慢慢進來），學院、競技場一開始就有定音鼓 */
+    P.u++;P.next+=us;}
+  // ---- 開始、淡出、休息 ----
+  function bus(){if(P.out)return true;if(!A.ctx||!A.bgm)return false;const c=A.ctx;P.out=c.createGain();P.out.gain.value=0;P.duck=c.createGain();P.duck.connect(P.out);P.out.connect(A.bgm);if(A.verb){P.wb=c.createGain();P.wb.gain.value=0;P.wb.connect(A.verb);}return true;}   /* wb：號角多送一點到空間回音 */
+  function fadeOut(){P.tok=(P.tok||0)+1;P.loading=false;if(P.g&&A.ctx){const g=P.g,c=A.ctx;g.gain.cancelScheduledValues(c.currentTime);g.gain.setTargetAtTime(0,c.currentTime,0.7);setTimeout(()=>{try{g.disconnect();}catch(_){}},5000);}P.g=null;P.T=null;}
+  function start(k){if(!bus())return;fadeOut();P.key=k;const tok=++P.tok,L=needKeys(k);P.loading=true;   /* 先載這首會用到的取樣 */
+    Promise.race([Promise.all(L.map(gmLoadKey)),new Promise(r=>setTimeout(r,L.length?3000:0))]).then(()=>{if(P.tok!==tok)return;P.loading=false;go(k);});}
+  function go(k){const c=A.ctx,T=TR[k];warmKS();P.key=k;P.T=T;P.u=0;P.night=night();P.us=T.u*(P.night?1.08:1);
+    P.g=c.createGain();P.g.gain.setValueAtTime(0.0001,c.currentTime);P.g.gain.exponentialRampToValueAtTime(1,c.currentTime+1.2);P.g.connect(P.duck);
+    const C=chd(T,T.A[0].split(',')[0]);[C.r,C.t,C.f,C.r+12,C.t+12,C.f+12,C.r+24].forEach((m,i)=>INS.harp(c.currentTime+0.05+i*0.06,midi(m),0.8,0.03,P.g));   /* 換區域：豎琴「叮鈴鈴」往上撥 */
+    P.next=c.currentTime+0.6;}
+  function ended(){const g=P.g,k=P.key;P.g=null;if(g)setTimeout(()=>{try{g.disconnect();}catch(_){}},6000);if(k&&TR[k])delete P.pick[TR[k].ar];
+    const pv=P.pv,once=pv&&!pv.loop;if(once){P.pv=null;P.key=null;if(pv.kind)P.hold=performance.now()/1000+8;}P.restUntil=performance.now()/1000+(once?0:S.mode==='auto'&&!P.pv?rnd(20,35):1.5);if(boxDraw)boxDraw();}
+  function tick(){if(!P.T||!ok()||P.off)return;const c=A.ctx;if(P.next<c.currentTime)P.next=c.currentTime+0.05;let n=0;while(P.T&&P.next<c.currentTime+0.4&&n++<16)stepU();}
+  // ---- 現在要放哪一首 ----
+  const night=()=>{const h=+document.getElementById('time').value;return h>=18.3||h<6;};
+  function areaKey(n){n=n||'';if(n==='熱氣球')return 'sky';if(/^我家|^鄰居|^屋後/.test(n))return 'home';if(n==='夜市')return 'market';if(typeof CAMPUS!=='undefined'&&n===CAMPUS.name)return 'academy';
+    if(/運動場|直排輪架|跳台公園|網球場|籃球場|彈跳床/.test(n))return 'meadow';if(/繽紛衣櫥|小餐館|推幣樂園|便利商店/.test(n))return 'harbor';if(/賽車場|大漩渦|擂台/.test(n))return 'arena';return night()?'moon':'street';}
+  function gameOn(){return GAME.on||CU.on||MU.on||DD.on||KF.on||SB.on||RB.on||NM.on||RACE.on||SKATE.on;}   /* 這些有自己的音樂（或要聽得很清楚：直笛） */
+  // 小遊戲贏了／輸了、按「上一頁」準備離開：從那一組（沒被「不要」的）隨機放一首短曲；放的時候不管有沒有在玩小遊戲（結算畫面還算在玩）
+  function jingle(kind,delay=1000){if(!kind||S.mode==='off'||!A.ctx||A.ctx.state!=='running')return;const L=ORDER.filter(k=>TR[k].ar===kind&&!S.no[k]);if(!L.length)return;const k=L[Math.floor(Math.random()*L.length)];
+    setTimeout(()=>{if(!A.ctx||A.ctx.state!=='running')return;P.pv={k,loop:false,kind};if(bus())start(k);P.cand=k;P.candT=performance.now()/1000;if(boxDraw)boxDraw();},delay);}
+  function wantKey(){if(P.pv&&P.pv.intro&&gameOn())P.pv=null;if(P.pv)return P.pv.k;if(!started||S.mode==='off'||gameOn())return null;if(S.mode!=='auto')return TR[S.mode]?S.mode:null;
+    const a=areaKey(P.area),cur=P.pick[a];if(cur&&TR[cur]&&!S.no[cur])return cur;const c=ORDER.filter(k=>TR[k].ar===a&&!S.no[k]);   /* 這個區域全部都「不要」→ 不放 */
+    return P.pick[a]=c.length?c[Math.floor(Math.random()*c.length)]:null;}
+  const volF=()=>(TN.on||BB.on||RS.on||PUSH.on||FISH.on||EMOTE.on)?0.45:1;
+  let nowTxt='';
+  function manage(){if(!A.ctx||A.ctx.state!=='running'||P.off)return;if(!bus())return;
+    if(started&&!P.introDone){P.introDone=true;const L=ORDER.filter(k=>TR[k].ar==='login'&&!S.no[k]);if(S.mode==='auto'&&!P.pv&&L.length)P.pv={k:L[Math.floor(Math.random()*L.length)],loop:false,intro:true};}   /* 遊戲開始的序曲 */
+    const c=A.ctx,now=performance.now()/1000,w=wantKey();
+    P.out.gain.setTargetAtTime(w?S.vol*(P.pv?1:volF()):0,c.currentTime,0.5);if(P.wb)P.wb.gain.setTargetAtTime(w?S.vol*(P.pv?1:volF())*0.5:0,c.currentTime,0.5);
+    let txt;if(!w){if(P.T||P.g)fadeOut();P.key=null;P.cand=null;txt=S.mode==='off'?'背景音樂：關':gameOn()?'玩遊戲時用遊戲自己的音樂':'';}
+    else{if(w!==P.cand){P.cand=w;P.candT=now;}
+      if(P.pv&&P.pv.kind||now>=(P.hold||0)){if(w!==P.key&&now-P.candT>(P.key?2.5:0.6))start(w);else if(!P.T&&!P.loading&&w===P.key&&now>=P.restUntil)start(w);}   /* hold：勝負短曲放完先安靜 8 秒 */
+      txt=P.loading?'♪ 載入樂器音色中…':!P.T&&now<(P.hold||0)?'':P.T?`♪ ${P.pv?(P.pv.intro?'遊戲開始':P.pv.kind?{win:'勝利',lose:'失敗',bye:'道別'}[P.pv.kind]:P.pv.loop?'循環':'試聽'):'現在播放'}：${P.T.n}（${P.T.w}）`:`♪ 休息一下，${Math.max(1,Math.round(P.restUntil-now))} 秒後再放「${TR[w].n}」`;}
+    if(txt!==nowTxt){nowTxt=txt;const el=document.getElementById('bgmNow');if(el)el.textContent=txt;}}
+  setInterval(tick,50);setInterval(manage,250);
+  // 說話時背景音樂壓低一點
+  function duck(sec){if(!P.duck||P.off)return;const c=A.ctx,g=P.duck.gain;g.cancelScheduledValues(c.currentTime);g.setTargetAtTime(0.5,c.currentTime,0.08);g.setTargetAtTime(1,c.currentTime+sec+0.2,0.4);}
+  // ---- 說話聲 ----
+  function hash(s){let h=2166136261;for(const ch of String(s)){h^=ch.codePointAt(0);h=Math.imul(h,16777619);}return h>>>0;}
+  function voiceOf(seed){const h=hash(seed),v={f:210+(h%190),fm:0.95+((h>>>9)%25)/100,sp:0.078+((h>>>4)%24)/1000,w:['triangle','sawtooth','square'][(h>>>14)%3]};v.g=v.w==='triangle'?1.6*Math.pow(300/v.f,1.7):(v.w==='sawtooth'?1.2:0.84)*Math.pow(300/v.f,0.4);return v;}   /* g：每種音色、音高大小聲不一樣（三角波越低越小聲），離線量過拉成差不多 */
+  const VOW=[[800,1250],[500,1850],[320,2300],[520,950],[360,800]],CT=[[1.08,1.08],[0.92,1.2],[0.97,0.82],[1.2,0.84]];
+  function syl(t,f,d,s,vo,out){const c=A.ctx,o=c.createOscillator(),g=c.createGain(),f1=c.createBiquadFilter(),f2=c.createBiquadFilter(),g2=c.createGain(),C=CT[s.c],V=VOW[s.v];
+    o.type=vo.w;o.frequency.setValueAtTime(f*C[0],t);o.frequency.linearRampToValueAtTime(f*C[1],t+d);
+    f1.type='bandpass';f1.frequency.value=V[0]*vo.fm;f1.Q.value=4;f2.type='bandpass';f2.frequency.value=V[1]*vo.fm;f2.Q.value=6;g2.gain.value=0.7;
+    o.connect(f1);o.connect(f2);f1.connect(g);f2.connect(g2);g2.connect(g);g.connect(out);
+    const pk=0.5*s.a*vo.g;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(pk,t+0.012);g.gain.setValueAtTime(pk,t+d*0.6);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.start(t);o.stop(t+d+0.02);
+    if(s.code%3===0)nz(Math.max(c.currentTime,t-0.006),0.03,0.1*s.a,out,'bandpass',3200*vo.fm,1.2,'w');}   /* 有些字前面加一點子音「ㄘ／ㄙ」 */
+  const EMORE=/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu;
+  const EMO=[[/[😂🤣😆😄😁😀😃😊🤭😹😝😜]/u,[[0,3,0.8,1.25],[0,3,0.75,1.12],[0,3,1.1,1]]],   /* 哈哈哈 */
+    [/[😮😲😱🤩✨❗‼😳]/u,[[3,1,2.4,1.1]]],   /* 哇！ */
+    [/[❤💕💖🥰😍🤗😘]/u,[[3,3,3.2,1.05]]],   /* 噢～ */
+    [/[😢😭🥺😿]/u,[[4,3,2.2,0.95],[4,3,2.6,0.88]]],   /* 嗚嗚 */
+    [/[😡💢😠👿]/u,[[4,3,1.4,0.72]]],   /* 哼 */
+    [/[👍👏🙌🎉🥳💪✌😋😎]/u,[[1,1,1,1.1],[0,1,1.8,1.25]]],   /* 耶～ */
+    [/[🤢🤮💨]/u,[[1,2,2.8,0.82]]],   /* 噁～ */
+    [/[💫😵🌀]/u,[[3,2,1.2,1.1],[3,3,1.6,0.95]]],   /* 哎喲 */
+    [/[😴💤]/u,[[4,3,3.5,0.75]]]];
+  function emoSpec(text){const e=EMO.find(x=>x[0].test(text));const L=(e?e[1]:[[4,1,1.5,1]]);return L.map(([v,c,d,p])=>({code:1,v,c,d,p,a:1}));}
+  function textSpec(str){const L=[],ch=Array.from(str);let n=0,buf='';
+    const last=()=>{for(let i=L.length-1;i>=0;i--)if(!L[i].pause)return L[i];return null;};
+    for(let i=0;i<ch.length&&n<22;i++){const x=ch[i];
+      if(/\s/.test(x))continue;
+      if(/[，,、；;：:]/.test(x)){L.push({pause:0.13});continue;}
+      if(/[。.!！?？~～…]/.test(x)){const s=last();if(s){if(/[?？]/.test(x)){s.c=1;s.p*=1.08;s.d*=1.3;}else if(/[!！]/.test(x)){s.a*=1.25;s.p*=1.12;}else if(/[~～]/.test(x)){s.d*=1.7;s.c=2;}}L.push({pause:0.2});continue;}
+      if(/[A-Za-z0-9]/.test(x)){buf+=x;const nx=ch[i+1];if(buf.length<3&&nx&&/[A-Za-z0-9]/.test(nx))continue;}
+      const w=buf||x,code=Array.from(w).reduce((a,y)=>(a*31+y.codePointAt(0))>>>0,7);buf='';
+      L.push({code,v:(code>>2)%5,c:code%4,d:1,p:1+(((code>>5)%7)-3)*0.025,a:1});n++;}
+    if(n>=22){let k=0;for(let i=L.length-1;i>=0&&k<4;i--)if(!L[i].pause){L[i].a*=0.4+k*0.15;k++;}}   /* 太長：最後幾個字慢慢變小聲 */
+    return L;}
+  let vlist=null;
+  function talk(text,pos,seed,emo){if(S.voice==='off'||!ok()||!A.voice)return false;text=String(text||'');
+    let dist=0,pan=0;if(pos&&typeof camera!=='undefined'){const dx=pos.x-camera.position.x,dz=pos.z-camera.position.z;dist=Math.hypot(dx,dz);if(dist>30)return true;
+      const R=new V3().setFromMatrixColumn(camera.matrixWorld,0);pan=dist>0.5?Math.max(-0.7,Math.min(0.7,(dx*R.x+dz*R.z)/dist)):0;}
+    const vol=1/(1+Math.max(0,dist-3)/8),clean=text.replace(EMORE,'').trim();
+    if(S.voice==='tts'&&!emo&&clean&&window.speechSynthesis&&window.SpeechSynthesisUtterance){try{const u=new SpeechSynthesisUtterance(clean.slice(0,60));u.lang='zh-TW';u.pitch=0.8+(hash(seed)%80)/100;u.rate=1.05;u.volume=Math.min(1,vol);
+      if(!vlist||!vlist.length)vlist=speechSynthesis.getVoices();const zv=vlist.find(v=>/zh[-_]TW/i.test(v.lang))||vlist.find(v=>/^zh/i.test(v.lang));if(zv)u.voice=zv;
+      if(speechSynthesis.pending)speechSynthesis.cancel();speechSynthesis.speak(u);duck(Math.min(8,0.5+clean.length*0.22));return true;}catch(_){}}
+    const vo=voiceOf(seed),c=A.ctx,out=c.createGain();out.gain.value=vol;if(c.createStereoPanner){const p=c.createStereoPanner();p.pan.value=pan;out.connect(p);p.connect(A.voice);}else out.connect(A.voice);
+    let t=c.currentTime+0.03;for(const s of (emo||!clean)?emoSpec(text):textSpec(clean)){if(s.pause){t+=s.pause;continue;}const d=vo.sp*s.d;syl(t,vo.f*s.p,d,s,vo,out);t+=d+0.012;}
+    const len=t-c.currentTime;setTimeout(()=>{try{out.disconnect();}catch(_){}},(len+1)*1000);duck(len);return true;}
+  // ---- 腳步聲：照走的距離踩一步（大約每 0.65～0.9 m 一步） ----
+  const F={ph:0.6,last:performance.now(),alt:0};
+  function feet(){const now=performance.now(),dt=Math.min(0.1,(now-F.last)/1000);F.last=now;
+    if(!S.step||!started||mode!=='walk'||!A.ctx||A.ctx.state!=='running'||!player.ground||player.climb||SKATE.on||BALLOON.riding||RACE.on||DD.on||KF.on||FISH.on||PUSH.on||MU.on){F.ph=0.6;return;}
+    const v=player.vel.length();if(v<0.4){F.ph=0.6;return;}F.ph+=dt*v/(0.62+v*0.05);if(F.ph>=1){F.ph-=1;footstep(v);}}
+  function footstep(v){const c=A.ctx,t=c.currentTime+0.01,x=player.pos.x,z=player.pos.y,o=A.sfx,k=Math.min(1,0.55+v*0.08)*((F.alt^=1)?1:0.85);
+    const sf=indoors()?'in':(inR(x,z,FIELD)||inR(x,z,GRASS)||inR(x,z,NB)||inR(x,z,JUMP_PARK))?'grass':'stone';
+    if(sf==='in'){nz(t,0.035,0.05*k,o,'bandpass',rnd(1500,2000),1.5,'w');sn(t,rnd(170,200),0.06,0.05*k,o);}   /* 木頭地板「咚」 */
+    else if(sf==='grass'){nz(t,0.09,0.04*k,o,'bandpass',rnd(2200,3200),0.8,'w');nz(t+0.02,0.06,0.02*k,o,'highpass',5000,0,'w');}   /* 草地「沙」 */
+    else{nz(t,0.05,0.045*k,o,'bandpass',rnd(900,1300),1.2);sn(t,rnd(90,110),0.07,0.055*k,o);}}   /* 石板路「喀」 */
+  setInterval(feet,40);
+  // ---- 選單 ----
+  {const ob=document.getElementById('bgmBox'),vol=document.getElementById('bgmVol'),val=document.getElementById('bgmVal'),vs=document.getElementById('voiceSel'),vt=document.getElementById('voiceTest'),st=document.getElementById('stepChk');
+   if(ob)ob.onclick=e=>{e.preventDefault();e.stopPropagation();boxOpen();};
+   if(vol){vol.value=S.vol;val.textContent=Math.round(S.vol*100)+'%';vol.oninput=()=>{S.vol=+vol.value;val.textContent=Math.round(S.vol*100)+'%';save();};}
+   if(vs){vs.value=S.voice;vs.onchange=()=>{S.voice=vs.value;save();};}
+   if(vt)vt.onclick=e=>{e.stopPropagation();const L=['你好！今天天氣真好～','要不要一起去夜市玩？','哈哈，你跑太快了啦！'];talk(L[Math.floor(Math.random()*3)],null,'me'+Math.floor(Math.random()*6));};   /* 每次換一個人的聲音試聽 */
+   if(st){st.checked=S.step;st.onchange=()=>{S.step=st.checked;save();};}
+  // ---- 音樂盒（2026-10-19 使用者：要有背景音樂播放選擇器，可以自由試聽、循環聽、選哪些不要，之後評估刪除） ----
+  // ▶ 試聽＝從頭放一次（放完回到平常）；🔁 循環＝一直放這首（記住，跟以前「循環：某一首」一樣）；👎 不要＝自動模式不放（再按一次取消），清單最下面列出全部「不要」的，使用者告訴我們再刪
+  const css=document.createElement('style');css.textContent=`#bgmBoxP[hidden]{display:none!important}   /* 2026-10-19.7 修：下面的 display:flex 會蓋掉 hidden → 音樂盒一直空空地擋在畫面中間、關不掉、點不到選單的按鈕 */
+#bgmBoxP{position:fixed;z-index:40;left:0;right:0;top:0;bottom:0;margin:auto;width:min(460px,calc(100vw - 24px));height:fit-content;max-height:min(84vh,680px);display:flex;flex-direction:column;padding:12px;font-size:14px;color:var(--ink);background:rgba(20,26,34,.94)}
+#bgmBoxP .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}#bgmBoxP .hd b{font-size:16px}
+#bgmBoxP button{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:inherit;font-size:13px;padding:6px 9px;cursor:pointer;touch-action:manipulation;min-height:40px}
+#bgmBoxP .md{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}#bgmBoxP .md .act,#bgmBoxP .row .act{background:rgba(255,180,84,.35);border-color:#ffb454}
+#bgmBoxP .now{font-size:13px;color:#ffd27a;min-height:18px;margin:2px 0 6px}
+#bgmBoxP .ls{overflow:auto;flex:1;min-height:0;padding-right:2px;touch-action:pan-y;overscroll-behavior:contain}#bgmBoxP .gp{font-size:12px;color:var(--ink-2);margin:10px 0 4px;letter-spacing:.05em}
+#bgmBoxP .row{display:flex;align-items:center;gap:6px;padding:6px;border-radius:10px;margin-bottom:4px;background:rgba(255,255,255,.04)}
+#bgmBoxP .row.on{background:rgba(255,180,84,.16);outline:1px solid rgba(255,180,84,.5)}#bgmBoxP .row.no{opacity:.45}
+#bgmBoxP .tt{flex:1;min-width:0;position:relative;padding-bottom:5px}#bgmBoxP .tt b{display:block;font-size:14px}#bgmBoxP .tt small{display:block;font-size:11.5px;color:var(--ink-2);line-height:1.35}
+#bgmBoxP .tt i{position:absolute;left:0;bottom:0;height:3px;border-radius:2px;background:#ffb454;width:0}
+#bgmBoxP .row button{padding:7px 9px;font-size:15px;flex:none;min-width:42px;min-height:42px}#bgmBoxP .tt{cursor:pointer}#bgmBoxP .nt{font-size:12px;color:var(--ink-2);margin:8px 0 0;line-height:1.5}`;document.head.appendChild(css);
+  const box=document.createElement('div');box.id='bgmBoxP';box.className='panel';box.hidden=true;
+  box.innerHTML=`<div class="hd"><b>🎵 音樂盒</b><button data-x="1">✕ 關閉</button></div><div class="md"><button data-m="auto">🗺️ 自動（每個區域）</button><button data-m="off">🔇 背景音樂關</button><button data-stop="1">⏹ 停止</button></div><div class="now"></div><div class="ls"></div><p class="nt">▶ 從頭聽一次　🔁 一直循環這首　👎 不要（自動模式不會放；再按一次取消）</p><p class="nt nolist"></p>`;
+  document.body.appendChild(box);
+  for(const ev of ['pointerdown','touchstart','mousedown','wheel'])box.addEventListener(ev,e=>e.stopPropagation(),{passive:true});   /* 在音樂盒上滑、按，不要動到後面的 3D 畫面 */
+  box.addEventListener('keydown',e=>e.stopPropagation());
+  boxDraw=null;
+  function play(k,loop){P.pv={k,loop};if(loop){S.mode=k;save();}else if(S.mode!=='auto'&&S.mode!=='off'&&S.mode!==k){S.mode='auto';save();}if(bus())start(k);P.cand=k;P.candT=performance.now()/1000;boxDraw();}
+  function stopPv(){const now=performance.now()/1000;P.pv=null;if(S.mode!=='auto'&&S.mode!=='off'){S.mode='auto';save();}fadeOut();P.key=P.cand=wantKey();P.candT=now;P.restUntil=now+30;boxDraw();}   /* 停止後安靜 30 秒再回到區域音樂 */
+  function boxOpen(){box.hidden=false;boxDraw();}
+  boxDraw=function(){if(box.hidden)return;const ls=box.querySelector('.ls');let h='',g='';
+    const keys=ORDER.slice().sort((a,b)=>(S.no[a]?1:0)-(S.no[b]?1:0)||ORDER.indexOf(a)-ORDER.indexOf(b));
+    for(const k of keys){const T=TR[k],gn=S.no[k]?'👎 不要的（之後評估刪除）':T.g;if(gn!==g){g=gn;h+=`<div class="gp">${g}</div>`;}
+      const on=P.T===T,lp=S.mode===k;h+=`<div class="row${on?' on':''}${S.no[k]?' no':''}" data-k="${k}"><button data-p="${k}" title="從頭聽一次">${on&&P.pv&&!P.pv.loop?'⏮':'▶'}</button><button data-l="${k}" class="${lp?'act':''}" title="一直循環">🔁</button>`
+        +`<div class="tt"><b>${T.n}</b><small>${T.w}・${T.d}</small><i></i></div><button data-n="${k}" title="${S.no[k]?'取消不要':'不要這首'}">${S.no[k]?'↩':'👎'}</button></div>`;}
+    ls.innerHTML=h;for(const b of box.querySelectorAll('.md [data-m]'))b.classList.toggle('act',S.mode===b.dataset.m);
+    const nl=ORDER.filter(k=>S.no[k]).map(k=>TR[k].n);box.querySelector('.nolist').textContent=nl.length?`不要的 ${nl.length} 首：${nl.join('、')}（告訴我就可以刪掉）`:'';boxTick();};
+  function boxTick(){if(box.hidden)return;box.querySelector('.now').textContent=nowTxt||'（還沒開始放：先點一下畫面讓聲音開始）';
+    for(const r of box.querySelectorAll('.row')){const T=TR[r.dataset.k],i=r.querySelector('i');const on=P.T===T;r.classList.toggle('on',on);i.style.width=on?Math.min(100,P.u/unitsOf(T)*100).toFixed(1)+'%':'0';}}
+  setInterval(boxTick,400);
+  box.addEventListener('click',e=>{const b=e.target.closest('button');if(!b){const tt=e.target.closest('.tt');if(tt){e.stopPropagation();play(tt.parentElement.dataset.k,false);}return;}   /* 點曲名也可以試聽（手機上手指常點到字） */
+   e.stopPropagation();const d=b.dataset;
+    if(d.x){box.hidden=true;return;}
+    if(d.m){S.mode=d.m;save();P.pv=null;P.cand=null;P.restUntil=0;if(d.m==='off')fadeOut();boxDraw();return;}
+    if(d.stop){stopPv();return;}
+    if(d.p){play(d.p,false);return;}
+    if(d.l){if(S.mode===d.l){stopPv();return;}play(d.l,true);return;}
+    if(d.n){const k=d.n;if(S.no[k])delete S.no[k];else{S.no[k]=1;if(P.key===k&&!P.pv)fadeOut();}P.pick={};save();boxDraw();}});
+   const menu=document.getElementById('menu');   /* 選單裡按按鈕：很小聲的「嗒」 */
+   if(menu)menu.addEventListener('click',e=>{if(!A.ctx||A.ctx.state!=='running'||!e.target.closest('button,input[type=checkbox]'))return;const t=A.ctx.currentTime+0.005;sn(t,1700,0.035,0.03,A.sfx,1300);sn(t+0.012,2500,0.03,0.012,A.sfx,2200);},true);}
+  // ---- 測試：離線算一首（不用真的聽） ----
+  async function render(k,secs=20,lay){if(typeof k==='string')await Promise.all(needKeys(k).map(gmLoadKey));   /* 測試前先載好取樣 */
+   const O=window.OfflineAudioContext||window.webkitOfflineAudioContext,c=new O(2,44100*secs,44100),save={ctx:A.ctx},sv={...P};
+    A.ctx=c;P.off=true;P.lay=lay||null;try{if(typeof k==='function'){const g=c.createGain();g.connect(c.destination);k(INS,g,{strings,drum,pl,midi});}else{const T=TR[k];P.T=T;P.u=0;P.us=T.u;P.night=false;P.g=c.createGain();P.g.connect(c.destination);P.next=0.05;let n=0;while(P.T&&P.next<secs-0.3&&n++<5000)stepU();}}
+    finally{A.ctx=save.ctx;Object.assign(P,sv);P.lay=null;}
+    const buf=await c.startRendering();let pk=0,ss=0;const N=buf.length;for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<N;i++){const v=Math.abs(d[i]);if(!(v<=10))return {k,err:'NaN'};if(v>pk)pk=v;ss+=v*v;}}
+    return {k,peak:+pk.toFixed(3),rms:+Math.sqrt(ss/(2*N)).toFixed(4)};}
+  async function renderTalk(text,seed='x',emo=false){const O=window.OfflineAudioContext||window.webkitOfflineAudioContext,c=new O(2,44100*4,44100),sc=A.ctx,sv=A.voice,sm=S.voice;
+    let r;try{A.ctx=c;P.off=true;A.voice=c.destination;S.voice='sim';r=talk(text,null,seed,emo);}finally{A.ctx=sc;A.voice=sv;S.voice=sm;P.off=false;}
+    const buf=await c.startRendering();let pk=0,ss=0,last=0;const N=buf.length;for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<N;i++){const v=Math.abs(d[i]);if(!(v<=10))return {err:'NaN'};if(v>pk)pk=v;ss+=v*v;if(v>0.003&&i>last)last=i;}}
+    return {ok:r,len:+(last/44100).toFixed(2),peak:+pk.toFixed(3),rms:+Math.sqrt(ss/(2*N)).toFixed(4)};}
+  return {see(n){P.area=n;},gm:()=>({loaded:GMB.size,loading:GML.size,fail:SM.fail}),gmLoad:gmLoadKey,needKeys,jingle,talk,TR,ORDER,S,render,renderTalk,start,box:()=>document.getElementById('bgmBoxP'),dbg:()=>({key:P.key,playing:!!P.T,u:P.u,pv:P.pv,mode:S.mode,no:Object.keys(S.no),area:P.area,want:wantKey(),rest:Math.max(0,P.restUntil-performance.now()/1000),vol:P.out&&P.out.gain.value,live:A.live}),areaKey};
 })();
 
 /* ---------------- 小遊戲：殭屍來襲（選單「小遊戲」開始） ----------------
@@ -13650,7 +14426,7 @@ const GAME=(()=>{
     if(G.free)waveEl.textContent='自由破壞';
     AUDIO.musicStart();toast(G.free?'自由破壞模式：車子、鄰居的房子、周邊建築、便利商店都打得壞（我家不會壞）；技能往前方放，視角往上抬就往上打':'殭屍來襲！守住家裡！按下方按鈕往前方放技能，按住「蓄力」集氣放開發射；車子、別人的房子也打得壞');}
   function end(){clearAll();DESTR.reset();AUDIO.musicStop();document.body.classList.remove('gaming');G.on=false;G.over=false;hud.hidden=true;skills.hidden=true;overEl.hidden=true;flash.style.boxShadow='';if(G.prevView){view=G.prevView;syncViewUI();}G.prevView=null;}
-  function gameOver(){G.over=true;EARN(Math.min(300,G.wave*15),`打殭屍撐到第 ${G.wave} 波`);overEl.hidden=false;$('gOverMsg').textContent=`撐到第 ${G.wave} 波，擊倒 ${G.kills} 隻殭屍，破壞 ${DESTR.n} 個東西，最高 ${G.best} 連擊`;AUDIO.musicStop();chargeStop();snd('over');}
+  function gameOver(){G.over=true;AMUS.jingle('lose');EARN(Math.min(300,G.wave*15),`打殭屍撐到第 ${G.wave} 波`);overEl.hidden=false;$('gOverMsg').textContent=`撐到第 ${G.wave} 波，擊倒 ${G.kills} 隻殭屍，破壞 ${DESTR.n} 個東西，最高 ${G.best} 連擊`;AUDIO.musicStop();chargeStop();snd('over');}
   $('gStart').onclick=()=>start(false);$('gFree').onclick=()=>start(true);$('gQuit').onclick=end;$('gRetry').onclick=()=>start(G.free);$('gExit').onclick=end;
   // 技能按鈕（電腦點、手機按都可以，按下去馬上出招）
   for(const b of skills.querySelectorAll('button')){const s=b.dataset.s;
@@ -13817,6 +14593,7 @@ addEventListener('popstate',()=>{if(!started)return;const now=performance.now();
   backAt=now;guardBack();
   if(!menu.hidden){menu.hidden=true;bMenu.classList.remove('on');}
   else if(mmWrap.classList.contains('big'))toggleMap();
+  else AMUS.jingle('bye',0);   /* 2026-10-19：遊戲結束（道別）的音樂 */
   toast('再按一次「上一頁」就會離開');});
 
 /* ---------------- 自動更新：避免手機一直用快取的舊版 ----------------
@@ -14377,10 +15154,10 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     fxAdd(o,scene,d,(f,t)=>{const u=Math.min(1,t/d);o.position.lerpVectors(a,b,u);o.position.y+=Math.sin(u*Math.PI)*2.2;o.rotation.x+=0.2;o.rotation.z+=0.13;},()=>{done(b);if(o.userData.own){o.geometry.dispose();o.material.dispose();}});}
   function fxRun(k,from,to,v,m){const me=myId(),self=to===me,fn=esc(nameOf(from));
     switch(k){
-      case 'emo':bubble(from,v,true);chatAdd(from,v);if(from!==me&&CHP.hidden)toast(`${nameOf(from)}：${v}`);break;
-      case 'say':{const tx=String(v||'').slice(0,60);if(!tx)break;bubble(from,tx,false,Math.min(7,3.5+tx.length*0.12));chatAdd(from,tx);if(from!==me&&CHP.hidden)toast(`💬 ${nameOf(from)}：${tx}`);AUDIO.sfx('click');break;}
-      case 'poke':bubble(to,'❗',true,1.4);AUDIO.sfx('boing');if(self&&free()){shk=Math.max(shk,0.35);toast(`👉 ${nameOf(from)} 戳了你一下！`);}break;
-      case 'push':bubble(to,'💢',true,1.4);AUDIO.sfx('whoosh');if(self){shk=Math.max(shk,0.3);toast(`🫸 ${nameOf(from)} 推了你一下！`);if(free()&&v){let dx=player.pos.x-v[0],dz=player.pos.y-v[1];const l=Math.hypot(dx,dz)||1;if(l<0.05){dx=Math.sin(player.yaw);dz=Math.cos(player.yaw);}pushV={x:dx/l*17,z:dz/l*17,t:0};}}break;
+      case 'emo':bubble(from,v,true);AMUS.talk(v,posOf(from,new V3()),from,true);chatAdd(from,v);if(from!==me&&CHP.hidden)toast(`${nameOf(from)}：${v}`);break;
+      case 'say':{const tx=String(v||'').slice(0,60);if(!tx)break;bubble(from,tx,false,Math.min(7,3.5+tx.length*0.12));chatAdd(from,tx);if(from!==me&&CHP.hidden)toast(`💬 ${nameOf(from)}：${tx}`);if(!AMUS.talk(tx,posOf(from,new V3()),from))AUDIO.sfx('click');break;}
+      case 'poke':bubble(to,'❗',true,1.4);AUDIO.sfx('boing');AMUS.talk('❗',posOf(to,new V3()),to,true);if(self&&free()){shk=Math.max(shk,0.35);toast(`👉 ${nameOf(from)} 戳了你一下！`);}break;
+      case 'push':bubble(to,'💢',true,1.4);AUDIO.sfx('whoosh');AMUS.talk('😮',posOf(to,new V3()),to,true);if(self){shk=Math.max(shk,0.3);toast(`🫸 ${nameOf(from)} 推了你一下！`);if(free()&&v){let dx=player.pos.x-v[0],dz=player.pos.y-v[1];const l=Math.hypot(dx,dz)||1;if(l<0.05){dx=Math.sin(player.yaw);dz=Math.cos(player.yaw);}pushV={x:dx/l*17,z:dz/l*17,t:0};}}break;
       case 'five':bubble(from,'🙌',true,4);if(self&&free()){N.fiveFrom=from;N.fiveT=performance.now();AUDIO.sfx('chime');
           INV.innerHTML=`<b>🙌 ${fn} 想跟你擊掌！</b><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">擊掌！</button></div>`;INV.hidden=false;
           INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;const f=N.fiveFrom;N.fiveFrom=null;if(b.dataset.k==='ok'&&f&&N.P.has(f))doFx('five2',f);};
@@ -14395,7 +15172,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       case 'banana':if(m&&m.old){bananaAdd(m.id,from,v[0],v[1],v[2]);break;}throwArc(from,to,v,0.6,()=>{const g=new THREE.Mesh(bananaGeo,bananaMat);return g;},()=>{bananaAdd(m&&m.id||from+'-x',from,v[0],v[1],v[2]);AUDIO.sfx('thud');});
         if(self)toast(`🍌 ${nameOf(from)} 在你前面丟了香蕉皮！小心！`);break;
       case 'fart':{const p=new V3();if(!posOf(from,p))break;const r=rootOf(from),ry=r?r.rotation.y:0;p.x-=Math.sin(ry)*0.35;p.z-=Math.cos(ry)*0.35;p.y+=0.85;stink(p);AUDIO.sfx('fart');bubble(from,'💨',true,2);
-        for(const id of [me,...N.P.keys()]){if(id===from)continue;const q=new V3();if(posOf(id,q)&&Math.hypot(q.x-p.x,q.z-p.z)<4.5)bubble(id,'🤢',true,2.2);}
+        for(const id of [me,...N.P.keys()]){if(id===from)continue;const q=new V3();if(posOf(id,q)&&Math.hypot(q.x-p.x,q.z-p.z)<4.5){bubble(id,'🤢',true,2.2);AMUS.talk('🤢',q,id,true);}}
         if(from!==me){const q=new V3();posOf(me,q);toast(Math.hypot(q.x-p.x,q.z-p.z)<4.5?`💨 ${nameOf(from)} 在你旁邊放了一個屁！好臭！`:`💨 ${nameOf(from)} 放了一個屁！`);}break;}
       case 'hug':bubble(from,'🤗',true,4);if(self&&free()){N.hugFrom=from;N.hugT=performance.now();AUDIO.sfx('chime');
           INV.innerHTML=`<b>🤗 ${fn} 想抱抱你！</b><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">抱抱！</button></div>`;INV.hidden=false;
@@ -14408,7 +15185,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
             faceTo(q.x,q.z);pose={k:'hug',t:0,x:player.pos.x,z:player.pos.y};}toast(`🤗 跟 ${nameOf(o)} 抱抱！`);}
         bubble(from,'❤️',true,2.4);bubble(to,'❤️',true,2.4);break;}
       case 'photo':photoRun(from,v);break;
-      case 'slip':bananaDel(v);bubble(from,'💫',true,1.8);AUDIO.sfx('thud');if(from!==me)toast(`🍌 ${nameOf(from)} 踩到香蕉皮滑倒了！`);break;}}
+      case 'slip':bananaDel(v);bubble(from,'💫',true,1.8);AUDIO.sfx('thud');AMUS.talk('💫',posOf(from,new V3()),from,true);if(from!==me)toast(`🍌 ${nameOf(from)} 踩到香蕉皮滑倒了！`);break;}}
   function faceTo(x,z){player.yaw=Math.atan2(-(x-player.pos.x),-(z-player.pos.y));avatar.yaw=player.yaw;}   /* 站著不動時人物不會自己轉：兩個都設 */
   // 放屁：屁股後面冒一團綠色的臭氣，慢慢變大往上飄
   function stink(p){for(let i=0;i<14;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:dotTex,color:['#8fbf3a','#a8d14a','#6f9a2a','#c2d86a'][i%4],transparent:true,depthWrite:false,toneMapped:false}));
@@ -14638,7 +15415,7 @@ NM.applyPrizes();
 function warmNow(){const hid=[],lay=[];scene.traverse(o=>{if(!o.visible&&!o.isLight){hid.push(o);o.visible=true;}if(o.isMesh&&o.layers.mask===2){lay.push(o);o.layers.set(0);}});
   try{renderer.compile(scene,camera);}catch(_){}for(const o of hid)o.visible=false;for(const o of lay)o.layers.set(1);}
 for(const [obj,fn] of [[NM,'start'],[NM,'startArmy'],[SB,'start'],[KF,'start'],[RB,'start'],[RACE,'pick'],[GAME,'start'],[TN,'start'],[BB,'start'],[MU,'start']]){const f=obj[fn];if(typeof f!=='function')continue;obj[fn]=(...a)=>{const r=f(...a);try{warmNow();}catch(_){}return r;};}
-window.__dbg={NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+window.__dbg={AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
