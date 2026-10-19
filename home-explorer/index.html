@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-19.23"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-19.24"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13673,12 +13673,14 @@ const AMUS=(()=>{
   // 2026-10-19 使用者：音色存到手機，不要每次重抓 → 瀏覽器的「網站儲存空間」（Cache Storage，只有這個網站讀得到），先找手機裡的，沒有才上網抓、抓到順便存。
   // 音色檔不會改，所以存了就一直用；以後真的換了音色庫就把 GMC 的 v1 改成 v2（舊的會在下次開音樂盒時刪掉）。錢包、設定在 localStorage，跟這裡分開，「清除音色」不會動到。
   const GMC='home-gm-v1';let gmPersist=false,storeT=0;
-  async function gmFetch(url){let C=null;try{if(window.caches)C=await caches.open(GMC);}catch(_){C=null;}   /* 無痕模式、舊瀏覽器打不開就直接上網抓 */
-    if(C){try{const hit=await C.match(url);if(hit){SM.hit=(SM.hit||0)+1;return await hit.arrayBuffer();}}catch(_){}}
-    const r=await fetch(url);if(!r.ok)throw new Error(r.status);SM.net=(SM.net||0)+1;
-    if(C){try{await C.put(url,r.clone());SM.saved=(SM.saved||0)+1;clearTimeout(storeT);storeT=setTimeout(()=>{if(boxStore)boxStore();},600);
+  let diagFn=null;const within=(pr,ms)=>Promise.race([pr,new Promise(r=>setTimeout(()=>r(undefined),ms))]);   /* 超過 ms 就當作沒有（undefined） */
+  async function gmFetch(url){let C=null;if(!SM.noStore)try{if(window.caches)C=await within(caches.open(GMC),1500);}catch(_){C=null;}   /* 無痕模式、舊瀏覽器打不開，或手機儲存區卡住 1.5 秒沒回應，就直接上網抓 */
+    if(window.caches&&!C&&!SM.noStore){SM.noStore=1;}
+    if(C){try{const hit=await within(C.match(url),1500);if(hit){const ab=await within(hit.arrayBuffer(),3000);if(ab){SM.hit=(SM.hit||0)+1;return ab;}}}catch(_){}}
+    const r=await fetch(url);if(!r.ok)throw new Error(r.status);SM.net=(SM.net||0)+1;const ab=await r.arrayBuffer();
+    if(C){try{C.put(url,new Response(ab.slice(0),{headers:{'Content-Type':'audio/mpeg','Content-Length':String(ab.byteLength)}})).then(()=>{SM.saved=(SM.saved||0)+1;clearTimeout(storeT);storeT=setTimeout(()=>{if(boxStore)boxStore();},600);}).catch(()=>{});   /* 存檔在背景做，不等它 */
       if(!gmPersist&&navigator.storage&&navigator.storage.persist){gmPersist=true;navigator.storage.persist().catch(()=>{});}}catch(_){}}   /* 跟瀏覽器申請：空間不夠時不要先清掉這個網站的資料 */
-    return r.arrayBuffer();}
+    return ab;}
   let boxStore=null;
   function gmLoad(ins,b){const key=ins+':'+b;if(GMB.has(key))return Promise.resolve(GMB.get(key));if(GML.has(key))return GML.get(key);const c=A.ctx;if(!c||P.off)return Promise.resolve(null);
     const p=gmFetch(`gm/${ins}/${b}.mp3`).then(ab=>new Promise((res,rej)=>c.decodeAudioData(ab,res,rej))).then(B=>{
@@ -13688,7 +13690,7 @@ const AMUS=(()=>{
       for(let i=0;i<L;i++){let s=0;for(let j=0;j<h;j++){const q=i*h+j;s+=z?(a[q]+z[q])*0.5:a[q];}d[i]=s/h*k;}
       const fo=Math.min(L,Math.floor(O.sampleRate*0.03));for(let i=0;i<fo;i++)d[L-1-i]*=i/fo;   /* 結尾 30 ms 淡出（沒有喀聲） */
       GMB.set(key,O);GML.delete(key);while(GMB.size>120)GMB.delete(GMB.keys().next().value);return O;})
-      .catch(e=>{GML.delete(key);SM.fail++;return null;});
+      .catch(e=>{GML.delete(key);SM.fail++;SM.lastFail=key+'：'+String(e&&e.message||e).slice(0,60);return null;});
     GML.set(key,p);return p;}
   const gmLoadKey=s=>{const i=s.lastIndexOf(':');return gmLoad(s.slice(0,i),+s.slice(i+1));};
   // 播一個取樣音：op.sus＝長音（比取樣長就中段重複）、op.att 起音、op.rel 放開後多久消失、op.ring＝不管 d，讓它自己響完（鐘、定音鼓）
@@ -13898,14 +13900,15 @@ const AMUS=(()=>{
   function bus(){if(P.out)return true;if(!A.ctx||!A.bgm)return false;const c=A.ctx;P.out=c.createGain();P.out.gain.value=0;P.duck=c.createGain();P.duck.connect(P.out);P.out.connect(A.bgm);if(A.verb){P.wb=c.createGain();P.wb.gain.value=0;P.wb.connect(A.verb);}return true;}   /* wb：號角多送一點到空間回音 */
   function fadeOut(){P.tok=(P.tok||0)+1;P.loading=false;if(P.g&&A.ctx){const g=P.g,c=A.ctx;g.gain.cancelScheduledValues(c.currentTime);g.gain.setTargetAtTime(0,c.currentTime,0.7);setTimeout(()=>{try{g.disconnect();}catch(_){}},5000);}P.g=null;P.T=null;}
   function start(k){if(!bus())return;fadeOut();P.key=k;const tok=++P.tok,L=needKeys(k);P.loading=true;   /* 先載這首會用到的取樣 */
-    Promise.race([Promise.all(L.map(gmLoadKey)),new Promise(r=>setTimeout(r,L.length?3000:0))]).then(()=>{if(P.tok!==tok)return;P.loading=false;go(k);});}
+    Promise.race([Promise.all(L.map(gmLoadKey)),new Promise(r=>setTimeout(r,L.length?3000:0))]).then(()=>{if(P.tok!==tok)return;P.loading=false;try{P.err='';go(k);}catch(e){P.err=String(e&&e.message||e).slice(0,90);console.error('AMUS 開始出錯',e);P.T=null;P.pv=null;P.restUntil=performance.now()/1000+30;}});}
   function go(k){const c=A.ctx,T=TR[k];warmKS();P.key=k;P.T=T;P.u=0;P.night=night();P.us=T.u*(P.night?1.08:1);
     P.g=c.createGain();P.g.gain.setValueAtTime(0.0001,c.currentTime);P.g.gain.exponentialRampToValueAtTime(1,c.currentTime+0.5);P.g.connect(P.duck);P.B=mkBus(c,P.g,T);
     P.next=c.currentTime+0.15;}   /* 2026-10-19 第二十個視窗：拿掉每首開頭都一樣的豎琴「叮鈴鈴」（每首開頭一樣＝聽不出是哪首），主旋律直接出來 */
   function ended(){const g=P.g,k=P.key;P.g=null;if(P.off)return;   /* 離線測試：不要 6 秒後拔線（算超過 6 秒的曲子後半會變無聲） */
     if(g)setTimeout(()=>{try{g.disconnect();}catch(_){}},6000);if(k&&TR[k])delete P.pick[TR[k].ar];
     const pv=P.pv,once=pv&&!pv.loop;if(once){P.pv=null;P.key=null;if(pv.kind)P.hold=performance.now()/1000+8;}P.restUntil=performance.now()/1000+(once?0:S.mode==='auto'&&!P.pv?rnd(20,35):1.5);if(boxDraw)boxDraw();}
-  function tick(){if(!P.T||!ok()||P.off)return;const c=A.ctx;if(P.next<c.currentTime)P.next=c.currentTime+0.05;let n=0;while(P.T&&P.next<c.currentTime+0.4&&n++<16)stepU();}
+  function tick(){if(!P.T||!ok()||P.off)return;const c=A.ctx;if(P.next<c.currentTime)P.next=c.currentTime+0.05;let n=0;
+    try{while(P.T&&P.next<c.currentTime+0.4&&n++<16)stepU();}catch(e){P.err=String(e&&e.message||e).slice(0,90);console.error('AMUS 播放出錯',e);fadeOut();P.pv=null;P.restUntil=performance.now()/1000+30;if(boxDraw)boxDraw();}}   /* 出錯後停 30 秒，不要一直重放同一首、一直錯 */   /* 2026-10-19 使用者：手機「播放失敗」→ 出錯時把原因寫在音樂盒上 */
   // ---- 現在要放哪一首 ----
   const night=()=>{const h=+document.getElementById('time').value;return h>=18.3||h<6;};
   function areaKey(n){n=n||'';if(n==='熱氣球')return 'sky';if(/^我家|^鄰居|^屋後/.test(n))return 'home';if(n==='夜市')return 'market';if(typeof CAMPUS!=='undefined'&&n===CAMPUS.name)return 'academy';
@@ -13999,7 +14002,7 @@ const AMUS=(()=>{
 #bgmBoxP .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}#bgmBoxP .hd b{font-size:16px}
 #bgmBoxP button{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:inherit;font-size:13px;padding:6px 9px;cursor:pointer;touch-action:manipulation;min-height:40px}
 #bgmBoxP .md{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}#bgmBoxP .md .act,#bgmBoxP .row .act{background:rgba(255,180,84,.35);border-color:#ffb454}
-#bgmBoxP .now{font-size:13px;color:#ffd27a;height:18px;line-height:18px;margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* 固定一行：字變長換行的話下面清單會被擠下去 */
+#bgmBoxP .now.bad{color:#ff8a7a;white-space:normal;height:auto;min-height:18px;max-height:54px;overflow:auto;cursor:pointer}#bgmBoxP .now{font-size:13px;color:#ffd27a;height:18px;line-height:18px;margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* 固定一行：字變長換行的話下面清單會被擠下去 */
 #bgmBoxP .ls{overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1 1 0;min-height:0;padding-right:2px;touch-action:pan-y;overscroll-behavior:contain}   /* 2026-10-19 使用者：「手機跟平板的音樂盒都不正常，看不到其他歌曲」→ 原本框的高度是 fit-content，iPhone／iPad Safari 算不出來，清單沒有被限制在框裡、也捲不動；改成固定高度＋清單一定在框裡捲 */#bgmBoxP .gp{font-size:12px;color:var(--ink-2);margin:10px 0 4px;letter-spacing:.05em}
 #bgmBoxP .row{display:flex;align-items:center;gap:6px;padding:6px;border-radius:10px;margin-bottom:4px;background:rgba(255,255,255,.04)}
 #bgmBoxP .row.on{background:rgba(255,180,84,.16);outline:1px solid rgba(255,180,84,.5)}#bgmBoxP .row.no{opacity:.45}
@@ -14032,7 +14035,7 @@ const AMUS=(()=>{
     sk.addEventListener('input',()=>{sk.dataset.drag=1;if(P.T)tl.textContent=fmt(sk.value/1000*lenOf(P.T))+' / '+fmt(lenOf(P.T));});
     sk.addEventListener('change',()=>{delete sk.dataset.drag;seekTo(sk.value/1000);});
     for(const ev of ['pointerup','pointercancel','touchend','touchcancel'])sk.addEventListener(ev,()=>setTimeout(()=>{delete sk.dataset.drag;},50));}
-  function play(k,loop){P.pv={k,loop};if(loop){S.mode=k;save();}else if(S.mode!=='auto'&&S.mode!=='off'&&S.mode!==k){S.mode='auto';save();}if(bus())start(k);P.cand=k;P.candT=performance.now()/1000;boxDraw();}
+  function play(k,loop){P.err='';try{if(A.ctx&&A.ctx.state!=='running')A.ctx.resume().catch(()=>{});}catch(_){}P.pv={k,loop};if(loop){S.mode=k;save();}else if(S.mode!=='auto'&&S.mode!=='off'&&S.mode!==k){S.mode='auto';save();}if(bus())start(k);P.cand=k;P.candT=performance.now()/1000;boxDraw();}
   function stopPv(){const now=performance.now()/1000;P.pv=null;if(S.mode!=='auto'&&S.mode!=='off'){S.mode='auto';save();}fadeOut();P.key=P.cand=wantKey();P.candT=now;P.restUntil=now+30;boxDraw();}   /* 停止後安靜 30 秒再回到區域音樂 */
   // 保險：打開時量一次，清單如果跑出框外（有些 Safari 算錯 flex 高度），就直接用像素把清單高度設好
   function boxFit(){if(box.hidden)return;const ls=box.querySelector('.ls');ls.style.maxHeight='';const B=box.getBoundingClientRect(),L=ls.getBoundingClientRect();let below=0;for(const el of box.children)if(el!==ls&&el.getBoundingClientRect().top>=L.top)below+=el.getBoundingClientRect().height+8;
@@ -14058,12 +14061,16 @@ const AMUS=(()=>{
       const nt=no?'↩':'👎';if(nb.textContent!==nt){nb.textContent=nt;nb.title=no?'取消不要':'不要這首';}}
     for(const b of box.querySelectorAll('.md [data-m]'))b.classList.toggle('act',S.mode===b.dataset.m);
     const nl=ORDER.filter(k=>S.no[k]).map(k=>TR[k].n);box.querySelector('.nolist').textContent=nl.length?`不要的 ${nl.length} 首：${nl.join('、')}（告訴我就可以刪掉）`:'';boxTick();};
-  function boxTick(){if(box.hidden)return;box.querySelector('.now').textContent=nowTxt||'（還沒開始放：先點一下畫面讓聲音開始）';
+  // 播不出來的原因（照重要順序挑一個）：沒有聲音系統、被系統暫停、播放出錯、音色下載失敗
+  function diag(){const c=A.ctx;if(!c)return '⚠️ 聲音還沒開始：先點一下畫面（或按這行）';if(c.state!=='running')return `⚠️ 聲音被手機暫停了（${c.state}）：按這行叫醒；iPhone 請確認沒有開靜音、音量有開`;
+    if(P.err)return '⚠️ 播放出錯：'+P.err;if(SM.fail&&P.T&&!SM.hit&&!SM.net)return `⚠️ 音色下載失敗（${SM.fail} 個）：${SM.lastFail||''}`;return '';}diagFn=diag;
+  function boxTick(){if(box.hidden)return;const dg=diag(),nw=box.querySelector('.now');nw.textContent=dg||nowTxt||'（還沒開始放：先點一下畫面讓聲音開始）';nw.classList.toggle('bad',!!dg);
     {const sk=box.querySelector('.sk input'),tl=box.querySelector('.sk span'),T=P.T,can=!!(T&&!P.loading&&P.g);sk.disabled=!can;
       if(P.loading){tl.textContent='載入中…';if(!sk.dataset.drag)sk.value=0;}else if(!T){tl.textContent='0:00 / 0:00';sk.value=0;}
       else if(!sk.dataset.drag){const L=lenOf(T),x=nowSec();sk.value=Math.round(x/L*1000);tl.textContent=fmt(x)+' / '+fmt(L);}}
     for(const r of box.querySelectorAll('.row')){const k=r.dataset.k,T=TR[k],i=r.querySelector('i');const on=P.T===T||(P.loading&&P.key===k);r.classList.toggle('on',on);   /* 還在載入取樣也先亮起來（按了馬上看得到是哪一首） */i.style.width=P.T===T?Math.min(100,P.u/unitsOf(T)*100).toFixed(1)+'%':'0';}}
   setInterval(boxTick,250);
+  box.querySelector('.now').addEventListener('click',()=>{const c=A.ctx;try{if(c&&c.state!=='running'){c.resume().catch(()=>{});const b=c.createBuffer(1,1,22050),src=c.createBufferSource();src.buffer=b;src.connect(c.destination);src.start(0);}}catch(_){}P.err='';if(boxDraw)boxDraw();});   /* iPhone：被暫停的聲音要在手指點的當下叫醒 */
   box.addEventListener('click',e=>{const b=e.target.closest('button');if(!b){const tt=e.target.closest('.tt');if(tt){e.stopPropagation();play(tt.parentElement.dataset.k,false);}return;}   /* 點曲名也可以試聽（手機上手指常點到字） */
    e.stopPropagation();const d=b.dataset;
     if(d.x){box.hidden=true;return;}
@@ -14087,7 +14094,7 @@ const AMUS=(()=>{
     let r;try{A.ctx=c;P.off=true;A.voice=c.destination;S.voice='sim';r=talk(text,null,seed,emo);}finally{A.ctx=sc;A.voice=sv;S.voice=sm;P.off=false;}
     const buf=await c.startRendering();let pk=0,ss=0,last=0;const N=buf.length;for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<N;i++){const v=Math.abs(d[i]);if(!(v<=10))return {err:'NaN'};if(v>pk)pk=v;ss+=v*v;if(v>0.003&&i>last)last=i;}}
     return {ok:r,len:+(last/44100).toFixed(2),peak:+pk.toFixed(3),rms:+Math.sqrt(ss/(2*N)).toFixed(4)};}
-  return {see(n){P.area=n;},gm:()=>({loaded:GMB.size,loading:GML.size,fail:SM.fail,hit:SM.hit||0,net:SM.net||0,saved:SM.saved||0}),gmDrop:()=>GMB.clear(),boxStore:()=>boxStore&&boxStore(),gmLoad:gmLoadKey,needKeys,jingle,talk,TR,ORDER,S,render,renderTalk,start,box:()=>document.getElementById('bgmBoxP'),dbg:()=>({key:P.key,playing:!!P.T,u:P.u,pv:P.pv,mode:S.mode,no:Object.keys(S.no),area:P.area,want:wantKey(),rest:Math.max(0,P.restUntil-performance.now()/1000),vol:P.out&&P.out.gain.value,live:A.live}),areaKey};
+  return {see(n){P.area=n;},gm:()=>({loaded:GMB.size,loading:GML.size,fail:SM.fail,hit:SM.hit||0,net:SM.net||0,saved:SM.saved||0}),gmDrop:()=>GMB.clear(),diag:()=>diagFn&&diagFn(),err:()=>P.err,boxStore:()=>boxStore&&boxStore(),gmLoad:gmLoadKey,needKeys,jingle,talk,TR,ORDER,S,render,renderTalk,start,box:()=>document.getElementById('bgmBoxP'),dbg:()=>({key:P.key,playing:!!P.T,u:P.u,pv:P.pv,mode:S.mode,no:Object.keys(S.no),area:P.area,want:wantKey(),rest:Math.max(0,P.restUntil-performance.now()/1000),vol:P.out&&P.out.gain.value,live:A.live}),areaKey};
 })();
 
 /* ---------------- 小遊戲：殭屍來襲（選單「小遊戲」開始） ----------------
