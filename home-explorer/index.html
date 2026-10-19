@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-19.16"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-19.20"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -876,8 +876,8 @@
   <label><span>音量</span><span id="volVal">70%</span></label>
   <input id="vol" type="range" min="0" max="1" step="0.05" value="0.7">
   <label style="margin-top:8px"><span>靜音</span><input id="mute" type="checkbox"></label>
-  <label style="margin-top:8px"><span>環境音（鳥叫、遠處車聲、晚上蟲鳴）</span><input id="amb" type="checkbox" checked></label>
-  <label style="margin-top:8px"><span>背景音樂</span><button id="bgmBox" style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px">🎵 音樂盒（試聽／循環／不要）</button></label>
+  <label style="margin-top:8px"><span>環境音（鳥叫、遠處車聲、晚上蟲鳴；背景音樂關掉時才有）</span><input id="amb" type="checkbox" checked></label>
+  <button id="bgmBox" style="display:block;width:100%;margin-top:10px;padding:10px 12px;min-height:48px;border-radius:12px;border:1px solid #ffb454;background:linear-gradient(180deg,#ffc56e,#f29a2e);color:#1d1a14;font-size:16px;font-weight:800;letter-spacing:.04em;cursor:pointer;box-shadow:0 2px 10px rgba(255,170,60,.35)">🎵 打開音樂盒<span style="display:block;font-size:12px;font-weight:600;letter-spacing:0;opacity:.8;margin-top:2px">試聽、拖到中間播、循環、不要</span></button>   <!-- 2026-10-19 使用者：「音樂盒按鈕做明顯一點」 -->
   <label style="margin-top:6px"><span>音樂音量</span><span id="bgmVal">60%</span></label>
   <input id="bgmVol" type="range" min="0" max="1" step="0.05" value="0.6">
   <p class="note" id="bgmNow" style="margin-top:2px"></p>
@@ -13111,11 +13111,12 @@ const AUDIO=(()=>{
   function startAmbient(){const c=A.ctx;
     const bed=(buf,type,f,q,gain,lfoF,lfoD,pan)=>{const s=c.createBufferSource();s.buffer=buf;s.loop=true;const fl=c.createBiquadFilter();fl.type=type;fl.frequency.value=f;if(q)fl.Q.value=q;const g=c.createGain();g.gain.value=gain;
       const l=c.createOscillator(),lg=c.createGain();l.frequency.value=lfoF;lg.gain.value=lfoD;l.connect(lg);lg.connect(g.gain);l.start();s.connect(fl);fl.connect(g);g.connect(bus(A.amb,pan));s.start(0,Math.random()*1.5);return {fl,g};};
+    /* 2026-10-19 使用者：「有背景音樂之後，鳥叫聲那些舊的就可以拿掉，不然有點干擾」→ 背景音樂開著（自動／循環）時環境音整個關掉，選單把背景音樂關掉才會回來 */
     AMB.f=bed(A.brown,'lowpass',300,0,0.2,0.06,0.08,-0.3).fl;AMB.f2=bed(A.pink,'bandpass',800,0.6,0.03,0.045,0.018,0.3).fl;   // 車流：低沉的轟＋輪胎沙沙（左右各一）
     const w=bed(A.pink,'bandpass',500,0.8,1,0.08,0.4,0);AMB.wind=c.createGain();AMB.wind.gain.value=0;w.g.disconnect();w.g.connect(AMB.wind);AMB.wind.connect(A.amb);   // 風（室外）
     {const l=c.createOscillator(),lg=c.createGain();l.frequency.value=0.05;lg.gain.value=250;l.connect(lg);lg.connect(w.fl.frequency);l.start();}
     setInterval(ambTick,500);}
-  function ambTick(){if(!ok())return;const t=A.ctx.currentTime,on=started&&A.ambOn&&!DD.on&&!KF.on,inside=started&&mode==='walk'&&indoors(),gaming=GAME.on;
+  function ambTick(){if(!ok())return;const bgm=typeof AMUS!=='undefined'&&AMUS.S.mode!=='off',t=A.ctx.currentTime,on=started&&A.ambOn&&!bgm&&!DD.on&&!KF.on,inside=started&&mode==='walk'&&indoors(),gaming=GAME.on;
     A.amb.gain.setTargetAtTime(!on?0:gaming?0.35:inside?0.45:1,t,0.6);AMB.f.frequency.setTargetAtTime(inside?160:300,t,0.5);AMB.f2.frequency.setTargetAtTime(inside?420:800,t,0.5);
     AMB.wind.gain.setTargetAtTime(inside||gaming?0:0.045,t,1.2);A.send.gain.setTargetAtTime(inside?0.32:0.18,t,0.5);
     const h=+document.getElementById('time').value,night=h>=18.3||h<6;
@@ -13988,32 +13989,60 @@ const AMUS=(()=>{
 #bgmBoxP .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}#bgmBoxP .hd b{font-size:16px}
 #bgmBoxP button{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:inherit;font-size:13px;padding:6px 9px;cursor:pointer;touch-action:manipulation;min-height:40px}
 #bgmBoxP .md{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}#bgmBoxP .md .act,#bgmBoxP .row .act{background:rgba(255,180,84,.35);border-color:#ffb454}
-#bgmBoxP .now{font-size:13px;color:#ffd27a;min-height:18px;margin:2px 0 6px}
+#bgmBoxP .now{font-size:13px;color:#ffd27a;height:18px;line-height:18px;margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* 固定一行：字變長換行的話下面清單會被擠下去 */
 #bgmBoxP .ls{overflow:auto;flex:1;min-height:0;padding-right:2px;touch-action:pan-y;overscroll-behavior:contain}#bgmBoxP .gp{font-size:12px;color:var(--ink-2);margin:10px 0 4px;letter-spacing:.05em}
 #bgmBoxP .row{display:flex;align-items:center;gap:6px;padding:6px;border-radius:10px;margin-bottom:4px;background:rgba(255,255,255,.04)}
 #bgmBoxP .row.on{background:rgba(255,180,84,.16);outline:1px solid rgba(255,180,84,.5)}#bgmBoxP .row.no{opacity:.45}
 #bgmBoxP .tt{flex:1;min-width:0;position:relative;padding-bottom:5px}#bgmBoxP .tt b{display:block;font-size:14px}#bgmBoxP .tt small{display:block;font-size:11.5px;color:var(--ink-2);line-height:1.35}
 #bgmBoxP .tt i{position:absolute;left:0;bottom:0;height:3px;border-radius:2px;background:#ffb454;width:0}
-#bgmBoxP .row button{padding:7px 9px;font-size:15px;flex:none;min-width:42px;min-height:42px}#bgmBoxP .tt{cursor:pointer}#bgmBoxP .nt{font-size:12px;color:var(--ink-2);margin:8px 0 0;line-height:1.5}`;document.head.appendChild(css);
+#bgmBoxP .row button{padding:7px 9px;font-size:15px;flex:none;min-width:42px;min-height:42px}#bgmBoxP .row [data-p]{background:#ffb454;border-color:#ffb454;color:#1d1a14;font-weight:800;min-width:46px;font-size:17px}#bgmBoxP .row.on [data-p]{background:#fff0d6}   /* 播放鍵最明顯（使用者：音樂盒按鈕做明顯一點） */#bgmBoxP .tt{cursor:pointer}#bgmBoxP .nt{font-size:12px;color:var(--ink-2);margin:8px 0 0;line-height:1.5}
+#bgmBoxP>.hd,#bgmBoxP>.md,#bgmBoxP>.now,#bgmBoxP>.nt,#bgmBoxP>.sk{flex:none}
+#bgmBoxP .sk{display:flex;align-items:center;gap:10px;height:34px;margin:0 0 6px}#bgmBoxP .sk input{flex:1;min-width:0;height:30px;margin:0;accent-color:#ffb454;touch-action:none;cursor:pointer}#bgmBoxP .sk input:disabled{opacity:.35;cursor:default}
+#bgmBoxP .sk span{flex:none;font-size:13px;color:#ffd27a;font-variant-numeric:tabular-nums;min-width:86px;text-align:right}   /* 2026-10-19 使用者：要可以拉到中間播、有時間顯示 */
+@media (max-height:500px){#bgmBoxP{max-height:calc(100vh - 12px);padding:8px 12px}#bgmBoxP .nt:not(.nolist){display:none}#bgmBoxP .hd{margin-bottom:4px}#bgmBoxP .md{margin-bottom:2px}#bgmBoxP .md button,#bgmBoxP .hd button{min-height:34px;padding:4px 9px}#bgmBoxP .sk{margin-bottom:2px}}   /* 手機橫拿：畫面很矮，說明字藏起來、按鈕矮一點，清單才看得到兩三首 */   /* 2026-10-19：手機橫拿時音樂盒變矮，「現在放什麼」那行被擠成 0 高度看不到 → 只讓清單縮 */`;document.head.appendChild(css);
   const box=document.createElement('div');box.id='bgmBoxP';box.className='panel';box.hidden=true;
-  box.innerHTML=`<div class="hd"><b>🎵 音樂盒</b><button data-x="1">✕ 關閉</button></div><div class="md"><button data-m="auto">🗺️ 自動（每個區域）</button><button data-m="off">🔇 背景音樂關</button><button data-stop="1">⏹ 停止</button></div><div class="now"></div><div class="ls"></div><p class="nt">▶ 從頭聽一次　🔁 一直循環這首　👎 不要（自動模式不會放；再按一次取消）</p><p class="nt nolist"></p>`;
+  box.innerHTML=`<div class="hd"><b>🎵 音樂盒</b><button data-x="1">✕ 關閉</button></div><div class="md"><button data-m="auto">🗺️ 自動（每個區域）</button><button data-m="off">🔇 背景音樂關</button><button data-stop="1">⏹ 停止</button></div><div class="now"></div><div class="sk"><input type="range" min="0" max="1000" step="1" value="0" disabled aria-label="播放進度（拖到哪就從哪裡播）"><span>0:00 / 0:00</span></div><div class="ls"></div><p class="nt">▶ 從頭聽一次　🔁 一直循環這首　👎 不要（自動模式不會放；再按一次取消）</p><p class="nt nolist"></p>`;
   document.body.appendChild(box);
   for(const ev of ['pointerdown','touchstart','mousedown','wheel'])box.addEventListener(ev,e=>e.stopPropagation(),{passive:true});   /* 在音樂盒上滑、按，不要動到後面的 3D 畫面 */
   box.addEventListener('keydown',e=>e.stopPropagation());
   boxDraw=null;
+  const fmt=x=>{x=Math.max(0,Math.round(x));return Math.floor(x/60)+':'+String(x%60).padStart(2,'0');};
+  const lenOf=T=>unitsOf(T)*(P.T===T?P.us:T.u);   /* 整首幾秒（晚上慢 8%） */
+  const nowSec=()=>P.T&&A.ctx?Math.max(0,Math.min(lenOf(P.T),P.u*P.us-(P.next-A.ctx.currentTime))):0;   /* 已經排到 P.u，扣掉還沒播的那一小段 */
+  // 跳到某個位置：舊的聲音很快淡掉、換一組新聲道，從那個小節的開頭重新排（對齊小節，和弦、長音、低音才會一起出來），段落大小照那一段設
+  function seekTo(f){const T=P.T,c=A.ctx;if(!T||!c||P.loading||!P.g||!P.duck)return;const N=unitsOf(T),u=Math.max(0,Math.min(N-T.bar,Math.round(f*N/T.bar)*T.bar));
+    const og=P.g;og.gain.cancelScheduledValues(c.currentTime);og.gain.setTargetAtTime(0,c.currentTime,0.04);setTimeout(()=>{try{og.disconnect();}catch(_){}},1500);
+    P.g=c.createGain();P.g.gain.setValueAtTime(0.0001,c.currentTime);P.g.gain.exponentialRampToValueAtTime(1,c.currentTime+0.25);P.g.connect(P.duck);P.B=mkBus(c,P.g,T);
+    const F=T.form||SECS,secU=T.bar*(T.nb||8),pass=Math.floor(u/secU),uu=u%secU,full=F.length>=4&&(T.nb||8)>=8,
+      e=pass>=F.length?EN[1]:EN[!full?1:pass===0?0:F[pass]==='B'?2:1];
+    lvl(P.B,pass===0&&full&&uu<2*T.bar?Object.assign({},e,{acc:0,perc:0}):e,c.currentTime,true);
+    P.u=u;P.next=c.currentTime+0.08;if(boxDraw)boxDraw();}
+  {const sk=box.querySelector('.sk input'),tl=box.querySelector('.sk span');
+    sk.addEventListener('input',()=>{sk.dataset.drag=1;if(P.T)tl.textContent=fmt(sk.value/1000*lenOf(P.T))+' / '+fmt(lenOf(P.T));});
+    sk.addEventListener('change',()=>{delete sk.dataset.drag;seekTo(sk.value/1000);});
+    for(const ev of ['pointerup','pointercancel','touchend','touchcancel'])sk.addEventListener(ev,()=>setTimeout(()=>{delete sk.dataset.drag;},50));}
   function play(k,loop){P.pv={k,loop};if(loop){S.mode=k;save();}else if(S.mode!=='auto'&&S.mode!=='off'&&S.mode!==k){S.mode='auto';save();}if(bus())start(k);P.cand=k;P.candT=performance.now()/1000;boxDraw();}
   function stopPv(){const now=performance.now()/1000;P.pv=null;if(S.mode!=='auto'&&S.mode!=='off'){S.mode='auto';save();}fadeOut();P.key=P.cand=wantKey();P.candT=now;P.restUntil=now+30;boxDraw();}   /* 停止後安靜 30 秒再回到區域音樂 */
   function boxOpen(){box.hidden=false;boxDraw();}
-  boxDraw=function(){if(box.hidden)return;const ls=box.querySelector('.ls');let h='',g='';
-    const keys=ORDER.slice().sort((a,b)=>(S.no[a]?1:0)-(S.no[b]?1:0)||ORDER.indexOf(a)-ORDER.indexOf(b));
-    for(const k of keys){const T=TR[k],gn=S.no[k]?'👎 不要的（之後評估刪除）':T.g;if(gn!==g){g=gn;h+=`<div class="gp">${g}</div>`;}
-      const on=P.T===T,lp=S.mode===k;h+=`<div class="row${on?' on':''}${S.no[k]?' no':''}" data-k="${k}"><button data-p="${k}" title="從頭聽一次">${on&&P.pv&&!P.pv.loop?'⏮':'▶'}</button><button data-l="${k}" class="${lp?'act':''}" title="一直循環">🔁</button>`
-        +`<div class="tt"><b>${T.n}</b><small>${T.w}・${T.d}</small><i></i></div><button data-n="${k}" title="${S.no[k]?'取消不要':'不要這首'}">${S.no[k]?'↩':'👎'}</button></div>`;}
-    ls.innerHTML=h;for(const b of box.querySelectorAll('.md [data-m]'))b.classList.toggle('act',S.mode===b.dataset.m);
+  // 2026-10-19 使用者：「點了一個播放，選項就往下移動，看不到剛剛的」→ 原本每按一次就把整份清單重建（innerHTML），手機（尤其 iPhone）捲動位置會跳回最上面；
+  // 👎 的那首還會被搬到最下面。改成：清單只建一次、按按鈕只改那一列（位置不動），👎 的就在原地變淡
+  function boxBuild(){const ls=box.querySelector('.ls'),st=ls.scrollTop;let h='',g='';
+    for(const k of ORDER){const T=TR[k];if(T.g!==g){g=T.g;h+=`<div class="gp">${g}</div>`;}
+      h+=`<div class="row" data-k="${k}"><button data-p="${k}" title="從頭聽一次">▶</button><button data-l="${k}" title="一直循環">🔁</button>`
+        +`<div class="tt"><b>${T.n}</b><small>${T.w}・${T.d}・約 ${fmt(unitsOf(T)*T.u)}</small><i></i></div><button data-n="${k}" title="不要這首">👎</button></div>`;}
+    ls.innerHTML=h;ls.scrollTop=st;ls.dataset.n=ORDER.length;}
+  boxDraw=function(){if(box.hidden)return;const ls=box.querySelector('.ls');if(+ls.dataset.n!==ORDER.length)boxBuild();
+    for(const r of ls.querySelectorAll('.row')){const k=r.dataset.k,T=TR[k],on=P.T===T||(P.loading&&P.key===k),no=!!S.no[k],pb=r.querySelector('[data-p]'),lb=r.querySelector('[data-l]'),nb=r.querySelector('[data-n]'),pt=on&&P.pv&&!P.pv.loop?'⏮':'▶';
+      r.classList.toggle('on',on);r.classList.toggle('no',no);if(pb.textContent!==pt)pb.textContent=pt;lb.classList.toggle('act',S.mode===k);
+      const nt=no?'↩':'👎';if(nb.textContent!==nt){nb.textContent=nt;nb.title=no?'取消不要':'不要這首';}}
+    for(const b of box.querySelectorAll('.md [data-m]'))b.classList.toggle('act',S.mode===b.dataset.m);
     const nl=ORDER.filter(k=>S.no[k]).map(k=>TR[k].n);box.querySelector('.nolist').textContent=nl.length?`不要的 ${nl.length} 首：${nl.join('、')}（告訴我就可以刪掉）`:'';boxTick();};
   function boxTick(){if(box.hidden)return;box.querySelector('.now').textContent=nowTxt||'（還沒開始放：先點一下畫面讓聲音開始）';
-    for(const r of box.querySelectorAll('.row')){const T=TR[r.dataset.k],i=r.querySelector('i');const on=P.T===T;r.classList.toggle('on',on);i.style.width=on?Math.min(100,P.u/unitsOf(T)*100).toFixed(1)+'%':'0';}}
-  setInterval(boxTick,400);
+    {const sk=box.querySelector('.sk input'),tl=box.querySelector('.sk span'),T=P.T,can=!!(T&&!P.loading&&P.g);sk.disabled=!can;
+      if(P.loading){tl.textContent='載入中…';if(!sk.dataset.drag)sk.value=0;}else if(!T){tl.textContent='0:00 / 0:00';sk.value=0;}
+      else if(!sk.dataset.drag){const L=lenOf(T),x=nowSec();sk.value=Math.round(x/L*1000);tl.textContent=fmt(x)+' / '+fmt(L);}}
+    for(const r of box.querySelectorAll('.row')){const k=r.dataset.k,T=TR[k],i=r.querySelector('i');const on=P.T===T||(P.loading&&P.key===k);r.classList.toggle('on',on);   /* 還在載入取樣也先亮起來（按了馬上看得到是哪一首） */i.style.width=P.T===T?Math.min(100,P.u/unitsOf(T)*100).toFixed(1)+'%':'0';}}
+  setInterval(boxTick,250);
   box.addEventListener('click',e=>{const b=e.target.closest('button');if(!b){const tt=e.target.closest('.tt');if(tt){e.stopPropagation();play(tt.parentElement.dataset.k,false);}return;}   /* 點曲名也可以試聽（手機上手指常點到字） */
    e.stopPropagation();const d=b.dataset;
     if(d.x){box.hidden=true;return;}
