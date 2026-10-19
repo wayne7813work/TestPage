@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-19.21"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-19.23"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13995,12 +13995,12 @@ const AMUS=(()=>{
   // ---- 音樂盒（2026-10-19 使用者：要有背景音樂播放選擇器，可以自由試聽、循環聽、選哪些不要，之後評估刪除） ----
   // ▶ 試聽＝從頭放一次（放完回到平常）；🔁 循環＝一直放這首（記住，跟以前「循環：某一首」一樣）；👎 不要＝自動模式不放（再按一次取消），清單最下面列出全部「不要」的，使用者告訴我們再刪
   const css=document.createElement('style');css.textContent=`#bgmBoxP[hidden]{display:none!important}   /* 2026-10-19.7 修：下面的 display:flex 會蓋掉 hidden → 音樂盒一直空空地擋在畫面中間、關不掉、點不到選單的按鈕 */
-#bgmBoxP{position:fixed;z-index:40;left:0;right:0;top:0;bottom:0;margin:auto;width:min(460px,calc(100vw - 24px));height:fit-content;max-height:min(84vh,680px);display:flex;flex-direction:column;padding:12px;font-size:14px;color:var(--ink);background:rgba(20,26,34,.94)}
+#bgmBoxP{position:fixed;z-index:40;left:0;right:0;top:0;bottom:0;margin:auto;width:min(460px,calc(100vw - 24px));height:min(84vh,680px);height:min(84dvh,680px);max-height:calc(100vh - 24px);overflow:hidden;backdrop-filter:none;-webkit-backdrop-filter:none;display:flex;flex-direction:column;padding:12px;font-size:14px;color:var(--ink);background:rgba(20,26,34,.94)}
 #bgmBoxP .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}#bgmBoxP .hd b{font-size:16px}
 #bgmBoxP button{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:inherit;font-size:13px;padding:6px 9px;cursor:pointer;touch-action:manipulation;min-height:40px}
 #bgmBoxP .md{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}#bgmBoxP .md .act,#bgmBoxP .row .act{background:rgba(255,180,84,.35);border-color:#ffb454}
 #bgmBoxP .now{font-size:13px;color:#ffd27a;height:18px;line-height:18px;margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* 固定一行：字變長換行的話下面清單會被擠下去 */
-#bgmBoxP .ls{overflow:auto;flex:1;min-height:0;padding-right:2px;touch-action:pan-y;overscroll-behavior:contain}#bgmBoxP .gp{font-size:12px;color:var(--ink-2);margin:10px 0 4px;letter-spacing:.05em}
+#bgmBoxP .ls{overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1 1 0;min-height:0;padding-right:2px;touch-action:pan-y;overscroll-behavior:contain}   /* 2026-10-19 使用者：「手機跟平板的音樂盒都不正常，看不到其他歌曲」→ 原本框的高度是 fit-content，iPhone／iPad Safari 算不出來，清單沒有被限制在框裡、也捲不動；改成固定高度＋清單一定在框裡捲 */#bgmBoxP .gp{font-size:12px;color:var(--ink-2);margin:10px 0 4px;letter-spacing:.05em}
 #bgmBoxP .row{display:flex;align-items:center;gap:6px;padding:6px;border-radius:10px;margin-bottom:4px;background:rgba(255,255,255,.04)}
 #bgmBoxP .row.on{background:rgba(255,180,84,.16);outline:1px solid rgba(255,180,84,.5)}#bgmBoxP .row.no{opacity:.45}
 #bgmBoxP .tt{flex:1;min-width:0;position:relative;padding-bottom:5px}#bgmBoxP .tt b{display:block;font-size:14px}#bgmBoxP .tt small{display:block;font-size:11.5px;color:var(--ink-2);line-height:1.35}
@@ -14010,7 +14010,7 @@ const AMUS=(()=>{
 #bgmBoxP .sk{display:flex;align-items:center;gap:10px;height:34px;margin:0 0 6px}#bgmBoxP .sk input{flex:1;min-width:0;height:30px;margin:0;accent-color:#ffb454;touch-action:none;cursor:pointer}#bgmBoxP .sk input:disabled{opacity:.35;cursor:default}
 #bgmBoxP .sk span{flex:none;font-size:13px;color:#ffd27a;font-variant-numeric:tabular-nums;min-width:86px;text-align:right}   /* 2026-10-19 使用者：要可以拉到中間播、有時間顯示 */
 #bgmBoxP>.stor{flex:none;display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--ink-2)}#bgmBoxP .stor span{flex:1;min-width:0;line-height:1.4}#bgmBoxP .stor button{flex:none;min-height:34px;font-size:12px;padding:4px 10px}
-@media (max-height:500px){#bgmBoxP{max-height:calc(100vh - 12px);padding:8px 12px}#bgmBoxP .nt:not(.nolist){display:none}#bgmBoxP .hd{margin-bottom:4px}#bgmBoxP .md{margin-bottom:2px}#bgmBoxP .md button,#bgmBoxP .hd button{min-height:34px;padding:4px 9px}#bgmBoxP .sk{margin-bottom:2px}}   /* 手機橫拿：畫面很矮，說明字藏起來、按鈕矮一點，清單才看得到兩三首 */   /* 2026-10-19：手機橫拿時音樂盒變矮，「現在放什麼」那行被擠成 0 高度看不到 → 只讓清單縮 */`;document.head.appendChild(css);
+@media (max-height:500px){#bgmBoxP{height:calc(100vh - 12px);height:calc(100dvh - 12px);max-height:none;padding:8px 12px}#bgmBoxP .nt:not(.nolist){display:none}#bgmBoxP .hd{margin-bottom:4px}#bgmBoxP .md{margin-bottom:2px}#bgmBoxP .md button,#bgmBoxP .hd button{min-height:34px;padding:4px 9px}#bgmBoxP .sk{margin-bottom:2px}}   /* 手機橫拿：畫面很矮，說明字藏起來、按鈕矮一點，清單才看得到兩三首 */   /* 2026-10-19：手機橫拿時音樂盒變矮，「現在放什麼」那行被擠成 0 高度看不到 → 只讓清單縮 */`;document.head.appendChild(css);
   const box=document.createElement('div');box.id='bgmBoxP';box.className='panel';box.hidden=true;
   box.innerHTML=`<div class="hd"><b>🎵 音樂盒</b><button data-x="1">✕ 關閉</button></div><div class="md"><button data-m="auto">🗺️ 自動（每個區域）</button><button data-m="off">🔇 背景音樂關</button><button data-stop="1">⏹ 停止</button></div><div class="now"></div><div class="sk"><input type="range" min="0" max="1000" step="1" value="0" disabled aria-label="播放進度（拖到哪就從哪裡播）"><span>0:00 / 0:00</span></div><div class="ls"></div><p class="nt">▶ 從頭聽一次　🔁 一直循環這首　👎 不要（自動模式不會放；再按一次取消）</p><p class="nt nolist"></p><div class="stor"><span>音色：檢查中…</span><button data-clr="1">清除音色</button></div>`;
   document.body.appendChild(box);
@@ -14034,7 +14034,11 @@ const AMUS=(()=>{
     for(const ev of ['pointerup','pointercancel','touchend','touchcancel'])sk.addEventListener(ev,()=>setTimeout(()=>{delete sk.dataset.drag;},50));}
   function play(k,loop){P.pv={k,loop};if(loop){S.mode=k;save();}else if(S.mode!=='auto'&&S.mode!=='off'&&S.mode!==k){S.mode='auto';save();}if(bus())start(k);P.cand=k;P.candT=performance.now()/1000;boxDraw();}
   function stopPv(){const now=performance.now()/1000;P.pv=null;if(S.mode!=='auto'&&S.mode!=='off'){S.mode='auto';save();}fadeOut();P.key=P.cand=wantKey();P.candT=now;P.restUntil=now+30;boxDraw();}   /* 停止後安靜 30 秒再回到區域音樂 */
-  function boxOpen(){box.hidden=false;boxDraw();boxStore();}
+  // 保險：打開時量一次，清單如果跑出框外（有些 Safari 算錯 flex 高度），就直接用像素把清單高度設好
+  function boxFit(){if(box.hidden)return;const ls=box.querySelector('.ls');ls.style.maxHeight='';const B=box.getBoundingClientRect(),L=ls.getBoundingClientRect();let below=0;for(const el of box.children)if(el!==ls&&el.getBoundingClientRect().top>=L.top)below+=el.getBoundingClientRect().height+8;
+    const room=Math.floor(B.bottom-12-L.top-below);if(L.bottom>B.bottom-4||ls.clientHeight<60||ls.scrollHeight<=ls.clientHeight)ls.style.maxHeight=Math.max(120,room)+'px';}
+  addEventListener('resize',()=>setTimeout(boxFit,200));
+  function boxOpen(){box.hidden=false;boxDraw();boxStore();boxFit();setTimeout(boxFit,300);}
   // 手機裡存了幾個音色、多少 MB（每個檔記下的大小加起來；沒有大小的才讀出來量）
   boxStore=async function(){const el=box.querySelector('.stor span');if(box.hidden||!el)return;if(!window.caches){el.textContent='這個瀏覽器不能把音色存在手機（每次會重新下載）';return;}
     try{for(const n of await caches.keys())if(n.startsWith('home-gm-')&&n!==GMC)caches.delete(n);   /* 舊版本的音色庫 */
