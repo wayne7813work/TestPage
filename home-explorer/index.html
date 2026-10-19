@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-19.20"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-19.21"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13670,8 +13670,18 @@ const AMUS=(()=>{
     acoustic_bass:[24,64],brass_section:[44,84],pizzicato_strings:[32,88],string_ensemble_1:[32,92],tremolo_strings:[32,76],timpani:[32,56],taiko_drum:[48,48]};
   const GMB=new Map(),GML=new Map(),SM={off:false,fail:0};
   const gmKey=(ins,m)=>{const [lo,hi]=GMR[ins];return Math.max(lo,Math.min(hi,lo+4*Math.round((m-lo)/4)));};
+  // 2026-10-19 使用者：音色存到手機，不要每次重抓 → 瀏覽器的「網站儲存空間」（Cache Storage，只有這個網站讀得到），先找手機裡的，沒有才上網抓、抓到順便存。
+  // 音色檔不會改，所以存了就一直用；以後真的換了音色庫就把 GMC 的 v1 改成 v2（舊的會在下次開音樂盒時刪掉）。錢包、設定在 localStorage，跟這裡分開，「清除音色」不會動到。
+  const GMC='home-gm-v1';let gmPersist=false,storeT=0;
+  async function gmFetch(url){let C=null;try{if(window.caches)C=await caches.open(GMC);}catch(_){C=null;}   /* 無痕模式、舊瀏覽器打不開就直接上網抓 */
+    if(C){try{const hit=await C.match(url);if(hit){SM.hit=(SM.hit||0)+1;return await hit.arrayBuffer();}}catch(_){}}
+    const r=await fetch(url);if(!r.ok)throw new Error(r.status);SM.net=(SM.net||0)+1;
+    if(C){try{await C.put(url,r.clone());SM.saved=(SM.saved||0)+1;clearTimeout(storeT);storeT=setTimeout(()=>{if(boxStore)boxStore();},600);
+      if(!gmPersist&&navigator.storage&&navigator.storage.persist){gmPersist=true;navigator.storage.persist().catch(()=>{});}}catch(_){}}   /* 跟瀏覽器申請：空間不夠時不要先清掉這個網站的資料 */
+    return r.arrayBuffer();}
+  let boxStore=null;
   function gmLoad(ins,b){const key=ins+':'+b;if(GMB.has(key))return Promise.resolve(GMB.get(key));if(GML.has(key))return GML.get(key);const c=A.ctx;if(!c||P.off)return Promise.resolve(null);
-    const p=fetch(`gm/${ins}/${b}.mp3`).then(r=>{if(!r.ok)throw new Error(r.status);return r.arrayBuffer();}).then(ab=>new Promise((res,rej)=>c.decodeAudioData(ab,res,rej))).then(B=>{
+    const p=gmFetch(`gm/${ins}/${b}.mp3`).then(ab=>new Promise((res,rej)=>c.decodeAudioData(ab,res,rej))).then(B=>{
       const n=B.length,a=B.getChannelData(0),z=B.numberOfChannels>1?B.getChannelData(1):null,h=B.sampleRate>=44100?2:1;let pk=0,last=0;
       for(let i=0;i<n;i++){const v=Math.abs(z?(a[i]+z[i])*0.5:a[i]);if(v>pk)pk=v;if(v>0.002)last=i;}
       const L=Math.max(1,Math.floor(Math.min(n,last+B.sampleRate*0.05)/h)),O=c.createBuffer(1,L,B.sampleRate/h),d=O.getChannelData(0),k=pk>0?0.9/pk:1;
@@ -13999,9 +14009,10 @@ const AMUS=(()=>{
 #bgmBoxP>.hd,#bgmBoxP>.md,#bgmBoxP>.now,#bgmBoxP>.nt,#bgmBoxP>.sk{flex:none}
 #bgmBoxP .sk{display:flex;align-items:center;gap:10px;height:34px;margin:0 0 6px}#bgmBoxP .sk input{flex:1;min-width:0;height:30px;margin:0;accent-color:#ffb454;touch-action:none;cursor:pointer}#bgmBoxP .sk input:disabled{opacity:.35;cursor:default}
 #bgmBoxP .sk span{flex:none;font-size:13px;color:#ffd27a;font-variant-numeric:tabular-nums;min-width:86px;text-align:right}   /* 2026-10-19 使用者：要可以拉到中間播、有時間顯示 */
+#bgmBoxP>.stor{flex:none;display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--ink-2)}#bgmBoxP .stor span{flex:1;min-width:0;line-height:1.4}#bgmBoxP .stor button{flex:none;min-height:34px;font-size:12px;padding:4px 10px}
 @media (max-height:500px){#bgmBoxP{max-height:calc(100vh - 12px);padding:8px 12px}#bgmBoxP .nt:not(.nolist){display:none}#bgmBoxP .hd{margin-bottom:4px}#bgmBoxP .md{margin-bottom:2px}#bgmBoxP .md button,#bgmBoxP .hd button{min-height:34px;padding:4px 9px}#bgmBoxP .sk{margin-bottom:2px}}   /* 手機橫拿：畫面很矮，說明字藏起來、按鈕矮一點，清單才看得到兩三首 */   /* 2026-10-19：手機橫拿時音樂盒變矮，「現在放什麼」那行被擠成 0 高度看不到 → 只讓清單縮 */`;document.head.appendChild(css);
   const box=document.createElement('div');box.id='bgmBoxP';box.className='panel';box.hidden=true;
-  box.innerHTML=`<div class="hd"><b>🎵 音樂盒</b><button data-x="1">✕ 關閉</button></div><div class="md"><button data-m="auto">🗺️ 自動（每個區域）</button><button data-m="off">🔇 背景音樂關</button><button data-stop="1">⏹ 停止</button></div><div class="now"></div><div class="sk"><input type="range" min="0" max="1000" step="1" value="0" disabled aria-label="播放進度（拖到哪就從哪裡播）"><span>0:00 / 0:00</span></div><div class="ls"></div><p class="nt">▶ 從頭聽一次　🔁 一直循環這首　👎 不要（自動模式不會放；再按一次取消）</p><p class="nt nolist"></p>`;
+  box.innerHTML=`<div class="hd"><b>🎵 音樂盒</b><button data-x="1">✕ 關閉</button></div><div class="md"><button data-m="auto">🗺️ 自動（每個區域）</button><button data-m="off">🔇 背景音樂關</button><button data-stop="1">⏹ 停止</button></div><div class="now"></div><div class="sk"><input type="range" min="0" max="1000" step="1" value="0" disabled aria-label="播放進度（拖到哪就從哪裡播）"><span>0:00 / 0:00</span></div><div class="ls"></div><p class="nt">▶ 從頭聽一次　🔁 一直循環這首　👎 不要（自動模式不會放；再按一次取消）</p><p class="nt nolist"></p><div class="stor"><span>音色：檢查中…</span><button data-clr="1">清除音色</button></div>`;
   document.body.appendChild(box);
   for(const ev of ['pointerdown','touchstart','mousedown','wheel'])box.addEventListener(ev,e=>e.stopPropagation(),{passive:true});   /* 在音樂盒上滑、按，不要動到後面的 3D 畫面 */
   box.addEventListener('keydown',e=>e.stopPropagation());
@@ -14023,7 +14034,13 @@ const AMUS=(()=>{
     for(const ev of ['pointerup','pointercancel','touchend','touchcancel'])sk.addEventListener(ev,()=>setTimeout(()=>{delete sk.dataset.drag;},50));}
   function play(k,loop){P.pv={k,loop};if(loop){S.mode=k;save();}else if(S.mode!=='auto'&&S.mode!=='off'&&S.mode!==k){S.mode='auto';save();}if(bus())start(k);P.cand=k;P.candT=performance.now()/1000;boxDraw();}
   function stopPv(){const now=performance.now()/1000;P.pv=null;if(S.mode!=='auto'&&S.mode!=='off'){S.mode='auto';save();}fadeOut();P.key=P.cand=wantKey();P.candT=now;P.restUntil=now+30;boxDraw();}   /* 停止後安靜 30 秒再回到區域音樂 */
-  function boxOpen(){box.hidden=false;boxDraw();}
+  function boxOpen(){box.hidden=false;boxDraw();boxStore();}
+  // 手機裡存了幾個音色、多少 MB（每個檔記下的大小加起來；沒有大小的才讀出來量）
+  boxStore=async function(){const el=box.querySelector('.stor span');if(box.hidden||!el)return;if(!window.caches){el.textContent='這個瀏覽器不能把音色存在手機（每次會重新下載）';return;}
+    try{for(const n of await caches.keys())if(n.startsWith('home-gm-')&&n!==GMC)caches.delete(n);   /* 舊版本的音色庫 */
+      const C=await caches.open(GMC),ks=await C.keys();let t=0;for(const q of ks){const r=await C.match(q);const L=r&&+r.headers.get('content-length');t+=L>0?L:r?(await r.blob()).size:0;}
+      el.textContent=ks.length?`已存在這支手機：${ks.length} 個音色、約 ${(t/1048576).toFixed(1)} MB（聽過的歌下次不用重新下載）`:'還沒有存音色（放歌時會下載並存在這支手機）';}
+    catch(e){el.textContent='音色存不進手機（可能是無痕模式），每次會重新下載';}};
   // 2026-10-19 使用者：「點了一個播放，選項就往下移動，看不到剛剛的」→ 原本每按一次就把整份清單重建（innerHTML），手機（尤其 iPhone）捲動位置會跳回最上面；
   // 👎 的那首還會被搬到最下面。改成：清單只建一次、按按鈕只改那一列（位置不動），👎 的就在原地變淡
   function boxBuild(){const ls=box.querySelector('.ls'),st=ls.scrollTop;let h='',g='';
@@ -14048,6 +14065,7 @@ const AMUS=(()=>{
     if(d.x){box.hidden=true;return;}
     if(d.m){S.mode=d.m;save();P.pv=null;P.cand=null;P.restUntil=0;if(d.m==='off')fadeOut();boxDraw();return;}
     if(d.stop){stopPv();return;}
+    if(d.clr){const el=box.querySelector('.stor span');(window.caches?caches.delete(GMC):Promise.resolve()).catch(()=>{}).then(()=>{GMB.clear();el.textContent='已清除音色（錢包、設定都沒動）；放歌時會重新下載';setTimeout(boxStore,2500);});return;}   /* 只刪音色；記憶體裡的也清掉，之後放歌就會重新下載 */
     if(d.p){play(d.p,false);return;}
     if(d.l){if(S.mode===d.l){stopPv();return;}play(d.l,true);return;}
     if(d.n){const k=d.n;if(S.no[k])delete S.no[k];else{S.no[k]=1;if(P.key===k&&!P.pv)fadeOut();}P.pick={};save();boxDraw();}});
@@ -14065,7 +14083,7 @@ const AMUS=(()=>{
     let r;try{A.ctx=c;P.off=true;A.voice=c.destination;S.voice='sim';r=talk(text,null,seed,emo);}finally{A.ctx=sc;A.voice=sv;S.voice=sm;P.off=false;}
     const buf=await c.startRendering();let pk=0,ss=0,last=0;const N=buf.length;for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<N;i++){const v=Math.abs(d[i]);if(!(v<=10))return {err:'NaN'};if(v>pk)pk=v;ss+=v*v;if(v>0.003&&i>last)last=i;}}
     return {ok:r,len:+(last/44100).toFixed(2),peak:+pk.toFixed(3),rms:+Math.sqrt(ss/(2*N)).toFixed(4)};}
-  return {see(n){P.area=n;},gm:()=>({loaded:GMB.size,loading:GML.size,fail:SM.fail}),gmLoad:gmLoadKey,needKeys,jingle,talk,TR,ORDER,S,render,renderTalk,start,box:()=>document.getElementById('bgmBoxP'),dbg:()=>({key:P.key,playing:!!P.T,u:P.u,pv:P.pv,mode:S.mode,no:Object.keys(S.no),area:P.area,want:wantKey(),rest:Math.max(0,P.restUntil-performance.now()/1000),vol:P.out&&P.out.gain.value,live:A.live}),areaKey};
+  return {see(n){P.area=n;},gm:()=>({loaded:GMB.size,loading:GML.size,fail:SM.fail,hit:SM.hit||0,net:SM.net||0,saved:SM.saved||0}),gmDrop:()=>GMB.clear(),boxStore:()=>boxStore&&boxStore(),gmLoad:gmLoadKey,needKeys,jingle,talk,TR,ORDER,S,render,renderTalk,start,box:()=>document.getElementById('bgmBoxP'),dbg:()=>({key:P.key,playing:!!P.T,u:P.u,pv:P.pv,mode:S.mode,no:Object.keys(S.no),area:P.area,want:wantKey(),rest:Math.max(0,P.restUntil-performance.now()/1000),vol:P.out&&P.out.gain.value,live:A.live}),areaKey};
 })();
 
 /* ---------------- 小遊戲：殭屍來襲（選單「小遊戲」開始） ----------------
