@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-20.7"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-20.8"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13683,7 +13683,7 @@ const AMUS=(()=>{
     choir_aahs:[40,88],church_organ:[36,92],acoustic_grand_piano:[44,100],orchestral_harp:[32,100],harpsichord:[36,100],dulcimer:[56,104],accordion:[52,96],
     celesta:[60,108],glockenspiel:[68,108],music_box:[68,108],vibraphone:[56,100],sitar:[48,92],acoustic_guitar_nylon:[40,92],acoustic_guitar_steel:[40,92],
     acoustic_bass:[24,64],brass_section:[44,84],pizzicato_strings:[32,88],string_ensemble_1:[32,92],tremolo_strings:[32,76],timpani:[32,56],taiko_drum:[48,48]};
-  const GMB=new Map(),GML=new Map(),SM={off:false,fail:0};
+  const GMB=new Map(),GML=new Map(),SM={off:false,fail:0,bad:new Map(),badKeys:new Set(),ok:0};
   const gmKey=(ins,m)=>{const [lo,hi]=GMR[ins];return Math.max(lo,Math.min(hi,lo+4*Math.round((m-lo)/4)));};
   // 2026-10-19 使用者：音色存到手機，不要每次重抓 → 瀏覽器的「網站儲存空間」（Cache Storage，只有這個網站讀得到），先找手機裡的，沒有才上網抓、抓到順便存。
   // 音色檔不會改，所以存了就一直用；以後真的換了音色庫就把 GMC 的 v1 改成 v2（舊的會在下次開音樂盒時刪掉）。錢包、設定在 localStorage，跟這裡分開，「清除音色」不會動到。
@@ -13697,15 +13697,15 @@ const AMUS=(()=>{
       if(!gmPersist&&navigator.storage&&navigator.storage.persist){gmPersist=true;navigator.storage.persist().catch(()=>{});}}catch(_){}}   /* 跟瀏覽器申請：空間不夠時不要先清掉這個網站的資料 */
     return ab;}
   let boxStore=null;
-  function gmLoad(ins,b){const key=ins+':'+b;if(GMB.has(key))return Promise.resolve(GMB.get(key));if(GML.has(key))return GML.get(key);const c=A.ctx;if(!c||P.off)return Promise.resolve(null);
+  function gmLoad(ins,b){const key=ins+':'+b;if(GMB.has(key))return Promise.resolve(GMB.get(key));if(GML.has(key))return GML.get(key);const c=A.ctx;if(!c||P.off)return Promise.resolve(null);if((SM.bad.get(key)||0)>performance.now())return Promise.resolve(null);   /* 2026-10-20：抓不到的音 60 秒內不再抓（原本每個音都重抓，失敗次數衝到上千） */
     const p=gmFetch(`gm/${ins}/${b}.mp3`).then(ab=>new Promise((res,rej)=>c.decodeAudioData(ab,res,rej))).then(B=>{
       const n=B.length,a=B.getChannelData(0),z=B.numberOfChannels>1?B.getChannelData(1):null,h=B.sampleRate>=44100?2:1;let pk=0,last=0;
       for(let i=0;i<n;i++){const v=Math.abs(z?(a[i]+z[i])*0.5:a[i]);if(v>pk)pk=v;if(v>0.002)last=i;}
       const L=Math.max(1,Math.floor(Math.min(n,last+B.sampleRate*0.05)/h)),O=c.createBuffer(1,L,B.sampleRate/h),d=O.getChannelData(0),k=pk>0?0.9/pk:1;
       for(let i=0;i<L;i++){let s=0;for(let j=0;j<h;j++){const q=i*h+j;s+=z?(a[q]+z[q])*0.5:a[q];}d[i]=s/h*k;}
       const fo=Math.min(L,Math.floor(O.sampleRate*0.03));for(let i=0;i<fo;i++)d[L-1-i]*=i/fo;   /* 結尾 30 ms 淡出（沒有喀聲） */
-      GMB.set(key,O);GML.delete(key);while(GMB.size>120)GMB.delete(GMB.keys().next().value);return O;})
-      .catch(e=>{GML.delete(key);SM.fail++;SM.lastFail=key+'：'+String(e&&e.message||e).slice(0,60);return null;});
+      GMB.set(key,O);GML.delete(key);SM.ok++;SM.badKeys.delete(key);SM.bad.delete(key);while(GMB.size>120)GMB.delete(GMB.keys().next().value);return O;})
+      .catch(e=>{GML.delete(key);SM.fail++;SM.badKeys.add(key);SM.bad.set(key,performance.now()+60000);SM.lastFail=key+'：'+String(e&&e.message||e).slice(0,60);SM.lastErr=String(e&&e.message||e);return null;});
     GML.set(key,p);return p;}
   const gmLoadKey=s=>{const i=s.lastIndexOf(':');return gmLoad(s.slice(0,i),+s.slice(i+1));};
   // 播一個取樣音：op.sus＝長音（比取樣長就中段重複）、op.att 起音、op.rel 放開後多久消失、op.ring＝不管 d，讓它自己響完（鐘、定音鼓）
@@ -14020,7 +14020,7 @@ const AMUS=(()=>{
 #bgmBoxP .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}#bgmBoxP .hd b{font-size:16px}
 #bgmBoxP button{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:inherit;font-size:13px;padding:6px 9px;cursor:pointer;touch-action:manipulation;min-height:40px}
 #bgmBoxP .md{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}#bgmBoxP .md .act,#bgmBoxP .row .act{background:rgba(255,180,84,.35);border-color:#ffb454}
-#bgmBoxP .now.bad{color:#ff8a7a;white-space:normal;height:auto;min-height:18px;max-height:54px;overflow:auto;cursor:pointer}#bgmBoxP .now{font-size:13px;color:#ffd27a;height:18px;line-height:18px;margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* 固定一行：字變長換行的話下面清單會被擠下去 */
+#bgmBoxP .now.bad{color:#ff8a7a;white-space:normal;height:auto;min-height:18px;max-height:76px;line-height:1.4;overflow:auto;cursor:pointer}#bgmBoxP .now{font-size:13px;color:#ffd27a;height:18px;line-height:18px;margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* 固定一行：字變長換行的話下面清單會被擠下去 */
 #bgmBoxP .ls{overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1 1 0;min-height:0;padding-right:2px;touch-action:pan-y;overscroll-behavior:contain}   /* 2026-10-19 使用者：「手機跟平板的音樂盒都不正常，看不到其他歌曲」→ 原本框的高度是 fit-content，iPhone／iPad Safari 算不出來，清單沒有被限制在框裡、也捲不動；改成固定高度＋清單一定在框裡捲 */#bgmBoxP .gp{font-size:12px;color:var(--ink-2);margin:10px 0 4px;letter-spacing:.05em}
 #bgmBoxP .row{display:flex;align-items:center;gap:6px;padding:6px;border-radius:10px;margin-bottom:4px;background:rgba(255,255,255,.04)}
 #bgmBoxP .row.on{background:rgba(255,180,84,.16);outline:1px solid rgba(255,180,84,.5)}#bgmBoxP .row.no{opacity:.45}
@@ -14081,7 +14081,7 @@ const AMUS=(()=>{
     const nl=ORDER.filter(k=>S.no[k]).map(k=>TR[k].n);box.querySelector('.nolist').textContent=nl.length?`不要的 ${nl.length} 首：${nl.join('、')}（告訴我就可以刪掉）`:'';boxTick();};
   // 播不出來的原因（照重要順序挑一個）：沒有聲音系統、被系統暫停、播放出錯、音色下載失敗
   function diag(){const c=A.ctx;if(!c)return '⚠️ 聲音還沒開始：先點一下畫面（或按這行）';if(c.state!=='running')return `⚠️ 聲音被手機暫停了（${c.state}）：按這行叫醒；iPhone 請確認沒有開靜音、音量有開`;
-    if(P.err)return '⚠️ 播放出錯：'+P.err;if(SM.fail&&P.T&&!SM.hit&&!SM.net)return `⚠️ 音色下載失敗（${SM.fail} 個）：${SM.lastFail||''}`;return '';}diagFn=diag;
+    if(P.err)return '⚠️ 播放出錯：'+P.err;if(SM.badKeys.size){const n=SM.badKeys.size,all=!SM.ok,why=location.protocol==='file:'?'這個網頁是直接用檔案打開的（網址是 file:///），瀏覽器不讓它讀旁邊 gm 資料夾的樂器音色：請用網址打開（例如 GitHub Pages）':/^404$/.test(SM.lastErr||'')?'網站上找不到這些檔案：gm 資料夾可能沒上傳、或沒上傳完整（要 34 個資料夾、429 個 mp3）':'下載不到（網路斷了，或網站擋住了）';return all?`⚠️ 樂器音色一個都載不到，現在聽到的是合成聲。原因：${why}`:`⚠️ 有 ${n} 個樂器音色載不到（那些音先用合成聲）：${why}`;}   /* 2026-10-20：原本只寫「下載失敗（1911 個）」，使用者看不懂 */return '';}diagFn=diag;
   function boxTick(){if(box.hidden)return;const dg=diag(),nw=box.querySelector('.now');nw.textContent=dg||nowTxt||'（還沒開始放：先點一下畫面讓聲音開始）';nw.classList.toggle('bad',!!dg);
     {const sk=box.querySelector('.sk input'),tl=box.querySelector('.sk span'),T=P.T,can=!!(T&&!P.loading&&P.g);sk.disabled=!can;
       if(P.loading){tl.textContent='載入中…';if(!sk.dataset.drag)sk.value=0;}else if(!T){tl.textContent='0:00 / 0:00';sk.value=0;}
