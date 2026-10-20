@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-20.8"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-20.9"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13232,8 +13232,9 @@ const AUDIO=(()=>{
    測試：AMUS.render('home',20) 離線算出音樂的峰值／RMS；AMUS.dbg() 看現在狀態。 */
 const AMUS=(()=>{
   const A=AUDIO.A,rnd=(a,b)=>a+Math.random()*(b-a),midi=n=>440*Math.pow(2,(n-69)/12);
-  const S={mode:'auto',vol:0.6,voice:'sim',step:true,no:{}};
+  const S={mode:'off',vol:0.6,voice:'sim',step:true,no:{}};   /* 2026-10-20.9 使用者：「預設背景音樂關閉，目前太難聽了」 */
   try{Object.assign(S,JSON.parse(localStorage.getItem('home-bgm')||'{}'));}catch(_){}
+  if(!S.def0){S.def0=1;S.mode='off';try{localStorage.setItem('home-bgm',JSON.stringify(S));}catch(_){}}   /* 之前存過「自動」的人也先關一次；之後自己打開會記住 */
   const save=()=>{try{localStorage.setItem('home-bgm',JSON.stringify(S));}catch(_){}};
   if(!S.no||typeof S.no!=='object')S.no={};
   let boxDraw=null;
