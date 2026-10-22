@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-21.11"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-21.13"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1837,6 +1837,128 @@ function vios(color){
   g.add(mesh(box(0.14,0.05,0.06),pm,-0.78,1.49,0));                                                                                  // 鯊魚鰭天線
   return g;
 }
+// ---------------- 整排鄰居的車（2026-10-21.12 使用者：「我的房子那排，每一戶都要有車子…休旅車、轎跑車、轎車，各個代表性的車子都要有」「我們家的車子造型不用改，其他家的要改」） ----------------
+// 原創車款：真實品牌的名字、標誌、照抄特定車款的外型都不能用 → 原創名字＋各國車型的感覺。車身用 loftGeo 一段一段接（跟我家的車一樣），S＝規格，車頭朝 +x
+const carTexC={};
+function carTex(key,w,h,draw){if(!carTexC[key]){const [c,g]=cvs(w,h);draw(g,w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;carTexC[key]=t;}return carTexC[key];}
+const CARM={gray:std({color:'#5d6166',roughness:0.35,metalness:0.6}),dark:std({color:'#16181b',roughness:0.5,metalness:0.3}),clad:std({color:'#202225',roughness:0.85}),amber:std({color:'#ffb347',emissive:'#ff8a00',emissiveIntensity:0.25})};
+function mkCar(S){
+  const g=new THREE.Group(),pm=paintMat(S.col),rm=S.roofGlass?MAT.glassDark:S.roof?paintMat(S.roof):pm,pil=S.roof?paintMat(S.roof):pm,ds=m=>{if(!m.userData.ds){m.userData.ds=m.clone();m.userData.ds.side=THREE.DoubleSide;}return m.userData.ds;},blk=MAT.black,chrome=MAT.steel,L2=S.L/2,W2=S.W/2,er=S.er||0.6;
+  const hw=x=>{const e=Math.max(0,Math.abs(x)-(L2-er))/er;return W2*(0.86+0.14*Math.sqrt(Math.max(0,1-e*e)));};
+  const top=x=>lerpPts(S.top,x),C=S.cab,yt=x=>lerpPts(C.top,x);
+  const face=(w,h,map,x,y,z,dir)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map,transparent:true,roughness:0.35,metalness:0.5}));m.position.set(x,y,z);m.rotation.y=dir>0?Math.PI/2:-Math.PI/2;g.add(m);};
+  // 車身、車窗、車頂
+  g.add(mesh(loftGeo(range(-L2,L2,36),x=>{const w=hw(x),end=Math.abs(x)>L2-0.12;return {y0:S.y0+(end?0.06:0),y1:top(x),w0:w*0.97,w1:w*(S.tw||0.92),rb:0.06,rt:S.rt||0.13};}),ds(pm)));   /* 兩面都畫：車尾那一面才不會透明 */
+  g.add(mesh(loftGeo(range(C.x0,C.x1,24),x=>({y0:C.y0,y1:yt(x),w0:C.w0,w1:C.w1,rb:0.01,rt:C.rt||0.09})),ds(MAT.glassDark)));
+  g.add(mesh(loftGeo(range(C.r0,C.r1,10),x=>{const y=yt(x)+0.012;return {y0:y-0.035,y1:y,w0:C.w1-0.02,w1:C.w1-0.035,rb:0.01,rt:0.03};}),ds(rm)));
+  for(const sz of [-1,1]){   // A 柱、C 柱（車身色／雙色車頂的顏色）、B 柱（黑）
+    g.add(new THREE.Mesh(strut(new V3(C.x1-0.03,yt(C.x1)+0.01,sz*(C.w0-0.03)),new V3(C.r1+0.02,yt(C.r1)-0.01,sz*(C.w1-0.02)),0.045),pil));
+    g.add(new THREE.Mesh(strut(new V3(C.x0+0.06,yt(C.x0)+0.01,sz*(C.w0-0.03)),new V3(C.r0-0.02,yt(C.r0)-0.01,sz*(C.w1-0.02)),S.cw||0.07),pil));
+    if(C.b!==undefined)g.add(new THREE.Mesh(strut(new V3(C.b,yt(C.x1)+0.01,sz*(C.w0-0.02)),new V3(C.b+0.03,yt(C.b)-0.02,sz*(C.w1-0.01)),0.07),blk));
+    g.add(mesh(box(0.18,0.1,0.14),S.roof?pil:pm,C.x1-0.18,yt(C.x1)+0.07,sz*(hw(C.x1-0.18)*0.95+0.08)));g.add(mesh(box(0.06,0.04,0.12),blk,C.x1-0.16,yt(C.x1)+0.01,sz*(hw(C.x1-0.18)*0.95+0.03)));   // 後照鏡
+    for(const x of [C.x1-0.55,C.x1-1.5])if(x>C.x0+0.2)g.add(mesh(box(0.16,0.03,0.02),S.hd||chrome,x,top(x)-0.1,sz*(hw(x)*0.96+0.012)));   // 門把
+    for(const x of [C.x1-0.05,C.b??-99])if(x>-90)g.add(mesh(box(0.012,Math.max(0.2,top(x)-S.y0-0.12),0.006),blk,x,(top(x)+S.y0)/2,sz*(hw(x)*0.965+0.006)));   // 車門分縫
+  }
+  // 輪子：輪拱（黑）、輪胎、各種輪框
+  const Wh=S.wh,wr=Wh.r,ww=Wh.w||0.24;
+  for(const sz of [-1,1])for(const x of [Wh.xf,Wh.xr]){const zs=hw(x)*0.97;
+    g.add(mesh(cyl(wr+(S.clad?0.13:0.06),wr+(S.clad?0.13:0.06),0.014,22),S.clad?CARM.clad:blk,x,wr,sz*(zs+0.004),Math.PI/2));
+    if(S.clad)g.add(mesh(cyl(wr+0.06,wr+0.06,0.02,22),blk,x,wr,sz*(zs+0.008),Math.PI/2));
+    const w=new THREE.Group();w.position.set(x,wr,sz*(zs-ww/2+0.05));g.add(w);w.add(mesh(cyl(wr,wr,ww,20),MAT.rubber,0,0,0,Math.PI/2));
+    const out=sz*(ww/2+0.002),R=wr*(Wh.rim==='off'?0.6:0.68),k=Wh.rim;
+    const disk=k==='deep'||k==='off'?CARM.dark:k==='aero'?CARM.gray:chrome,sp=k==='deep'||k==='off'?CARM.dark:k==='aero'?CARM.gray:chrome;
+    w.add(mesh(cyl(R,R,0.02,20),disk,0,0,out,Math.PI/2));
+    if(k==='deep'||k==='wire'){const ring=new THREE.Mesh(new THREE.TorusGeometry(R,0.018,6,24),chrome);ring.position.z=out*1.08;w.add(ring);}
+    const n={'5':5,multi:10,deep:5,off:6,aero:5,wire:20}[k]||5,sw={'5':0.05,multi:0.022,deep:0.05,off:0.06,aero:0.11,wire:0.008}[k]||0.05,sl=R*0.9;
+    if(k==='off'){for(let i=0;i<n;i++){const a=i/n*Math.PI*2;w.add(mesh(cyl(0.035,0.035,0.024,8),MAT.rubber,Math.cos(a)*R*0.62,Math.sin(a)*R*0.62,out*1.04,Math.PI/2));}}
+    else for(let i=0;i<n;i++){const a=i/n*Math.PI*2,s=mesh(box(sw,sl,0.02),sp,-Math.sin(a)*sl/2,Math.cos(a)*sl/2,out*1.05);s.rotation.z=a;w.add(s);}
+    w.add(mesh(cyl(R*0.25,R*0.25,0.03,10),k==='wire'?chrome:blk,0,0,out*1.12,Math.PI/2));}
+  if(S.clad)for(const sz of [-1,1])g.add(mesh(box(Wh.xf-Wh.xr-wr*2-0.3,0.14,0.03),CARM.clad,(Wh.xf+Wh.xr)/2,S.y0+0.08,sz*(hw(0)*0.97+0.005)));   // 側裙（休旅車的黑色塑膠飾板）
+  // 車頭：水箱罩、大燈、下進氣口、車牌、圓牌（沒有車廠標誌：只有車名的第一個字）
+  const fx=L2,FW=hw(L2)*0.97,gy=S.gy??0.55;
+  const G0=S.grille;
+  if(G0==='tall'){g.add(mesh(box(0.04,0.4,0.62),chrome,fx,gy,0));g.add(mesh(box(0.045,0.34,0.54),new THREE.MeshStandardMaterial({map:viosTex.grille,roughness:0.6}),fx+0.003,gy,0));}
+  else if(G0==='wide'){g.add(mesh(box(0.04,0.18,FW*1.25),new THREE.MeshStandardMaterial({map:viosTex.grille,roughness:0.6}),fx,gy,0));g.add(mesh(box(0.035,0.02,FW*1.1),chrome,fx+0.005,gy+0.11,0));}
+  else if(G0==='mesh')g.add(mesh(box(0.04,0.26,FW*1.0),new THREE.MeshStandardMaterial({map:viosTex.grille,roughness:0.6}),fx,gy,0));
+  else if(G0==='bars'){g.add(mesh(box(0.04,0.42,FW*1.3),S.barC||chrome,fx,gy,0));g.add(mesh(box(0.045,0.36,FW*1.2),blk,fx+0.002,gy,0));for(let i=0;i<3;i++)g.add(mesh(box(0.05,0.05,FW*1.2),S.barC||chrome,fx+0.004,gy-0.12+i*0.12,0));}
+  else if(G0==='oval'){const o=mesh(cyl(0.2,0.2,0.04,24),chrome,fx,gy,0,0,0,Math.PI/2);o.scale.set(1,1,2.2);g.add(o);const o2=mesh(cyl(0.17,0.17,0.045,24),new THREE.MeshStandardMaterial({map:viosTex.grille,roughness:0.6}),fx+0.004,gy,0,0,0,Math.PI/2);o2.scale.set(1,1,2.2);g.add(o2);}
+  g.add(mesh(box(0.04,0.12,FW*(G0==='none'?1.5:1.3)),blk,fx+0.01,S.y0+0.17,0));   // 下進氣口（前車牌掛在這裡）
+  const H=S.head,hy=S.hy,hz=S.hz||W2*0.62;
+  if(H==='bar'){g.add(mesh(box(0.04,0.035,FW*1.8),MAT.headLight,fx+0.004,hy,0));for(const sz of [-1,1])g.add(mesh(box(0.045,0.08,0.22),MAT.headLight,fx+0.002,hy-0.08,sz*hz));}
+  else for(const sz of [-1,1]){
+    if(H==='round'){g.add(mesh(cyl(0.12,0.12,0.05,18),chrome,fx,hy,sz*hz,0,0,Math.PI/2));g.add(mesh(cyl(0.095,0.095,0.06,18),MAT.headLight,fx+0.002,hy,sz*hz,0,0,Math.PI/2));}
+    else if(H==='square'){g.add(mesh(box(0.04,0.18,0.34),chrome,fx,hy,sz*hz));g.add(mesh(box(0.045,0.14,0.3),MAT.headLight,fx+0.002,hy,sz*hz));}
+    else{g.add(mesh(box(0.04,0.05,0.32),MAT.headLight,fx+0.002,hy,sz*Math.min(hz,FW-0.18)));g.add(mesh(box(0.042,0.018,0.32),CARM.amber,fx+0.003,hy-0.04,sz*Math.min(hz,FW-0.18)));}}
+  const plate=carTex('pl'+S.pl,256,96,(c)=>{c.fillStyle='#f4f4f0';c.fillRect(0,0,256,96);c.strokeStyle='#222';c.lineWidth=5;c.strokeRect(4,4,248,88);c.fillStyle='#1a1a1a';c.font=`800 54px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(S.pl,128,52);});
+  const gb=gy-({tall:0.2,wide:0.09,mesh:0.13,bars:0.21,oval:0.2}[G0]||0)-0.08;face(0.42,0.13,plate,fx+0.045,Math.max(S.y0+0.13,Math.min(S.y0+0.17,gb)),0,1);   /* 前車牌掛在水箱罩下面 */face(0.5,0.15,plate,-L2-0.025,S.ply||S.y0+0.4,0,-1);
+  const em=carTex('em'+S.ch,128,128,(c)=>{const gr=c.createRadialGradient(54,48,6,64,64,62);gr.addColorStop(0,'#f4f6f8');gr.addColorStop(1,'#8d939a');c.fillStyle=gr;c.beginPath();c.arc(64,64,60,0,7);c.fill();c.fillStyle='#2a2e33';c.font=`900 74px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(S.ch,64,68);});
+  if(G0!=='none')face(0.13,0.13,em,fx+0.03,G0==='tall'||G0==='bars'?gy+0.28:gy+0.17,0,1);else face(0.12,0.12,em,fx+0.01,hy+0.1,0,1);
+  // 車尾：尾燈、車名、圓牌
+  const T0=S.tail,ty=S.ty,tz=S.tz||W2*0.66,bx=-L2;
+  if(T0==='bar'){g.add(mesh(box(0.05,0.05,FW*1.85),MAT.tailLight,bx-0.004,ty,0));}
+  else for(const sz of [-1,1]){
+    if(T0==='round'){g.add(mesh(cyl(0.08,0.08,0.06,16),MAT.tailLight,bx,ty,sz*tz,0,0,Math.PI/2));g.add(mesh(cyl(0.05,0.05,0.065,12),CARM.amber,bx-0.002,ty-0.17,sz*tz,0,0,Math.PI/2));}
+    else if(T0==='square')g.add(mesh(box(0.05,0.34,0.16),MAT.tailLight,bx,ty,sz*tz));
+    else g.add(mesh(box(0.05,0.1,0.42),MAT.tailLight,bx-0.002,ty,sz*tz));}
+  const nmT=carTex('nm'+S.nm,256,64,(c)=>{c.fillStyle='#d8dde2';c.font=`900 44px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.shadowColor='rgba(0,0,0,.5)';c.shadowBlur=3;c.fillText(S.nm,128,34);});
+  face(0.36,0.09,nmT,bx-0.03,ty-0.14,-0.5*W2,-1);face(0.1,0.1,em,bx-0.03,ty+(T0==='bar'?0.1:0),0,-1);
+  g.add(mesh(box(0.06,0.12,FW*1.6),blk,bx-0.01,S.y0+0.14,0));   // 後保桿下緣
+  // 配件
+  const X=S.x||{};
+  if(X.rails)for(const sz of [-1,1]){const y=yt((C.r0+C.r1)/2)+0.07;g.add(mesh(box(C.r1-C.r0+0.15,0.035,0.04),X.rails==='c'?chrome:blk,(C.r0+C.r1)/2,y,sz*(C.w1-0.1)));for(const x of [C.r0,C.r1])g.add(mesh(box(0.06,0.07,0.05),blk,x,yt(x)+0.03,sz*(C.w1-0.1)));}
+  if(X.rack){const y=yt((C.r0+C.r1)/2)+0.1;for(const sz of [-1,1])g.add(mesh(box(C.r1-C.r0,0.04,0.04),blk,(C.r0+C.r1)/2,y,sz*(C.w1-0.1)));for(let k=0;k<5;k++)g.add(mesh(box(0.04,0.03,C.w1*2-0.2),blk,C.r0+(C.r1-C.r0)*k/4,y,0));}
+  if(X.spare){g.add(mesh(cyl(0.4,0.4,0.26,20),MAT.rubber,bx-0.16,0.98,0,0,0,Math.PI/2));g.add(mesh(cyl(0.3,0.3,0.27,16),CARM.dark,bx-0.16,0.98,0,0,0,Math.PI/2));face(0.2,0.2,em,bx-0.3,0.98,0,-1);}
+  if(X.wing){const y=top(-L2+0.3)+0.2;g.add(mesh(box(0.3,0.04,S.W*0.92),X.wingC?paintMat(X.wingC):blk,-L2+0.25,y,0));for(const sz of [-1,1])g.add(mesh(box(0.1,0.2,0.04),blk,-L2+0.3,y-0.1,sz*0.5));}
+  if(X.duck)g.add(mesh(box(0.2,0.05,FW*1.7),pm,-L2+0.12,top(-L2+0.12)+0.02,0));
+  if(X.intake)for(const sz of [-1,1])g.add(mesh(box(0.7,0.22,0.04),blk,Wh.xr+0.75,S.y0+0.4,sz*(hw(Wh.xr+0.75)*0.97+0.005)));
+  if(X.bed){const l=X.bed[1]-X.bed[0];g.add(mesh(box(l,0.02,hw(-1)*1.8),CARM.dark,(X.bed[0]+X.bed[1])/2,top((X.bed[0]+X.bed[1])/2)+0.008,0));for(const sz of [-1,1])g.add(mesh(box(l,0.04,0.05),chrome,(X.bed[0]+X.bed[1])/2,top((X.bed[0]+X.bed[1])/2)+0.01,sz*hw(-1)*0.93));}
+  if(X.bull){g.add(mesh(box(0.08,0.08,S.W*0.75),blk,fx+0.18,S.y0+0.42,0));g.add(mesh(box(0.08,0.08,S.W*0.75),blk,fx+0.18,S.y0+0.12,0));for(const sz of [-1,1])g.add(mesh(box(0.08,0.38,0.08),blk,fx+0.18,S.y0+0.27,sz*0.4));for(const sz of [-1,1])g.add(mesh(box(0.2,0.06,0.06),blk,fx+0.08,S.y0+0.27,sz*0.4));}
+  if(X.scoop)g.add(mesh(box(0.5,0.06,0.42),blk,X.scoop,top(X.scoop)+0.02,0));
+  if(X.hoodStripe){const a=C.x1+0.05,b=L2-0.15,sl=Math.atan2(top(b)-top(a),b-a);for(const sz of [-1,1]){const m=mesh(box(b-a,0.008,0.14),paintMat(X.hoodStripe),(a+b)/2,(top(a)+top(b))/2+0.012,sz*0.16);m.rotation.z=sl;g.add(m);}}   /* 引擎蓋上的兩條直線（順著斜度） */
+  if(X.chromeLine)for(const sz of [-1,1])g.add(mesh(box(C.x1-C.x0,0.018,0.012),chrome,(C.x0+C.x1)/2,yt(C.x1)+0.005,sz*(C.w0+0.01)));
+  return g;}
+// 十款原創車（往東第 1～10 戶）：轎車、轎跑、跑車、休旅車、越野、皮卡；tune＝開起來的數值（超跑快、越野慢、電動車起步快幾乎沒有引擎聲）
+const NB_CARS=[
+  {nm:'萊茵號',kind:'德系豪華大轎車',ch:'萊',pl:'RN-8801',col:'#20262f',L:4.95,W:1.87,y0:0.3,
+   top:[[-2.475,0.72],[-2.4,0.92],[-2.2,1.0],[-1.6,1.03],[1.0,0.99],[1.9,0.9],[2.35,0.82],[2.475,0.68]],
+   cab:{x0:-1.6,x1:1.0,y0:0.95,top:[[-1.6,1.0],[-1.25,1.3],[-0.8,1.45],[0.15,1.47],[0.55,1.3],[1.0,1.0]],w0:0.86,w1:0.7,r0:-0.8,r1:0.15,b:-0.3},
+   wh:{xf:1.5,xr:-1.45,r:0.35,rim:'multi'},grille:'tall',gy:0.5,head:'slim',hy:0.6,tail:'slim',ty:0.84,x:{chromeLine:1},tune:{vmax:25,acc:6.8,turn:1.25}},
+  {nm:'櫻風',kind:'日系中型轎車',ch:'櫻',pl:'SK-2026',col:'#eef0ee',L:4.75,W:1.83,y0:0.28,
+   top:[[-2.375,0.74],[-2.3,0.92],[-2.1,0.98],[-1.5,1.0],[0.95,0.97],[1.7,0.86],[2.2,0.74],[2.375,0.62]],
+   cab:{x0:-1.55,x1:0.95,y0:0.93,top:[[-1.55,0.99],[-1.2,1.25],[-0.75,1.42],[0.1,1.44],[0.5,1.26],[0.95,0.97]],w0:0.84,w1:0.66,r0:-0.75,r1:0.1,b:-0.3},
+   wh:{xf:1.42,xr:-1.38,r:0.33,rim:'5'},grille:'wide',gy:0.52,head:'slim',hy:0.58,tail:'bar',ty:0.86,tune:{vmax:23,acc:6.5,turn:1.32}},
+  {nm:'小麵包',kind:'法式掀背小車',ch:'麵',pl:'PN-0520',col:'#8fd3c9',roof:'#f4f4f0',L:3.95,W:1.74,y0:0.27,er:0.5,
+   top:[[-1.975,0.8],[-1.93,0.95],[-1.75,1.0],[0.7,0.98],[1.4,0.88],[1.85,0.76],[1.975,0.64]],
+   cab:{x0:-1.8,x1:0.7,y0:0.94,top:[[-1.8,0.99],[-1.72,1.25],[-1.45,1.44],[0.0,1.47],[0.35,1.3],[0.7,0.99]],w0:0.8,w1:0.66,r0:-1.45,r1:0.0,b:-0.45},
+   wh:{xf:1.25,xr:-1.3,r:0.31,rim:'aero'},grille:'mesh',gy:0.45,head:'round',hy:0.62,hz:0.56,tail:'square',ty:0.85,cw:0.1,tune:{vmax:21,acc:6,turn:1.5}},
+  {nm:'黑鷹',kind:'德系四門轎跑',ch:'鷹',pl:'HK-7777',col:'#3a4a5c',L:4.85,W:1.9,y0:0.27,
+   top:[[-2.425,0.8],[-2.38,0.97],[-2.2,1.02],[-1.9,1.03],[1.0,0.95],[1.9,0.83],[2.3,0.72],[2.425,0.6]],
+   cab:{x0:-2.0,x1:1.0,y0:0.92,top:[[-2.0,1.02],[-1.6,1.15],[-0.9,1.36],[-0.2,1.4],[0.45,1.25],[1.0,0.95]],w0:0.86,w1:0.66,r0:-0.95,r1:0.3,b:-0.4},
+   wh:{xf:1.5,xr:-1.45,r:0.36,rim:'deep',w:0.27},grille:'wide',gy:0.5,head:'slim',hy:0.56,tail:'bar',ty:0.9,x:{duck:1},tune:{vmax:27,acc:7.8,turn:1.35}},
+  {nm:'霧都',kind:'英式長車頭跑車',ch:'霧',pl:'LD-1959',col:'#1f4d36',L:4.6,W:1.88,y0:0.28,
+   top:[[-2.3,0.82],[-2.25,0.92],[-2.05,0.96],[-1.5,0.97],[0.0,0.95],[1.6,0.86],[2.15,0.74],[2.3,0.6]],
+   cab:{x0:-1.55,x1:-0.05,y0:0.9,top:[[-1.55,0.96],[-1.25,1.2],[-0.95,1.3],[-0.55,1.31],[-0.3,1.2],[-0.05,0.95]],w0:0.82,w1:0.62,r0:-1.0,r1:-0.5},
+   wh:{xf:1.45,xr:-1.35,r:0.34,rim:'wire'},grille:'oval',gy:0.45,head:'round',hy:0.62,hz:0.62,tail:'round',ty:0.8,x:{hoodStripe:'#e9e4d4'},tune:{vmax:27,acc:7.5,turn:1.35,seat:0.32}},
+  {nm:'閃電',kind:'義式超跑',ch:'電',pl:'FL-0001',col:'#f28c1b',L:4.55,W:1.98,y0:0.17,er:0.45,
+   top:[[-2.275,0.86],[-2.22,0.95],[-1.9,0.98],[-1.1,0.98],[-0.3,0.88],[0.7,0.78],[1.6,0.66],[2.15,0.5],[2.275,0.42]],
+   cab:{x0:-1.1,x1:0.75,y0:0.74,top:[[-1.1,0.97],[-0.7,1.1],[-0.3,1.14],[0.1,1.12],[0.45,0.98],[0.75,0.79]],w0:0.82,w1:0.6,r0:-0.68,r1:0.12},
+   wh:{xf:1.4,xr:-1.35,r:0.34,rim:'deep',w:0.3},grille:'none',head:'slim',hy:0.44,hz:0.7,tail:'bar',ty:0.82,x:{intake:1,wing:1},tune:{vmax:31,acc:10,turn:1.4,seat:0.26,camH:2.6,epitch:0.85,evol:0.6}},
+  {nm:'小山貓',kind:'日系都會小休旅',ch:'貓',pl:'LX-3388',col:'#c8392b',roof:'#1b1d20',L:4.35,W:1.8,y0:0.38,clad:1,
+   top:[[-2.175,0.95],[-2.12,1.05],[-1.95,1.1],[0.75,1.07],[1.5,0.97],[2.05,0.86],[2.175,0.72]],
+   cab:{x0:-1.95,x1:0.75,y0:1.03,top:[[-1.95,1.09],[-1.88,1.38],[-1.6,1.57],[0.1,1.6],[0.45,1.42],[0.75,1.08]],w0:0.82,w1:0.7,r0:-1.6,r1:0.1,b:-0.5},
+   wh:{xf:1.32,xr:-1.32,r:0.36,rim:'multi'},grille:'mesh',gy:0.62,head:'slim',hy:0.8,tail:'slim',ty:1.0,x:{rails:1},tune:{vmax:22,acc:6,turn:1.3,seat:0.6,camH:3.1}},
+  {nm:'大峽谷',kind:'美式大皮卡',ch:'峽',pl:'TX-4545',col:'#9a2b26',L:5.3,W:1.98,y0:0.5,er:0.3,rt:0.08,tw:0.95,clad:1,
+   top:[[-2.65,1.1],[-2.6,1.2],[-2.45,1.22],[-0.75,1.22],[-0.7,1.2],[0.85,1.18],[2.3,1.12],[2.6,1.02],[2.65,0.92]],
+   cab:{x0:-0.75,x1:0.85,y0:1.15,top:[[-0.75,1.2],[-0.72,1.6],[-0.6,1.83],[0.4,1.85],[0.6,1.62],[0.85,1.18]],w0:0.9,w1:0.82,r0:-0.6,r1:0.42,b:-0.05,rt:0.05},
+   wh:{xf:1.75,xr:-1.65,r:0.42,rim:'off',w:0.3},grille:'bars',gy:0.9,head:'square',hy:1.0,hz:0.68,tail:'square',ty:0.95,tz:0.7,ply:0.75,cw:0.09,x:{bed:[-2.6,-0.8]},tune:{vmax:21,acc:6.5,turn:1.1,seat:0.85,camH:3.4,cam:8.8,epitch:0.8}},
+  {nm:'岩羊',kind:'越野吉普',ch:'羊',pl:'4X-4444',col:'#6b7a4b',roof:'#1b1d20',L:4.25,W:1.88,y0:0.5,er:0.18,rt:0.06,tw:0.97,clad:1,
+   top:[[-2.125,1.05],[-2.1,1.12],[-1.95,1.14],[0.95,1.12],[1.8,1.08],[2.05,1.0],[2.125,0.86]],
+   cab:{x0:-1.95,x1:0.95,y0:1.07,top:[[-1.95,1.12],[-1.93,1.8],[-1.8,1.84],[0.55,1.84],[0.7,1.75],[0.95,1.12]],w0:0.88,w1:0.84,r0:-1.85,r1:0.58,b:-0.55,rt:0.04},
+   wh:{xf:1.35,xr:-1.3,r:0.43,rim:'off',w:0.32},grille:'bars',barC:MAT.black,gy:0.82,head:'round',hy:0.88,hz:0.62,tail:'square',ty:1.0,tz:0.72,ply:0.75,cw:0.1,x:{spare:1,bull:1,rack:1},tune:{vmax:19,acc:5.5,turn:1.2,seat:0.9,camH:3.4,epitch:0.9}},
+  {nm:'極光',kind:'電動休旅',ch:'光',pl:'EV-0021',col:'#f3f4f6',roof:'#15171a',roofGlass:1,L:4.75,W:1.92,y0:0.32,er:0.65,
+   top:[[-2.375,0.92],[-2.32,1.03],[-2.1,1.08],[0.9,1.03],[1.8,0.92],[2.28,0.8],[2.375,0.72]],
+   cab:{x0:-2.05,x1:0.9,y0:1.0,top:[[-2.05,1.07],[-1.85,1.35],[-1.4,1.57],[0.0,1.62],[0.45,1.42],[0.9,1.03]],w0:0.86,w1:0.68,r0:-1.4,r1:0.05,b:-0.5},
+   wh:{xf:1.55,xr:-1.5,r:0.37,rim:'aero'},grille:'none',head:'bar',hy:0.66,hz:0.66,tail:'bar',ty:0.98,hd:MAT.black,clad:1,tune:{vmax:25,acc:10,turn:1.3,seat:0.55,camH:3.0,epitch:2.6,evol:0.18}}];
 // 重型機車（仿賽）：車頭朝 +x
 function motorbike(color){
   const g=new THREE.Group(),pm=paintMat(color);
@@ -2587,14 +2709,31 @@ const RIDE=(()=>{
       const L=s.k==='car'?4.4:s.k==='twist'?0.8:1.7,Wd=s.k==='car'?1.9:0.6,hx=Math.abs(Math.cos(o.rotation.y))*L/2+Math.abs(Math.sin(o.rotation.y))*Wd/2,hz=Math.abs(Math.sin(o.rotation.y))*L/2+Math.abs(Math.cos(o.rotation.y))*Wd/2;addBox(x-hx,x+hx,z-hz,z+hz,s.k==='car'?1.2:0.9);}
     if(s.k==='bike'){const [x0,z0]=W(-0.5,0.5),[x1,z1]=W(2.5,0.5);M.add(mbox(Math.min(x0,x1),Math.max(x0,x1),0,0.05,Math.min(z0,z1)-0.35,Math.max(z0,z1)+0.35),MAT.steel);}}
   // ---------- 狀態 ----------
-  const free=()=>started&&mode==='walk'&&!R.on&&!GAME.on&&!SKATE.on&&!RACE.on&&!BALLOON.riding&&!LIE.on&&!DECO.sit&&!TN.on&&!BB.on&&player.y<=1.5;
+  const free=anyY=>started&&mode==='walk'&&!R.on&&!GAME.on&&!SKATE.on&&!RACE.on&&!BALLOON.riding&&!LIE.on&&!DECO.sit&&!TN.on&&!BB.on&&(anyY||player.y<=1.5);
   const near=()=>{if(!free())return null;let best=null,bd=3.2;for(const s of ST){const d=Math.hypot(player.pos.x-s.x,player.pos.y-s.z);if(d<bd){bd=d;best=s;}}return best;};
   R.near=near;
   // ---------- 路邊停的車也可以開（2026-10-21.10）：走到車旁邊按 F，免費；下車時那台車自己開回原來的車位 ----------
   // 開走的是同一台車：把它從合併網格拿出來（原本那段先藏起來、碰撞先關掉），下車再放回去
   const PK={'機車':'scooter','重型機車':'scooter','汽車':'car','小型房車':'car','跑車':'car','豪華轎車':'car'};
-  const nearPark=()=>{if(!free())return null;const x=player.pos.x,z=player.pos.y;let best=null,bd=1.4;
-    for(const r of REGIONS){if(r.kind!=='car'||r.dead||r.hid||r.grp||!PK[r.name]||r.ry===undefined)continue;const d=Math.hypot(Math.max(r.x0-x,0,x-r.x1),Math.max(r.z0-z,0,z-r.z1));if(d<bd){bd=d;best=r;}}return best;};
+  const nearPark=()=>{const x=player.pos.x,z=player.pos.y;let best=null,bd=1.4;
+    if(free())for(const r of REGIONS){if(r.kind!=='car'||r.dead||r.hid||r.grp||!(r.ride||PK[r.name])||r.ry===undefined)continue;const d=Math.hypot(Math.max(r.x0-x,0,x-r.x1),Math.max(r.z0-z,0,z-r.z1));if(d<bd){bd=d;best=r;}}
+    if(free(true))for(const m of MV){if(Math.abs(player.y-m.y)>1.6)continue;for(const c of m.cols){const d=Math.hypot(x-c.x,z-c.z)-c.r;if(d<bd){bd=d;best=m.r;}}}   /* 停在別的地方的車（山上也可以） */
+    return best;};
+  // ---------- 2026-10-21.13 使用者：「下車可以不回原位嗎？」→ 路邊車、鄰居的車下車就停在那裡（記在這台手機 home-cars，重新整理也還在）；
+  // 走到原本的空車位按 F＝叫它自己開回來；開始打怪時全部先回車位（打怪要打的是原本那台） ----------
+  const MV=[];let CARL=null,mvInit=false;R.MV=MV;
+  const carList=()=>CARL||(CARL=REGIONS.filter(r=>r.kind==='car'&&r.ry!==undefined&&(r.ride||PK[r.name])));
+  const saveMV=()=>{const r2=v=>Math.round(v*100)/100;try{localStorage.setItem('home-cars',JSON.stringify(MV.map(m=>[carList().indexOf(m.r),r2(m.x),r2(m.z),r2(m.y),r2(m.h),r2(m.p)])));}catch(_){}};
+  function parkAt(r,o,x,z,y,h,p){o.position.set(x,y+0.03,z);o.rotation.order='YXZ';o.rotation.set(0,h+Math.PI/2,p||0);if(!o.parent)scene.add(o);
+    const L=r.L||1.4,W=Math.max(0.5,r.W||0.6),n=Math.max(1,Math.round(L/W)),fx=-Math.sin(h),fz=-Math.cos(h),cols=[];   /* 碰撞：沿著車身排幾個圓 */
+    for(let k=0;k<n;k++){const off=n===1?0:-L/2+W/2+k*(L-W)/(n-1),cx=x+fx*off,cz=z+fz*off,rr=W/2,c={circle:true,x:cx,z:cz,r:rr,h:y+(r.h||1.2),y0:y-0.3,x0:cx-rr,x1:cx+rr,z0:cz-rr,z1:cz+rr};colliders.push(c);cols.push(c);}
+    const m={r,o,x,z,y,h,p:p||0,cols};r.mv=m;MV.push(m);renderer.shadowMap.needsUpdate=true;saveMV();return m;}
+  function unpark(m){for(const c of m.cols){const i=colliders.indexOf(c);if(i>=0)colliders.splice(i,1);}const i=MV.indexOf(m);if(i>=0)MV.splice(i,1);m.r.mv=null;}
+  function sendHome(m,quiet){unpark(m);scene.remove(m.o);m.o.traverse(o=>{if(o.isMesh)o.geometry.dispose();});hidePark(m.r,false);saveMV();if(!quiet){toast(`🔑 ${m.r.name}自己開回原來的車位了`);AUDIO.sfx('click');}}
+  R.homeAll=quiet=>{const n=MV.length;for(const m of MV.slice())sendHome(m,true);if(n&&!quiet)toast(`🔑 ${n} 台車都開回原來的車位了`);return n;};
+  function loadMV(){let a=[];try{a=JSON.parse(localStorage.getItem('home-cars')||'[]')||[];}catch(_){}
+    for(const q of a){const r=carList()[q[0]];if(!r||r.dead||r.hid||r.grp||r.mv)continue;const o=parkModel(r);hidePark(r,true);parkAt(r,o,q[1],q[2],q[3],q[4],q[5]);}}
+  const nearSpot=()=>{if(!free())return null;const x=player.pos.x,z=player.pos.y;for(const m of MV){const r=m.r;if(Math.hypot(Math.max(r.x0-x,0,x-r.x1),Math.max(r.z0-z,0,z-r.z1))<1.0)return m;}return null;};   /* 站在空掉的原車位上 */
   R.nearPark=nearPark;
   function parkModel(r){const g=new THREE.Group(),by=new Map();for(const pt of r.parts){let a=by.get(pt.mesh);if(!a)by.set(pt.mesh,a=[]);a.push(pt);}
     for(const [m,pts] of by){const A=m.geometry.attributes;let n=0;for(const pt of pts)n+=pt.count;const P3=new Float32Array(n*3),N3=new Float32Array(n*3),U=new Float32Array(n*2);let o=0;
@@ -2606,12 +2745,12 @@ const RIDE=(()=>{
   function hidePark(r,hide){if(hide){r.hidBk=[];for(const pt of r.parts){const PA=pt.mesh.geometry.attributes.position,a=pt.start*3,b=(pt.start+pt.count)*3;r.hidBk.push({PA,a,data:PA.array.slice(a,b)});PA.array.fill(0,a,b);PA.addUpdateRange(a,b-a);PA.needsUpdate=true;}}
     else{for(const k of r.hidBk||[]){k.PA.array.set(k.data,k.a);k.PA.addUpdateRange(k.a,k.data.length);k.PA.needsUpdate=true;}r.hidBk=null;}
     r.hid=hide;for(const c of r.cols)c.off=hide;for(const sf of r.surfs)sf.off=hide;renderer.shadowMap.needsUpdate=true;}
-  function startPark(r){const k=PK[r.name],o=parkModel(r);hidePark(r,true);R.start(k,r.cx,r.cz,r.ry-Math.PI/2,o);R.park=r;
-    R.ghost=[];R.gx=r.cx;R.gz=r.cz;const gr=T[k].r+(k==='car'?2.4:1.3);for(const c of colliders)if(c.veh&&!c.off&&c.x0<r.cx+gr&&c.x1>r.cx-gr&&c.z0<r.cz+gr&&c.z1>r.cz-gr){c.off=true;R.ghost.push(c);}   /* 擠在一排的機車、被前面的車擋住：緊鄰的車先穿過去，開離開了碰撞再恢復（不然卡住出不來） */
-    toast(`🔑 開這台${r.name}（免費）：W／搖桿往前加速、S 煞車倒退、A／D 轉彎；按 F 下車，車子會自己開回原來的車位`);}
-  R.label=()=>{if(R.on)return R.park?`🔑 下車（${R.park.name}開回車位）`:`${T[R.k].e} 下車（還車）`;const s=near();if(s)return `${T[s.k].e} 租${T[s.k].n}（${T[s.k].fee} 元）`;
-    const pk=nearPark();if(pk)return `🔑 開這台${pk.name}（免費）`;if(MOUNT&&MOUNT.shopNear())return '🛒 買山頂點心（10 元）';return null;};
-  R.act=()=>{if(R.on){R.stop();return;}const s=near();if(!s){const pk=nearPark();if(pk)startPark(pk);else if(MOUNT&&MOUNT.shopNear())MOUNT.shopBuy();return;}const t0=T[s.k],m=PUSH.W.money|0;if(m<t0.fee){toast(`零用錢不夠：租${t0.n}要 ${t0.fee} 元（還差 ${t0.fee-m} 元，玩小遊戲可以賺）`);AUDIO.sfx('beep');return;}
+  function startPark(r){const k=r.ride||PK[r.name];let o,x=r.cx,z=r.cz,h=r.ry-Math.PI/2;if(r.mv){const m=r.mv;unpark(m);saveMV();o=m.o;x=m.x;z=m.z;h=m.h;}else{o=parkModel(r);hidePark(r,true);}R.start(k,x,z,h,o);R.park=r;R.tn=r.tune?{...T[k],...r.tune}:null;   /* 鄰居的車：每款開起來不一樣 */
+    R.ghost=[];R.gx=x;R.gz=z;const gr=T[k].r+(k==='car'?2.4:1.3);for(const c of colliders)if(c.veh&&!c.off&&c.x0<x+gr&&c.x1>x-gr&&c.z0<z+gr&&c.z1>z-gr){c.off=true;R.ghost.push(c);}   /* 擠在一排的機車、被前面的車擋住：緊鄰的車先穿過去，開離開了碰撞再恢復（不然卡住出不來） */
+    toast(`🔑 開這台${r.name}（免費）：W／搖桿往前加速、S 煞車倒退、A／D 轉彎；按 F 下車，車子就停在那裡（走到原本的車位按 F 可以叫它開回去）`);}
+  R.label=()=>{if(R.on)return R.park?`🔑 下車（車子停在這裡）`:`${T[R.k].e} 下車（還車）`;const s=near();if(s)return `${T[s.k].e} 租${T[s.k].n}（${T[s.k].fee} 元）`;
+    const pk=nearPark();if(pk)return `🔑 開這台${pk.name}（免費）`;{const sp=nearSpot();if(sp)return `🔑 叫${sp.r.name}開回車位`;}if(MOUNT&&MOUNT.shopNear())return '🛒 買山頂點心（10 元）';return null;};
+  R.act=()=>{if(R.on){R.stop();return;}const s=near();if(!s){const pk=nearPark();if(pk)startPark(pk);else{const sp=nearSpot();if(sp)sendHome(sp);else if(MOUNT&&MOUNT.shopNear())MOUNT.shopBuy();}return;}const t0=T[s.k],m=PUSH.W.money|0;if(m<t0.fee){toast(`零用錢不夠：租${t0.n}要 ${t0.fee} 元（還差 ${t0.fee-m} 元，玩小遊戲可以賺）`);AUDIO.sfx('beep');return;}
     PUSH.W.money=m-t0.fee;PUSH.save();R.start(s.k,player.pos.x,player.pos.y,player.yaw);toast(`${t0.e} 租了${t0.n}（-${t0.fee} 元）：${s.k==='twist'?'左右左右一直扭就會前進（W 慢慢滑）':'W／搖桿往前加速、S 煞車倒退、A／D 轉彎'}；再按 F 下車還車`);};
   R.start=(k,x,z,h,obj)=>{if(R.on)R.stop(true);if(EMOTE.on)EMOTE.stop(true);R.on=true;R.k=k;R.x=x;R.z=z;R.h=h;R.v=0;R.vy=0;R.ground=true;R.steer=0;R.lean=0;R.pitch=0;R.ped=0;R.wig=0;R.lastS=0;R.camP=null;R.vh=h;R.tr=null;R.fx={flip:0,spin:0,roll:0,wh:0,sup:0};R.score=0;R.combo=0;R.drifting=false;R.driftT=0;R.wob=0;
     R.y=heightAt(x,z,player.y+0.3);R.gy=R.y;const o=obj||modelOf(k);o.rotation.order='YXZ';scene.add(o);R.obj=o;R.wh=o.userData.wh||[];avatar.root.rotation.order='YXZ';AUDIO.sfx(k==='car'||k==='scooter'?'takeoff':'click');
@@ -2622,10 +2761,10 @@ const RIDE=(()=>{
       const tb=d.querySelector('[data-k="trick"]'),hbB=d.querySelector('[data-k="hb"]');tb.addEventListener('pointerdown',e=>{e.preventDefault();R.doTrick();});d.querySelector('[data-k="race"]').addEventListener('pointerdown',e=>{e.preventDefault();if(MOUNT)MOUNT.raceStart(R);});
       hbB.addEventListener('pointerdown',e=>{e.preventDefault();R.hbBtn=true;hbB.classList.add('on');});for(const ev of ['pointerup','pointercancel','pointerleave'])hbB.addEventListener(ev,()=>{R.hbBtn=false;hbB.classList.remove('on');});}
     R.btns.hidden=false;R.btns.querySelector('[data-k="hb"]').hidden=k!=='car';R.hud.hidden=false;syncActBtn();};
-  R.stop=quiet=>{if(!R.on)return;const t0=T[R.k],sd=-Math.cos(R.h),sz=Math.sin(R.h);   // 下車：站到車子左邊
-    R.on=false;if(MOUNT)MOUNT.cancel();if(R.eng){R.eng.stop();R.eng=null;}if(R.obj){scene.remove(R.obj);if(R.obj.userData.park)R.obj.traverse(o=>{if(o.isMesh)o.geometry.dispose();});R.obj=null;}if(R.ghost){for(const c of R.ghost)c.off=false;R.ghost=null;}const pk=R.park;if(pk){hidePark(pk,false);R.park=null;}if(R.hud)R.hud.hidden=true;if(R.btns)R.btns.hidden=true;R.hbBtn=false;if(tipEl)tipEl.style.opacity=0;avatar.root.rotation.set(0,avatar.root.rotation.y,0);avatar.root.rotation.order='XYZ';avatar.body.rotation.z=0;
+  R.stop=quiet=>{if(!R.on)return;const t0=R.tn||T[R.k],sd=-Math.cos(R.h),sz=Math.sin(R.h);   // 下車：站到車子左邊
+    R.on=false;R.tn=null;if(MOUNT)MOUNT.cancel();if(R.eng){R.eng.stop();R.eng=null;}const pk=R.park;if(R.obj){if(pk)parkAt(pk,R.obj,R.x,R.z,R.y,R.h,R.ground?R.pitch:0);else scene.remove(R.obj);R.obj=null;}if(R.ghost){for(const c of R.ghost)c.off=false;R.ghost=null;}R.park=null;   /* 路邊車、鄰居的車：停在下車的地方 */if(R.hud)R.hud.hidden=true;if(R.btns)R.btns.hidden=true;R.hbBtn=false;if(tipEl)tipEl.style.opacity=0;avatar.root.rotation.set(0,avatar.root.rotation.y,0);avatar.root.rotation.order='XYZ';avatar.body.rotation.z=0;
     const off=t0.r+0.6;player.pos.set(R.x+sd*off,R.z+sz*off);resolve(player.pos,0.3,R.y);player.y=heightAt(player.pos.x,player.pos.y,R.y+0.4);player.vy=0;player.vel.set(0,0);player.yaw=R.h;avatar.yaw=R.h;
-    if(!quiet){toast(pk?`🔑 下車了，${pk.name}自己開回原來的車位${R.score?`（這趟特技 ${R.score} 分）`:''}`:`${t0.e} 還車了，謝謝光臨${R.score?`（這趟特技 ${R.score} 分，最高 ${R.best} 分）`:''}`);AUDIO.sfx('click');}syncActBtn();};
+    if(!quiet){toast(pk?`🔑 下車了，${pk.name}停在這裡${R.score?`（這趟特技 ${R.score} 分）`:''}；要叫它回去：走到原本的車位按 F`:`${t0.e} 還車了，謝謝光臨${R.score?`（這趟特技 ${R.score} 分，最高 ${R.best} 分）`:''}`);AUDIO.sfx('click');}syncActBtn();};
   // ---------- 特技（2026-10-21.8 第三階段）----------
   // 地上（T／特技鈕）：腳踏車、機車翹孤輪；汽車快的時候兩輪側開、慢的時候原地甩圈；扭扭車原地轉兩圈。汽車按住「空白鍵／甩尾鈕」轉彎＝甩尾（越久分數越高）。
   // 空中（騎過跳台、跳起來）：腳踏車 360／後空翻輪流、機車後空翻／超人飛、汽車空中翻滾／後空翻。先算還有多久落地、照時間轉完；落地時還沒轉完＝摔車（停下來，不會壞）。
@@ -2645,7 +2784,7 @@ const RIDE=(()=>{
   function endTrick(ok){const q=R.tr;R.tr=null;R.fx.flip=R.fx.spin=R.fx.roll=R.fx.wh=R.fx.sup=0;if(!q)return;if(ok)award(q.k);else{R.v*=0.25;R.wob=0.6;tip('摔車了！再試一次');AUDIO.sfx('thud');}}
   // ---------- 每一格：開車 ----------
   const tp=new V2();
-  R.step=(dt,f,s,run)=>{const t0=T[R.k];dt=Math.min(dt,0.05);
+  R.step=(dt,f,s,run)=>{const t0=R.tn||T[R.k];dt=Math.min(dt,0.05);
     {const tk=!!keys.KeyT;if(tk&&!R.tk)R.doTrick();R.tk=tk;}if(tipT>0){tipT-=dt;if(tipT<=0&&tipEl)tipEl.style.opacity=0;}if(R.comboT>0)R.comboT-=dt;if(R.wob)R.wob=Math.max(0,R.wob-dt);
     const hb=R.k==='car'&&(keys.Space||jumpHeld||R.hbBtn);
     if(R.k==='twist'){const ds=Math.abs(s-R.lastS);R.lastS=s;R.wig=Math.max(0,R.wig*Math.exp(-dt*1.6)+ds*1.1);const want=Math.min(t0.vmax,R.wig*1.6)+(f>0?0.9*f:0);   // 扭扭車：方向盤左右扭得越快越快
@@ -2695,14 +2834,14 @@ const RIDE=(()=>{
     if(MOUNT)MOUNT.tick(dt,R);
     {const ok=!!(MOUNT&&MOUNT.raceOK(R)),b=R.btns&&R.btns.querySelector('[data-k="race"]');if(b&&b.hidden===ok)b.hidden=!ok;const kr=!!keys.KeyR;if(kr&&!R.kr&&ok)MOUNT.raceStart(R);R.kr=kr;}   // 山路比賽：停在拱門前才出現
     // 引擎聲（2026-10-21.10）：汽車、機車；用賽車那個「好聽的時候才大聲」的引擎（定速很小聲，踩油門、換檔、甩尾才出來），整體再調小
-    if(R.k==='car'||R.k==='scooter'){if(!R.eng&&AUDIO.engine)R.eng=AUDIO.engine({vol:R.k==='car'?0.5:0.38,pitch:R.k==='car'?1:1.7});
+    if(R.k==='car'||R.k==='scooter'){if(!R.eng&&AUDIO.engine)R.eng=AUDIO.engine({vol:t0.evol??(R.k==='car'?0.5:0.38),pitch:t0.epitch??(R.k==='car'?1:1.7)});
       if(R.eng){const ng=R.k==='car'?5:3,gs=t0.vmax*1.15/ng,gear=Math.min(ng-1,Math.floor(sp/gs)),rpm=sp<0.5?0.12:Math.max(0,Math.min(1,0.25+0.75*(sp-gear*gs)/gs));R.eng.set(rpm,f>0.05?Math.min(1,f):0,0,R.drifting?0.7:0,Math.min(1,sp/40));}}
     if(R.hud){const kmh=Math.round(sp*3.6);R.hud.textContent=`${t0.e} ${t0.n}　${kmh} km/h　⭐ ${R.score}${R.drifting?'　💨 甩尾中':''}${MOUNT?MOUNT.hud(R):''}`;}};
-  R.net=()=>{const lift=R.obj?R.obj.position.y-R.y-0.03:0,r3=v=>Math.round(v*1000)/1000;return [R.k,r3(R.x),r3(R.y+lift),r3(R.z),r3(R.h+R.fx.spin),r3(R.lean+R.fx.roll),r3(R.pitch+R.fx.flip+R.fx.wh),r3(R.v)];};
+  R.net=()=>{const lift=R.obj?R.obj.position.y-R.y-0.03:0,r3=v=>Math.round(v*1000)/1000;return [R.k,r3(R.x),r3(R.y+lift),r3(R.z),r3(R.h+R.fx.spin),r3(R.lean+R.fx.roll),r3(R.pitch+R.fx.flip+R.fx.wh),r3(R.v),R.park&&R.park.carIdx!=null?R.park.carIdx:-1];};
   // ---------- 人物坐在車上（跟著車子整個轉：翻滾、後空翻時人也一起） ----------
   const sv=new V3(),qy=new THREE.Quaternion().setFromAxisAngle(new V3(0,1,0),Math.PI/2);   /* 車頭 +x → 人物前面 +z */
-  R.seatPos=()=>{const t0=T[R.k],c=Math.cos(R.h+Math.PI/2),sn=Math.sin(R.h+Math.PI/2);return [R.x+t0.sx*c+t0.sz*sn,R.z-t0.sx*sn+t0.sz*c];};
-  R.pose=(a,dt)=>{const t0=T[R.k],sc=bodyH().scale,o=R.obj;a.zeroJoints&&a.zeroJoints();o.updateMatrixWorld(true);
+  R.seatPos=()=>{const t0=R.tn||T[R.k],c=Math.cos(R.h+Math.PI/2),sn=Math.sin(R.h+Math.PI/2);return [R.x+t0.sx*c+t0.sz*sn,R.z-t0.sx*sn+t0.sz*c];};
+  R.pose=(a,dt)=>{const t0=R.tn||T[R.k],sc=bodyH().scale,o=R.obj;a.zeroJoints&&a.zeroJoints();o.updateMatrixWorld(true);
     const sup=R.fx.sup;sv.set(t0.sx,t0.seat-0.93*sc+(R.k==='car'?0.02:0)+sup*0.35,t0.sz);o.localToWorld(sv);a.root.position.copy(sv);a.root.quaternion.copy(o.quaternion).multiply(qy);a.yaw=R.h;
     a.body.position.y=0;a.body.rotation.x=R.k==='bike'?0.25:R.k==='scooter'?0.05:0;if(R.fx.wh)a.body.rotation.x-=R.fx.wh*0.6;
     const p=R.ped;if(R.k==='bike'){a.legL.rotation.x=-0.75+Math.sin(p)*0.45;a.legR.rotation.x=-0.75-Math.sin(p)*0.45;a.shinL.rotation.x=0.9-Math.cos(p)*0.5;a.shinR.rotation.x=0.9+Math.cos(p)*0.5;}
@@ -2713,12 +2852,13 @@ const RIDE=(()=>{
     if(sup>0.02){a.body.rotation.x=1.25*sup;a.legL.rotation.x=a.legR.rotation.x=0.4*sup;a.shinL.rotation.x=a.shinR.rotation.x=0.1;a.armL.rotation.x=a.armR.rotation.x=-1.2-1.4*sup;a.armL.rotation.z=-0.3;a.armR.rotation.z=0.3;}};   // 超人飛：人飛出去、手往前伸
   // ---------- 鏡頭：在車子後面追（第一人稱＝駕駛座） ----------
   const cv=new V3(),lk=new V3();
-  R.camera=dt=>{const t0=T[R.k],fx=-Math.sin(R.h),fz=-Math.cos(R.h);
+  R.camera=dt=>{const t0=R.tn||T[R.k],fx=-Math.sin(R.h),fz=-Math.cos(R.h);
     if(view==='first'){const [px,pz]=R.seatPos(),sc=bodyH().scale;camera.position.set(px+fx*0.15,R.y+t0.seat+0.62*sc,pz+fz*0.15);camera.rotation.set(player.pitch*0.5-0.05+R.pitch,R.h,-R.lean*0.6,'YXZ');return;}
     const d=t0.cam+Math.abs(R.v)*0.08;cv.set(R.x-fx*d,R.y+t0.camH+Math.abs(R.v)*0.02,R.z-fz*d);if(!R.camP||R.camP.distanceTo(cv)>30)R.camP=cv.clone();R.camP.lerp(cv,Math.min(1,dt*5));
     R.camP.y=Math.max(R.camP.y,heightAt(R.camP.x,R.camP.z,R.y+3)+0.6);camera.position.copy(R.camP);lk.set(R.x+fx*2,R.y+1.0,R.z+fz*2);camera.lookAt(lk);};
   R.jump=()=>{if(!R.ground||R.k==='car')return;R.vy=R.k==='bike'?5.2:R.k==='scooter'?4.6:2.6;R.ground=false;AUDIO.sfx('whoosh');};   // 跳（汽車：空白鍵是手煞車、甩尾）
-  R.guard=()=>{if(R.on&&(GAME.on||DD.on||KF.on||PUSH.on||FISH.on||RS.on||MU.on||CU.on||SB.on||RB.on||NM.on||RACE.on||BALLOON.riding||LIE.on||DECO.sit||SKATE.on||TN.on||BB.on))R.stop(true);};
+  R.guard=()=>{if(!mvInit){mvInit=true;loadMV();}if(GAME.on&&MV.length)R.homeAll(true);   /* 打怪：停在外面的車先全部回車位 */
+    if(R.on&&(GAME.on||DD.on||KF.on||PUSH.on||FISH.on||RS.on||MU.on||CU.on||SB.on||RB.on||NM.on||RACE.on||BALLOON.riding||LIE.on||DECO.sit||SKATE.on||TN.on||BB.on))R.stop(true);};
   return R;})();
 /* ---------------- 雲霧山山路（2026-10-21.9 使用者：「最好再弄一個山路，體驗一下飆車」——名字用原創的「雲霧山」） ----------------
    位置：城堡大道一直往東開到底（x 470），山在 x 440～1000、z 40～640。盤山公路：五段來回＋四個髮夾彎，一路爬到山頂停車場（約 105 m 高），全長約 1.6 km。
@@ -3987,9 +4127,10 @@ function addVehicle(name,obj,x,z,ry,L,W,H,hp,y=0.03,lux=false){
 // 前三戶（我家＋往東兩戶）前院：車頭朝房子停一台汽車（停在石材柱之間，不擋大門）＋一台機車（使用者要求）
 for(const [i,cc,sc] of [[0,'#e9e9e6','#3c3f43'],[1,'#9aa3ab','#d9dcdc'],[2,'#2f3f5a','#b8302a']]){const x0=ux(i),cx=i===0?3.1:x0+1.6,cz=Z_1F+0.2+2.27;
   if(i===0)addVehicle('小型房車',vios('#5a5f65'),cx,cz,Math.PI/2,4.42,1.75,1.48,160);   // 我家的車、鐵灰色（使用者要求）
-  else addVehicle('汽車',car(cc),cx,cz,Math.PI/2,4.5,1.9,1.5,160);
   addVehicle('機車',scooter(sc),i===0?0.75:x0+4.15,2.2,Math.PI/2,1.4,0.5,1.1,50);}
-for(const [i,c] of [[4,'#efefea'],[5,'#3c3f43'],[7,'#c7a54a']]){const x=ux(i)+rr(1.2,2.6),z=rr(1.2,3.4);addVehicle('機車',scooter(c),x,z,Math.PI/2+rr(-0.15,0.15),1.4,0.5,1.1,50);}
+for(const [i,c] of [[4,'#efefea'],[5,'#3c3f43'],[7,'#c7a54a']])addVehicle('機車',scooter(c),ux(i)+4.15,2.2,Math.PI/2+rr(-0.12,0.12),1.4,0.5,1.1,50);   /* 2026-10-21.12 機車移到東邊，讓出位置給汽車 */
+// 2026-10-21.12 往東第 1～10 戶前院：每戶一台不同的原創車（車頭朝房子、車頭位置跟我家的車對齊；都可以開，開起來不一樣）
+NB_CARS.forEach((S,j)=>{const i=j+1,nose=Z_1F+0.2+2.27-2.25,r=addVehicle(`${S.nm}（${S.kind}）`,mkCar(S),ux(i)+1.6,nose+S.L/2,Math.PI/2,S.L,S.W,Math.max(...S.cab.top.map(p=>p[1])),180);r.ride='car';r.tune=S.tune;r.carIdx=j;});
 for(const [x,z,ry,c] of [[-18.6,-18,Math.PI/2,'#e9e9e6'],[-18.6,-28,Math.PI/2,'#3a3d42'],[58,-8,0,'#9aa3ab'],[-13.4,20,-Math.PI/2,'#7b1c1c']])addVehicle('汽車',car(c),x,z,ry,4.5,1.9,1.5,160,0);
 // 大馬路：兩台公車＋公車站牌、候車亭
 addVehicle('公車',bus('#f2f2ee','#1f8a4c'),-13.9,33,Math.PI/2,11,2.5,3.5,450,0);
@@ -16369,7 +16510,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     let i=13;for(const kk of JN){const g=A[kk];if(g)g.rotation.set(LA(g.rotation.x,a[i]),LA(g.rotation.y,a[i+1]),LA(g.rotation.z,a[i+2]));i+=3;}
     for(const H of [A.handL,A.handR]){const g=H&&H.g;if(g)g.rotation.set(LA(g.rotation.x,a[i]),LA(g.rotation.y,a[i+1]),LA(g.rotation.z,a[i+2]));i+=3;}
     const h=s.h||[];if(h[0]!==R.h0){R.h0=h[0];A.hand(-1,h[0]||'relax');}if(h[1]!==R.h1){R.h1=h[1];A.hand(1,h[1]||'relax');}
-    if(s.rd){const [k,x,y,z,h,ln,pt,v]=s.rd;if(!R.rd||R.rd.k!==k){if(R.rd)scene.remove(R.rd.o);const m=RIDE.modelOf(k);m.rotation.order='YXZ';m.traverse(c=>{c.userData.noCull=true;});scene.add(m);R.rd={k,o:m,wh:m.userData.wh||[]};}   /* 別人騎的車 */
+    if(s.rd){const [k,x,y,z,h,ln,pt,v,mi]=s.rd,key=k+(mi>=0?'#'+mi:'');if(!R.rd||R.rd.k!==key){if(R.rd)scene.remove(R.rd.o);const m=mi>=0&&NB_CARS[mi]?mkCar(NB_CARS[mi]):RIDE.modelOf(k);m.rotation.order='YXZ';m.traverse(c=>{c.userData.noCull=true;});scene.add(m);R.rd={k:key,o:m,wh:m.userData.wh||[]};}   /* 別人騎的車（開鄰居的車：mi＝第幾款，畫一樣的車） */
       const m=R.rd.o;m.position.set(L(m.position.x,x+vx*age),L(m.position.y,y+0.03),L(m.position.z,z+vz*age));m.rotation.set(LA(m.rotation.x,ln),LA(m.rotation.y,h+Math.PI/2),LA(m.rotation.z,pt));for(const w of R.rd.wh)w.rotation.z-=v*dt/(k==='bike'?0.33:k==='twist'?0.06:0.3);m.visible=o.visible;}
     else if(R.rd){scene.remove(R.rd.o);R.rd=null;}
     const dk=!!s.dk;if(dk!==R.dk){R.dk=dk;A.setMorph(dk);if(q.cfg)A.dress(q.cfg);A.root.traverse(x=>{x.userData.noCull=true;});R.h0=R.h1=null;}   /* 變身死亡騎士 */
@@ -16969,7 +17110,7 @@ NM.applyPrizes();
 function warmNow(){const hid=[],lay=[];scene.traverse(o=>{if(!o.visible&&!o.isLight){hid.push(o);o.visible=true;}if(o.isMesh&&o.layers.mask===2){lay.push(o);o.layers.set(0);}});
   try{renderer.compile(scene,camera);}catch(_){}for(const o of hid)o.visible=false;for(const o of lay)o.layers.set(1);}
 for(const [obj,fn] of [[NM,'start'],[NM,'startArmy'],[SB,'start'],[KF,'start'],[RB,'start'],[RACE,'pick'],[GAME,'start'],[TN,'start'],[BB,'start'],[MU,'start']]){const f=obj[fn];if(typeof f!=='function')continue;obj[fn]=(...a)=>{const r=f(...a);try{warmNow();}catch(_){}return r;};}
-window.__dbg={MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+window.__dbg={mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
