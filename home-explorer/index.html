@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-22.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-22.5"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15169,7 +15169,7 @@ const AUDIO=(()=>{
     A.sfx=c.createGain();A.sfx.gain.value=0.85;A.sfx.connect(comp);A.sfx.connect(A.send);
     A.music=c.createGain();A.music.gain.value=0;A.music.connect(comp);{const s=c.createGain();s.gain.value=0.16;A.music.connect(s);s.connect(A.verb);}
     A.amb=c.createGain();A.amb.gain.value=0;A.amb.connect(comp);{const s=c.createGain();s.gain.value=0.3;A.amb.connect(s);s.connect(A.verb);}
-    A.bgm=c.createGain();A.bgm.gain.value=1;A.bgm.connect(comp);{const s=c.createGain();s.gain.value=0.32;A.bgm.connect(s);s.connect(A.verb);}   /* 2026-10-19 區域背景音樂（AMUS） */
+    A.bgm=c.createGain();A.bgm.gain.value=1;A.bgm.connect(comp);{const s=c.createGain();s.gain.value=0.55;   /* 2026-10-22.5 0.32→0.55：音和音之間不要「斷掉」、殘響左右不一樣＝比較寬 */A.bgm.connect(s);s.connect(A.verb);}   /* 2026-10-19 區域背景音樂（AMUS） */
     A.voice=c.createGain();A.voice.gain.value=0.9;A.voice.connect(comp);{const s=c.createGain();s.gain.value=0.08;A.voice.connect(s);s.connect(A.verb);}}   /* 說話聲 */
   function init(){
     try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(_){}   // iPhone：側邊靜音開關打開時網頁也能出聲（Safari 16.4 以上）
@@ -15974,7 +15974,7 @@ const AMUS=(()=>{
   function smpReady(ins,f){if(SM.off||!GMR[ins])return false;const b=gmKey(ins,12*Math.log2(f/440)+69),key=ins+':'+b;if(P.collect){P.collect.add(key);return true;}if(GMB.has(key))return true;gmLoad(ins,b);return false;}
   // 這首會用到哪些音：用一個很小的離線 context 把整首「空跑」一次，取樣函式只記下要哪些音
   function needKeys(k){const O=window.OfflineAudioContext||window.webkitOfflineAudioContext;if(!O||!A.ctx)return [];const set=new Set(),sv={...P},sc=A.ctx,c=new O(1,128,22050);
-    try{A.ctx=c;P.off=true;P.collect=set;P.lay=null;P.pick={};const T=TR[k];P.T=T;P.u=0;P.us=T.u;P.night=false;P.g=c.createGain();P.B=mkBus(c,P.g,T);P.next=0.05;let n=0;while(P.T&&n++<6000)stepU();
+    try{A.ctx=c;P.off=true;P.collect=set;P.lay=null;P.pick={};const T=TR[k];P.T=T;P.u=0;P.us=T.u;P.midV=null;P.night=false;P.g=c.createGain();P.B=mkBus(c,P.g,T);P.next=0.05;let n=0;while(P.T&&n++<6000)stepU();
       const C=chd(T,T.A[0].split(',')[0]);for(const m of [C.r,C.t,C.f,C.r+12,C.t+12,C.f+12,C.r+24])smp('orchestral_harp',0,midi(m),1,0.1,c.destination);}
     catch(e){console.warn('AMUS needKeys',e);}finally{A.ctx=sc;Object.assign(P,sv);P.collect=null;}return [...set];}
   const KS=new Map();
@@ -16128,11 +16128,32 @@ const AMUS=(()=>{
     const mx=RMAX[ins]||127,mn=RMIN[ins]||0;let s=0;if(hi>mx&&(lo-12>=mn-5||hi>mx+12))s=-12;else if(lo<mn&&hi+12<=mx+3)s=12;return c[key]=s;}
   // ---- 2026-10-19 第二十個視窗：左右擺位、段落起伏、低音、一問一答（量過：我們寬度 -20 dB 幾乎單聲道、起伏 3 dB、低音 11%；原曲 -4 dB、6 dB、18%） ----
   // 每首開一組聲道：主旋律中間、伴奏偏左、回應偏右、長音左右各一半、打擊偏右、低音中間；打擊和手風琴 3 kHz 附近壓一點（原曲中高頻只有 0～5%）
-  function mkBus(c,g0,T){const sp=!!c.createStereoPanner,g=c.createGain();g.gain.value=(T&&T.vg)||1;g.connect(g0);const mk=(pan,f)=>{const h=c.createGain();let last=h;if(f){const q=c.createBiquadFilter();q.type=f[0];q.frequency.value=f[1];q.gain.value=f[2];if(f[3])q.Q.value=f[3];last.connect(q);last=q;}if(sp&&pan){const pn=c.createStereoPanner();pn.pan.value=pan;last.connect(pn);last=pn;}last.connect(g);return h;};
-    const acd=!!(T&&T.lead&&T.lead.includes('accord'));return {lead:mk(0,acd?['peaking',3000,-6,0.8]:null),dbl:mk(-0.4),acc:mk(-0.72),pad:[mk(-0.9),mk(0.9)],perc:mk(0.5,['highshelf',3000,-5]),bass:mk(0),ans:mk(0.7)};}
+  function mkBus(c,g0,T){const sp=!!c.createStereoPanner,g=c.createGain(),arc=c.createGain();g.gain.value=((T&&T.vg)||1)*ARC_K;g.connect(arc);arc.connect(g0);   /* arc＝整首的起伏（stepU 照段落調） */
+    const pan=(x,v)=>{if(sp&&v){const pn=c.createStereoPanner();pn.pan.value=v;x.connect(pn);return pn;}return x;},dly=(x,s,v)=>{const d=c.createDelay(0.1),k=c.createGain();d.delayTime.value=s;k.gain.value=v;x.connect(d);d.connect(k);return k;};
+    const mk=(pv,f)=>{const h=c.createGain();let last=h;if(f){const q=c.createBiquadFilter();q.type=f[0];q.frequency.value=f[1];q.gain.value=f[2];if(f[3])q.Q.value=f[3];last.connect(q);last=q;}pan(last,pv).connect(g);return h;};
+    const acd=!!(T&&T.lead&&T.lead.includes('accord')),lead=mk(0,acd?['peaking',3000,-6,0.8]:null);
+    pan(dly(lead,0.019,0.38),-1).connect(g);pan(dly(lead,0.031,0.38),1).connect(g);   /* 2026-10-22.5 主旋律左右兩個不同延遲的早期反射（像在房間裡） */
+    const acc=c.createGain(),aL=c.createGain();aL.gain.value=0.75;acc.connect(aL);pan(aL,-0.85).connect(g);pan(dly(acc,0.014,0.65),0.85).connect(g);   /* 伴奏左右各一份、右邊晚 14 ms（哈斯效果：聽起來很寬，不會像兩個人） */
+    const sub=c.createGain(),sl=c.createBiquadFilter();sl.type='lowpass';sl.frequency.value=110;sub.connect(sl);sl.connect(g);
+    return {arc,lead,dbl:mk(-0.4),acc,pad:[mk(-0.9),mk(0.9)],mid:[mk(-0.9),mk(0.15),mk(0.9)],sub,perc:mk(0.5,['highshelf',3000,-5]),bass:mk(0),ans:mk(0.7)};}
   // 段落：第一段主旋律為主（開頭兩小節只有主旋律＋長音＋低音：實測原曲第 0～0.5 秒主旋律就出來、前 5～8 秒同時發聲的音只有後面一半），第二段加滿，B 段最滿，最後一段中等
-  const EN=[{lead:1,dbl:1,acc:0.8,pad:0.35,perc:0.7,bass:0.8,ans:0},{lead:1,dbl:1,acc:0.95,pad:0.9,perc:0.9,bass:1,ans:1},{lead:1.12,dbl:1.1,acc:1.3,pad:1.5,perc:1.3,bass:1.2,ans:1.1}];
-  function lvl(B,e,t,now){for(const k of Object.keys(e))for(const n of (k==='pad'?B.pad:[B[k]])){if(!n)continue;if(now){n.gain.cancelScheduledValues(t);n.gain.setValueAtTime(e[k],t);}else n.gain.setTargetAtTime(e[k],t,0.35);}}
+  const EN=[{lead:1,dbl:1,acc:0.8,pad:0.35,mid:0.55,sub:0.5,perc:0.7,bass:0.8,ans:0},{lead:1,dbl:1,acc:0.95,pad:0.9,mid:1,sub:1,perc:0.9,bass:1,ans:1},{lead:1.12,dbl:1.1,acc:1.3,pad:1.5,mid:1.25,sub:1.15,perc:1.3,bass:1.2,ans:1.1}];
+  function lvl(B,e,t,now){for(const k of Object.keys(e))for(const n of (Array.isArray(B[k])?B[k]:[B[k]])){if(!n)continue;if(now){n.gain.cancelScheduledValues(t);n.gain.setValueAtTime(e[k],t);}else n.gain.setTargetAtTime(e[k],t,0.35);}}
+  // ---- 2026-10-22.5 跟 Gemini（Lyria）做的 19 首比過（使用者：「照量到的差別改」）：我們 60 Hz 以下只有 1%（Gemini 8%）、250～500 Hz 13%（18%）、
+  //      500～2000 Hz 擠了 57%（34%）、同時響的音 1.8 個（2.8）、左右相關 0.86（0.56，越小越寬）、整首起伏 3 dB（6 dB：前面小、慢慢推到高潮、最後淡出）→ 加四樣：
+  // ①超低音：每個和弦一個正弦波（41～78 Hz）＋第二段起有打擊的歌每小節第一拍一個低沉的大鼓
+  // ②中音和弦：弦樂組在 C4 附近（MIDI 53～70）三個和弦音、聲部就近接；快歌每拍重新拉一下（有律動，不是一直拖長音），慢歌整個和弦拉滿
+  // ③左右聲道：中音和弦三個音左、中、右分開；伴奏左右各一份（mkBus）；主旋律左右不同延遲的早期反射；背景音樂多送一點到殘響
+  // ④起伏：整首總音量照段落走（arc：第一段開頭 -6 dB → 第二段 -3 dB → B 段 → 最後一段推到 +1 dB 高潮），最後兩小節慢慢放慢、結尾淡出
+  const ARC_K=1,ARC=[0.5,0.68,0.84,1,1.12];   /* 每段開頭→結尾的目標（線性），ARC_K 把整首的平均大聲調回跟以前差不多 */
+  function midVoice(C,prev){const pcs=[C.r,C.t,C.f].map(pcOf);let best=null,bs=1e9;   /* 三個和弦音的所有轉位放在 53～70，挑離上一個和弦最近的 */
+    for(let inv=0;inv<3;inv++)for(let lo=53;lo<=64;lo++){const p0=pcs[inv];if(pcOf(lo)!==p0)continue;const v=[lo];for(let j=1;j<3;j++){let m=v[j-1]+1;while(pcOf(m)!==pcs[(inv+j)%3])m++;v.push(m);}if(v[2]>70)continue;
+      const s=prev?v.reduce((a,m,i)=>a+Math.abs(m-prev[i]),0):Math.abs(v[1]-60);if(s<bs){bs=s;best=v;}}return best||[C.t,C.f,C.r+12];}
+  function midLayer(T,ch,ub,t,O,us){const C=ch.C,fast=T.u<0.28,six=T.bar===6,step=six?3:2;if(ch.start)P.midV=midVoice(C,P.midV);const V=P.midV;if(!V)return;
+    if(fast){if(ub%step)return;const d=us*step*0.92;V.forEach((m,i)=>smp('string_ensemble_1',t+i*0.006,midi(m),d,(ub===0?0.068:0.05)*(T.midK||1),O[i],{sus:1,att:0.03,rel:0.2}));}   /* 快歌：每拍拉一下（重拍大聲一點） */
+    else if(ch.start){const d=us*ch.len;V.forEach((m,i)=>smp('string_ensemble_1',t+i*0.01,midi(m),d,0.062*(T.midK||1),O[i],{sus:1,att:Math.min(0.25,d*0.2),rel:0.5}));}}
+  function subLayer(T,ch,t,o,us){if(!ch.start)return;let m=ch.C.bs;while(m>47)m-=12;while(m<33)m+=12;m-=12;if(m<28)m+=12;const c=A.ctx,end=t+us*ch.len,a=osc('sine',midi(m),t,end+0.5),g=c.createGain();a.connect(g);g.connect(o);envG(g,t,0.06,0.016*(T.subK||1),end-0.05,0.25);}
+  function kick(t,v,o){sn(t,95,0.42,v,o,42);sn(t,160,0.05,v*0.35,o,70);}
   // 低音：每個和弦一開始大提琴拉一個持續低音（原曲的低音多半是持續長音）；T.bz＝這首的低音量（照量測調過，本來就夠的設 0）
   function bassPluck(T,C,ub,t,o,us){const bz=T.bz===undefined?1:T.bz;if(!(bz>0))return;let m=C.bs;while(m>47)m-=12;while(m<33)m+=12;   /* 撥弦低音：4/4 第 1、3 拍（第 3 拍彈五度）、3/4 第 1 拍、6/8 第 1、4 個八分音符 */
     const six=T.bar===6,c68=six&&T.u<0.26,hit=six?(c68?[0,3]:[0]):[0,4];if(!hit.includes(ub))return;const k=hit.indexOf(ub),d=six?(c68?3:6):4;
@@ -16142,10 +16163,12 @@ const AMUS=(()=>{
   // 一問一答：主旋律換氣的空檔，另一個樂器把句尾 2～3 個音回一次（主旋律是撥弦類就用直笛回，伴奏已經是豎琴就用鐵琴回，其他用豎琴）
   const PLK=new Set(['dulc','harpsi','sitar','harp','bell','mbox','vibe','glass','accord','piano','mando']),ANSR={harp:[55,84],vibe:[60,88],flute:[62,86]};
   function ansIns(T,pass){if(T.ansI)return T.ansI;if(PLK.has(T.lead[pass]))return 'flute';return (T.acc==='arp'&&!T.ai)||T.acc==='waltz'||T.acc==='baroque'?'vibe':'harp';}
-  function stepU(){const T=P.T,o=P.g,Bu=P.B||{lead:o,dbl:o,acc:o,pad:[o,o],perc:o,bass:o,ans:o},secU=T.bar*(T.nb||8),F=T.form||SECS,u=P.u,pass=Math.floor(u/secU),uu=u%secU,b=Math.floor(uu/T.bar),ub=uu%T.bar,us=P.us,t=P.next+rnd(-0.004,0.004),k=P.night?0.5:1,full=F.length>=4&&(T.nb||8)>=8;
-    if(P.B&&uu===0&&pass<F.length){const e=EN[!full?1:pass===0?0:F[pass]==='B'?2:1];lvl(P.B,e,t,pass===0);}   /* 換段落：調各聲道大小（2026-10-20：第一段伴奏不再先空兩小節——那樣開頭只剩長音，聽起來很悲） */
+  function stepU(){const T=P.T,o=P.g,Bu=P.B||{lead:o,dbl:o,acc:o,pad:[o,o],mid:[o,o,o],sub:o,perc:o,bass:o,ans:o},secU=T.bar*(T.nb||8),F=T.form||SECS,u=P.u,pass=Math.floor(u/secU),uu=u%secU,b=Math.floor(uu/T.bar),ub=uu%T.bar,us=P.us,t=P.next+rnd(-0.004,0.004),k=P.night?0.5:1,full=F.length>=4&&(T.nb||8)>=8;
+    if(P.B&&uu===0&&pass<F.length){const e=EN[!full?1:pass===0?0:F[pass]==='B'?2:1];lvl(P.B,e,t,pass===0);
+      if(full){const ag=P.B.arc.gain,i=Math.min(pass,ARC.length-2);if(pass===0){ag.cancelScheduledValues(t);ag.setValueAtTime(ARC[0],t);}ag.linearRampToValueAtTime(ARC[i+1],t+secU*us);}}   /* 2026-10-22.5 整首起伏：一段一段推上去 */   /* 換段落：調各聲道大小（2026-10-20：第一段伴奏不再先空兩小節——那樣開頭只剩長音，聽起來很悲） */
     if(pass>=F.length){   /* 結尾：主和弦 2 小節（豎琴往上撥＋長音） */
-      if(uu===0){if(P.B)lvl(P.B,EN[1],t,false);const C=chd(T,T.end||T.A[0].split(',')[0]);[C.r-12,C.r,C.t,C.f,C.r+12,C.t+12,C.f+12,C.r+24].forEach((m,i)=>INS.harp(t+i*0.07,midi(m),us*T.bar,0.045,Bu.acc));if(T.pad)strings(t,[C.t,C.f,C.r+12],us*T.bar*(T.tail||2),0.014*T.pad,Bu.pad);if(!P.lay||P.lay==='bass')bassNote(T,C,T.bar*(T.tail||2),t,Bu.bass,us);}
+      if(uu===0){if(P.B){lvl(P.B,EN[1],t,false);if(full)P.B.arc.gain.linearRampToValueAtTime(ARC[1],t+us*T.bar*(T.tail||2));}const C=chd(T,T.end||T.A[0].split(',')[0]);   /* 結尾淡出 */
+        if(!P.lay||P.lay==='pad'){const V=midVoice(C,P.midV),d=us*T.bar*(T.tail||2);V.forEach((m,i)=>smp('string_ensemble_1',t+i*0.02,midi(m),d,0.02*(T.midK||1),Bu.mid[i],{sus:1,att:0.15,rel:1}));subLayer(T,{C,start:true,len:T.bar*(T.tail||2)},t,Bu.sub,us);}[C.r-12,C.r,C.t,C.f,C.r+12,C.t+12,C.f+12,C.r+24].forEach((m,i)=>INS.harp(t+i*0.07,midi(m),us*T.bar,0.045,Bu.acc));if(T.pad)strings(t,[C.t,C.f,C.r+12],us*T.bar*(T.tail||2),0.014*T.pad,Bu.pad);if(!P.lay||P.lay==='bass')bassNote(T,C,T.bar*(T.tail||2),t,Bu.bass,us);}
       if(uu>=T.bar*(T.tail||2)){P.T=null;ended();return;}
       P.u++;P.next+=us;return;}
     const sec=F[pass],ch=chordAt(T,sec,b,ub),C=ch.C;
@@ -16159,15 +16182,17 @@ const AMUS=(()=>{
     if((!Ly||Ly==='acc')&&T.busy){const L=[C.r+12,C.t+12,C.f+12,C.r+24,C.f+12,C.t+12],I=INS[T.busyI||'harp'];for(let h=0;h<2;h++)I(t+h*us/2,midi(L[(uu*2+h)%L.length]),us*0.9,0.04*T.busy*(h?0.75:1),Bu.acc);}   /* 2026-10-20：原曲很密的快速分解和弦（每拍 4 個音） */
     if(!Ly||Ly==='bass'){if(T.bm==='sus'){if(ch.start)bassNote(T,C,ch.len,t,Bu.bass,us);}else bassPluck(T,C,ub,t,Bu.bass,us);}
     const pm=T.pm?T.pm[pass]:1;if((!Ly||Ly==='pad')&&T.org&&ch.start)[C.r,C.t,C.f].forEach((m,i)=>INS.organ(t,midi(m),ch.len*us,0.012*T.org,Bu.pad[i%2]));
+    if(!Ly||Ly==='pad'){midLayer(T,ch,ub,t,Bu.mid,us);subLayer(T,ch,t,Bu.sub,us);}   /* 2026-10-22.5 中音和弦、超低音 */
+    if((!Ly||Ly==='perc')&&full&&pass>0&&ub===0&&T.perc&&T.perc!=='none'&&T.perc!=='chime')kick(t,0.05*k*(T.kickK||1),Bu.bass);   /* 第二段起每小節第一拍低沉的大鼓 */
     if((!Ly||Ly==='pad')&&T.pad&&ch.start){strings(t,[C.t,C.f,C.r+12].concat(C.x?[C.x]:[]).map(m=>m+(T.ph||0)),ch.len*us,0.011*T.pad*pm,Bu.pad);if(T.cb)strings(t,[C.bs],ch.len*us,0.02*T.cb*Math.min(1,pm*1.5),Bu.bass);}   /* B 段比較大聲改由 EN 管 */
     if((!Ly||Ly==='perc')&&(T.pp?T.pp.includes(pass):(T.perc!=='none'&&(pass>0||!T.slowIn)||T.perc==='timp'||T.perc==='march'||T.perc==='war')))perc(T,b,ub,t,Bu.perc,C,k);   /* 第一段不打鼓（慢慢進來），學院、競技場一開始就有定音鼓 */
-    P.u++;P.next+=us;}
+    P.u++;P.next+=us;if(full&&pass===F.length-1&&b>=(T.nb||8)-2)P.us*=1.012;}   /* 2026-10-22.5 最後兩小節慢慢放慢 */
   // ---- 開始、淡出、休息 ----
   function bus(){if(P.out)return true;if(!A.ctx||!A.bgm)return false;const c=A.ctx;P.out=c.createGain();P.out.gain.value=0;P.duck=c.createGain();P.duck.connect(P.out);P.out.connect(A.bgm);if(A.verb){P.wb=c.createGain();P.wb.gain.value=0;P.wb.connect(A.verb);}return true;}   /* wb：號角多送一點到空間回音 */
   function fadeOut(){P.tok=(P.tok||0)+1;P.loading=false;if(P.g&&A.ctx){const g=P.g,c=A.ctx;g.gain.cancelScheduledValues(c.currentTime);g.gain.setTargetAtTime(0,c.currentTime,0.7);setTimeout(()=>{try{g.disconnect();}catch(_){}},5000);}P.g=null;P.T=null;}
   function start(k){if(!bus())return;fadeOut();P.key=k;const tok=++P.tok,L=needKeys(k);P.loading=true;   /* 先載這首會用到的取樣 */
     Promise.race([Promise.all(L.map(gmLoadKey)),new Promise(r=>setTimeout(r,L.length?3000:0))]).then(()=>{if(P.tok!==tok)return;P.loading=false;try{P.err='';go(k);}catch(e){P.err=String(e&&e.message||e).slice(0,90);console.error('AMUS 開始出錯',e);P.T=null;P.pv=null;P.restUntil=performance.now()/1000+30;}});}
-  function go(k){const c=A.ctx,T=TR[k];warmKS();P.key=k;P.T=T;P.u=0;P.night=night();P.us=T.u*(P.night?1.08:1);
+  function go(k){const c=A.ctx,T=TR[k];warmKS();P.key=k;P.T=T;P.u=0;P.midV=null;P.night=night();P.us=T.u*(P.night?1.08:1);
     P.g=c.createGain();P.g.gain.setValueAtTime(0.0001,c.currentTime);P.g.gain.exponentialRampToValueAtTime(1,c.currentTime+0.5);P.g.connect(P.duck);P.B=mkBus(c,P.g,T);
     P.next=c.currentTime+0.15;}   /* 2026-10-19 第二十個視窗：拿掉每首開頭都一樣的豎琴「叮鈴鈴」（每首開頭一樣＝聽不出是哪首），主旋律直接出來 */
   function ended(){const g=P.g,k=P.key;P.g=null;if(P.off)return;   /* 離線測試：不要 6 秒後拔線（算超過 6 秒的曲子後半會變無聲） */
@@ -16352,7 +16377,7 @@ const AMUS=(()=>{
   async function render(k,secs=20,lay){if(typeof k==='string')await Promise.all(needKeys(k).map(gmLoadKey));   /* 測試前先載好取樣 */
    const O=window.OfflineAudioContext||window.webkitOfflineAudioContext,c=new O(2,44100*secs,44100),save={...A},sv={...P},mix=lay==='mix';   /* lay='mix'：整個混音（回音＋壓縮器，跟真的播一樣），回傳多一個 buf */
     A.ctx=c;P.off=true;P.lay=mix?null:lay||null;let out=c.destination;if(mix){AUDIO.graph(c,c.destination);out=c.createGain();out.gain.value=S.vol;out.connect(A.bgm);P.mix=true;P.wb=c.createGain();P.wb.gain.value=S.vol*0.5;P.wb.connect(A.verb);}
-    try{if(typeof k==='function'){const g=c.createGain();g.connect(out);k(INS,g,{strings,drum,pl,midi});}else{const T=TR[k];P.T=T;P.u=0;P.us=T.u;P.night=false;P.g=c.createGain();P.g.connect(out);P.B=mkBus(c,P.g,T);P.next=0.05;let n=0;while(P.T&&P.next<secs-0.3&&n++<5000)stepU();}}
+    try{if(typeof k==='function'){const g=c.createGain();g.connect(out);k(INS,g,{strings,drum,pl,midi});}else{const T=TR[k];P.T=T;P.u=0;P.us=T.u;P.midV=null;P.night=false;P.g=c.createGain();P.g.connect(out);P.B=mkBus(c,P.g,T);P.next=0.05;let n=0;while(P.T&&P.next<secs-0.3&&n++<5000)stepU();}}
     finally{Object.assign(A,save);Object.assign(P,sv);P.lay=null;P.mix=false;}
     const buf=await c.startRendering();let pk=0,ss=0;const N=buf.length;for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<N;i++){const v=Math.abs(d[i]);if(!(v<=10))return {k,err:'NaN'};if(v>pk)pk=v;ss+=v*v;}}
     const r={k,peak:+pk.toFixed(3),rms:+Math.sqrt(ss/(2*N)).toFixed(4)};if(mix)r.buf=buf;return r;}
