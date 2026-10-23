@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-22.5"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-23.1"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2895,10 +2895,12 @@ var MOUNT=(()=>{
   const PEAK={x:830,z:470,h:150,r:230};
   function raw0(x,z){let h=Math.max(0,PEAK.h*(1-Math.hypot(x-PEAK.x,z-PEAK.z)/PEAK.r));for(let i=0;i<P.length;i+=3){const p=P[i],d=Math.hypot(x-p.x,z-p.z),v=p.y-0.45*Math.max(0,d-6);if(v>h)h=v;}
     const dl=Math.hypot(x-LOT.x,z-LOT.z);if(dl<LOT.r+30)h=Math.max(h,C.TOP-0.45*Math.max(0,dl-LOT.r));return h;}
-  C.terrain=(x,z)=>{let h=raw0(x,z);const n=near(x,z);if(n){const e=C.W/2+6,yn=n.p.y-0.15;if(n.d<e)h=Math.min(h,yn);else h=Math.min(h,yn+(n.d-e)*1.1);}
+  // 2026-10-23.1 使用者：「開車上山，山路怎麼一直抖、超不舒服」→ 原本路面高度＝最近那個路點的高度（每 2 m 一階、一階最高 15 cm），開 50 km/h 每秒被頂 7 下；改成在前後兩個路點之間照距離內插（平的斜坡）
+  const roadY=(n,x,z)=>{const p=n.p,a=(x-p.x)*p.tx+(z-p.z)*p.tz,q=P[a>=0?n.i+1:n.i-1];if(!q)return p.y;const sg=Math.hypot(q.x-p.x,q.z-p.z)||1;return p.y+(q.y-p.y)*Math.min(1,Math.abs(a)/sg);};
+  C.terrain=(x,z)=>{let h=raw0(x,z);const n=near(x,z);if(n){const e=C.W/2+6,yn=roadY(n,x,z)-0.15;if(n.d<e)h=Math.min(h,yn);else h=Math.min(h,yn+(n.d-e)*1.1);}
     const dl=Math.hypot(x-LOT.x,z-LOT.z);if(dl<LOT.r)h=C.TOP-0.12;else if(dl<LOT.r+6)h=Math.min(h,C.TOP-0.12+(dl-LOT.r)*1.1);return Math.max(0,h);};
   // 給 heightAt 用：路面（中心線高度）＋其他地方的地形
-  C.h=(x,z)=>{const n=near(x,z);if(n&&n.d<C.W/2+1.5)return n.p.y;if(Math.hypot(x-LOT.x,z-LOT.z)<LOT.r)return C.TOP;return HG(x,z);};
+  C.h=(x,z)=>{const n=near(x,z);if(n&&n.d<C.W/2+1.5)return roadY(n,x,z);if(Math.hypot(x-LOT.x,z-LOT.z)<LOT.r)return C.TOP;return HG(x,z);};
   // ---- 地形網格（4 m 一格），高度先算好存起來（HG 用網格內插，跟畫出來的一樣） ----
   const S=4,NX=Math.round((C.x1-C.x0)/S),NZ=Math.round((C.z1-C.z0)/S),H=new Float32Array((NX+1)*(NZ+1));
   for(let iz=0;iz<=NZ;iz++)for(let ix=0;ix<=NX;ix++)H[iz*(NX+1)+ix]=C.terrain(C.x0+ix*S,C.z0+iz*S);
@@ -15363,7 +15365,7 @@ const AUDIO=(()=>{
     const w=bed(A.pink,'bandpass',500,0.8,1,0.08,0.4,0);AMB.wind=c.createGain();AMB.wind.gain.value=0;w.g.disconnect();w.g.connect(AMB.wind);AMB.wind.connect(A.amb);   // 風（室外）
     {const l=c.createOscillator(),lg=c.createGain();l.frequency.value=0.05;lg.gain.value=250;l.connect(lg);lg.connect(w.fl.frequency);l.start();}
     setInterval(ambTick,500);}
-  function ambTick(){if(!ok())return;const bgm=typeof AMUS!=='undefined'&&AMUS.S.mode!=='off',t=A.ctx.currentTime,on=started&&A.ambOn&&!bgm&&!DD.on&&!KF.on,inside=started&&mode==='walk'&&indoors(),gaming=GAME.on;
+  function ambTick(){if(!ok())return;const bgm=typeof AMUS!=='undefined'&&(AMUS.S.mode!=='off'||AMUS.playing()),   /* 2026-10-23.1 使用者：「播放背景音樂一堆很吵的噪音（沙沙、嘶嘶）」→ 背景音樂預設關、從音樂盒／車上 DJ 放歌時環境音（車流、風＝一直播的雜訊）沒關，比音樂大 4 倍；現在只要有在放歌就關 */t=A.ctx.currentTime,on=started&&A.ambOn&&!bgm&&!DD.on&&!KF.on,inside=started&&mode==='walk'&&indoors(),gaming=GAME.on;
     A.amb.gain.setTargetAtTime(!on?0:gaming?0.35:inside?0.45:1,t,0.6);AMB.f.frequency.setTargetAtTime(inside?160:300,t,0.5);AMB.f2.frequency.setTargetAtTime(inside?420:800,t,0.5);
     AMB.wind.gain.setTargetAtTime(inside||gaming?0:0.045,t,1.2);A.send.gain.setTargetAtTime(inside?0.32:0.18,t,0.5);
     const h=+document.getElementById('time').value,night=h>=18.3||h<6;
@@ -16387,7 +16389,7 @@ const AMUS=(()=>{
     return {ok:r,len:+(last/44100).toFixed(2),peak:+pk.toFixed(3),rms:+Math.sqrt(ss/(2*N)).toFixed(4)};}
   function dj(k){const now=performance.now()/1000;if(k&&TR[k]){try{if(A.ctx&&A.ctx.state!=='running')A.ctx.resume().catch(()=>{});}catch(_){}P.pv={k,loop:true,dj:1};if(bus())start(k);P.cand=k;P.candT=now;}   /* 2026-10-21.14 坐朋友的車：車上的 DJ 選歌（全車一起聽；背景音樂關著也會放）；dj(null)＝下車，回到原本的 */
     else if(P.pv&&P.pv.dj){P.pv=null;fadeOut();P.key=P.cand=wantKey();P.candT=now;}}
-  return {dj,see(n){P.area=n;},gm:()=>({loaded:GMB.size,loading:GML.size,fail:SM.fail,hit:SM.hit||0,net:SM.net||0,saved:SM.saved||0}),gmDrop:()=>GMB.clear(),diag:()=>diagFn&&diagFn(),err:()=>P.err,boxStore:()=>boxStore&&boxStore(),gmLoad:gmLoadKey,needKeys,jingle,talk,TR,ORDER,S,render,renderTalk,start,box:()=>document.getElementById('bgmBoxP'),dbg:()=>({key:P.key,playing:!!P.T,u:P.u,pv:P.pv,mode:S.mode,no:Object.keys(S.no),area:P.area,want:wantKey(),rest:Math.max(0,P.restUntil-performance.now()/1000),vol:P.out&&P.out.gain.value,live:A.live}),areaKey};
+  return {dj,playing:()=>!!(P.T||P.pv),see(n){P.area=n;},gm:()=>({loaded:GMB.size,loading:GML.size,fail:SM.fail,hit:SM.hit||0,net:SM.net||0,saved:SM.saved||0}),gmDrop:()=>GMB.clear(),diag:()=>diagFn&&diagFn(),err:()=>P.err,boxStore:()=>boxStore&&boxStore(),gmLoad:gmLoadKey,needKeys,jingle,talk,TR,ORDER,S,render,renderTalk,start,box:()=>document.getElementById('bgmBoxP'),dbg:()=>({key:P.key,playing:!!P.T,u:P.u,pv:P.pv,mode:S.mode,no:Object.keys(S.no),area:P.area,want:wantKey(),rest:Math.max(0,P.restUntil-performance.now()/1000),vol:P.out&&P.out.gain.value,live:A.live}),areaKey};
 })();
 
 /* ---------------- 小遊戲：殭屍來襲（選單「小遊戲」開始） ----------------
