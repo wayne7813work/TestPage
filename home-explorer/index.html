@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-23.1"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-23.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1332,6 +1332,9 @@ const pixelRatio=()=>POWER.save?Math.min(devicePixelRatio,1):Math.min(devicePixe
 renderer.setPixelRatio(pixelRatio());
 renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+/* 2026-10-23.2 使用者：「（門前開車特技撞建築）當機重開、手機變好燙」（iPhone 13）→ 量到電腦上貼圖約 300 MB、陰影 128 MB、模型 65 MB、程式 120 MB；
+   手機、平板：超過 1024 的貼圖上傳時自動縮成 1024（three.js 照 maxTextureSize 縮，省約 70 MB）、陰影 4096→2048（省約 96 MB）、遠處小東西早一點不畫（dcull） */
+const LOWMEM=isTouch;if(LOWMEM)renderer.capabilities.maxTextureSize=Math.min(renderer.capabilities.maxTextureSize,1024);
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=0.9;
 document.getElementById('app').appendChild(renderer.domElement);
 const ANISO=renderer.capabilities.getMaxAnisotropy();
@@ -13987,13 +13990,13 @@ const su=sky.material.uniforms;su.turbidity.value=5.5;su.rayleigh.value=1.4;su.m
 const DCULL={t:0,list:[],rt:0,v:new THREE.Vector3(),on:true};
 function dcull(dt){if(!DCULL.on)return;DCULL.t-=dt;DCULL.rt-=dt;if(DCULL.t>0)return;DCULL.t=0.25;
   if(DCULL.rt<=0){DCULL.rt=2;DCULL.list.length=0;scene.traverse(o=>{if(o.isMesh&&!o.isInstancedMesh&&!o.isSkinnedMesh&&o.geometry&&!o.userData.noCull)DCULL.list.push(o);});}
-  const cp=camera.position,v=DCULL.v,far=mode==='aerial'?1.8:1;
+  const cp=camera.position,v=DCULL.v,far=(mode==='aerial'?1.8:1)*(LOWMEM?0.75:1);   /* 2026-10-23.2 手機、平板：遠處小東西早一點不畫 */
   for(const o of DCULL.list){const g=o.geometry;if(!g.boundingSphere){g.computeBoundingSphere();if(!g.boundingSphere)continue;}
     const R=g.boundingSphere.radius*o.matrixWorld.getMaxScaleOnAxis();if(!(R<12)){if(o.layers.mask!==1)o.layers.set(0);continue;}
     v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld);const lim=(55+R*45)*far,show=v.distanceTo(cp)-R<lim;
     if(show){if(o.layers.mask!==1)o.layers.set(0);}else if(o.layers.mask!==2)o.layers.set(1);}}
 const sun=new THREE.DirectionalLight('#fff4e5',3);sun.castShadow=true;sun.shadow.camera.layers.enable(1);   /* 距離隱藏的東西照樣有影子（見 dcull） */
-sun.shadow.mapSize.set(4096,4096);const sc=sun.shadow.camera;sc.left=-75;sc.right=75;sc.top=75;sc.bottom=-75;sc.near=1;sc.far=500;sc.updateProjectionMatrix();
+sun.shadow.mapSize.set(LOWMEM?2048:4096,LOWMEM?2048:4096);const sc=sun.shadow.camera;sc.left=-75;sc.right=75;sc.top=75;sc.bottom=-75;sc.near=1;sc.far=500;sc.updateProjectionMatrix();
 sun.shadow.bias=-0.0003;sun.shadow.normalBias=0.04;
 scene.add(sun);scene.add(sun.target);
 renderer.shadowMap.autoUpdate=false;   // 場景是靜態的：陰影只在換時間時重算
