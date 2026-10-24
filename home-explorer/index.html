@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-24.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-24.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -855,6 +855,7 @@
   <div id="place" class="panel"><b>我家漫遊</b><span></span></div>
   <div class="btns">
     <button id="bDeco" hidden>🛋 擺傢俱</button>
+    <button id="bVisit" hidden>👥 看朋友的家</button>
     <button id="bView">第三人稱</button>
     <button id="bAerial">空拍</button>
     <button id="bEmote">動作</button>
@@ -12371,7 +12372,7 @@ const DECO=(()=>{
       base:f=>f===0?0.04:FL[f]+0.02,fy:f=>f===0?0:FL[f],fOf:y=>floorOf(y),inB:(x,z)=>Math.abs(x-HCX)<4.5&&z<0.6&&z>Z_BACK-0.6,cx:HCX,cz:HCZ,rad:36,
       paint:new Set(['客廳','廚房','前房','後房','浴室','大房間','走道']),cover:new Set(['走道']),ceilOf:rm=>CEIL(rm.f),floorY:f=>(f===0?0.04:FL[f]+0.004)+0.004,
       floorHoles:f=>f>0?[{x0:STAIR_HOLE.x0+dx,x1:STAIR_HOLE.x1+dx,z0:STAIR_HOLE.z0,z1:STAIR_HOLE.z1}]:[],keyOf:rm=>rm.f+'|'+rm.name,label:rm=>`${rm.f+1}F`,grp:new THREE.Group()},
-    cs:{id:'cs',name:'城堡豪宅',rooms:CR,allow:CN,allowW:CNW,zones:CASTLE.zones,open:CASTLE.open,maxN:200,maxF:4,
+    cs:{id:'cs',name:'城堡豪宅',rooms:CR,allow:CN,allowW:CNW,zones:CASTLE.zones,open:CASTLE.open,maxN:400,maxF:4,
       base:f=>CASTLE.FY[f]+0.012,fy:f=>CASTLE.FY[f],fOf:CASTLE.fOf,inB:(x,z)=>x>CASTLE.ix0-0.1&&x<CASTLE.ix1+0.1&&z>CASTLE.iz0-0.1&&z<CASTLE.iz1+0.1||inTower(x,z),cx:(CASTLE.x0+CASTLE.x1)/2,cz:(CASTLE.z0+CASTLE.z1)/2,rad:75,
       paint:CNW,ceilOf:rm=>rm.ceil,floorY:f=>CASTLE.FY[f]+(f===0?0.016:0.006),floorHoles:f=>[{x0:CASTLE.SX0-0.25,x1:CASTLE.SX1+0.25,z0:CASTLE.iz0,z1:CASTLE.B.z1+0.3}],keyOf:rm=>'cs|'+rm.f+'|'+rm.name,label:rm=>rm.fl,grp:new THREE.Group()}};
   const SITES=[SITE.nb,SITE.cs];for(const s of SITES)scene.add(s.grp);
@@ -12555,7 +12556,7 @@ const DECO=(()=>{
   U.label=()=>{if(U.sit)return {k:'stand',t:'🧍 起來'};if(U.carry)return {k:'place'};if(U.open||U.menu)return null;const s=here();if(gone&&s===SITE.nb)return null;const it=facing();if(it)return {k:'item',it,t:`🛋 整理：${DEF[it.t].n}`};if(inHouse())return {k:'open',t:U.view?'👥 參觀中（回我的家）':'🛋 擺傢俱'};return null;};
   U.act=a=>{if(a.k==='stand')stand();else if(a.k==='place')place();else if(a.k==='item')openMenu(a.it);else if(a.k==='open')openPanel();};
   // ---------- 畫面：下面的按鈕列（搬著走／整理） ----------
-  const css=document.createElement('style');css.textContent=`#decoBar[hidden],#decoP[hidden],#bDeco[hidden]{display:none!important}#bDeco{background:#ffb454!important;color:#2a1a00!important;font-weight:800;border-color:#ffb454!important}
+  const css=document.createElement('style');css.textContent=`#decoBar[hidden],#decoP[hidden],#bDeco[hidden],#bVisit[hidden]{display:none!important}#bVisit{background:#6fb7ff!important;color:#06233f!important;font-weight:800;border-color:#6fb7ff!important}#bDeco{background:#ffb454!important;color:#2a1a00!important;font-weight:800;border-color:#ffb454!important}
 #decoBar{position:fixed;z-index:30;left:50%;transform:translateX(-50%);bottom:110px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 10px;max-width:calc(100vw - 24px);background:rgba(20,26,34,.9);border:1px solid var(--line);border-radius:12px;color:var(--ink);font-size:14px}
 #decoBar .t{font-size:13px;text-align:center}#decoBar .t.no{color:#ff8a80;font-weight:700}#decoBar .t.ok{color:#7ee2a8;font-weight:700}
 #decoBar .b{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}#decoBar button{min-height:48px;padding:6px 14px;font-size:15px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:inherit;touch-action:manipulation;cursor:pointer}
@@ -12676,8 +12677,15 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
   const signTex=(lines,w,h,bg,fg)=>{const cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d');g.fillStyle=bg;g.beginPath();g.roundRect(4,4,w-8,h-8,28);g.fill();g.strokeStyle='#ffd23a';g.lineWidth=10;g.stroke();g.textAlign='center';g.textBaseline='middle';g.fillStyle=fg;lines.forEach(([t,px],i)=>{g.font=`900 ${px}px ${FONT}`;g.fillText(t,w/2,h*(lines.length===1?0.5:i===0?0.36:0.74));});const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;return tx;};
   const nbSign=new THREE.Mesh(new THREE.PlaneGeometry(2.4,0.76),new THREE.MeshBasicMaterial({map:signTex([['🏠 隔壁新家',110],['可以進去擺傢俱！',72]],1024,320,'#2a6fd8','#ffffff'),toneMapped:false}));nbSign.position.set(DOOR.x+dx-0.25,2.78,0.45);   /* 在石柱前面（原本被柱子擋住右半邊） */scene.add(nbSign);
   const nbArrow=new THREE.Mesh(new THREE.PlaneGeometry(0.5,0.5),new THREE.MeshBasicMaterial({map:signTex([['⬇',300]],320,320,'#ffb454','#2a1a00'),toneMapped:false,transparent:true}));nbArrow.position.set(DOOR.x+dx,2.1,0.45);scene.add(nbArrow);
+  // 2026-10-24.4 使用者：「城堡裝飾連線的時候要可以切換，可以看別人的裝飾」→ 原本要「擺傢俱 →👥 參觀 → 去看看」，太深；連線時在城堡、隔壁新家裡，上面多一顆按鈕：我的家 → 朋友 1 → 朋友 2 … → 回我的家 輪流切換
+  const VB=$('bVisit');
+  if(VB)VB.addEventListener('click',e=>{e.stopPropagation();if(!U.NT.on()||U.want)return;const ids=U.NT.ids();if(U.sit)stand();closeMenu();
+    if(!U.view){if(ids.length)visit(ids[0]);else toast('現在沒有朋友連線');return;}const i=ids.indexOf(U.view.f);if(i>=0&&i+1<ids.length)visit(ids[i+1]);else backHome();});
   const TB=$('bDeco');if(TB)TB.addEventListener('click',e=>{e.stopPropagation();if(U.carry||gone)return;if(U.sit)stand();closeMenu();openPanel();});   /* 上面的「🛋 擺傢俱」：面向傢俱時下面的按鈕會變成「整理」，這顆一直都在 */
   U.tick=dt=>{const dead=!!(REG&&REG.dead);
+    // 2026-10-24.3 使用者：「城堡為什麼只能放 200 個，可以放更多嗎」→ 上限改 400；城堡的傢俱只畫人在的那一層（上下樓梯時兩層、空拍全部；在城堡外面只畫 1F，從大門看得到），不然每件約 5 次繪製、全部都畫手機會燙
+    U.flT=(U.flT||0)-dt;if(U.flT<=0){U.flT=0.3;const px=player.pos.x,pz=player.pos.y,inC=px>CASTLE.x0-4&&px<CASTLE.x1+4&&pz>CASTLE.z0-4&&pz<CASTLE.z1+4,fA=inC?CASTLE.fOf(player.y):1,fB=inC?CASTLE.fOf(player.y+2.2):1,all=mode==='aerial';
+      for(const it of cur())if(it.s==='cs'&&it.g){const v=all||it.f===fA||it.f===fB;if(it.g.visible!==v)it.g.visible=v;}}
     if(U.view&&!(U.NT.on()&&U.NT.has(U.view.f)))backHome(`${U.view.name} 離開了，回到我的家`);   // 朋友離線：回到自己的家
     if(U.want&&performance.now()-U.wantAt>6000){U.want=null;toast('對方沒有回應（請朋友重新整理成最新版）');}
     if(dead!==gone){gone=dead;applyGone();if(dead&&U.carry&&U.carry.s==='nb')drop();if(dead&&here()===SITE.nb){closePanel();closeMenu();}}
@@ -12685,7 +12693,9 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
     if(U.sit&&(mode!=='walk'||GAME.on||!started||gone||!cur().includes(U.sit.it)))stand(true);
     if(U.menu&&(!started||mode!=='walk'||Math.hypot(U.menu.x-player.pos.x,U.menu.z-player.pos.y)>3))closeMenu();
     upd(dt,false);
-    if((vt-=dt)<=0){vt=0.5;if(TB){const sh=!gone&&!U.carry&&!U.open&&(inHouse()||!!U.view);if(TB.hidden===sh)TB.hidden=!sh;}const c=camera.position;for(const s of SITES)s.grp.visible=!(s===SITE.nb&&gone)&&Math.hypot(c.x-s.cx,c.z-s.cz)<s.rad;
+    if((vt-=dt)<=0){vt=0.5;if(TB){const sh=!gone&&!U.carry&&!U.open&&(inHouse()||!!U.view);if(TB.hidden===sh)TB.hidden=!sh;}
+      if(VB){const on=U.NT.on(),sh=on&&!U.carry&&!U.open&&(inHouse()||!!U.view)&&(U.NT.ids().length>0||!!U.view);if(VB.hidden===sh)VB.hidden=!sh;
+        if(sh){const ids=U.NT.ids(),i=U.view?ids.indexOf(U.view.f):-1,txt=U.want?'⏳ 讀取中…':!U.view?'👥 看朋友的家':(i>=0&&i+1<ids.length?`🔄 換 ${U.NT.nameOf(ids[i+1])} 的`:'↩ 回我的家');if(VB.textContent!==txt)VB.textContent=txt;}}const c=camera.position;for(const s of SITES)s.grp.visible=!(s===SITE.nb&&gone)&&Math.hypot(c.x-s.cx,c.z-s.cz)<s.rad;
       if(inHouse()){const s=here();if(s===SITE.nb&&!told){told=true;toast('這是隔壁的空房子：按上面或下面的「🛋 擺傢俱」，用零用錢買傢俱來布置');}if(s===SITE.cs&&!U.toldC){U.toldC=true;toast('🏰 城堡豪宅：已經幫你擺好 44 種傢俱（送的）。面向傢俱按 F 可以搬、收、丟；上面「🛋 擺傢俱」買更多、換牆壁地板');}}}
     if(nbSign){const t=performance.now()/1000;nbArrow.position.y=nbSign.position.y-0.62+Math.abs(Math.sin(t*3))*0.12;}};
   U.busy=()=>!!U.carry||U.open||!!U.menu;
@@ -14041,13 +14051,33 @@ const su=sky.material.uniforms;su.turbidity.value=5.5;su.rayleigh.value=1.4;su.m
 // 效能（使用者問：其他遊戲效能）：依距離不畫小東西。每 0.25 秒看一次，物件越小、離鏡頭越遠就移到圖層 1（鏡頭只看圖層 0；不動 visible，遊戲自己的顯示／隱藏照舊）
 // 0.3 m 的小東西約 70 m 外、1 m 約 100 m、3 m 約 190 m、8 m 約 415 m 外才不畫；霧很濃（300 m 外大多看不到），看起來差不多。物件可以設 userData.noCull 不參加
 const DCULL={t:0,list:[],rt:0,v:new THREE.Vector3(),on:true};
-function dcull(dt){if(!DCULL.on)return;DCULL.t-=dt;DCULL.rt-=dt;if(DCULL.t>0)return;DCULL.t=0.25;
+function dcull(dt){if(!DCULL.on)return;DCULL.clock=(DCULL.clock||0)+dt;DCULL.t-=dt;DCULL.rt-=dt;if(DCULL.t>0)return;DCULL.t=0.25;
   if(DCULL.rt<=0){DCULL.rt=2;DCULL.list.length=0;scene.traverse(o=>{if(o.isMesh&&!o.isInstancedMesh&&!o.isSkinnedMesh&&o.geometry&&!o.userData.noCull)DCULL.list.push(o);});}
   const cp=camera.position,v=DCULL.v,far=(mode==='aerial'?1.8:1)*(LOWMEM?0.75:1);   /* 2026-10-23.2 手機、平板：遠處小東西早一點不畫 */
   for(const o of DCULL.list){const g=o.geometry;if(!g.boundingSphere){g.computeBoundingSphere();if(!g.boundingSphere)continue;}
     const R=g.boundingSphere.radius*o.matrixWorld.getMaxScaleOnAxis();if(!(R<12)){if(o.layers.mask!==1)o.layers.set(0);continue;}
     v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld);const lim=(55+R*45)*far,show=v.distanceTo(cp)-R<lim;
-    if(show){if(o.layers.mask!==1)o.layers.set(0);}else if(o.layers.mask!==2)o.layers.set(1);}}
+    if(show){if(o.layers.mask!==1)o.layers.set(0);o.userData.ht=0;o.userData.ev=0;}else{if(o.layers.mask!==2)o.layers.set(1);if(!o.userData.ht)o.userData.ht=DCULL.clock;}}
+  gpuEvict();}
+// 2026-10-24.3 使用者：「手機經過服裝店，然後就記憶體不足」→ 量到不是服裝店本身（站在那裡只多 25 MB、來回走不會一直長），是「走過的地方用過的貼圖、模型都留在顯示記憶體」：
+// 手機設定下 32 個地點走一圈，貼圖從 97 MB 累積到 193 MB、上傳的模型 790 → 1513 個（熱氣球飛高一次 +31 MB）。
+// 改：手機、平板（LOWMEM）每 4 秒檢查一次，距離剔除藏起來超過 25 秒的東西，它的貼圖、模型如果現在畫面上沒有別的東西在用，就把顯示記憶體那份釋放（dispose）；
+// 走回來看得到時 three.js 會自己從原本的資料重新上傳（會頓一下下）。不釋放：還看得到的、render target（鏡子、反射）、換場景的小遊戲中。
+const EVICT={last:0,tex:0,geo:0,shr:0,shrMB:0,lastS:-99};
+// 另外：重複鋪的材質圖（牆、地板、磚、木紋…用程式畫的 canvas，wrap＝Repeat、建好後沒再更新過）在手機上量到 199 張、115 MB（canvas 本身那份，顯示記憶體還要再一份）；
+// 手機、平板把 512×256 以上的這種圖縮成一半（面積 1/4），原本的 canvas 沒人用就會被回收；有更新過的（version>1）、不是 Repeat 的（招牌、字、會再畫的）都不動。
+const SHRUNK=new WeakSet(),SHRC=new WeakMap();
+function lowmemShrink(){if(!LOWMEM||DCULL.clock-EVICT.lastS<10)return;EVICT.lastS=DCULL.clock;
+  scene.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms)for(const k in m){const v=m[k];if(!v||!v.isTexture||SHRUNK.has(v))continue;SHRUNK.add(v);const c=v.image;
+    if(!c||c.tagName!=='CANVAS'||v.version!==1||v.wrapS!==THREE.RepeatWrapping||c.width*c.height<512*256)continue;
+    let c2=SHRC.get(c);if(!c2){c2=document.createElement('canvas');c2.width=Math.max(1,c.width>>1);c2.height=Math.max(1,c.height>>1);c2.getContext('2d').drawImage(c,0,0,c2.width,c2.height);SHRC.set(c,c2);EVICT.shrMB+=(c.width*c.height-c2.width*c2.height)*4/1048576;}
+    v.image=c2;v.version++;v.source.needsUpdate=true;EVICT.shr++;
+    if(window.WeakRef){const wr=new WeakRef(c);Object.defineProperty(v,'needsUpdate',{configurable:true,set(x){if(x!==true)return;const o0=wr.deref();if(o0&&this.image!==o0)this.image=o0;this.version++;this.source.needsUpdate=true;}});}}});}   /* 保險：之後程式又畫了原本的 canvas（設 needsUpdate）→ 換回原本的大圖 */
+function gpuEvict(){lowmemShrink();if(!LOWMEM||DCULL.clock-EVICT.last<4)return;EVICT.last=DCULL.clock;if(DD.on||KF.on||!started)return;
+  const now=DCULL.clock,old=[];for(const o of DCULL.list)if(o.layers.mask===2&&!o.userData.ev&&o.userData.ht&&now-o.userData.ht>25)old.push(o);if(!old.length)return;
+  const use=new Set();scene.traverseVisible(o=>{if(!(o.layers.mask&1))return;if(o.geometry)use.add(o.geometry);const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms)for(const k in m){const v=m[k];if(v&&v.isTexture)use.add(v);}});
+  for(const o of old){o.userData.ev=1;const g=o.geometry;if(g&&!use.has(g)&&!g.userData.keep){g.dispose();EVICT.geo++;}
+    const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms)for(const k in m){const v=m[k];if(!v||!v.isTexture||use.has(v)||v.isRenderTargetTexture||v.isVideoTexture||!v.image)continue;const p=renderer.properties.get(v);if(p&&p.__webglTexture){v.dispose();EVICT.tex++;}}}}
 const sun=new THREE.DirectionalLight('#fff4e5',3);sun.castShadow=true;sun.shadow.camera.layers.enable(1);   /* 距離隱藏的東西照樣有影子（見 dcull） */
 sun.shadow.mapSize.set(LOWMEM?2048:4096,LOWMEM?2048:4096);const sc=sun.shadow.camera;sc.left=-75;sc.right=75;sc.top=75;sc.bottom=-75;sc.near=1;sc.far=500;sc.updateProjectionMatrix();
 sun.shadow.bias=-0.0003;sun.shadow.normalBias=0.04;
