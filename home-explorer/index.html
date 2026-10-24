@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-23.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-24.1"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2636,15 +2636,16 @@ for(const r of NROOMS){if(r.stair||r.out||r.nolabel||r.name==='廁所')continue;
 // ---- 窗簾（在有窗簾的房間按 F 或點畫面按鈕開關；選單可以全部一起開關） ----
 // 一組＝一個房間的所有窗簾布；每片布從 anchor（收起來那端）往 dir 展開，寬度在 wOpen（拉開）～wClosed（拉上）之間
 const CURTAINS=[];
-function addCurtain({room,f,label,axis,c0,c1,y0,y1,mat,panels,closed=false}){
-  const cu={room:ROOMS.find(r=>r.f===f&&r.name===room),label,panels:[],t:closed?1:0,target:closed?1:0,fy:FL[f],
-    pts:panels.map(p=>{const m=p.anchor+p.dir*p.wClosed/2;return axis==='x'?new V2(m,(c0+c1)/2):new V2((c0+c1)/2,m);})};   // 每片布拉上時的中心（判斷有沒有靠近）
+function addCurtain({room,f,label,axis,c0,c1,y0,y1,mat,panels,closed=false,fy,cs,ox,oz,ux,uz}){   /* axis 'd'（2026-10-24.1 城堡圓塔門口）：斜的一條線，(ox,oz) 中點、(ux,uz) 方向，anchor 是沿著線的距離 */
+  const cu={room:fy===undefined?ROOMS.find(r=>r.f===f&&r.name===room):null,label,panels:[],t:closed?1:0,target:closed?1:0,fy:fy===undefined?FL[f]:fy,cs,
+    pts:panels.map(p=>{const m=p.anchor+p.dir*p.wClosed/2;return axis==='d'?new V2(ox+ux*m,oz+uz*m):axis==='x'?new V2(m,(c0+c1)/2):new V2((c0+c1)/2,m);})};   // 每片布拉上時的中心（判斷有沒有靠近）
   for(const p of panels){const m=new THREE.Mesh(box(1,1,1),mat);m.castShadow=true;m.receiveShadow=true;scene.add(m);
-    cu.panels.push({...p,m,axis,c:(c0+c1)/2,th:c1-c0,yc:(y0+y1)/2,h:y1-y0});}
-  CURTAINS.push(cu);layoutCurtain(cu);
+    cu.panels.push({...p,m,axis,c:(c0+c1)/2,th:c1-c0,yc:(y0+y1)/2,h:y1-y0,ox,oz,ux,uz});if(axis==='d')m.rotation.y=Math.atan2(-uz,ux);}
+  CURTAINS.push(cu);layoutCurtain(cu);return cu;
 }
 function layoutCurtain(cu){for(const p of cu.panels){const w=p.wOpen+(p.wClosed-p.wOpen)*cu.t,mid=p.anchor+p.dir*w/2;
-  if(p.axis==='x'){p.m.position.set(mid,p.yc,p.c);p.m.scale.set(w,p.h,p.th);}else{p.m.position.set(p.c,p.yc,mid);p.m.scale.set(p.th,p.h,w);}}}
+  if(p.axis==='d'){p.m.position.set(p.ox+p.ux*mid,p.yc,p.oz+p.uz*mid);p.m.scale.set(w,p.h,p.th);}
+  else if(p.axis==='x'){p.m.position.set(mid,p.yc,p.c);p.m.scale.set(w,p.h,p.th);}else{p.m.position.set(p.c,p.yc,mid);p.m.scale.set(p.th,p.h,w);}}}
 // 兩片布從窗戶兩側往中間拉（a..b＝布收起來時的外緣）
 const pairPanels=(a,b,w)=>[{anchor:a,dir:1,wOpen:w,wClosed:(b-a)/2},{anchor:b,dir:-1,wOpen:w,wClosed:(b-a)/2}];
 // 1F 客廳：淺灰色窗簾（照片是拉上的）
@@ -2660,6 +2661,15 @@ const actBtn=document.getElementById('act');let actCur=null,actHtml='';
 function nearCurtain(){if(!started||mode!=='walk')return null;const px=player.pos.x,pz=player.pos.y,fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw);let best=null,bd=2.2;
   for(const c of CURTAINS){if(Math.abs(player.y-c.fy)>1)continue;for(const q of c.pts){const dx=q.x-px,dz=q.y-pz,d=Math.max(0.01,Math.hypot(dx,dz));if(d<bd&&(dx*fx+dz*fz)/d>0.3){best=c;bd=d;}}}
   return best?{cu:best,d:bd}:null;}
+// 2026-10-24.1 使用者：「城堡的門可以開關」→ 城堡的門（d.cs）走近一樣會自動開；按 F 關上＝一直關著（不會自動開），再按 F 打開＝一直開著；記在 home-csdoor
+let csDoorInit=false;
+function csDoorLoad(){if(csDoorInit)return;csDoorInit=true;let s={};try{s=JSON.parse(localStorage.getItem('home-csdoor')||'{}')||{};}catch(_){}for(const k in s){const d=DOORS[+k];if(d&&d.cs!==undefined)d.man=s[k]?1:0;}}
+function csDoorSave(){const s={};DOORS.forEach((d,i)=>{if(d.cs!==undefined&&d.man!==undefined)s[i]=d.man;});try{localStorage.setItem('home-csdoor',JSON.stringify(s));}catch(_){}}
+const csDoorOpen=d=>d.man===1||(d.man!==0&&d.wasNear);
+function nearCsDoor(){if(!started||mode!=='walk'||typeof CASTLE==='undefined')return null;const px=player.pos.x,pz=player.pos.y;if(px<CASTLE.x0-4||px>CASTLE.x1+4||pz<CASTLE.z0-4||pz>CASTLE.z1+4)return null;
+  const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw);let best=null,bd=1.9;
+  for(const d of DOORS){if(d.cs===undefined||Math.abs(player.y-d.y)>1)continue;const dx=d.center.x-px,dz=d.center.y-pz,dd=Math.max(0.01,Math.hypot(dx,dz));if(dd<bd&&(dd<0.7||(dx*fx+dz*fz)/dd>0.2)){best=d;bd=dd;}}
+  if(!best)return null;return {d:best,grp:DOORS.filter(q=>q.cs===best.cs&&Math.abs(q.center.x-best.center.x)<0.05&&Math.abs(q.center.y-best.center.y)<0.05)};}
 // 面向、靠近（1.9 m 內、人在櫃子前面）的衣櫃門或抽屜
 function nearCab(){if(!started||mode!=='walk')return null;const px=player.pos.x,pz=player.pos.y,fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw);let best=null,bd=2.2,bs=1e9;
   for(const u of CABS){if(u.free){const d=Math.hypot(u.c.x-px,u.c.z-pz);if(player.y>=u.yr[0]&&player.y<=u.yr[1]&&d<Math.min(bd,1.6)){best=u;bd=d;bs=0;}continue;}
@@ -3073,15 +3083,15 @@ var MOUNT=(()=>{
     if(on){clT+=dt;const br=0.3+0.7*dayK;for(const s of CLOUDS){const u=s.userData;s.position.x=u.x0+Math.sin(clT*0.03+u.ph)*18;const d=cp.distanceTo(s.position);s.material.opacity=u.a*sm(u.w*0.3,u.w*0.85,d);s.material.color.setScalar(br);}
       if(!keeper&&Math.hypot(cp.x-KX,cp.z-KZ)<150){keeper=mkAvatar();keeper.root.traverse(o=>{o.userData.noCull=true;});try{keeper.skates=false;keeper.dress({g:'f',o:2%CHAR_OUTFITS.f.length,h:1});}catch(_){}keeper.root.position.set(KX+0.2,C.TOP,KZ);keeper.root.rotation.set(0,-Math.PI/2,0);}}};
   return C;})();
-function currentAct(){if(CU.on||MU.on||DD.on||KF.on||PUSH.on||FISH.on||RS.on)return null;{const rd=RIDE.label();if(rd)return {rd};}{const de=DECO.label();if(de)return {de};}{const rs=RS.label();if(rs)return {rs};}{const dd=DD.label();if(dd)return {dd};}{const kf=KF.label();if(kf)return {kf};}{const fi=FISH.label();if(fi)return {fi};}{const pu=PUSH.label();if(pu)return {pu};}{const mu=MU.label();if(mu)return {mu};}{const cu=CU.label();if(cu)return {cu};}{const rc=RACE.label();if(rc)return {rc};}{const nm=NM.label();if(nm)return {nm};}{const sb=SB.label();if(sb)return {sb};}{const rb=RB.label();if(rb)return {rb};}if(TN.on){const k=TN.label();return k?{tn:k}:null;}if(BB.on){const k=BB.label();return k?{bb:k}:null;}const tn=TN.label();if(tn)return {tn};if(SKATE.on){const k=SKATE.act();return k?{sk:k}:null;}const bb=BB.label();if(bb)return {bb};const mq=SHOP.near&&SHOP.near();if(mq)return {mq};const sk=SKATE.act();if(sk)return {sk};const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
+function currentAct(){if(CU.on||MU.on||DD.on||KF.on||PUSH.on||FISH.on||RS.on)return null;{const rd=RIDE.label();if(rd)return {rd};}{const de=DECO.label();if(!de||de.k==='open'){const dr=nearCsDoor(),cc=nearCurtain();if(cc&&cc.cu.cs&&(!dr||cc.d<Math.hypot(dr.d.center.x-player.pos.x,dr.d.center.y-player.pos.y)))return {cur:cc.cu};if(dr)return {dr};}if(de)return {de};}   /* 城堡的門、圓塔簾子比「擺傢俱」優先（在城堡裡 DECO 一直有「擺傢俱」） */{const rs=RS.label();if(rs)return {rs};}{const dd=DD.label();if(dd)return {dd};}{const kf=KF.label();if(kf)return {kf};}{const fi=FISH.label();if(fi)return {fi};}{const pu=PUSH.label();if(pu)return {pu};}{const mu=MU.label();if(mu)return {mu};}{const cu=CU.label();if(cu)return {cu};}{const rc=RACE.label();if(rc)return {rc};}{const nm=NM.label();if(nm)return {nm};}{const sb=SB.label();if(sb)return {sb};}{const rb=RB.label();if(rb)return {rb};}if(TN.on){const k=TN.label();return k?{tn:k}:null;}if(BB.on){const k=BB.label();return k?{bb:k}:null;}const tn=TN.label();if(tn)return {tn};if(SKATE.on){const k=SKATE.act();return k?{sk:k}:null;}const bb=BB.label();if(bb)return {bb};const mq=SHOP.near&&SHOP.near();if(mq)return {mq};const sk=SKATE.act();if(sk)return {sk};const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
 function syncActBtn(){const a=currentAct();actCur=a;
-  const html=!a?'':a.rd?`<kbd>F</kbd>${a.rd}`:a.de?(a.de.k==='place'?'':`<kbd>F</kbd>${a.de.t}`):a.dd?`<kbd>F</kbd>${a.dd}`:a.kf?`<kbd>F</kbd>${a.kf}`:a.fi?`<kbd>F</kbd>${a.fi.t}`:a.pu?`<kbd>F</kbd>${a.pu.t}`:a.rs?`<kbd>F</kbd>${a.rs}`:a.mu?`<kbd>F</kbd>${a.mu}`:a.cu?`<kbd>F</kbd>${a.cu}`:a.rc?`<kbd>F</kbd>${a.rc}`:a.nm?`<kbd>F</kbd>${a.nm}`:a.rb?`<kbd>F</kbd>${a.rb}`:a.sb?`<kbd>F</kbd>${a.sb}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${outfitCount('f')+outfitCount('m')} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
+  const html=!a?'':a.rd?`<kbd>F</kbd>${a.rd}`:a.dr?`<kbd>F</kbd>🚪 ${csDoorOpen(a.dr.d)?'關上門':'打開門'}`:a.de?(a.de.k==='place'?'':`<kbd>F</kbd>${a.de.t}`):a.dd?`<kbd>F</kbd>${a.dd}`:a.kf?`<kbd>F</kbd>${a.kf}`:a.fi?`<kbd>F</kbd>${a.fi.t}`:a.pu?`<kbd>F</kbd>${a.pu.t}`:a.rs?`<kbd>F</kbd>${a.rs}`:a.mu?`<kbd>F</kbd>${a.mu}`:a.cu?`<kbd>F</kbd>${a.cu}`:a.rc?`<kbd>F</kbd>${a.rc}`:a.nm?`<kbd>F</kbd>${a.nm}`:a.rb?`<kbd>F</kbd>${a.rb}`:a.sb?`<kbd>F</kbd>${a.sb}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${outfitCount('f')+outfitCount('m')} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
   if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
-function toggleAct(){const a=currentAct();if(a&&a.rd){RIDE.act();syncActBtn();return;}if(a&&a.de){DECO.act(a.de);syncActBtn();return;}if(a&&a.dd){DD.toggle();syncActBtn();return;}if(a&&a.kf){KF.toggle();syncActBtn();return;}if(a&&a.fi){FISH.act(a.fi);syncActBtn();return;}if(a&&a.pu){PUSH.act(a.pu);syncActBtn();return;}if(a&&a.rs){RS.act();syncActBtn();return;}if(a&&a.mu){MU.toggle();syncActBtn();return;}if(a&&a.cu){CU.toggle();syncActBtn();return;}if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.sb){SB.toggle();syncActBtn();return;}if(a&&a.rb){RB.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
+function toggleAct(){const a=currentAct();if(a&&a.rd){RIDE.act();syncActBtn();return;}if(a&&a.dr){const v=csDoorOpen(a.dr.d)?0:1;for(const d of a.dr.grp)d.man=v;csDoorSave();AUDIO.sfx('door');syncActBtn();return;}if(a&&a.de){DECO.act(a.de);syncActBtn();return;}if(a&&a.dd){DD.toggle();syncActBtn();return;}if(a&&a.kf){KF.toggle();syncActBtn();return;}if(a&&a.fi){FISH.act(a.fi);syncActBtn();return;}if(a&&a.pu){PUSH.act(a.pu);syncActBtn();return;}if(a&&a.rs){RS.act();syncActBtn();return;}if(a&&a.mu){MU.toggle();syncActBtn();return;}if(a&&a.cu){CU.toggle();syncActBtn();return;}if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.sb){SB.toggle();syncActBtn();return;}if(a&&a.rb){RB.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
 actBtn.addEventListener('click',e=>{e.stopPropagation();toggleAct();});
 actBtn.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleAct();},{passive:false});
-document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)c.target=0;syncActBtn();AUDIO.sfx('swish');};
-document.getElementById('curClose').onclick=()=>{for(const c of CURTAINS)c.target=1;syncActBtn();AUDIO.sfx('swish');};
+document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)if(!c.cs)c.target=0;syncActBtn();AUDIO.sfx('swish');};   /* 設定裡的「全部拉開／拉上」只管我家（城堡圓塔的簾子各自開關） */
+document.getElementById('curClose').onclick=()=>{for(const c of CURTAINS)if(!c.cs)c.target=1;syncActBtn();AUDIO.sfx('swish');};
 
 // ---- 1F 廚房（依照片：香檳色廚櫃、白色人造石檯面、L 型） ----
 // 長流理台沿後牆（北），西端緊鄰後門；轉角沿東牆，接著冰箱，冰箱前面就是走道；窗在西牆
@@ -4258,6 +4268,7 @@ const CASTLE=(()=>{const R=CASTLE_R,x0=R.x0,x1=R.x1,z0=R.z0,z1=R.z1,T=0.6,ix0=x0
    for(let x=x0+TC+0.4;x<x1-TC-0.4;x+=1.6)for(const zz of [z0,z1-T])M.add(mbox(x,x+0.8,y+H,y+H+0.6,zz,zz+T),stone);
    for(let z=z0+TC+0.4;z<z1-TC-0.4;z+=1.6)for(const xx of [x0,x1-T])M.add(mbox(xx,xx+T,y+H,y+H+0.6,z,z+0.8),stone);}
   // ---- 四角圓塔（2026-10-21.3 改成空心：B1～屋頂每層都從角落房間走進去，牆上有窗、一盞壁燈；上面尖頂＋旗子） ----
+  const CS_VELVET=std({color:'#8a1f2b',roughness:0.95});
   const bTow=std({color:'#857b6b',roughness:1}),NS=36,RM=(TR+RI)/2,vcut=(y0,y1,hs)=>{const o=[];let cur=y0;for(const h of [...hs].sort((p,q)=>p.y0-q.y0)){if(h.y0>cur)o.push([cur,h.y0]);cur=Math.max(cur,h.y1);}if(cur<y1)o.push([cur,y1]);return o;};
   for(const [cx,cz,sx,sz] of TW){const ox=-sx/Math.SQRT2,oz=-sz/Math.SQRT2;   // o：往城堡外面的方向
     // 圓牆：一圈 36 格；朝城堡角落那 5 格每層開 3.2 m 高的門口，朝外 3 格每層一個窗（B1 在地下沒有窗）
@@ -4282,6 +4293,9 @@ const CASTLE=(()=>{const R=CASTLE_R,x0=R.x0,x1=R.x1,z0=R.z0,z1=R.z1,T=0.6,ix0=x0
     {const g=new THREE.ConeGeometry(TR+0.2,6,28);g.translate(cx,TH+4.4,cz);M.add(g,capM);}
     {const g=new THREE.CylinderGeometry(0.05,0.05,2.2,6);g.translate(cx,TH+8.4,cz);M.add(g,MAT.steel);}
     M.add(mbox(cx,cx+1.3,TH+8.6,TH+9.4,cz-0.02,cz+0.02),std({color:'#e8504a',roughness:0.7,side:THREE.DoubleSide}));
+    // 2026-10-24.1 使用者：「城堡圓柱形的小房間可以用簾子圍起來，要可以開關」→ 每層門口（朝城堡角落那 50°）內側一組紅絨布簾，兩片從兩邊往中間拉；F 拉上／拉開
+    {const dx=sx/Math.SQRT2,dz=sz/Math.SQRT2,r=RI-0.15,hw=r*Math.sin(25*Math.PI/180),ox=cx+dx*r*Math.cos(25*Math.PI/180),oz=cz+dz*r*Math.cos(25*Math.PI/180);
+      for(let f=0;f<5;f++)addCurtain({label:'圓塔的簾子',axis:'d',ox,oz,ux:-dz,uz:dx,c0:-0.03,c1:0.03,y0:FY[f]+0.04,y1:FY[f]+3.1,fy:FY[f],cs:true,mat:CS_VELVET,panels:pairPanels(-hw,hw,0.24)});}
   }
   // ---- 大門：拱門、打開的兩扇木門、門上的牌子；前面石板路 ----
   {const gx=x0+18,gz=z1;M.add(mbox(gx-2.6,gx-2.0,0,4.6,gz-0.1,gz+0.5),stone);M.add(mbox(gx+2.0,gx+2.6,0,4.6,gz-0.1,gz+0.5),stone);M.add(mbox(gx-2.6,gx+2.6,4.2,5.0,gz-0.1,gz+0.5),stone);
@@ -12304,6 +12318,20 @@ const DECO=(()=>{
     roundMirror:{n:'太陽圓鏡',e:'🪞',c:'牆上',p:480,w:0.82,d:0.05,h:0.82,y0:1.3,wall:true,pal:['#d4af37','#2a2a2a','#c8a070'],b(P,C){const m=mt(C,{r:0.3,m:C==='#d4af37'?0.8:0.2});P(cyz(0.22,0.02,0,1.71,-0.015,28),m);P(cyz(0.19,0.01,0,1.71,0.0,28),mt('#dfe8ee',{r:0.05,m:1}));for(let i=0;i<20;i++){const a=i*Math.PI/10;P(tb(0.014,0.17,0.012,Math.cos(a)*0.31,1.71+Math.sin(a)*0.31,-0.015,0,0,a-Math.PI/2),m);P(lp(0.015,Math.cos(a)*0.4,1.71+Math.sin(a)*0.4,-0.015,1,1,1,6,4),m);}}},
     pegboard:{n:'洞洞板',e:'🔧',c:'牆上',p:280,w:0.92,d:0.12,h:0.62,y0:1.25,wall:true,pal:['#fafafa','#9fc3e0','#e8a0a8','#a8d8a8'],b(P,C){P(bx(-0.45,0.45,1.25,1.85,-0.06,-0.045),texMat('n2peg'+C,canvasTex('n2peg'+C,128,96,(g,w,h)=>{g.fillStyle=C;g.fillRect(0,0,w,h);g.fillStyle='rgba(0,0,0,.25)';for(let x=6;x<w;x+=8)for(let y=6;y<h;y+=8){g.beginPath();g.arc(x,y,1.4,0,7);g.fill();}})));
       const st=mt(STEEL,{r:0.3,m:0.7});P(bx(-0.4,-0.2,1.62,1.64,-0.045,0.05),st);for(let i=0;i<4;i++)P(cy(0.015,0.015,0.08,-0.37+i*0.05,1.64,0.0,6),mt(['#e8402a','#3fa0e0','#f5d23a','#2a2a2a'][i]));rod(0.0,1.75,-0.04,0.0,1.4,-0.03,0.008,mt('#e8402a'),P,4);P(bx(-0.025,0.025,1.75,1.82,-0.04,-0.02),st);P(tor(0.06,0.01,0.2,1.5,-0.03,0,10),mt('#f5d23a'));P(bx(0.18,0.4,1.68,1.8,-0.045,-0.02),mt('#3fa0e0',{r:0.5}));P(cy(0.035,0.035,0.11,0.32,1.3,0.0,10),mt('#c76b3c'));P(lp(0.05,0.32,1.45,0,1,1,1,6,4),mt('#4c9a46',{r:0.9}));P(bx(0.25,0.4,1.28,1.3,-0.045,0.05),st);}},
+    // ---- 2026-10-24.1 使用者：「增加傢俱桌子，正方形的要大一點」→ 舊的尺寸不能改（存檔位置會重疊），新增 12 種桌子，正方形的 1.1～1.9 m ----
+    sqTable:{n:'方形大餐桌',e:'🟫',c:'餐廚',p:650,w:1.5,d:1.5,h:0.75,top:0.75,pal:['#b58457',WHITE,'#5a3e2b','#d8c3a0'],b(P,C){tabB(P,1.5,1.5,0.75,C);}},
+    sqTable8:{n:'正方形八人大桌',e:'🟫',c:'餐廚',p:1100,w:1.9,d:1.9,h:0.76,top:0.76,pal:['#b58457','#5a3e2b',WHITE,'#d8c3a0'],b(P,C){const t=mt(C,{r:0.5});P(bx(-0.95,0.95,0.71,0.76,-0.95,0.95),t);P(bx(-0.88,0.88,0.62,0.71,-0.88,0.88),t);legs(P,1.9,1.9,0.62,0.05,t,0.14);}},
+    sqDining:{n:'方桌四椅組',e:'🍽️',c:'餐廚',p:1400,w:2.3,d:2.3,h:0.95,top:0.75,pal:['#b58457',WHITE,'#5a3e2b','#d8c3a0'],seat:[[0,-0.85,0],[0,0.85,Math.PI],[-0.85,0,Math.PI/2],[0.85,0,-Math.PI/2]],sy:0.46,b(P,C){tabB(P,1.3,1.3,0.75,C);for(const [x,z,r] of [[0,-0.85,0],[0,0.85,Math.PI],[-0.85,0,Math.PI/2],[0.85,0,-Math.PI/2]])chairB(P,0.44,0.44,C,0.46,0.92,C,x,z,r);}},
+    sqCoffee:{n:'正方形大茶几',e:'🪵',c:'客廳',p:380,w:1.1,d:1.1,h:0.42,top:0.42,pal:WOODS,b(P,C){const w=mt(C,{r:0.6});P(bx(-0.55,0.55,0.38,0.42,-0.55,0.55),w);P(bx(-0.5,0.5,0.1,0.13,-0.5,0.5),w);legs(P,1.1,1.1,0.38,0.03,w);}},
+    marbleSq:{n:'大理石方桌',e:'⬜',c:'餐廚',p:900,w:1.3,d:1.3,h:0.76,top:0.76,pal:['#f2f0ec','#2a2a2a','#d8c8b0'],b(P,C){P(bx(-0.65,0.65,0.72,0.76,-0.65,0.65),mt(C,{r:0.12}));const g=mt('#b8963c',{r:0.3,m:0.8});P(cy(0.1,0.1,0.68,0,0.04,0,16),g);P(bx(-0.4,0.4,0,0.04,-0.4,0.4),g);P(bx(-0.3,0.3,0.68,0.72,-0.3,0.3),g);}},
+    baxian:{n:'八仙桌（方桌）',e:'🀫',c:'中式',p:800,w:1.2,d:1.2,h:0.86,top:0.86,pal:['#5a2e1a','#7a3a1e','#2a1a12'],b(P,C){const w=mt(C,{r:0.45});P(bx(-0.6,0.6,0.81,0.86,-0.6,0.6),w);for(const s of [-1,1]){P(bx(-0.54,0.54,0.68,0.81,s*0.54-0.02,s*0.54+0.02),w);P(bx(s*0.54-0.02,s*0.54+0.02,0.68,0.81,-0.54,0.54),w);}
+      for(const x of [-0.54,0.54])for(const z of [-0.54,0.54])P(bx(x-0.04,x+0.04,0,0.81,z-0.04,z+0.04),w);for(const s of [-1,1]){P(bx(-0.54,0.54,0.12,0.15,s*0.54-0.015,s*0.54+0.015),w);P(bx(s*0.54-0.015,s*0.54+0.015,0.12,0.15,-0.54,0.54),w);}}},
+    chabudai:{n:'和室方桌（矮）',e:'🍵',c:'和風',p:500,w:1.2,d:1.2,h:0.36,top:0.36,pal:['#c8a070','#7a5232','#2a2a2a'],b(P,C){const w=mt(C,{r:0.5});P(bx(-0.6,0.6,0.32,0.36,-0.6,0.6),w);P(bx(-0.55,0.55,0.27,0.32,-0.55,0.55),w);for(const x of [-0.5,0.5])for(const z of [-0.5,0.5])P(bx(x-0.035,x+0.035,0,0.27,z-0.035,z+0.035),w);}},
+    longTable:{n:'長餐桌（八人）',e:'🍽️',c:'餐廚',p:1000,w:2.6,d:1.0,h:0.76,top:0.76,pal:['#b58457','#5a3e2b',WHITE,'#d8c3a0'],b(P,C){tabB(P,2.6,1.0,0.76,C);}},
+    foldTable:{n:'折疊長桌',e:'📋',c:'戶外',p:300,w:1.8,d:0.75,h:0.74,top:0.74,pal:[WHITE,'#d8d8d0','#4a7a5a'],b(P,C){P(bx(-0.9,0.9,0.7,0.74,-0.375,0.375),mt(C,{r:0.5}));const s=mt(STEEL,{r:0.35,m:0.7});for(const x of [-0.75,0.75]){P(bx(x-0.015,x+0.015,0,0.7,-0.32,-0.29),s);P(bx(x-0.015,x+0.015,0,0.7,0.29,0.32),s);P(bx(x-0.015,x+0.015,0.08,0.11,-0.32,0.32),s);}}},
+    workSq:{n:'方形工作大桌',e:'🛠️',c:'書房',p:900,w:1.6,d:1.6,h:0.76,top:0.76,pal:['#c8a070',WHITE,DARK,'#5a3e2b'],b(P,C){P(bx(-0.8,0.8,0.72,0.76,-0.8,0.8),mt(C,{r:0.5}));const s=mt(DARK,{r:0.4,m:0.5});for(const x of [-0.74,0.74])for(const z of [-0.74,0.74])P(bx(x-0.03,x+0.03,0,0.72,z-0.03,z+0.03),s);for(const s2 of [-1,1]){P(bx(-0.74,0.74,0.66,0.72,s2*0.74-0.02,s2*0.74+0.02),s);P(bx(s2*0.74-0.02,s2*0.74+0.02,0.66,0.72,-0.74,0.74),s);P(bx(-0.74,0.74,0.15,0.18,s2*0.74-0.015,s2*0.74+0.015),s);}}},
+    kidSq:{n:'兒童大方桌',e:'🧸',c:'兒童',p:400,w:1.2,d:1.2,h:0.55,top:0.55,pal:['#ffd23a','#7ec8f0','#ff9ec4','#9ad86a'],b(P,C){P(bx(-0.6,0.6,0.51,0.55,-0.6,0.6),mt(C,{r:0.5}));const cs=['#e8402a','#3fa0e0','#2ea84d','#f5a623'];let i=0;for(const x of [-0.52,0.52])for(const z of [-0.52,0.52])P(cy(0.045,0.045,0.51,x,0,z,12),mt(cs[i++],{r:0.5}));}},
+    outdoorSq:{n:'戶外大方桌',e:'⛱️',c:'戶外',p:600,w:1.5,d:1.5,h:0.75,top:0.75,pal:['#9a6b43','#6a6a6a',WHITE],b(P,C){const w=mt(C,{r:0.8});for(let i=0;i<6;i++){const z=-0.75+0.03+i*0.248;P(bx(-0.75,0.75,0.71,0.75,z,z+0.22),w);}P(bx(-0.7,0.7,0.66,0.71,-0.7,-0.66),w);P(bx(-0.7,0.7,0.66,0.71,0.66,0.7),w);legs(P,1.5,1.5,0.71,0.04,w,0.1);}},
     vinylWall:{n:'黑膠唱片牆',e:'💿',c:'牆上',p:420,w:1.02,d:0.03,h:0.72,y0:1.3,wall:true,pal:['#111111','#3a2a4a','#2a3a4a'],b(P,C){const vc=mt(C,{r:0.2});const cov=[['#e8402a','🎸'],['#3fa0e0','🎹'],['#f5d23a','🎷'],['#5cc06a','🥁'],['#e86aa8','🎤'],['#9a7ad0','🎧']];cov.forEach(([bg,ic],i)=>{const x=-0.34+(i%3)*0.34,y=1.48+Math.floor(i/3)*0.34,isV=(i+1)%2;if(isV){P(cyz(0.15,0.006,x,y,-0.008,28),vc);P(cyz(0.05,0.007,x,y,-0.007,16),mt(bg,{r:0.5}));P(cyz(0.008,0.008,x,y,-0.006,8),mt('#fafafa'));}else{P(pl(0.3,0.3,x,y,-0.008),texMat('n2vin'+i,emo('n2vin'+i,bg,ic,'',null,128,128)));P(bx(x-0.15,x+0.15,y-0.15,y+0.15,-0.015,-0.009),mt('#fafafa'));}});}},
   };
   const CATS=['客廳','臥室','餐廚','浴室','書房','兒童','遊戲','運動','戶外','植物','寵物','節日','樂器','燈具','裝飾','牆上','和風','中式','商店'],CE={客廳:'🛋',臥室:'🛏',餐廚:'🍽',浴室:'🛁',書房:'📚',兒童:'🧸',遊戲:'🎮',運動:'⚽',戶外:'🌳',植物:'🌿',寵物:'🐱',節日:'🎉',樂器:'🎹',燈具:'💡',裝飾:'🏺',牆上:'🖼',和風:'🎎',中式:'🏮',商店:'🏪'},ALLOW=new Set(['客廳','廚房','前房','後房','浴室','大房間','後陽台','前露台','走道']),ALLOW_W=new Set(['客廳','廚房','前房','後房','大房間','走道']);   /* 2026-10-21.1 使用者：「放走道也可以啊，擋路再拆就好了」 */   // 掛牆的不能在浴室（有鏡子、淋浴間）、露台（女兒牆太矮）
@@ -12497,10 +12525,11 @@ const DECO=(()=>{
     if(nOf(s)>=s.maxN){toast(`${s.name}最多擺 ${s.maxN} 件，先收起來或丟掉一些`);return;}
     closePanel();closeMenu();const r=((Math.round(player.yaw/(Math.PI/2))%4)+4)%4;U.carry={t,r,c:ci,fr:fr?1:0,s:s.id,x:0,z:0,f:0,why:'…',g:inst(t,true,ci)};scene.add(U.carry.g);mark.visible=true;if(player.pitch>-0.42)player.pitch=-0.42;   /* 第一人稱往前平看時傢俱在腳邊看不到：往下看一點 */upd(0,true);drawBar();
     toast(DEF[t].wall?`拿著${DEF[t].n}：面向想掛的牆，牆上綠框就可以按「✓ 掛這裡」`:`搬著${DEF[t].n}：走到想放的地方，地上綠框就可以按「✓ 放這裡」`);}
-  function drop(msg){const C=U.carry;if(!C)return;scene.remove(C.g);mark.visible=false;markW.visible=false;U.carry=null;drawBar();if(msg)toast(msg);}
+  function drop(msg){const C=U.carry;if(!C)return;if(msg&&U.queue&&U.queue.length){msg+=`（一次買的另外 ${U.queue.length} 件也在倉庫）`;U.queue=null;}scene.remove(C.g);mark.visible=false;markW.visible=false;U.carry=null;drawBar();if(msg)toast(msg);}
   const bag=fr=>fr?S.invF:S.inv;
   function place(){const C=U.carry;if(!C)return;if(C.why){toast('不能放：'+C.why);AUDIO.sfx('beep');return;}
-    const B=bag(C.fr);if(!(B[C.t]>0)){drop();return;}B[C.t]--;if(!B[C.t])delete B[C.t];const it={t:C.t,x:C.x,z:C.z,f:C.f,r:C.r,cl:C.c|0,...(C.s==='cs'?{s:'cs'}:{}),...(C.fr?{fr:1}:{})};S.items.push(it);spawn(it);save();drop();AUDIO.sfx('thud');}
+    const B=bag(C.fr);if(!(B[C.t]>0)){drop();return;}B[C.t]--;if(!B[C.t])delete B[C.t];const it={t:C.t,x:C.x,z:C.z,f:C.f,r:C.r,cl:C.c|0,...(C.s==='cs'?{s:'cs'}:{}),...(C.fr?{fr:1}:{})};S.items.push(it);spawn(it);save();drop();AUDIO.sfx('thud');
+    while(U.queue&&U.queue.length){const t=U.queue.shift();if((S.inv[t]|0)>0){carry(t);if(U.carry)toast(`再擺下一件：${DEF[t].n}（還有 ${U.queue.length} 件）`);else U.queue=null;break;}}}   /* 一次買很多件：擺好一件自動拿下一件 */
   function rotate(){const C=U.carry;if(!C||DEF[C.t].wall)return;C.r=(C.r+1)%4;upd(0,true);AUDIO.sfx('click');}
   function upd(dt,force){const C=U.carry;if(!C)return;const s=SITE[C.s],D=DEF[C.t],fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),[Wd,Dd]=dims(C.t,C.r),dist=0.6+Math.max(Wd,Dd)/2;   /* 斜著站時角落會太靠近人（被判成壓到自己）：拉遠一點 */
     let x=Math.round((player.pos.x+fx*dist)*10)/10,z=Math.round((player.pos.y+fz*dist)*10)/10;const f=s.fOf(player.y);
@@ -12539,6 +12568,8 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
 #decoP .rp b{display:block;margin:4px 0}#decoP .rp .lb{margin:10px 0 4px;color:var(--ink-2)}#decoP .sws{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}#decoP .sw{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 2px;font-size:11px;min-height:58px}#decoP .sw i{display:block;width:34px;height:24px;border-radius:5px;border:1px solid rgba(255,255,255,.4)}#decoP .sw.on{border-color:#ffb454;background:rgba(255,180,84,.3)}
 #decoInv[hidden]{display:none!important}#decoInv{position:fixed;z-index:35;left:50%;transform:translateX(-50%);top:calc(64px + var(--sat));display:flex;gap:8px;align-items:center;padding:8px 10px;max-width:calc(100vw - 24px);background:rgba(20,26,34,.94);border:1px solid #ffb454;border-radius:12px;color:var(--ink);font-size:14px}#decoInv button{min-height:40px;padding:4px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:inherit;font-size:14px}#decoInv button.go{background:#ffb454;border-color:#ffb454;color:#2a1a00;font-weight:800}
 #decoP .note{flex:none;margin:6px 0 0;color:var(--ink-2);font-size:12px}
+#decoP .it.inc{background:rgba(255,180,84,.12)}#decoP .it .ct{min-width:40px;padding:4px 6px}#decoP .it .cn{min-width:18px;text-align:center;align-self:center;color:#ffd27a}
+#decoP .cart{flex:none;display:flex;align-items:center;gap:6px;margin-top:6px;padding:6px 8px;border-radius:10px;background:rgba(255,180,84,.18);border:1px solid #ffb454}#decoP .cart[hidden]{display:none!important}#decoP .cart span{flex:1;min-width:0}#decoP .cart small{display:block;color:#ffb0a0}
 @media (max-height:500px){#decoP{height:calc(100vh - 12px);height:calc(100dvh - 12px)}#decoP .tb{gap:4px;padding-bottom:3px;grid-template-rows:auto}#decoP .tb button{min-height:30px;font-size:12px;padding:2px 7px}#decoP .sr{margin-bottom:4px}#decoP .sr input,#decoP .sr button{min-height:32px}#decoP .note{display:none}#decoBar .b.m button{flex:1 1 28%;min-height:42px}#decoBar{padding:6px 8px;gap:4px}}`;document.head.appendChild(css);
   const bar=document.createElement('div');bar.id='decoBar';bar.className='panel';bar.hidden=true;document.body.appendChild(bar);
   for(const ev of ['touchstart','pointerdown','mousedown'])bar.addEventListener(ev,e=>e.stopPropagation());
@@ -12562,8 +12593,8 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
   U.sit=null;
   const rot=(it,lx,lz)=>{const a=it.r*Math.PI/2,c=Math.cos(a),s=Math.sin(a);return [it.x+lx*c+lz*s,it.z-lx*s+lz*c];};   // 傢俱座標 → 世界座標（跟 rotation.y 一樣）
   function seatIn(){U.prevView=view;if(view!=='third'){view='third';syncViewUI();}player.vel.set(0,0);player.climb=false;if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();}
-  function sitDown(it){const D=DEF[it.t];if(!D.seat||U.carry)return;let best=null,bd=1e9;for(const [lx,lz] of D.seat){const [x,z]=rot(it,lx,lz),d=Math.hypot(x-player.pos.x,z-player.pos.y);if(d<bd){bd=d;best=[x,z];}}
-    seatIn();const a=it.r*Math.PI/2;U.sit={it,k:'sit',x:best[0],z:best[1],y:sOf(it).base(it.f),face:a+Math.PI,sy:D.sy};player.yaw=a;player.pitch=-0.3;AUDIO.sfx('swish');syncActBtn();
+  function sitDown(it){const D=DEF[it.t];if(!D.seat||U.carry)return;let best=null,bd=1e9;for(const [lx,lz,da] of D.seat){const [x,z]=rot(it,lx,lz),d=Math.hypot(x-player.pos.x,z-player.pos.y);if(d<bd){bd=d;best=[x,z,da||0];}}   /* 第三個數＝這個座位轉幾度（2026-10-24.1 方桌四邊都有椅子） */
+    seatIn();const a=it.r*Math.PI/2+best[2];U.sit={it,k:'sit',x:best[0],z:best[1],y:sOf(it).base(it.f),face:a+Math.PI,sy:D.sy};player.yaw=a;player.pitch=-0.3;AUDIO.sfx('swish');syncActBtn();
     if(!U.toldS){U.toldS=true;toast('坐下了：按「起來」或「跳」站起來');}}
   function lieDown(it){const D=DEF[it.t];if(!D.lie||U.carry)return;const sc=bodyH().scale,a=it.r*Math.PI/2,hx=-Math.sin(a),hz=-Math.cos(a);   // 頭朝床頭板（傢俱的 -z）
     let lx=0;if(D.w>1.2){const [x1,z1]=rot(it,0.38,0),[x2,z2]=rot(it,-0.38,0);lx=Math.hypot(x1-player.pos.x,z1-player.pos.y)<Math.hypot(x2-player.pos.x,z2-player.pos.y)?0.38:-0.38;}   // 雙人床：躺靠近你的那一邊
@@ -12583,7 +12614,7 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
     A.legL.rotation.x=A.legR.rotation.x=0;A.armL.rotation.x=A.armR.rotation.x=0;A.armL.rotation.z=-0.12;A.armR.rotation.z=0.12;};
   // ---------- 目錄面板 ----------
   const P=document.createElement('div');P.id='decoP';P.className='panel';P.hidden=true;document.body.appendChild(P);
-  P.innerHTML=`<div class="hd"><b class="ttl">🛋 擺傢俱</b><button data-x="close">✕ 關閉</button></div><div class="mo"></div><div class="sr"><input type="search" enterkeyhint="search" autocomplete="off" placeholder="🔍 搜尋：沙發、貓、燈、可以坐…"><button data-q="x">✕</button></div><div class="tb"></div><div class="ls"></div><p class="note">買了會出現在你面前，搬著走到想放的地方按「✓ 放這裡」（地上綠框才可以放；樓梯口不行，擋到路就搬開或收起來）。面向擺好的傢俱按 F：搬動、收起來、賣掉（全額退錢；城堡送的不能賣）。</p>`;
+  P.innerHTML=`<div class="hd"><b class="ttl">🛋 擺傢俱</b><button data-x="close">✕ 關閉</button></div><div class="mo"></div><div class="sr"><input type="search" enterkeyhint="search" autocomplete="off" placeholder="🔍 搜尋：沙發、貓、燈、可以坐…"><button data-q="x">✕</button></div><div class="tb"></div><div class="ls"></div><div class="cart" hidden></div><p class="note">買了會出現在你面前，搬著走到想放的地方按「✓ 放這裡」（地上綠框才可以放；樓梯口不行，擋到路就搬開或收起來）。面向擺好的傢俱按 F：搬動、收起來、賣掉（全額退錢；城堡送的不能賣）。</p>`;
   for(const ev of ['touchstart','pointerdown','mousedown','wheel'])P.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
   let tab='客廳',q='';
   const sIn=P.querySelector('.sr input');   // 2026-10-22.2 搜尋：名字、分類；「坐」「躺」「牆」找可以坐／躺／掛牆的
@@ -12592,7 +12623,10 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
   P.querySelector('.tb').addEventListener('wheel',e=>{const t=e.currentTarget;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){t.scrollLeft+=e.deltaY;e.preventDefault();}},{passive:false});   // 電腦：滾輪左右捲分類
   const hit=(k,w)=>{const D=DEF[k];if(D.n.includes(w)||D.c===w||k.toLowerCase()===w.toLowerCase())return true;if(/^(可以)?坐/.test(w))return !!D.seat;if(/^(可以)?躺/.test(w))return !!D.lie;if(/^(掛)?牆|^掛/.test(w))return !!D.wall;return false;};
   const found=()=>{const ws=q.split(/\s+/).filter(Boolean);return Object.keys(DEF).filter(k=>ws.every(w=>hit(k,w)));};
-  const buyRow=(k,showC)=>{const D=DEF[k],poor=money()<D.p;return `<div class="it"><span class="e">${D.e}</span><span class="n">${D.n}<small>${showC?(CE[D.c]||'')+' '+D.c+'・':''}${D.w}×${D.d} m${D.seat?'・可以坐':D.lie?'・可以躺':''}${S.inv[k]?`・倉庫有 ${S.inv[k]} 件`:''}</small></span><span class="bt"><button data-buy="${k}" class="buy${poor?' poor':''}">買 ${D.p} 元</button></span></div>`;};
+  // 2026-10-24.1 使用者：「買傢俱一次可以選很多件」→ 每一列多一顆「＋」放進購物車（同一種可以按很多次）；下面購物車一次買下，買完一件一件搬去擺（擺好一件自動拿下一件，不想擺的收起來就留在倉庫）
+  let cart={};const cartN=()=>Object.values(cart).reduce((a,b)=>a+b,0),cartP=()=>Object.keys(cart).reduce((a,k)=>a+DEF[k].p*cart[k],0);
+  const buyRow=(k,showC)=>{const D=DEF[k],poor=money()<D.p,n=cart[k]|0;return `<div class="it${n?' inc':''}"><span class="e">${D.e}</span><span class="n">${D.n}<small>${showC?(CE[D.c]||'')+' '+D.c+'・':''}${D.w}×${D.d} m${D.seat?'・可以坐':D.lie?'・可以躺':''}${S.inv[k]?`・倉庫有 ${S.inv[k]} 件`:''}</small></span><span class="bt">${n?`<button data-sub="${k}" class="ct">－</button><b class="cn">${n}</b>`:''}<button data-add="${k}" class="ct" title="放進購物車">＋🛒</button><button data-buy="${k}" class="buy${poor?' poor':''}">買 ${D.p} 元</button></span></div>`;};
+  function cartHTML(){const n=cartN();if(!n||U.view)return '';const p=cartP(),poor=money()<p;return `<span>🛒 選了 <b>${n}</b> 件・共 <b>${p}</b> 元${poor?`<small>（錢包 ${money()} 元，不夠）</small>`:''}</span><button data-cart="clear">清空</button><button data-cart="buy" class="buy${poor?' poor':''}">一次買下</button>`;}
   const nInv=()=>[...Object.values(S.inv),...Object.values(S.invF)].reduce((a,b)=>a+b,0);
   function drawPanel(){if(U.view)tab='參觀';else if(tab==='參觀'&&!U.NT.on()||tab==='最近'&&!(S.rc||[]).length)tab='客廳';P.querySelector('.sr').hidden=!!U.view;if(U.view&&q){q='';sIn.value='';}const st0=here()||SITE.nb;P.querySelector('.ttl').textContent=`🛋 ${st0.name}・擺傢俱`;P.querySelector('.mo').innerHTML=U.view?`👀 正在看 <b>${esc(U.view.name)}</b> 的家（回我的家才能擺）`:`💰 錢包 <b>${money()}</b> 元　${st0.name}已經擺 <b>${nOf(st0)}</b>／${st0.maxN} 件`;
     {const tb=P.querySelector('.tb'),sl=tb.scrollLeft;tb.innerHTML=(U.view?['參觀']:[...((S.rc||[]).length?['最近']:[]),...CATS,'房間','倉庫',...(U.NT.on()?['參觀']:[])]).map(c=>`<button data-c="${c}" class="${c===tab&&!q?'on':''}">${c==='倉庫'?`📦 倉庫(${nInv()})`:c==='房間'?'🎨 房間':c==='參觀'?'👥 參觀':c==='最近'?'🕘 最近買的':(CE[c]||'')+' '+c}</button>`).join('');tb.scrollLeft=sl;}
@@ -12601,6 +12635,7 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
     else if(tab==='最近')ls.innerHTML=(S.rc||[]).map(k=>buyRow(k,true)).join('');
     else if(tab==='房間')ls.innerHTML=roomHTML();else if(tab==='參觀')ls.innerHTML=visitHTML();else if(tab==='倉庫'){const ks=Object.keys(DEF).filter(k=>(S.inv[k]|0)+(S.invF[k]|0)>0);ls.innerHTML=ks.length?ks.map(k=>{const D=DEF[k],a=S.inv[k]|0,b=S.invF[k]|0;return `<div class="it"><span class="e">${D.e}</span><span class="n">${D.n} × ${a+b}<small>${D.w}×${D.d} m${b?`・送的 ${b} 件`:''}${a?`・買的 ${a} 件`:''}</small></span><span class="bt"><button data-take="${k}" class="buy">拿出來擺</button><button data-sell="${k}">${a?'賣掉 +'+D.p:'🗑 丟掉'}</button></span></div>`;}).join(''):'<p class="note" style="padding:10px 4px">倉庫是空的。買了還沒擺、或收起來的傢俱會在這裡。</p>';}
     else ls.innerHTML=Object.keys(DEF).filter(k=>DEF[k].c===tab).map(k=>buyRow(k,false)).join('');
+    {const cb=P.querySelector('.cart'),h=cartHTML();cb.innerHTML=h;cb.hidden=!h;}
     ls.scrollTop=st;fit();}
   function fit(){const ls=P.querySelector('.ls');ls.style.maxHeight='';const pb=P.getBoundingClientRect(),lb=ls.getBoundingClientRect(),nb=P.querySelector('.note').getBoundingClientRect();   // 保險（iPhone Safari flex 高度算錯時）：清單跑出框外就用像素限制
     if(lb.bottom>pb.bottom-4||lb.height<60)ls.style.maxHeight=Math.max(120,pb.bottom-lb.top-(nb.height?nb.height+14:10))+'px';}
@@ -12615,6 +12650,13 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
     if(b.dataset.buy){const t=b.dataset.buy,D=DEF[t];if(money()<D.p){toast(`錢不夠：${D.n}要 ${D.p} 元，錢包 ${money()} 元（玩小遊戲可以賺零用錢）`);AUDIO.sfx('beep');return;}
       {const s=here();if(s&&nOf(s)>=s.maxN){toast(`${s.name}最多擺 ${s.maxN} 件，先收起來或丟掉一些`);return;}}
       W().money=money()-D.p;PUSH.save();S.inv[t]=(S.inv[t]|0)+1;S.rc=[t,...(S.rc||[]).filter(k=>k!==t)].slice(0,12);save();AUDIO.sfx('chime');carry(t);return;}
+    if(b.dataset.add){const t=b.dataset.add;cart[t]=(cart[t]|0)+1;AUDIO.sfx('click');drawPanel();return;}
+    if(b.dataset.sub){const t=b.dataset.sub;if(cart[t]>1)cart[t]--;else delete cart[t];AUDIO.sfx('click');drawPanel();return;}
+    if(b.dataset.cart==='clear'){cart={};drawPanel();return;}
+    if(b.dataset.cart==='buy'){const n=cartN(),p=cartP();if(!n)return;if(money()<p){toast(`錢不夠：選的 ${n} 件共 ${p} 元，錢包 ${money()} 元（按「－」少買幾件，或玩小遊戲賺零用錢）`);AUDIO.sfx('beep');return;}
+      W().money=money()-p;PUSH.save();const q=[];for(const t of Object.keys(cart)){S.inv[t]=(S.inv[t]|0)+cart[t];for(let i=0;i<cart[t];i++)q.push(t);S.rc=[t,...(S.rc||[]).filter(k=>k!==t)].slice(0,12);}cart={};save();AUDIO.sfx('chime');
+      const s=here();if(!s||nOf(s)>=s.maxN){toast(`買了 ${n} 件，放在倉庫（${s?s.name+'擺滿了':'要在隔壁新家或城堡裡面才能擺'}）`);tab='倉庫';drawPanel();return;}
+      U.queue=q.slice(1);carry(q[0]);if(U.carry)toast(`🛒 買了 ${n} 件！先擺第 1 件，擺好會自動拿下一件（不想擺的按「📦 收起來」會留在倉庫）`);return;}
     if(b.dataset.take){const t=b.dataset.take;carry(t,0,(S.invF[t]|0)>0?1:0);return;}   // 送的先拿
     if(b.dataset.sell){const t=b.dataset.sell;if(S.inv[t]>0){S.inv[t]--;if(!S.inv[t])delete S.inv[t];save();refund(t);}else if(S.invF[t]>0){S.invF[t]--;if(!S.invF[t])delete S.invF[t];save();toast(`${DEF[t].n}（送的）丟掉了`);}drawPanel();}});
   function openPanel(){if(U.carry)return;closeMenu();if(PUSH.daily&&PUSH.daily())toast(`💰 今天的零用錢來了：${PUSH.DAILY} 元`);if(U.view)tab='參觀';U.open=true;P.hidden=false;drawPanel();{const o=P.querySelector('.tb .on');if(o)o.scrollIntoView({block:'nearest',inline:'center'});}syncActBtn();}
@@ -12668,7 +12710,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
   const DAILY=1000;U.DAILY=DAILY;   /* 每天零用錢（2026-10-16 使用者：500 太少 → 1000；玩其他小遊戲也賺得到，見 EARN） */
   const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
   const W=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-push')||'{}')||{};}catch(_){}
-    return {money:o.money==null?DAILY:+o.money||0,day:o.day||'',tok:o.tok|0,tix:o.tix|0,earn:o.earn|0,gift:o.gift|0,dv:o.dv|0,pz:o.pz&&typeof o.pz==='object'?o.pz:{},wear:o.wear||'',hold:o.hold||'',ins:o.ins|0,out:o.out|0};})();
+    return {money:o.money==null?DAILY:+o.money||0,day:o.day||'',tok:o.tok|0,tix:o.tix|0,earn:o.earn|0,gift:o.gift|0,dv:o.dv|0,pz:o.pz&&typeof o.pz==='object'?o.pz:{},wear:o.wear||'',hold:o.hold||'',ins:o.ins|0,out:o.out|0,par:o.par|0};})();   /* par＝家長代碼輸入過一次（2026-10-24.1） */
   const save=()=>{try{localStorage.setItem('home-push',JSON.stringify(W));}catch(_){}};U.W=W;U.save=save;
   U.daily=()=>daily();
   function daily(){const d=today();if(W.day!==d||(W.dv|0)<2){const add=W.money<DAILY;if(add)W.money=DAILY;W.day=d;W.dv=2;save();return add;}return false;}   /* 每天：不夠 DAILY 元就補到 DAILY；dv＝改成 1000 元那天，今天已經領過 500 的也馬上補到 1000 */
@@ -13011,15 +13053,19 @@ const PUSH=(()=>{const U={on:false,k:-1};
   // ================= 兌幣機、兌獎櫃台（面板） =================
   const pn=document.createElement('div');pn.id='puPanel';pn.className='panel';pn.hidden=true;document.body.appendChild(pn);
   for(const ev of ['pointerdown','touchstart','wheel','keydown','keyup'])pn.addEventListener(ev,e=>e.stopPropagation(),{passive:true});   /* 打代碼時不要走路 */
-  const BUY=[[100,11],[200,23],[500,60]],CODES={'777':1000};   /* 代碼 → 加多少零用錢 */U.changeOpen=m=>changeOpen(m);
+  const BUY=[[100,11],[200,23],[500,60]],CODES={'777':1000},PAR_ADD=1000;   /* 代碼 → 加多少零用錢 */U.changeOpen=m=>changeOpen(m);
   function changeOpen(msg){const add=daily();pn.innerHTML=`<div class="hd"><b>🪙 兌幣機</b><button data-x="1">✕</button></div>${msg?`<div class="res">${msg}</div>`:''}${add?`<div class="res">💰 今天的零用錢來了：${DAILY} 元！</div>`:''}${W.money<100?'<div class="res" style="background:#e0a020;color:#3a1f00">錢不夠了：去玩其他小遊戲賺零用錢，或明天再來拿</div>':''}
       <div class="wal">💰 錢包 <b>${W.money}</b> 元　🪙 代幣 <b>${W.tok}</b> 枚　🎟 彩票 <b>${W.tix}</b> 張</div>
       <div class="row">${BUY.map(([m,n])=>`<button data-b="${m}" ${W.money<m?'disabled':''}>${m} 元<small>→ ${n} 枚${n*10>m?`（多送 ${n-m/10}）`:''}</small></button>`).join('')}</div>
       <div class="note">每天會補零用錢：錢包不夠 ${DAILY} 元就補到 ${DAILY} 元。<b>玩其他小遊戲也賺得到零用錢</b>：跳舞機、武道快打、賽車、鬥牛、擂台、夜市套圈、校園大逃亡、直笛、罰球、網球贏一局、打殭屍、小餐館${W.earn?`（到現在賺了 ${W.earn} 元）`:''}。</div>
-      <form class="code"><span>🔑 代碼</span><input type="text" inputmode="numeric" maxlength="8" placeholder="輸入代碼" autocomplete="off" enterkeyhint="done"><button type="submit">確定</button></form>`;pn.hidden=false;
-    {const f=pn.querySelector('form.code');f.onsubmit=e=>{e.preventDefault();const v=f.querySelector('input').value.trim();   /* 2026-10-16 使用者：小孩玩手機沒錢時，家長輸入 777 馬上加 1000 元 */
-      if(Object.prototype.hasOwnProperty.call(CODES,v)){W.money+=CODES[v];W.gift=(W.gift|0)+CODES[v];save();snd('buy');AUDIO.sfx('chime');changeOpen(`✅ 加了 ${CODES[v]} 元零用錢！`);}else{f.querySelector('input').value='';f.querySelector('input').placeholder='代碼不對，再試一次';snd('lose');}};}
-    pn.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.x){pn.hidden=true;return;}const m=+b.dataset.b,it=BUY.find(q=>q[0]===m);if(!it||W.money<m)return;W.money-=m;W.tok+=it[1];save();snd('buy');toast(`🪙 換了 ${it[1]} 枚代幣（剩 ${W.money} 元）`);changeOpen();};}
+      ${W.par?`<div class="row par"><button data-par="1">🔑 家長加 ${PAR_ADD} 元</button><button data-lock="1">🔒 鎖起來</button></div><div class="note">家長代碼輸入過了，直接按就能加錢；按「鎖起來」之後要再輸入代碼才能加。</div>`
+        :`<form class="code"><span>🔑 代碼</span><input type="text" inputmode="numeric" maxlength="8" placeholder="輸入代碼" autocomplete="off" enterkeyhint="done"><button type="submit">確定</button></form>`}`;pn.hidden=false;
+    {const f=pn.querySelector('form.code');if(f)f.onsubmit=e=>{e.preventDefault();const v=f.querySelector('input').value.trim();   /* 2026-10-16 使用者：小孩玩手機沒錢時，家長輸入 777 馬上加 1000 元 */
+      if(Object.prototype.hasOwnProperty.call(CODES,v)){W.money+=CODES[v];W.gift=(W.gift|0)+CODES[v];W.par=1;save();snd('buy');AUDIO.sfx('chime');changeOpen(`✅ 加了 ${CODES[v]} 元零用錢！之後不用再輸入代碼，直接按「家長加錢」`);}else{f.querySelector('input').value='';f.querySelector('input').placeholder='代碼不對，再試一次';snd('lose');}};}   /* 2026-10-24.1 使用者：「每次都要重複輸入 777 太煩了，輸入一次就可以一直換錢，除非去改」→ 記住（W.par），按「鎖起來」才要重新輸入 */
+    pn.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.x){pn.hidden=true;return;}
+      if(b.dataset.par){if(!W.par)return;W.money+=PAR_ADD;W.gift=(W.gift|0)+PAR_ADD;save();snd('buy');AUDIO.sfx('chime');changeOpen(`✅ 加了 ${PAR_ADD} 元零用錢！`);return;}
+      if(b.dataset.lock){W.par=0;save();changeOpen('🔒 鎖起來了：下次要加錢要再輸入代碼');return;}
+      const m=+b.dataset.b,it=BUY.find(q=>q[0]===m);if(!it||W.money<m)return;W.money-=m;W.tok+=it[1];save();snd('buy');toast(`🪙 換了 ${it[1]} 枚代幣（剩 ${W.money} 元）`);changeOpen();};}
   function prizeOpen(){pn.innerHTML=`<div class="hd"><b>🎟 兌獎櫃台</b><button data-x="1">✕</button></div><div class="wal">🎟 彩票 <b>${W.tix}</b> 張　🪙 代幣 <b>${W.tok}</b> 枚</div>
       <div class="prz">${PRZ.map(p=>{const n=W.pz[p.id]|0;return `<div class="pz${n?' own':''}"><span class="e">${p.e}</span><span class="n">${p.n}${n?`<small>有 ${n} 個</small>`:''}</span>
         ${p.wear&&n?`<button data-w="${p.id}" class="${W.wear===p.id?'on':''}">${W.wear===p.id?'拿下來':'戴上'}</button>`:''}${n?`<button data-h="${p.id}" class="${W.hold===p.id?'on':''}">${W.hold===p.id?'放下':'拿著'}</button>`:''}<button data-p="${p.id}" ${W.tix<p.c?'disabled':''}>🎟 ${p.c}</button></div>`;}).join('')}</div>
@@ -13046,7 +13092,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
   U.netBig=(name,d)=>{const st=S[d.k|0];if(!st)return;if(d.e==='jp'){burst(st);st.msg='👑 大獎';st.msgT=4;toast(`🎉 ${name} 在推幣機第 ${st.i+1} 台中了大獎！`);AUDIO.sfx('cheer');}};
   {const P=document.getElementById('emotePanel'),el=document.createElement('div');el.id='emHold';P.appendChild(el);const t0=EMOTE.toggle;EMOTE.toggle=()=>{t0();if(!P.hidden)U.holdMenu(el);};   /* 動作選單最下面：選拿哪個獎品、炫耀 */
    el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();if(b.dataset.hs){P.hidden=true;document.getElementById('bEmote').classList.remove('on');U.show();return;}if(b.dataset.hd){U.holdPick(b.dataset.hd);U.holdMenu(el);}});}
-  {const b=document.getElementById('codeMenu');if(b)b.onclick=()=>{menu.hidden=true;document.getElementById('bMenu').classList.remove('on');changeOpen();setTimeout(()=>{const i=pn.querySelector('form.code input');if(i)i.focus();},60);};}   /* 選單也可以直接輸入代碼（不用走到推幣樂園） */
+  {const b=document.getElementById('codeMenu');if(b)b.onclick=()=>{menu.hidden=true;document.getElementById('bMenu').classList.remove('on');changeOpen();setTimeout(()=>{const i=pn.querySelector('form.code input');if(i)i.focus();},60);};}   /* 輸入過代碼（W.par）就不會有輸入框，直接是「家長加錢」按鈕 */   /* 選單也可以直接輸入代碼（不用走到推幣樂園） */
   U.dbg=()=>({S,W,phys,draw,fill,hole,RL,dropOne,credit,saveF,loadF,IN,changeOpen,prizeOpen,mkPrize,nearSt,FD,FW,WIN_W});
   return U;})();
 
@@ -17716,8 +17762,9 @@ var PAX=(()=>{
   const send=(to,m)=>{if(NET.on&&to!=null)NET.out(String(to),{t:'px',...m});},bcast=m=>{if(NET.on)NET.out('*',{t:'px',...m});};
   // ---- 座位（車子本地座標：車頭 +x、右邊 +z；y＝坐的高度，跟 RIDE 的 seat 一樣；st＝站著、str＝跨坐） ----
   const F4=s=>[{x:-0.25,z:0.4,y:s,front:1,n:'副駕'},{x:-1.0,z:-0.42,y:s+0.04,n:'後座左'},{x:-1.0,z:0.42,y:s+0.04,n:'後座右'}];
-  function seatsOf(k,mi){if(k==='bike')return [{x:-0.62,z:0,y:0.72,str:1,n:'後座'}];if(k==='scooter')return [{x:-0.62,z:0,y:0.9,str:1,n:'後座'}];if(k!=='car')return [];
-    const S=mi>=0&&NB_CARS[mi];if(!S)return [{x:-0.25,z:0.4,y:0.5,front:1,n:'副駕'}];const s=(S.tune&&S.tune.seat)||0.4;
+  function seatsOf(k,mi){if(k==='bike')return [{x:-0.62,z:0,y:0.72,str:1,n:'後座'}];if(k==='scooter')return [{x:-0.62,z:0,y:0.9,str:1,n:'後座'}];
+    if(k==='twist')return [{x:-0.4,z:0,y:0.42,str:1,n:'後面'}];if(k!=='car')return [];   /* 2026-10-24.1 使用者選「連線座位變多」：扭扭車也能載 1 人、租的車和路邊的車坐 4 人 */
+    const S=mi>=0&&NB_CARS[mi];if(!S)return F4(0.5);const s=(S.tune&&S.tune.seat)||0.4;
     if(mi===4||mi===5)return [{x:-0.25,z:0.4,y:s,front:1,n:'副駕'}];   /* 跑車：只有副駕 */
     if(mi===7)return [{x:-0.25,z:0.42,y:s,front:1,n:'副駕'},{x:-1.55,z:-0.45,y:1.24,st:1,n:'貨斗左'},{x:-1.55,z:0.45,y:1.24,st:1,n:'貨斗右'}];   /* 皮卡：站在貨斗 */
     return F4(s);}
@@ -17977,11 +18024,12 @@ function step(dt){
   for(const cu of CURTAINS)if(cu.t!==cu.target){const v=dt*1.25;cu.t=Math.abs(cu.target-cu.t)<=v?cu.target:cu.t+Math.sign(cu.target-cu.t)*v;layoutCurtain(cu);if(cu.t===cu.target)renderer.shadowMap.needsUpdate=true;}
   // 門：人靠近就打開
   const csF=mode==='walk'&&player.pos.x>CASTLE.x0-4&&player.pos.x<CASTLE.x1+4&&player.pos.y>CASTLE.z0-4&&player.pos.y<CASTLE.z1+4?CASTLE.fOf(player.y):-1;   // 城堡的門只畫人在的那一層（一層 12 扇）
-  for(const d of DOORS){if(d.reg){const v=!d.reg.dead;if(d.pivot.visible!==v)d.pivot.visible=v;if(!v){d.col.off=true;continue;}}   // 往東第 1 戶被打壞時門藏起來
+  csDoorLoad();for(const d of DOORS){if(d.reg){const v=!d.reg.dead;if(d.pivot.visible!==v)d.pivot.visible=v;if(!v){d.col.off=true;continue;}}   // 往東第 1 戶被打壞時門藏起來
     if(d.cs!==undefined){const v=d.cs===csF;if(d.pivot.visible!==v)d.pivot.visible=v;}
     if(d.wasNear===undefined)d.wasNear=false;const near=(mode==='walk'&&Math.abs(player.y-d.y)<1&&Math.hypot(player.pos.x-d.center.x,player.pos.y-d.center.y)<2.2)||GAME.zNear(d.center,d.y);   // 殭屍靠近也會開
-    if(near&&!d.wasNear&&started)AUDIO.sfx('door');d.wasNear=near;   // 開門聲
-    d.ang+=((near?d.max:0)-d.ang)*Math.min(1,dt*4);d.pivot.rotation.y=d.rot0+d.sgn*d.ang;d.col.off=d.ang>0.8;}
+    if(near&&!d.wasNear&&started&&d.man===undefined)AUDIO.sfx('door');d.wasNear=near;   // 開門聲
+    const op=d.man===1||(d.man!==0&&near);   /* 2026-10-24.1 城堡的門：按 F 關上／打開就一直那樣 */
+    d.ang+=((op?d.max:0)-d.ang)*Math.min(1,dt*4);d.pivot.rotation.y=d.rot0+d.sgn*d.ang;d.col.off=d.ang>0.8;}
   // 便利商店自動門：人或殭屍靠近就往兩側滑開，進門「叮咚」（店倒了就不見）
   {const D=STORE_DOOR,cx=(STORE.dx0+STORE.dx1)/2,gone=STORE_REG.dead;
    const pn=mode==='walk'&&player.y<1.5&&Math.hypot(player.pos.x-cx,player.pos.y-STORE.z0)<2.4,near=!gone&&(pn||GAME.zNear(new V2(cx,STORE.z0),0));
