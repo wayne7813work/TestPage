@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-24.1"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-24.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2663,12 +2663,12 @@ function nearCurtain(){if(!started||mode!=='walk')return null;const px=player.po
   return best?{cu:best,d:bd}:null;}
 // 2026-10-24.1 使用者：「城堡的門可以開關」→ 城堡的門（d.cs）走近一樣會自動開；按 F 關上＝一直關著（不會自動開），再按 F 打開＝一直開著；記在 home-csdoor
 let csDoorInit=false;
-function csDoorLoad(){if(csDoorInit)return;csDoorInit=true;let s={};try{s=JSON.parse(localStorage.getItem('home-csdoor')||'{}')||{};}catch(_){}for(const k in s){const d=DOORS[+k];if(d&&d.cs!==undefined)d.man=s[k]?1:0;}}
-function csDoorSave(){const s={};DOORS.forEach((d,i)=>{if(d.cs!==undefined&&d.man!==undefined)s[i]=d.man;});try{localStorage.setItem('home-csdoor',JSON.stringify(s));}catch(_){}}
+function csDoorLoad(){if(csDoorInit)return;csDoorInit=true;let s={};try{s=JSON.parse(localStorage.getItem('home-csdoor')||'{}')||{};}catch(_){}for(const k in s){const d=DOORS[+k];if(d&&(d.cs!==undefined||d.gate))d.man=s[k]?1:0;}}   /* d.gate＝城堡大門（2026-10-24.2） */
+function csDoorSave(){const s={};DOORS.forEach((d,i)=>{if((d.cs!==undefined||d.gate)&&d.man!==undefined)s[i]=d.man;});try{localStorage.setItem('home-csdoor',JSON.stringify(s));}catch(_){}}
 const csDoorOpen=d=>d.man===1||(d.man!==0&&d.wasNear);
 function nearCsDoor(){if(!started||mode!=='walk'||typeof CASTLE==='undefined')return null;const px=player.pos.x,pz=player.pos.y;if(px<CASTLE.x0-4||px>CASTLE.x1+4||pz<CASTLE.z0-4||pz>CASTLE.z1+4)return null;
   const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw);let best=null,bd=1.9;
-  for(const d of DOORS){if(d.cs===undefined||Math.abs(player.y-d.y)>1)continue;const dx=d.center.x-px,dz=d.center.y-pz,dd=Math.max(0.01,Math.hypot(dx,dz));if(dd<bd&&(dd<0.7||(dx*fx+dz*fz)/dd>0.2)){best=d;bd=dd;}}
+  for(const d of DOORS){if((d.cs===undefined&&!d.gate)||Math.abs(player.y-d.y)>1)continue;const dx=d.center.x-px,dz=d.center.y-pz,dd=Math.max(0.01,Math.hypot(dx,dz));if(dd<bd&&(dd<0.7||(dx*fx+dz*fz)/dd>0.2)){best=d;bd=dd;}}
   if(!best)return null;return {d:best,grp:DOORS.filter(q=>q.cs===best.cs&&Math.abs(q.center.x-best.center.x)<0.05&&Math.abs(q.center.y-best.center.y)<0.05)};}
 // 面向、靠近（1.9 m 內、人在櫃子前面）的衣櫃門或抽屜
 function nearCab(){if(!started||mode!=='walk')return null;const px=player.pos.x,pz=player.pos.y,fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw);let best=null,bd=2.2,bs=1e9;
@@ -3085,7 +3085,7 @@ var MOUNT=(()=>{
   return C;})();
 function currentAct(){if(CU.on||MU.on||DD.on||KF.on||PUSH.on||FISH.on||RS.on)return null;{const rd=RIDE.label();if(rd)return {rd};}{const de=DECO.label();if(!de||de.k==='open'){const dr=nearCsDoor(),cc=nearCurtain();if(cc&&cc.cu.cs&&(!dr||cc.d<Math.hypot(dr.d.center.x-player.pos.x,dr.d.center.y-player.pos.y)))return {cur:cc.cu};if(dr)return {dr};}if(de)return {de};}   /* 城堡的門、圓塔簾子比「擺傢俱」優先（在城堡裡 DECO 一直有「擺傢俱」） */{const rs=RS.label();if(rs)return {rs};}{const dd=DD.label();if(dd)return {dd};}{const kf=KF.label();if(kf)return {kf};}{const fi=FISH.label();if(fi)return {fi};}{const pu=PUSH.label();if(pu)return {pu};}{const mu=MU.label();if(mu)return {mu};}{const cu=CU.label();if(cu)return {cu};}{const rc=RACE.label();if(rc)return {rc};}{const nm=NM.label();if(nm)return {nm};}{const sb=SB.label();if(sb)return {sb};}{const rb=RB.label();if(rb)return {rb};}if(TN.on){const k=TN.label();return k?{tn:k}:null;}if(BB.on){const k=BB.label();return k?{bb:k}:null;}const tn=TN.label();if(tn)return {tn};if(SKATE.on){const k=SKATE.act();return k?{sk:k}:null;}const bb=BB.label();if(bb)return {bb};const mq=SHOP.near&&SHOP.near();if(mq)return {mq};const sk=SKATE.act();if(sk)return {sk};const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};return cu?{cur:cu.cu}:null;}
 function syncActBtn(){const a=currentAct();actCur=a;
-  const html=!a?'':a.rd?`<kbd>F</kbd>${a.rd}`:a.dr?`<kbd>F</kbd>🚪 ${csDoorOpen(a.dr.d)?'關上門':'打開門'}`:a.de?(a.de.k==='place'?'':`<kbd>F</kbd>${a.de.t}`):a.dd?`<kbd>F</kbd>${a.dd}`:a.kf?`<kbd>F</kbd>${a.kf}`:a.fi?`<kbd>F</kbd>${a.fi.t}`:a.pu?`<kbd>F</kbd>${a.pu.t}`:a.rs?`<kbd>F</kbd>${a.rs}`:a.mu?`<kbd>F</kbd>${a.mu}`:a.cu?`<kbd>F</kbd>${a.cu}`:a.rc?`<kbd>F</kbd>${a.rc}`:a.nm?`<kbd>F</kbd>${a.nm}`:a.rb?`<kbd>F</kbd>${a.rb}`:a.sb?`<kbd>F</kbd>${a.sb}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${outfitCount('f')+outfitCount('m')} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
+  const html=!a?'':a.rd?`<kbd>F</kbd>${a.rd}`:a.dr?`<kbd>F</kbd>🚪 ${csDoorOpen(a.dr.d)?'關上':'打開'}${a.dr.d.gate?'大門':'門'}`:a.de?(a.de.k==='place'?'':`<kbd>F</kbd>${a.de.t}`):a.dd?`<kbd>F</kbd>${a.dd}`:a.kf?`<kbd>F</kbd>${a.kf}`:a.fi?`<kbd>F</kbd>${a.fi.t}`:a.pu?`<kbd>F</kbd>${a.pu.t}`:a.rs?`<kbd>F</kbd>${a.rs}`:a.mu?`<kbd>F</kbd>${a.mu}`:a.cu?`<kbd>F</kbd>${a.cu}`:a.rc?`<kbd>F</kbd>${a.rc}`:a.nm?`<kbd>F</kbd>${a.nm}`:a.rb?`<kbd>F</kbd>${a.rb}`:a.sb?`<kbd>F</kbd>${a.sb}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${outfitCount('f')+outfitCount('m')} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
   if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
 function toggleAct(){const a=currentAct();if(a&&a.rd){RIDE.act();syncActBtn();return;}if(a&&a.dr){const v=csDoorOpen(a.dr.d)?0:1;for(const d of a.dr.grp)d.man=v;csDoorSave();AUDIO.sfx('door');syncActBtn();return;}if(a&&a.de){DECO.act(a.de);syncActBtn();return;}if(a&&a.dd){DD.toggle();syncActBtn();return;}if(a&&a.kf){KF.toggle();syncActBtn();return;}if(a&&a.fi){FISH.act(a.fi);syncActBtn();return;}if(a&&a.pu){PUSH.act(a.pu);syncActBtn();return;}if(a&&a.rs){RS.act();syncActBtn();return;}if(a&&a.mu){MU.toggle();syncActBtn();return;}if(a&&a.cu){CU.toggle();syncActBtn();return;}if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.sb){SB.toggle();syncActBtn();return;}if(a&&a.rb){RB.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
 actBtn.addEventListener('click',e=>{e.stopPropagation();toggleAct();});
@@ -4300,7 +4300,14 @@ const CASTLE=(()=>{const R=CASTLE_R,x0=R.x0,x1=R.x1,z0=R.z0,z1=R.z1,T=0.6,ix0=x0
   // ---- 大門：拱門、打開的兩扇木門、門上的牌子；前面石板路 ----
   {const gx=x0+18,gz=z1;M.add(mbox(gx-2.6,gx-2.0,0,4.6,gz-0.1,gz+0.5),stone);M.add(mbox(gx+2.0,gx+2.6,0,4.6,gz-0.1,gz+0.5),stone);M.add(mbox(gx-2.6,gx+2.6,4.2,5.0,gz-0.1,gz+0.5),stone);
    {const g=new THREE.TorusGeometry(2.0,0.25,8,24,Math.PI);g.translate(gx,4.2,gz+0.3);M.add(g,stone);}
-   const dm=std({color:'#6b4424',roughness:0.7});for(const s of [-1,1]){const g=new THREE.BoxGeometry(0.12,4.1,2.0);g.translate(gx+s*1.95,2.05,gz-T-1.0);M.add(g,dm);for(const y of [0.8,2.0,3.2])M.add(mbox(gx+s*1.95-0.08,gx+s*1.95+0.08,y,y+0.1,gz-T-2.0,gz-T),MAT.blackMat);addBox(gx+s*1.95-0.07,gx+s*1.95+0.07,gz-T-2.0,gz-T,4.1,0);}
+   /* 2026-10-24.2 使用者：「城堡大門也改成可以開關：走近會自動開，按 F 可以關上、打開，會記住」→ 原本是兩片固定開著的木門，改成兩片會轉的門（樞紐在拱門兩側，往城堡裡面開）；跟城堡裡的門一樣用 DOORS（d.gate） */
+   const dm=std({color:'#6b4424',roughness:0.7}),zc=gz-T/2,ctr=new V2(gx,zc);
+   for(const side of [1,-1]){const hx=gx-side*2.0,pv=new THREE.Group();pv.position.set(hx,0,zc);scene.add(pv);
+     const leaf=new THREE.Mesh(new THREE.BoxGeometry(2.0,4.1,0.12),dm);leaf.position.set(side*1.0,2.05,0);leaf.castShadow=true;pv.add(leaf);
+     for(const y of [0.8,2.0,3.2]){const b=new THREE.Mesh(new THREE.BoxGeometry(1.9,0.1,0.16),MAT.blackMat);b.position.set(side*1.0,y+0.05,0);pv.add(b);}
+     {const r=new THREE.Mesh(new THREE.TorusGeometry(0.14,0.025,6,16),MAT.blackMat);r.position.set(side*1.75,1.6,-0.1);pv.add(r);const r2=r.clone();r2.position.z=0.1;pv.add(r2);}   // 門環
+     const col=addBox(Math.min(hx,hx+side*2.0),Math.max(hx,hx+side*2.0),zc-0.08,zc+0.08,4.1,0);col.sd=true;
+     DOORS.push({pivot:pv,col,center:ctr,y:0,sgn:side,ang:0,rot0:0,max:1.5,gate:true});}
    M.add(groundRect(gx-2.2,gx+2.2,gz,106,0.02),MAT.granite);for(let z=gz+0.6;z<105.5;z+=1.2)M.add(mbox(gx-2.2,gx+2.2,0.02,0.03,z,z+0.04),MAT.blackMat);
    for(const s of [-1,1])for(const z of [gz+4,gz+10]){M.add(mbox(gx+s*3.2-0.12,gx+s*3.2+0.12,0,3.2,z-0.12,z+0.12),MAT.blackMat);const l=new THREE.SphereGeometry(0.26,12,8);l.translate(gx+s*3.2,3.35,z);M.add(l,MAT.ceilLamp);addCircle(gx+s*3.2,z,0.18,3.2);}
    const [c,g]=(()=>{const cv=document.createElement('canvas');cv.width=1024;cv.height=256;return [cv,cv.getContext('2d')];})();g.fillStyle='#3b2a1a';g.fillRect(0,0,1024,256);g.strokeStyle='#d4a937';g.lineWidth=14;g.strokeRect(10,10,1004,236);
