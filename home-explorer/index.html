@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-24.7"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-25.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3233,7 +3233,7 @@ function currentAct(){if(CU.on||MU.on||DD.on||KF.on||PUSH.on||FISH.on||RS.on)ret
 function syncActBtn(){const a=currentAct();actCur=a;
   const html=!a?'':a.rd?`<kbd>F</kbd>${a.rd}`:a.dr?`<kbd>F</kbd>🚪 ${csDoorOpen(a.dr.d)?'關上':'打開'}${a.dr.d.gate?'大門':'門'}`:a.de?(a.de.k==='place'?'':`<kbd>F</kbd>${a.de.t}`):a.dd?`<kbd>F</kbd>${a.dd}`:a.kf?`<kbd>F</kbd>${a.kf}`:a.fi?`<kbd>F</kbd>${a.fi.t}`:a.pu?`<kbd>F</kbd>${a.pu.t}`:a.rs?`<kbd>F</kbd>${a.rs}`:a.mu?`<kbd>F</kbd>${a.mu}`:a.cu?`<kbd>F</kbd>${a.cu}`:a.rc?`<kbd>F</kbd>${a.rc}`:a.nm?`<kbd>F</kbd>${a.nm}`:a.rb?`<kbd>F</kbd>${a.rb}`:a.sb?`<kbd>F</kbd>${a.sb}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${outfitCount('f')+outfitCount('m')} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
   if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
-function toggleAct(){const a=currentAct();if(a&&a.rd){RIDE.act();syncActBtn();return;}if(a&&a.dr){const v=csDoorOpen(a.dr.d)?0:1;for(const d of a.dr.grp)d.man=v;csDoorSave();AUDIO.sfx('door');syncActBtn();return;}if(a&&a.de){DECO.act(a.de);syncActBtn();return;}if(a&&a.dd){DD.toggle();syncActBtn();return;}if(a&&a.kf){KF.toggle();syncActBtn();return;}if(a&&a.fi){FISH.act(a.fi);syncActBtn();return;}if(a&&a.pu){PUSH.act(a.pu);syncActBtn();return;}if(a&&a.rs){RS.act();syncActBtn();return;}if(a&&a.mu){MU.toggle();syncActBtn();return;}if(a&&a.cu){CU.toggle();syncActBtn();return;}if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.sb){SB.toggle();syncActBtn();return;}if(a&&a.rb){RB.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
+function toggleAct(){const a=currentAct();if(a&&a.rd){RIDE.act();syncActBtn();return;}if(a&&a.dr){const v=csDoorOpen(a.dr.d)?0:1;for(const d of a.dr.grp)d.man=v;csDoorSave();if(typeof CG!=='undefined')CG.door(a.dr.grp,v);AUDIO.sfx('door');syncActBtn();return;}if(a&&a.de){DECO.act(a.de);syncActBtn();return;}if(a&&a.dd){DD.toggle();syncActBtn();return;}if(a&&a.kf){KF.toggle();syncActBtn();return;}if(a&&a.fi){FISH.act(a.fi);syncActBtn();return;}if(a&&a.pu){PUSH.act(a.pu);syncActBtn();return;}if(a&&a.rs){RS.act();syncActBtn();return;}if(a&&a.mu){MU.toggle();syncActBtn();return;}if(a&&a.cu){CU.toggle();syncActBtn();return;}if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.sb){SB.toggle();syncActBtn();return;}if(a&&a.rb){RB.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
 actBtn.addEventListener('click',e=>{e.stopPropagation();toggleAct();});
 actBtn.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleAct();},{passive:false});
 document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)if(!c.cs)c.target=0;syncActBtn();AUDIO.sfx('swish');};   /* 設定裡的「全部拉開／拉上」只管我家（城堡圓塔的簾子各自開關） */
@@ -12664,6 +12664,7 @@ const DECO=(()=>{
   for(const ev of ['touchstart','pointerdown','mousedown'])INV.addEventListener(ev,e=>e.stopPropagation());
   INV.addEventListener('click',e=>{e.stopPropagation();const b=e.target.closest('button');if(!b)return;INV.hidden=true;if(b.dataset.go)visit(b.dataset.go);});
   function showInvite(f){INV.innerHTML=`🏠 ${esc(U.NT.nameOf(f))} 邀請你去參觀新家 <button data-go="${esc(f)}" class="go">去看看</button><button data-no="1">✕</button>`;INV.hidden=false;clearTimeout(invT);invT=setTimeout(()=>{INV.hidden=true;},20000);AUDIO.sfx('chime');}
+  U.visit=visit;U.backHome=backHome;   /* 城堡遊戲：大家看開房間的人的城堡 */
   U.netRx=(d,f)=>{f=String(f);switch(d.t){
     case 'dcQ':VIEWERS.add(f);U.NT.send(f,{t:'dcL',items:plain(S.items),rooms:S.rooms});break;   // 朋友要看我家
     case 'dcX':VIEWERS.delete(f);break;
@@ -12825,7 +12826,7 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
   const nbArrow=new THREE.Mesh(new THREE.PlaneGeometry(0.5,0.5),new THREE.MeshBasicMaterial({map:signTex([['⬇',300]],320,320,'#ffb454','#2a1a00'),toneMapped:false,transparent:true}));nbArrow.position.set(DOOR.x+dx,2.1,0.45);scene.add(nbArrow);
   // 2026-10-24.4 使用者：「城堡裝飾連線的時候要可以切換，可以看別人的裝飾」→ 原本要「擺傢俱 →👥 參觀 → 去看看」，太深；連線時在城堡、隔壁新家裡，上面多一顆按鈕：我的家 → 朋友 1 → 朋友 2 … → 回我的家 輪流切換
   const VB=$('bVisit');
-  if(VB)VB.addEventListener('click',e=>{e.stopPropagation();if(!U.NT.on()||U.want)return;const ids=U.NT.ids();if(U.sit)stand();closeMenu();
+  if(VB)VB.addEventListener('click',e=>{e.stopPropagation();if(!U.NT.on()||U.want)return;if(typeof CG!=='undefined'&&CG.on){toast('城堡遊戲中不能換');return;}const ids=U.NT.ids();if(U.sit)stand();closeMenu();
     if(!U.view){if(ids.length)visit(ids[0]);else toast('現在沒有朋友連線');return;}const i=ids.indexOf(U.view.f);if(i>=0&&i+1<ids.length)visit(ids[i+1]);else backHome();});
   const TB=$('bDeco');if(TB)TB.addEventListener('click',e=>{e.stopPropagation();if(U.carry||gone)return;if(U.sit)stand();closeMenu();openPanel();});   /* 上面的「🛋 擺傢俱」：面向傢俱時下面的按鈕會變成「整理」，這顆一直都在 */
   U.tick=dt=>{const dead=!!(REG&&REG.dead);
@@ -14312,7 +14313,7 @@ function playerFall(dt){
   TRAMP.after(vin);   // 彈跳床
 }
 let jumpHeld=false;   // 手機「跳」按住中（彈跳床：按住就一直用力彈）
-function doJump(){if(!started||mode!=='walk'||TN.on||RACE.on)return;if(PAX.on)return;if(RIDE.on){RIDE.jump();return;}if(EMOTE.on)EMOTE.stop();if(BALLOON.riding){BALLOON.burnPress();return;}if(SKATE.on){SKATE.jump();return;}if(BB.lock())return;if(LIE.on){LIE.stop();syncActBtn();return;}if(DECO.sit){DECO.stand();return;}if(player.climb)return;
+function doJump(){if(!started||mode!=='walk'||TN.on||RACE.on)return;if(typeof CG!=='undefined'&&CG.lock())return;if(PAX.on)return;if(RIDE.on){RIDE.jump();return;}if(EMOTE.on)EMOTE.stop();if(BALLOON.riding){BALLOON.burnPress();return;}if(SKATE.on){SKATE.jump();return;}if(BB.lock())return;if(LIE.on){LIE.stop();syncActBtn();return;}if(DECO.sit){DECO.stand();return;}if(player.climb)return;
   if(TRAMP.press())return;   // 彈跳床：往下掉時按＝下一下彈更高（不是二段跳）、剛彈起來補按也算
   if(player.ground){player.vy=4.6;player.ground=false;player.jumps=1;}else if(player.jumps<2){player.vy=4.6;player.jumps=2;}}
 const lidShut=()=>HATCH_LID.t<0.95;
@@ -17375,7 +17376,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     <div class="live" hidden><div class="roomc" hidden>房間代號 <b class="code2"></b>　還可以再加 <b class="left"></b> 個人<button data-n="copy" class="sm">複製</button></div>
       <div class="ppl"></div>
       <div class="tgt"></div>
-      <div class="row games"><button data-n="tennis">🎾 打網球</button><button data-n="race">🏎️ 賽車</button><button data-n="sb">⛹️ 鬥牛</button><button data-n="kf">🥋 快打</button><button data-n="cu">🎓 校園大逃亡</button></div>
+      <div class="row games"><button data-n="tennis">🎾 打網球</button><button data-n="race">🏎️ 賽車</button><button data-n="sb">⛹️ 鬥牛</button><button data-n="kf">🥋 快打</button><button data-n="cu">🎓 校園大逃亡</button><button data-n="cg">🏰 城堡鬼抓人／躲貓貓</button></div>
       <label class="row"><input type="checkbox" id="netDD" checked> 跳舞機對戰（選歌時邀請上面選的人一起跳）</label></div>
     <p class="st"></p>
     <div class="row"><button data-n="off" class="off" hidden>中斷連線</button><button data-n="close" class="close">關閉</button></div>`;
@@ -17403,7 +17404,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     P.querySelector('.code').textContent=N.code;P.querySelector('.off').hidden=s==='idle';$n('netDD').checked=N.ddVs;chip.hidden=!N.on;FXB.hidden=!N.on;CHB.hidden=!N.on;document.body.classList.toggle('neton',N.on);if(!N.on){fxClose();CHP.hidden=true;}
     const rc=P.querySelector('.roomc');rc.hidden=!(N.host&&N.code&&N.on);rc.querySelector('.code2').textContent=N.code;rc.querySelector('.left').textContent=Math.max(0,3-N.conns.size);
     if(s==='live')pplDraw();}
-  function pplDraw(){const t=tgt();let h='';for(const q of N.P.values()){const d=dist(q);h+=`<div class="pp${q.id===t?' on':''}" data-p="${q.id}"><i style="background:${PC[q.id]||'#888'}"></i><b>${esc(q.name||'…')}</b><small>${d<1e9?Math.round(d)+' m':''}${q.ra?'・離開畫面':''}${q.s&&q.s.g?'・'+esc(q.s.g):''}</small><button data-go="${q.id}">📍 過去</button></div>`;}
+  function pplDraw(){const t=tgt();let h='';for(const q of N.P.values()){const d=typeof CG!=='undefined'&&CG.hideDist()?Infinity:dist(q);h+=`<div class="pp${q.id===t?' on':''}" data-p="${q.id}"><i style="background:${PC[q.id]||'#888'}"></i><b>${esc(q.name||'…')}</b><small>${d<1e9?Math.round(d)+' m':''}${q.ra?'・離開畫面':''}${q.s&&q.s.g?'・'+esc(q.s.g):''}</small><button data-go="${q.id}">📍 過去</button></div>`;}
     P.querySelector('.ppl').innerHTML=h||'<div class="note">等別人加入…</div>';
     P.querySelector('.tgt').innerHTML=t!=null?`邀請 <b style="color:${PC[t]}">${esc(pn(t)||'對方')}</b> 一起玩：${N.P.size>1?'<small>（點上面的名字換人）</small>':''}`:'';}
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -17414,7 +17415,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     if(k==='close')P.hidden=true;else if(k==='host')host();else if(k==='join'){const c=$n('netCode').value.replace(/\D/g,'');if(c.length!==4){st('代號是 4 個數字');return;}join(c);}
     else if(k==='dice'){NAME=rndName();nm.value=NAME;try{localStorage.setItem('home-netname',NAME);}catch(_){}nameChanged();}
     else if(k==='off'){bye();st('已中斷連線');}else if(k==='copy'){try{navigator.clipboard.writeText(N.code);st('已複製：'+N.code);}catch(_){st('請手動記下代號：'+N.code);}}
-    else if(k==='tennis')tnInvite();else if(k==='race')rcInvite();else if(k==='sb')gInvite('sb');else if(k==='kf')gInvite('kf');else if(k==='cu')cuChoose();});
+    else if(k==='tennis')tnInvite();else if(k==='race')rcInvite();else if(k==='sb')gInvite('sb');else if(k==='kf')gInvite('kf');else if(k==='cu')cuChoose();else if(k==='cg'){P.hidden=true;CG.open();}});
   $n('netDD').onchange=e=>{N.ddVs=e.target.checked;};
   // ---- PeerJS（用到才載入） ----
   let Peer=null;async function lib(){if(Peer)return true;st('載入連線工具…');try{const m=await import('https://cdn.jsdelivr.net/npm/peerjs@1.5.4/+esm');Peer=m.Peer||m.default;return !!Peer;}catch(e){st('連線工具載入失敗（網路有問題？）');return false;}}
@@ -17455,14 +17456,14 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       setTimeout(()=>{if(N.peer===p&&!N.on){st('連不上：代號對嗎？朋友的網頁要開著。如果一直連不上，可能是網路擋住了（換 Wi-Fi／行動網路試試）');clean();ui();}},15000);});
     p.on('error',e=>{if(N.peer!==p)return;if(e.type==='peer-unavailable'){st('找不到這個房間（代號錯了，或對方關掉了）');clean();ui();}else st('出錯了：'+(e.type||e.message||e));});}
   function setOn(){const was=N.on;N.on=N.host?N.conns.size>0:!!(N.conn&&N.conn.open);if(N.on&&!was){toast('👥 連線成功！');AUDIO.sfx('chime');}myTag();ui();}
-  function lostAll(why){const was=N.on;PAX.peerGone('*');vsEnd('連線中斷了');rcEnd();for(const k of [...N.P.keys()])drop(k,true);pGone();N.on=false;clean();st(why||'連線中斷了');if(was){toast('👥 '+(why||'連線中斷了'));AUDIO.sfx('over');}myTag();ui();}
+  function lostAll(why){const was=N.on;PAX.peerGone('*');if(typeof CG!=='undefined')CG.peerGone('*');vsEnd('連線中斷了');rcEnd();for(const k of [...N.P.keys()])drop(k,true);pGone();N.on=false;clean();st(why||'連線中斷了');if(was){toast('👥 '+(why||'連線中斷了'));AUDIO.sfx('over');}myTag();ui();}
   // 一起玩遊戲的人走了：遊戲收掉
   function pGone(msg){if(KF.net)KF.netEnd(msg||'對方斷線了');if(SB.net)SB.stop();if(CU.coop){CU.coop=false;if(!CU.chost){CU.stop();toast('連線中斷：合作結束');}}if(TN.net){TN.net=false;document.body.classList.remove('tnnet');TN.netEnd();TN.stop();}
     if(N.tnWait||N.gWait){N.tnWait=false;N.gWait=null;INV.hidden=true;}N.pid=null;}
-  function drop(id,quiet){const q=N.P.get(id);if(!q)return;PAX.peerGone(id);const name=q.name||'對方';if(id===N.pid)pGone(`${name} 離開了`);vsLeft(id,'離開了');rcLeft(id);remKill(q);N.P.delete(id);if(N.sel===id)N.sel=null;if(N.ipid===id){INV.hidden=true;N.ipid=null;}
+  function drop(id,quiet){const q=N.P.get(id);if(!q)return;PAX.peerGone(id);if(typeof CG!=='undefined')CG.peerGone(id);const name=q.name||'對方';if(id===N.pid)pGone(`${name} 離開了`);vsLeft(id,'離開了');rcLeft(id);remKill(q);N.P.delete(id);if(N.sel===id)N.sel=null;if(N.ipid===id){INV.hidden=true;N.ipid=null;}
     if(!quiet){toast('👥 '+name+' 離開了／斷線了');AUDIO.sfx('over');chatAdd(id,`${name} 離開了`,true);}ui();}
   function bye(){bc({t:'bye'});const cs=[...N.conns.values()],c=N.conn,p=N.peer;N.conns.clear();N.conn=null;N.peer=null;N.on=false;N.code='';N.host=false;N.id='';
-    vsEnd();rcEnd();for(const k of [...N.P.keys()])drop(k,true);pGone('');myTag();ui();setTimeout(()=>{for(const x of [...cs,c])try{x&&x.close();}catch(_){}try{p&&p.destroy();}catch(_){}},400);}   /* 等「bye」送出去再關 */
+    vsEnd();rcEnd();if(typeof CG!=='undefined')CG.peerGone('*');for(const k of [...N.P.keys()])drop(k,true);pGone('');myTag();ui();setTimeout(()=>{for(const x of [...cs,c])try{x&&x.close();}catch(_){}try{p&&p.destroy();}catch(_){}},400);}   /* 等「bye」送出去再關 */
   // ---- 別人的人物 ----
   function tagTex(t,col){const [c,g]=cvs(256,64);g.font=`900 34px ${FONT}`;g.textAlign='center';g.textBaseline='middle';const w=Math.min(250,g.measureText(t).width+28);
     g.fillStyle=col||'rgba(20,90,200,0.85)';g.globalAlpha=0.92;g.beginPath();g.roundRect(128-w/2,6,w,52,24);g.fill();g.globalAlpha=1;g.lineWidth=3;g.strokeStyle='rgba(255,255,255,0.85)';g.stroke();
@@ -17547,7 +17548,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     PAX.remPose(q,A);   /* 坐在車上的人：照自己畫面上的那台車擺 */
     o.visible=!s.hid;}
   const tq=new THREE.Quaternion();
-  function goTo(id){const q=N.P.get(id);if(!q||!q.s){st('還不知道 '+(q&&q.name||'對方')+' 在哪裡');return;}const a=q.s.a;P.hidden=true;teleport(a[0]+1.3,a[2]+1.3,undefined,a[1]>0.5?a[1]:0);toast('📍 到 '+(q.name||'對方')+' 旁邊了');}
+  function goTo(id){if(typeof CG!=='undefined'&&CG.on){st('城堡遊戲中不能傳送');return;}const q=N.P.get(id);if(!q||!q.s){st('還不知道 '+(q&&q.name||'對方')+' 在哪裡');return;}const a=q.s.a;P.hidden=true;teleport(a[0]+1.3,a[2]+1.3,undefined,a[1]>0.5?a[1]:0);toast('📍 到 '+(q.name||'對方')+' 旁邊了');}
   // ---- 收到資料（f＝誰送的） ----
   const busy=f=>(f!==N.pid&&(SB.net||CU.coop||TN.net||KF.net||N.tnWait||!!N.gWait))||!!(N.vs&&(N.vs.wait||(N.vs.go&&!vsDone(N.vs))))||!!N.rci||!!(N.rcg&&RACE.on&&RACE.st!=='done');   /* 賽車：還在跑＝忙；跑完（看結果）可以接受新的邀請 */   /* 正在跟別人玩（或等別人回覆）；同一個人再邀請（再來一局）可以 */
   const GAME_MSG=new Set(['sbS','sbT','sbEnd','sbQ','sbI','sbK','cuM','cuS','cuP','cuD','cuBD','cuX','cuH','cuG','cuEnd','cuQ','tH','tP','tQ','tB','tW','tPath','tSam','tOk','tNo','gOk','gNo','po','kfI','kfS','kfQ']);   /* 跳舞機的訊息另外看是不是同一群（可以多人） */
@@ -17560,6 +17561,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     if(d.t==='bye'){if(f==='0'&&!N.host)lostAll('開房間的人離開了');else drop(f);return;}
     if(d.t==='left'){drop(f);return;}
     const q=peer(f);
+    if(typeof d.t==='string'&&d.t.slice(0,2)==='cg'){if(typeof CG!=='undefined')CG.netRx(d,f);return;}   /* 城堡鬼抓人／躲貓貓 */
     switch(d.t){case 's':q.s=d;q.sAt=performance.now();if(d.pu)PUSH.netRx(f,q.name,d.pu);break;
       case 'px':PAX.rx(d,f);break;   /* 坐朋友的車 */
       case 'puEv':PUSH.netBig(q.name||'有人',d);break;
@@ -17949,9 +17951,17 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   CHP.querySelector('form').onsubmit=e=>{e.preventDefault();const inp=CHP.querySelector('input'),tx=inp.value.trim().slice(0,60);if(!tx)return;inp.value='';if(!N.on){toast('還沒連線');return;}doFx('say',null,tx);};
   N.chat=()=>LOG;
   // ---- 每格 ----
-  let sT=0,cT=0,lastCfg='',vT=0,pT=0;
-  N.tick=dt=>{fxTick(dt);if(!N.on){return;}sT-=dt;cT-=dt;vT-=dt;
-    if(sT<=0){sT=EMOTE.on||BB.on||SKATE.on||RACE.on||RIDE.on||PAX.on?1/20:1/12;bc(pack());}   /* 開車、坐車也是 20 次（乘客看到的車才不會一頓一頓） */   /* 跳舞、籃球、直排輪動作快：每秒傳 20 次（平常 12 次） */
+  let sT=0,cT=0,lastCfg='',vT=0,pT=0,lT=0;
+  // 2026-10-25.2 手機：上面那排按鈕會排成兩排（城堡裡多「擺傢俱」「看朋友的家」），原本「幾人連線中」固定放在 62px 會蓋到第二排 →
+  // 照按鈕實際排到哪裡，把連線標籤、互動、聊天依序排在下面；最下面的位置存成 --netb（坐車、騎車的資訊條排在它下面）
+  const LAND=matchMedia('(orientation:landscape) and (max-height:520px)');
+  function netLay(){if(!isTouch)return;const bt=document.querySelector('#topbar .btns'),vis=e=>!e.hidden&&getComputedStyle(e).display!=='none';if(!bt)return;
+    let y=Math.round(bt.getBoundingClientRect().bottom)+6,bot=y;
+    for(const e of [chip,FXB,CHB]){if(!vis(e))continue;const top=LAND.matches&&e===CHB&&vis(FXB)?parseFloat(FXB.style.top):y;if(e.style.top!==top+'px')e.style.top=top+'px';const b=top+e.offsetHeight;bot=Math.max(bot,b);y=b+5;}   /* 手機橫拿：聊天在互動左邊、同一排 */
+    document.documentElement.style.setProperty('--netb',(bot+8)+'px');}
+  addEventListener('resize',()=>{lT=0;});
+  N.tick=dt=>{fxTick(dt);if(!N.on){return;}sT-=dt;cT-=dt;vT-=dt;lT-=dt;if(lT<=0){lT=0.25;netLay();}
+    if(sT<=0){sT=EMOTE.on||BB.on||SKATE.on||RACE.on||RIDE.on||PAX.on||(typeof CG!=='undefined'&&CG.on)?1/20:1/12;bc(pack());}   /* 開車、坐車也是 20 次（乘客看到的車才不會一頓一頓） */   /* 跳舞、籃球、直排輪動作快：每秒傳 20 次（平常 12 次） */
     if(cT<=0){cT=1;const c=JSON.stringify([charCfg,avatar.skates,skmOf()]);if(c!==lastCfg){lastCfg=c;bc({t:'cfg',cfg:charCfg,sk:avatar.skates,skm:skmOf()});}
       const pq=N.P.get(N.pid),n=N.P.size+1;chip.textContent=`👥 ${n} 人連線中`+(TN.net?`・跟 ${N.rname} 打網球`:RACE.net?(RACE.RMS.size>1?`・${RACE.RMS.size+1} 人一起賽車`:`・跟 ${pn([...RACE.RMS.keys()][0])} 賽車`):SB.net?`・跟 ${N.rname} 鬥牛`:CU.coop?`・跟 ${N.rname} 合作打怪`:KF.net?`・跟 ${N.rname} 快打`:N.vs&&N.vs.go?`・${N.vs.n} 人一起跳舞`:N.P.size===1&&pq==null?(()=>{const q=[...N.P.values()][0];return `・${q.name}${q.ra?'（離開畫面）':''}${q.s?`・${Math.round(dist(q))} m`:''}`;})():'');
       if(!P.hidden&&!P.querySelector('.live').hidden)pplDraw();
@@ -17967,8 +17977,8 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       if(k>=0&&k<3){const sp=DD.opSpot(k);if(o.parent!==DD.scene)DD.scene.add(o);o.position.set(sp.x,sp.y,sp.z);o.rotation.set(0,0,0);o.visible=!(v.op[q.id]&&v.op[q.id].quit);}else if(o.parent!==scene)scene.add(o);}}
     if(N.vs&&N.vs.go&&!N.vs.me&&DD.play&&vT<=0){vT=0.25;vsSend({t:'ddSc',sc:Math.round(1e6*DD.score/Math.max(1,DD.nSteps)),cb:DD.combo,lf:Math.round((DD.life||0)*100)/100,T:DD.songT?Math.round(DD.songT()*1000)/1000:0});vsDraw();}};
   KF.remote=()=>{if(!N.on)return null;for(const q of N.P.values())if(q.s&&q.s.kf)return {...q.s.kf,me:q.name};return null;};   /* 機台螢幕：別人正在打的樣子 */
-  N.drawMM=(g,w2m)=>{if(!N.on)return;for(const q of N.P.values()){if(!q.s)continue;const [x,y]=w2m(q.s.a[0],q.s.a[2]);g.fillStyle=PC[q.id]||'#2f8fff';g.strokeStyle='#fff';g.lineWidth=1.5;g.beginPath();g.arc(x,y,5,0,Math.PI*2);g.fill();g.stroke();}};
-  N.out=out;N.myId=myId;N.pn=pn;   /* 2026-10-21.14 坐朋友的車（PAX）用 */
+  N.drawMM=(g,w2m)=>{if(!N.on)return;for(const q of N.P.values()){if(!q.s||(typeof CG!=='undefined'&&CG.mmHide(q.id)))continue;const [x,y]=w2m(q.s.a[0],q.s.a[2]);g.fillStyle=PC[q.id]||'#2f8fff';g.strokeStyle='#fff';g.lineWidth=1.5;g.beginPath();g.arc(x,y,5,0,Math.PI*2);g.fill();g.stroke();}};
+  N.out=out;N.myId=myId;N.pn=pn;N.myName=myName;   /* 2026-10-21.14 坐朋友的車（PAX）用 */
   N.dbg=()=>({chatOpen,chatAdd,N,pack,rx,rem,peer,fxRun,doFx,BAN,FX,hostRx,out,setOn,myTag,nearest,fxOpen,rcInvite,rcStart,rcLeft});   /* 測試用 */
   addEventListener('pagehide',()=>{if(N.on)bc({t:'bye'});});
   setInterval(()=>{if(N.on)bc({t:'p'});},4000);   /* 畫面迴圈停住（切到背景）時也告訴大家「我還在」 */
@@ -18092,7 +18102,7 @@ var PAX=(()=>{
     'body.touch #paxBar{bottom:calc(150px + var(--sab,0px));max-width:calc(100vw - 150px)}@media (orientation:portrait){body.touch #paxBar{bottom:calc(250px + var(--sab,0px));max-width:calc(100vw - 24px)}}@media (orientation:landscape) and (max-height:520px){body.touch #paxBar{bottom:calc(70px + var(--sab,0px));max-width:calc(100vw - 340px)}body.touch #paxBar button{width:46px;height:46px}body.touch #paxBar button b{font-size:17px}}'+
     '#paxHud{position:fixed;left:50%;transform:translateX(-50%);width:max-content;top:calc(10px + var(--sat,0px));z-index:12;background:rgba(20,26,34,.82);color:#fff;border-radius:12px;padding:6px 14px;font:800 15px/1.35 '+FONT+';pointer-events:none;text-align:center;max-width:calc(100vw - 24px)}#paxHud[hidden]{display:none}body.touch #paxHud{top:calc(60px + var(--sat,0px))}@media (orientation:portrait){body.touch #paxHud{top:calc(94px + var(--sat,0px))}}'+
     '.paxP{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;width:min(340px,calc(100vw - 32px));max-height:70vh;overflow:auto;background:#fffdf7;border-radius:16px;padding:12px;box-shadow:0 8px 30px rgba(0,0,0,.35);font:600 15px/1.4 '+FONT+'}.paxP h4{margin:0 0 8px;font-size:17px}.paxP button{display:block;width:100%;margin:4px 0;padding:9px 10px;border-radius:10px;border:1px solid #d9d2c3;background:#fff;font:700 15px '+FONT+';text-align:left}.paxP button.x{text-align:center;background:#eee}'+
-    'body.neton #paxHud,body.neton #rideHud{top:calc(118px + var(--sat,0px))!important}@media (orientation:portrait){body.touch.neton #paxHud,body.touch.neton #rideHud{top:calc(172px + var(--sat,0px))!important}}@media (orientation:landscape) and (max-height:520px){body.touch.neton #paxHud,body.touch.neton #rideHud{top:calc(132px + var(--sat,0px))!important}}'+   /* 連線時上面中間有「幾人連線中」、互動、聊天：資訊條放到它們下面 */
+    'body.neton #paxHud,body.neton #rideHud{top:calc(118px + var(--sat,0px))!important}@media (orientation:portrait){body.touch.neton #paxHud,body.touch.neton #rideHud{top:var(--netb,calc(172px + var(--sat,0px)))!important}}@media (orientation:landscape) and (max-height:520px){body.touch.neton #paxHud,body.touch.neton #rideHud{top:var(--netb,calc(132px + var(--sat,0px)))!important}}'+   /* 連線時上面中間有「幾人連線中」、互動、聊天：資訊條放到它們下面 */
     '#paxArrow{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:13;font:900 110px/1 '+FONT+';color:#ffe14a;text-shadow:0 4px 12px rgba(0,0,0,.7);pointer-events:none;opacity:0;transition:opacity .25s}'+
     '#paxTip{position:fixed;left:50%;top:22%;transform:translate(-50%,-50%);z-index:13;color:#fff;font:900 22px/1.3 '+FONT+';text-shadow:0 2px 6px rgba(0,0,0,.75);pointer-events:none;text-align:center;max-width:calc(100vw - 24px);opacity:0;transition:opacity .3s}';
     document.head.appendChild(css);
@@ -18183,6 +18193,176 @@ var PAX=(()=>{
 
 /* ---------------- 主迴圈 ---------------- */
 const clock=new THREE.Clock();
+/* ---------------- 城堡鬼抓人／冰鬼／躲貓貓（2026-10-25 使用者：「連線模式 鬼抓人、躲貓貓…都做在城堡裡面，只能在城堡裡面玩這兩個」） ----------------
+   連線中 2～4 個人才能玩；開房間的人當裁判（誰碰到誰、時間、輸贏都由他算，再送給大家）。只能在城堡裡（B1～屋頂、四座塔），跑出去會被拉回 1F 大廳。
+   🏃 鬼抓人：鬼碰到人就換他當鬼（新的鬼原地數 2 秒、不能馬上抓回剛剛那個人），3 分鐘後當鬼最久的輸。
+   🧊 冰鬼：鬼碰到人＝冰住不能動；還沒被冰的人去碰他就解凍；全部冰住鬼贏，3 分鐘還有人沒被冰住就逃跑的人贏。
+   🙈 躲貓貓：鬼先蒙眼數 30 秒（畫面全黑、不能動），大家去躲；4 分鐘內鬼走到人旁邊（1.6 m）就找到，被找到的人變成鬼的幫手一起找。
+   公平：遊戲中大家看的都是開房間的人的城堡擺設（DECO 參觀）；城堡的門關上／打開會同步給大家；躲貓貓時躲的人頭上的名字、小地圖的點、連線名單的距離都藏起來。
+   訊息：cgReq（要開始）cgOk／cgNo（回覆邀請）cgQ（退出、取消）→ 開房間的人；cgInv（邀請）cgLob（誰答應了）cgGo（開始）cgS（狀態）cgE（結束）cgX（取消）→ 大家；cgDr（門）大家互傳。 */
+const CG=(()=>{const G={on:false,m:null,ids:[]};
+  const MODES={tag:{n:'鬼抓人',e:'🏃',dur:180,how:'鬼碰到你就換你當鬼！3 分鐘後當鬼最久的輸'},ice:{n:'冰鬼',e:'🧊',dur:180,how:'被鬼碰到會冰住，隊友碰你就解凍；全部冰住鬼贏'},hide:{n:'躲貓貓',e:'🙈',dur:240,how:'鬼蒙眼數 30 秒，大家快去躲！被找到的人變成鬼的幫手'}};
+  const R_TAG=1.3,R_FIND=1.6,DY=1.5,HIDE_CNT=30,TAG_CNT=4,INV_T=15;
+  const SPAWN=[[298,84],[295.6,86.6],[300.4,86.6],[298,88.4]];   /* 1F 大廳（大門進來那段） */
+  const inArea=(x,z)=>x>CASTLE.x0-3.8&&x<CASTLE.x1+3.8&&z>CASTLE.z0-3.8&&z<CASTLE.z1+3.8;   /* 含四角圓塔 */
+  const me=()=>NET.myId(),dn=id=>id===me()?'你':(NET.pn(id)||'朋友'),$c=id=>document.getElementById(id);
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const mmss=s=>{s=Math.max(0,Math.ceil(s));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;};
+  const busy=()=>RACE.on||TN.on||SB.on||KF.on||CU.on||DD.on||RB.on||NM.on||GAME.on||MU.on||PUSH.on||FISH.on||RS.on;   /* 正在玩別的遊戲 */
+  // ---- 介面 ----
+  const css=document.createElement('style');css.textContent=`#bCG[hidden],#cgP[hidden],#cgPop[hidden],#cgHud[hidden],#cgBlind[hidden],#cgIce[hidden],#cgR[hidden]{display:none!important}
+    #bCG{position:fixed;right:12px;top:170px;z-index:30;background:#ff7a59;color:#2a0d00;font-weight:800;font-size:14px;border:2px solid #fff;border-radius:18px;padding:6px 12px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+    #cgP,#cgR{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow:auto;z-index:60}
+    #cgP .md{display:block;width:100%;text-align:left;margin:8px 0;padding:10px 12px;font-size:17px;font-weight:800}#cgP .md small{display:block;font-weight:500;font-size:13px;opacity:.85;margin-top:2px}
+    #cgPop{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 60px);transform:translateX(-50%);width:min(400px,calc(100vw - 32px));z-index:61;text-align:center}#cgPop .bt{margin-top:8px;display:flex;gap:8px;justify-content:center}#cgPop .bt button{min-width:96px;font-weight:800}
+    #cgPop .ls{margin-top:6px;font-size:14px;line-height:1.7}
+    #cgP button,#cgPop button,#cgR button{color:#fff;background:#3a4258;border:1px solid #5a6582;border-radius:10px;padding:8px 12px;font-size:15px;cursor:pointer}#cgP button.main,#cgPop button.main,#cgR button.main{background:#ffcf4a;color:#2a1a00;border-color:#ffcf4a}#cgP .md{background:#2c3446}
+    #cgHud{position:fixed;left:8px;top:calc(env(safe-area-inset-top,0px) + 56px);z-index:40;background:rgba(15,18,28,.82);color:#fff;border-radius:10px;padding:6px 10px;font-size:14px;line-height:1.45;max-width:min(330px,calc(100vw - 24px));pointer-events:auto}
+    #cgHud b{color:#ffd76a}#cgHud .it{color:#ff8a7a;font-weight:800}#cgHud button{margin-left:6px;font-size:12px;padding:2px 8px;background:#ff5a4f;color:#fff;border:0;border-radius:6px;font-weight:800}
+    #cgBlind{position:fixed;inset:0;background:#000;z-index:39;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;pointer-events:none}#cgBlind b{font-size:64px;margin:8px 0}#cgBlind div{font-size:20px;padding:0 16px}
+    #cgIce{position:fixed;inset:0;z-index:38;pointer-events:none;box-shadow:inset 0 0 120px 40px rgba(120,210,255,.75);background:rgba(160,225,255,.12)}
+    #cgR h3{margin:0 0 8px}#cgR .w{font-size:19px;font-weight:800;margin:6px 0 10px}#cgR .l{font-size:15px;line-height:1.75}#cgR .bt{display:flex;gap:8px;margin-top:12px}#cgR .bt button{flex:1;font-weight:800}`;
+  document.head.appendChild(css);
+  const mk=(id,cls,html)=>{const e=document.createElement('div');e.id=id;if(cls)e.className=cls;e.hidden=true;e.innerHTML=html||'';document.body.appendChild(e);return e;};
+  const PANEL=mk('cgP','panel',`<h3>🏰 城堡遊戲（連線，只能在城堡裡面玩）</h3>
+    ${Object.entries(MODES).map(([k,M])=>`<button class="md" data-m="${k}">${M.e} ${M.n}<small>${M.how}</small></button>`).join('')}
+    <p class="note">按了會邀請房間裡所有人，答應的人一起傳送到城堡 1F 大廳開始。開房間的人當裁判。</p><p class="note st"></p>
+    <div class="row"><button class="close" data-x="1">關閉</button></div>`);
+  const POP=mk('cgPop','panel'),HUD=mk('cgHud'),BLIND=mk('cgBlind','','<div>👀 你是鬼！蒙著眼睛數到 30…</div><b>30</b><div>大家正在躲起來，數完就去找</div>'),ICE=mk('cgIce'),RES=mk('cgR','panel');
+  for(const el of [PANEL,POP,HUD,RES])for(const ev of ['keydown','keyup','pointerdown','touchstart','wheel'])el.addEventListener(ev,e=>e.stopPropagation());   /* 點面板不要轉鏡頭、走路 */
+  const BTN=document.createElement('button');BTN.id='bCG';BTN.hidden=true;BTN.textContent='🏃 城堡遊戲';document.body.appendChild(BTN);   /* 放在右邊「💬 聊天」下面（上面那排按鈕手機上會被連線標籤蓋住） */
+  for(const ev of ['pointerdown','touchstart'])BTN.addEventListener(ev,e=>e.stopPropagation());
+  G.open=()=>{if(!NET.on){toast('要先「👥 連線」跟朋友連在一起才能玩');return;}if(G.on){toast('遊戲已經在玩了');return;}PANEL.querySelector('.st').textContent=NET.P.size?`房間裡現在 ${NET.P.size+1} 個人`:'房間裡還沒有別人，等朋友加入再按';PANEL.hidden=false;RES.hidden=true;};
+  BTN.addEventListener('click',e=>{e.stopPropagation();G.open();});
+  PANEL.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.x){PANEL.hidden=true;return;}const m=b.dataset.m;if(!m)return;
+    if(!NET.on||!NET.P.size){toast('房間裡還沒有別人');return;}if(busy()){toast('先結束現在的遊戲');return;}PANEL.hidden=true;toHost({t:'cgReq',m});});
+  // ---- 傳送 ----
+  function toHost(m){if(NET.host)hostRx(m,me());else NET.out('0',m);}
+  function toAll(m){NET.out('*',m);cliRx(m,'0');}   /* 只有開房間的人用：大家＋自己 */
+  const reply=(f,m)=>{if(f===me())cliRx(m,'0');else NET.out(f,m);};
+  G.netRx=(d,f)=>{f=String(f);if(d.t==='cgDr'){doorApply(d);return;}if(d.t==='cgReq'||d.t==='cgOk'||d.t==='cgNo'||d.t==='cgQ'){if(NET.host)hostRx(d,f);return;}if(f==='0')cliRx(d,f);};
+  // ================= 裁判（開房間的人） =================
+  let L=null,H=null,lastSeek=null;   /* L＝邀請中、H＝進行中 */
+  const allIds=()=>[me(),...NET.P.keys()];
+  function lobSend(){toAll({t:'cgLob',org:L.org,m:L.m,st:[...L.st]});}
+  function hostRx(d,f){const now=performance.now();switch(d.t){
+    case 'cgReq':if(H){reply(f,{t:'cgX',why:'大家正在玩，等這一局結束再邀請'});break;}if(L){reply(f,{t:'cgX',why:`${f===L.org?'':dnH(L.org)+' '}已經在邀請了`});break;}if(!MODES[d.m])break;
+      L={m:d.m,org:f,st:new Map(allIds().map(id=>[id,id===f?'ok':'wait'])),end:now+(INV_T+1)*1000};toAll({t:'cgInv',m:d.m,org:f,ttl:INV_T});lobSend();break;
+    case 'cgOk':case 'cgNo':if(L&&L.st.get(f)==='wait'){L.st.set(f,d.t==='cgOk'?'ok':'no');lobSend();}break;
+    case 'cgQ':if(L&&f===L.org){L=null;toAll({t:'cgX',why:`${dnH(f)} 取消了城堡遊戲`});}else if(L&&L.st.has(f)){L.st.set(f,'no');lobSend();}if(H)leave(f);break;}}
+  const dnH=id=>id===me()?(NET.myName?NET.myName():'開房間的人'):(NET.pn(id)||'朋友');   /* 開房間的人那邊寫給大家看的名字 */
+  function start(m,ids){const now=performance.now();let pool=ids.filter(id=>id!==lastSeek);if(!pool.length)pool=ids;const s0=pool[Math.floor(Math.random()*pool.length)];lastSeek=s0;
+    H={m,ids:ids.slice(),s0,it:new Set([s0]),fr:new Set(),fd:[],imm:{},hold:{},ph:'count',t0:now,end:now+(m==='hide'?HIDE_CNT:TAG_CNT)*1000,lsT:now,sc:{}};
+    for(const id of ids){H.sc[id]={it:0,fz:0,res:0,n:0};if(m!=='hide'||id===s0)H.hold[id]=H.end;}   /* 鬼抓人、冰鬼：大家一起倒數；躲貓貓：只有鬼不能動 */
+    toAll({t:'cgGo',m,ids,it:[s0],cnt:(H.end-now)/1000});sendS();}
+  function sendS(ev){const now=performance.now();H.lsT=now;const m={t:'cgS',ph:H.ph,left:Math.round(Math.max(0,H.end-now)/100)/10,ids:H.ids,it:[...H.it],fr:[...H.fr],fd:H.fd,hold:H.ids.filter(id=>H.hold[id]>now)};if(ev)m.ev=ev;toAll(m);}
+  function posOf(id){if(id===me())return {x:player.pos.x,y:player.y,z:player.pos.y};const q=NET.P.get(id);if(!q||!q.s)return null;const a=q.s.a,v=q.s.v,ag=Math.min(0.25,(performance.now()-(q.sAt||0))/1000);return {x:a[0]+(v?v[0]*ag:0),y:a[1],z:a[2]+(v?v[1]*ag:0)};}
+  const near=(a,b,r)=>!!(a&&b)&&Math.hypot(a.x-b.x,a.z-b.z)<r&&Math.abs(a.y-b.y)<DY;
+  function hostTick(dt){const now=performance.now();
+    if(L){for(const id of [...L.st.keys()])if(id!==me()&&!NET.P.has(id))L.st.delete(id);
+      if(!L.st.has(L.org)){L=null;toAll({t:'cgX',why:'邀請的人離開了'});}
+      else if([...L.st.values()].every(v=>v!=='wait')||now>L.end){const ok=[...L.st].filter(([,v])=>v==='ok').map(([k])=>k),m=L.m;L=null;if(ok.length>=2)start(m,ok);else toAll({t:'cgX',why:'沒有人答應，城堡遊戲取消了'});}}
+    if(!H)return;const held=id=>H.hold[id]>now;
+    if(H.ph==='count'){if(now>=H.end){H.ph='play';H.end=now+MODES[H.m].dur*1000;if(H.m!=='hide')for(const id of H.it)H.hold[id]=now+2500;sendS({k:'go'});}else if(now-H.lsT>1000)sendS();return;}   /* 開始：鬼抓人、冰鬼的鬼再等 2.5 秒，大家先跑 */
+    const P={};for(const id of H.ids)P[id]=posOf(id);
+    if(H.m==='tag'){const it=[...H.it][0];H.sc[it].it+=dt;
+      if(!held(it))for(const id of H.ids){if(id===it||H.imm[id]>now||!near(P[it],P[id],R_TAG))continue;H.it=new Set([id]);H.imm[it]=now+3000;H.hold[id]=now+2000;H.sc[it].n++;sendS({k:'tag',a:it,b:id});break;}}   /* 新的鬼原地數 2 秒；剛剛的鬼 3 秒內抓不到 */
+    else if(H.m==='ice'){const it=[...H.it][0];for(const id of H.fr)H.sc[id].fz+=dt;
+      if(!held(it))for(const id of H.ids){if(id===it||H.fr.has(id)||H.imm[id]>now||!near(P[it],P[id],R_TAG))continue;H.fr.add(id);H.sc[it].n++;sendS({k:'frz',a:it,b:id});}
+      for(const f of [...H.fr])for(const id of H.ids){if(id===it||H.fr.has(id)||!near(P[f],P[id],R_TAG))continue;H.fr.delete(f);H.imm[f]=now+2500;H.sc[id].res++;sendS({k:'res',a:id,b:f});break;}   /* 解凍後 2.5 秒不會馬上又被冰 */
+      if(H.ids.every(id=>id===it||H.fr.has(id)))return end('all');}
+    else{for(const s of [...H.it]){if(held(s))continue;for(const id of H.ids){if(H.it.has(id)||!near(P[s],P[id],R_FIND))continue;H.it.add(id);H.fd.push(id);H.sc[s].n++;H.hold[id]=now+1500;sendS({k:'fnd',a:s,b:id});}}
+      if(H.ids.every(id=>H.it.has(id)))return end('all');}
+    if(now>=H.end)return end('time');
+    if(now-H.lsT>1000)sendS();}
+  function end(why){const now=performance.now(),h=H;H=null;toAll({t:'cgE',m:h.m,why,ids:h.ids,s0:h.s0,it:[...h.it],fr:[...h.fr],fd:h.fd,sc:h.sc,pt:Math.round((now-h.t0)/1000-(h.m==='hide'?HIDE_CNT:TAG_CNT))});}   /* pt＝玩了幾秒（t 是訊息種類） */
+  function leave(id){if(!H||!H.ids.includes(id))return;H.ids=H.ids.filter(x=>x!==id);H.it.delete(id);H.fr.delete(id);H.fd=H.fd.filter(x=>x!==id);
+    if(H.ids.length<2)return end('few');
+    if(!H.it.size){const n=H.ids[Math.floor(Math.random()*H.ids.length)];H.it.add(n);H.fr.delete(n);H.s0=H.m==='hide'?n:H.s0;H.hold[n]=performance.now()+2000;}
+    sendS({k:'left',a:id});}
+  G.peerGone=id=>{if(NET.host&&id!=='*'){if(L&&L.st.has(id)){L.st.delete(id);if(L.org===id){L=null;toAll({t:'cgX',why:'邀請的人離開了'});}}leave(id);return;}
+    if(id==='*'||id==='0'){L=null;H=null;POP.hidden=true;if(G.on)cleanup('連線中斷，城堡遊戲結束了');}};
+  // ================= 每個人自己這邊 =================
+  let S=null,endAt=0,popT=0,hudT=0,vis=false;
+  function cliRx(d){switch(d.t){
+    case 'cgInv':RES.hidden=true;if(d.org===me()){popLobby(d);break;}if(G.on)break;if(busy()){toHost({t:'cgNo'});break;}popInvite(d);break;
+    case 'cgLob':if(d.org===me()||POP.dataset.k==='wait')popList(d);break;
+    case 'cgX':POP.hidden=true;if(G.on)cleanup(d.why);else if(d.why)toast('🏰 '+d.why);break;
+    case 'cgGo':POP.hidden=true;if(d.ids.includes(me()))begin(d);break;
+    case 'cgS':if(G.on)applyS(d);break;
+    case 'cgE':if(G.on)finish(d);break;}}
+  function popInvite(d){const M=MODES[d.m];POP.dataset.k='inv';POP.innerHTML=`🏰 <b>${esc(dn(d.org))}</b> 邀請大家在城堡玩 <b>${M.e} ${M.n}</b><div class="note" style="font-size:13px">${M.how}（答應會傳送到城堡）</div><div class="bt"><button data-a="ok" class="main">好！</button><button data-a="no">不玩</button></div><div class="ls"></div>`;
+    POP.hidden=false;AUDIO.sfx('chime');clearTimeout(popT);popT=setTimeout(()=>{if(POP.dataset.k==='inv'){POP.hidden=true;toHost({t:'cgNo'});}},INV_T*1000);}
+  function popLobby(d){const M=MODES[d.m];POP.dataset.k='lob';POP.innerHTML=`🏰 邀請大家玩 <b>${M.e} ${M.n}</b>，等大家回覆…<div class="ls"></div><div class="bt"><button data-a="cancel">取消</button></div>`;POP.hidden=false;clearTimeout(popT);}
+  function popList(d){const ls=POP.querySelector('.ls');if(!ls)return;ls.innerHTML=d.st.map(([id,v])=>`${v==='ok'?'✅':v==='no'?'❌':'⏳'} ${esc(dn(id))}`).join('　');}
+  POP.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;clearTimeout(popT);
+    if(a==='ok'){toHost({t:'cgOk'});POP.dataset.k='wait';b.parentNode.innerHTML='<span class="note">答應了，等大家回覆…</span>';}
+    else if(a==='no'){POP.hidden=true;toHost({t:'cgNo'});}else if(a==='cancel'){POP.hidden=true;toHost({t:'cgQ'});}});
+  function begin(d){G.on=true;G.m=d.m;G.ids=d.ids;S={ph:'count',ids:d.ids,it:d.it,fr:[],fd:[],hold:d.m==='hide'?d.it:d.ids};endAt=performance.now()+d.cnt*1000;
+    PANEL.hidden=RES.hidden=true;const np=$c('netPanel');if(np)np.hidden=true;if(DECO.sit)DECO.stand(true);
+    if(mode==='aerial')toggleAerial();const sp=SPAWN[Math.max(0,d.ids.indexOf(me()))%SPAWN.length];teleport(sp[0],sp[1],0,0);
+    vis=false;if(!NET.host){if(!(DECO.view&&DECO.view.f==='0')){vis=true;setTimeout(()=>{if(G.on)DECO.visit('0');},60);}}else if(DECO.view)DECO.backHome('🏰 城堡遊戲：大家看你的城堡擺設');   /* 大家看開房間的人的城堡 */
+    const M=MODES[d.m],seek=d.it.includes(me());AUDIO.sfx('go');
+    setTimeout(()=>{if(G.on&&G.m===d.m)toast(`${M.e} ${M.n}：${seek?(d.m==='hide'?'你是鬼！先蒙眼數 30 秒':'你是鬼！倒數完去抓人'):M.how}`);},700);hud(true);}
+  function applyS(d){const was=S;S=d;endAt=performance.now()+d.left*1000;const e=d.ev,i=me();
+    if(was&&was.ph==='count'&&d.ph==='play'||e&&e.k==='go'){toast(G.m==='hide'?(d.it.includes(i)?'👀 數完了！去找大家':'👀 鬼開始找了！別出聲'):'🏁 開始！');AUDIO.sfx('go');}
+    if(e){const A=dn(e.a),B=dn(e.b);
+      if(e.k==='tag'){if(e.b===i){toast('👹 被抓到了！換你當鬼（原地數 2 秒）');AUDIO.sfx('over');}else if(e.a===i){toast(`抓到 ${B} 了！快跑！`);AUDIO.sfx('cheer');}else toast(`${A} 抓到 ${B}，${B} 當鬼！`);}
+      else if(e.k==='frz'){if(e.b===i){toast('🧊 被冰住了！等隊友來碰你解凍');AUDIO.sfx('shatter');}else if(e.a===i){toast(`冰住 ${B} 了！`);AUDIO.sfx('cheer');}else toast(`🧊 ${B} 被冰住了${d.it.includes(i)?'':'，快去救！'}`);}
+      else if(e.k==='res'){if(e.b===i){toast(`${A} 救了你！快跑！`);AUDIO.sfx('chime');}else if(e.a===i){toast(`救了 ${B}！`);AUDIO.sfx('chime');}else toast(`${A} 救了 ${B}`);}
+      else if(e.k==='fnd'){if(e.b===i){toast('🔍 被找到了！現在你是鬼的幫手，一起找');AUDIO.sfx('over');}else if(e.a===i){toast(`找到 ${B} 了！`);AUDIO.sfx('cheer');}else toast(`🔍 ${B} 被找到了（還剩 ${d.ids.filter(x=>!d.it.includes(x)).length} 個人）`);}
+      else if(e.k==='left')toast(`${A} 離開了城堡遊戲`);}
+    hud(true);}
+  function finish(d){const i=me(),M=MODES[d.m],sc=d.sc||{},nm=id=>esc(dn(id));let w='',ls=[];
+    if(d.why==='few')w='人數不夠，遊戲結束';
+    else if(d.m==='tag'){const o=d.ids.slice().sort((a,b)=>(sc[a]?sc[a].it:0)-(sc[b]?sc[b].it:0));w=`🏆 ${nm(o[0])} 最少當鬼！`;ls=o.map((id,k)=>`${k+1}. ${nm(id)}：當鬼 ${mmss(sc[id]?sc[id].it:0)}、抓到 ${sc[id]?sc[id].n:0} 次`);if(o.length>1)ls.push(`👹 當鬼最久：${nm(o[o.length-1])}`);}
+    else if(d.m==='ice'){const it=d.it[0];w=d.why==='all'?`👹 鬼（${nm(it)}）贏了！全部冰住，用了 ${mmss(d.pt)}`:`🎉 逃跑的人贏了！還有 ${d.ids.filter(x=>x!==it&&!d.fr.includes(x)).length} 個人沒被冰住`;
+      ls=d.ids.map(id=>id===it?`👹 ${nm(id)}（鬼）：冰住 ${sc[id]?sc[id].n:0} 次`:`${nm(id)}：救人 ${sc[id]?sc[id].res:0} 次、被冰 ${mmss(sc[id]?sc[id].fz:0)}`);}
+    else{const s0=d.s0,left=d.ids.filter(x=>!d.it.includes(x));w=d.why==='all'?`👹 鬼（${nm(s0)}）全部找到了！用了 ${mmss(d.pt)}`:`🎉 沒被找到的人贏了：${left.map(nm).join('、')}`;
+      ls=d.fd.map((id,k)=>`第 ${k+1} 個被找到：${nm(id)}`);if(d.why==='all'&&d.fd.length>1)ls.push(`🏆 最會躲：${nm(d.fd[d.fd.length-1])}（最後才被找到）`);}
+    const win=d.why==='all'?(d.m==='hide'?d.s0===i:d.m==='ice'&&d.it[0]===i):d.m==='tag'?false:(d.m==='hide'?!d.it.includes(i):d.m==='ice'&&d.it[0]!==i&&!d.fr.includes(i));
+    cleanup('');AUDIO.sfx(win?'bigcheer':'cheer');
+    RES.innerHTML=`<h3>${M.e} 城堡${M.n}：結束</h3><div class="w">${w}</div><div class="l">${ls.join('<br>')}</div><div class="bt"><button data-r="again" class="main">🔁 再玩一次</button><button data-r="x">關閉</button></div>`;RES.dataset.m=d.m;RES.hidden=false;}
+  RES.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;RES.hidden=true;if(b.dataset.r==='again'&&NET.on)toHost({t:'cgReq',m:RES.dataset.m});});
+  function cleanup(why){G.on=false;S=null;HUD.hidden=BLIND.hidden=ICE.hidden=true;marksOff();
+    for(const q of NET.P.values()){const R=q.rem;if(!R)continue;R.tag.visible=true;if(R.gt)R.gt.visible=!!R.gs;}
+    if(vis&&DECO.view&&DECO.view.f==='0')DECO.backHome('🏰 城堡遊戲結束，回到你自己的城堡擺設');vis=false;if(why)toast('🏰 '+why);}
+  // ---- 頭上的「👹 鬼」、腳下紅圈、冰塊 ----
+  const ringG=new THREE.RingGeometry(0.45,0.62,32).rotateX(-Math.PI/2),ringM=new THREE.MeshBasicMaterial({color:'#ff3b30',transparent:true,opacity:0.85,depthWrite:false,toneMapped:false});
+  const iceG=new THREE.BoxGeometry(0.95,2.0,0.95).translate(0,1.0,0),iceM=new THREE.MeshBasicMaterial({color:'#9fe4ff',transparent:true,opacity:0.38,depthWrite:false,toneMapped:false});
+  const sprM=(()=>{const [c,g]=cvs(256,96);g.fillStyle='rgba(200,20,20,0.92)';g.beginPath();g.roundRect(30,8,196,80,30);g.fill();g.lineWidth=4;g.strokeStyle='#fff';g.stroke();g.font=`900 50px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillStyle='#fff';g.fillText('👹 鬼',128,50);
+    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false,toneMapped:false});})();
+  const MK=new Map();
+  function markOf(id){let k=MK.get(id);if(!k){const ring=new THREE.Mesh(ringG,ringM),ice=new THREE.Mesh(iceG,iceM),spr=new THREE.Sprite(sprM);ring.position.y=0.04;spr.scale.set(0.95,0.36,1);spr.position.y=2.55;spr.renderOrder=8;
+      for(const o of [ring,ice,spr]){o.userData.noCull=true;o.castShadow=false;o.visible=false;}k={ring,ice,spr};MK.set(id,k);}return k;}
+  function marksOff(){for(const k of MK.values())for(const o of [k.ring,k.ice,k.spr]){o.visible=false;if(o.parent)o.parent.remove(o);}}
+  function rootOf(id){if(id===me())return avatar.root;const q=NET.P.get(id);return q&&q.rem?q.rem.A.root:null;}
+  G.lock=()=>!!(G.on&&S&&(S.hold.includes(me())||S.fr.includes(me())));
+  G.mmHide=id=>!!(G.on&&G.m==='hide'&&S&&!S.it.includes(id));
+  G.hideDist=()=>G.on&&G.m==='hide';
+  G.door=(grp,v)=>{if(!G.on||!NET.on)return;NET.out('*',{t:'cgDr',ix:grp.map(d=>DOORS.indexOf(d)).filter(i=>i>=0),v:v?1:0});};
+  function doorApply(d){if(!G.on||!Array.isArray(d.ix))return;for(const i of d.ix){const x=DOORS[i|0];if(x&&(x.cs!==undefined||x.gate))x.man=d.v?1:0;}syncActBtn();}   /* 不存檔（只是這一局） */
+  function hud(force){hudT-=force?99:0;if(hudT>0)return;hudT=0.2;const M=MODES[G.m],i=me(),seek=S.it.includes(i),left=Math.max(0,(endAt-performance.now())/1000);let t;
+    if(S.ph==='count')t=G.m==='hide'?(seek?'蒙眼數數中…':`快去躲！鬼還在數（${Math.ceil(left)}）`):`準備…${Math.ceil(left)}`;
+    else if(G.m==='tag')t=seek?'<span class="it">👹 你是鬼！去抓人</span>':`鬼：<span class="it">${esc(dn(S.it[0]))}</span>　快跑！`;
+    else if(G.m==='ice')t=seek?'<span class="it">👹 你是鬼！把大家冰住</span>':S.fr.includes(i)?'🧊 被冰住了，等隊友來碰你':`鬼：<span class="it">${esc(dn(S.it[0]))}</span>　冰住 ${S.fr.length} 人`;
+    else t=seek?`<span class="it">👀 去找！</span>還有 ${S.ids.filter(x=>!S.it.includes(x)).length} 人沒找到`:'🤫 躲好別被找到';
+    {const pl=$c('place'),b=pl&&!pl.hidden?pl.getBoundingClientRect():null;HUD.style.top=(b?Math.round(b.bottom+6):56)+'px';}   /* 排在左上角位置面板下面 */
+    HUD.innerHTML=`<b>${M.e} 城堡${M.n}</b>　⏱ ${mmss(S.ph==='count'?left:left)}<br>${t}<button data-q="1">退出</button>`;HUD.hidden=false;}
+  HUD.addEventListener('click',e=>{if(e.target.closest('[data-q]')){toHost({t:'cgQ'});cleanup('你退出了城堡遊戲');}});
+  G.tick=dt=>{if(NET.host&&(L||H))hostTick(dt);
+    {const sh=NET.on&&NET.P.size>0&&!G.on&&mode==='walk'&&inArea(player.pos.x,player.pos.y);if(BTN.hidden===sh)BTN.hidden=!sh;if(sh){G.bT=(G.bT||0)-dt;if(G.bT<=0){G.bT=0.5;const c=$c('netChatB'),b=c&&!c.hidden?c.getBoundingClientRect():null;BTN.style.top=(b?Math.round(b.bottom+8):170)+'px';}}}
+    if(!G.on)return;if(!NET.on){cleanup('連線中斷，城堡遊戲結束了');return;}
+    if(RIDE.on)RIDE.stop(true);if(mode==='aerial')toggleAerial();
+    if(mode==='walk'&&!inArea(player.pos.x,player.pos.y)){G.outT=(G.outT||0)+dt;if(G.outT>0.4){G.outT=0;const sp=SPAWN[Math.floor(Math.random()*SPAWN.length)];teleport(sp[0],sp[1],0,0);toast('🏰 只能在城堡裡面玩');}}else G.outT=0;   /* 跑出城堡（或按了「前往」）＝拉回大廳 */
+    hudT-=dt;hud(false);const i=me(),left=(endAt-performance.now())/1000;
+    const blind=G.m==='hide'&&S.ph==='count'&&S.it.includes(i);if(BLIND.hidden===blind)BLIND.hidden=!blind;if(blind)BLIND.querySelector('b').textContent=Math.max(0,Math.ceil(left));
+    const fz=S.fr.includes(i);if(ICE.hidden===fz)ICE.hidden=!fz;
+    for(const id of S.ids){const r=rootOf(id),k=markOf(id),it=S.it.includes(id),f=S.fr.includes(id);
+      for(const o of [k.ring,k.ice,k.spr])if(r&&o.parent!==r)r.add(o);k.ring.visible=!!r&&it;k.spr.visible=!!r&&it&&id!==i;k.ice.visible=!!r&&f;}   /* 自己頭上的「鬼」不畫（第三人稱會擋畫面，左上角已經寫了） */
+    for(const q of NET.P.values()){const R=q.rem;if(!R)continue;const show=!(G.m==='hide'&&!S.it.includes(q.id));if(R.tag.visible!==show)R.tag.visible=show;if(R.gt&&R.gt.visible)R.gt.visible=false;}};   /* 躲貓貓：躲的人頭上的名字藏起來（名字隔著牆也看得到）；在玩什麼的小標籤遊戲中都藏起來 */
+  Object.defineProperty(G,'S',{get:()=>S});G.dbg=()=>({L,H,S,MK,start,end,hostTick,cliRx,finish,cleanup});   /* 測試用 */
+  return G;})();
 function step(dt){
   if(mode==='walk'){
     let f=0,s=0;
@@ -18192,7 +18372,7 @@ function step(dt){
     if(joy.id!==null){f+=-joy.y;s+=joy.x;if(Math.hypot(joy.x,joy.y)>0.92)running=true;}
     if(BB.lock()){f=0;s=0;running=false;}   // 投籃、灌籃中不能走
     if(EMOTE.on&&EMOTE.step(dt,f,s)){f=0;s=0;}
-    if(RS.seat){f=0;s=0;}if(PAX.on){f=0;s=0;running=false;}   /* 坐朋友的車：不能走 */   // 在小餐館坐著等菜：不能走   // 做動作中：推搖桿就停
+    if(RS.seat){f=0;s=0;}if(PAX.on){f=0;s=0;running=false;}if(CG.lock()){f=0;s=0;running=false;}   /* 城堡遊戲：被冰住、數數中 */   /* 坐朋友的車：不能走 */   // 在小餐館坐著等菜：不能走   // 做動作中：推搖桿就停
     const stage=running&&Math.hypot(f,s)>0.1?1:0;
     const speed=[2.4,5.5][stage]*comfort.speed;
     const len=Math.hypot(f,s);if(len>1){f/=len;s/=len;}
@@ -18283,7 +18463,7 @@ function step(dt){
   MU.tick(dt);
   DD.tick(dt);
   KF.tick(dt);PUSH.tick(dt);FISH.tick(dt);RS.tick(dt);DECO.tick(dt);
-  GATES.tick(dt);NET.tick(dt);
+  GATES.tick(dt);NET.tick(dt);CG.tick(dt);
   {let t=0;if(CALM.on&&mode==='walk'&&started){const sp=RACE.on?Math.abs(RACE.v)*0.05:SKATE.on?SKATE.vel.length():player.vel.length();let dy=player.yaw-CALM.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
      t=Math.min(0.85,sp*0.08+Math.abs(dy)/Math.max(dt,1e-3)*0.22+(player.ground?0:0.2));}   // 防暈：越快、轉越快、在空中，四周越暗
    CALM.yaw=player.yaw;CALM.v+=(t-CALM.v)*Math.min(1,dt*6);if(Math.abs(CALM.v-CALM.last)>0.01||(CALM.v<0.01&&CALM.last)){CALM.last=CALM.v<0.01?0:CALM.v;document.getElementById('calmVig').style.opacity=CALM.last.toFixed(2);}}
@@ -18343,7 +18523,7 @@ NM.applyPrizes();
 function warmNow(){const hid=[],lay=[];scene.traverse(o=>{if(!o.visible&&!o.isLight){hid.push(o);o.visible=true;}if(o.isMesh&&o.layers.mask===2){lay.push(o);o.layers.set(0);}});
   try{renderer.compile(scene,camera);}catch(_){}for(const o of hid)o.visible=false;for(const o of lay)o.layers.set(1);}
 for(const [obj,fn] of [[NM,'start'],[NM,'startArmy'],[SB,'start'],[KF,'start'],[RB,'start'],[RACE,'pick'],[GAME,'start'],[TN,'start'],[BB,'start'],[MU,'start']]){const f=obj[fn];if(typeof f!=='function')continue;obj[fn]=(...a)=>{const r=f(...a);try{warmNow();}catch(_){}return r;};}
-window.__dbg={CREL,EVICT,ULM,sun,PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+window.__dbg={CG,CREL,EVICT,ULM,sun,PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
