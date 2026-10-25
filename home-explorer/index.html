@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-25.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-25.5"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17409,7 +17409,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     P.querySelector('.code').textContent=N.code;P.querySelector('.off').hidden=s==='idle';$n('netDD').checked=N.ddVs;chip.hidden=!N.on;FXB.hidden=!N.on;CHB.hidden=!N.on;document.body.classList.toggle('neton',N.on);if(!N.on){fxClose();CHP.hidden=true;}
     const rc=P.querySelector('.roomc');rc.hidden=!(N.host&&N.code&&N.on);rc.querySelector('.code2').textContent=N.code;rc.querySelector('.left').textContent=Math.max(0,3-N.conns.size);
     if(s==='live')pplDraw();}
-  function pplDraw(){const t=tgt();let h='';for(const q of N.P.values()){const d=typeof CG!=='undefined'&&CG.hideDist()?Infinity:dist(q);h+=`<div class="pp${q.id===t?' on':''}" data-p="${q.id}"><i style="background:${PC[q.id]||'#888'}"></i><b>${esc(q.name||'…')}</b><small>${d<1e9?Math.round(d)+' m':''}${q.ra?'・離開畫面':''}${q.s&&q.s.g?'・'+esc(q.s.g):''}</small><button data-go="${q.id}">📍 過去</button></div>`;}
+  function pplDraw(){const t=tgt();let h='';for(const q of N.P.values()){const d=typeof CG!=='undefined'&&CG.hideDist()?Infinity:dist(q);h+=`<div class="pp${q.id===t?' on':''}" data-p="${q.id}"><i style="background:${PC[q.id]||'#888'}"></i><b>${esc(q.name||'…')}</b><small>${d<1e9?Math.round(d)+' m':''}${q.ra?'・離開畫面':''}${q.s&&q.s.g?'・'+esc(q.s.g):''}</small>${typeof CG!=='undefined'&&CG.on?'':`<button data-go="${q.id}">📍 過去</button>`}</div>`;}
     P.querySelector('.ppl').innerHTML=h||'<div class="note">等別人加入…</div>';
     P.querySelector('.tgt').innerHTML=t!=null?`邀請 <b style="color:${PC[t]}">${esc(pn(t)||'對方')}</b> 一起玩：${N.P.size>1?'<small>（點上面的名字換人）</small>':''}`:'';}
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -18218,7 +18218,7 @@ const CG=(()=>{const G={on:false,m:null,ids:[],net:false};
     ice:{n:'冰鬼',e:'🧊',dur:180,min:2,cnt:4,how:'被鬼碰到會冰住，隊友碰你就解凍；全部冰住鬼贏'},
     hide:{n:'躲貓貓',e:'🙈',dur:240,min:2,cnt:30,how:'鬼蒙眼數 30 秒，大家快去躲！被找到的人變成鬼的幫手'},
     bomb:{n:'燙手炸彈',e:'💣',dur:300,min:2,cnt:4,how:'炸彈在你手上就快去碰別人傳出去！爆炸時拿著的人出局，留到最後的贏'},
-    statue:{n:'一二三木頭人',e:'🧍',dur:180,min:1,cnt:4,how:'守衛背對大家喊口令時往前走，他轉過來就不能動！先碰到守衛的贏'},
+    statue:{n:'一二三木頭人',e:'🧍',dur:180,min:1,cnt:4,how:'守衛背對大家喊口令時往前走（只能用走的），他轉過來就不能動！先碰到守衛的贏'},
     lava:{n:'地板是岩漿',e:'🔥',dur:0,min:1,cnt:3,how:'岩漿來了就跳到傢俱、樓梯上！踩到扣一顆心，岩漿一輪比一輪高'},
     treasure:{n:'城堡尋寶',e:'💎',dur:180,min:1,cnt:4,how:'寶石、金幣藏在各層，鑰匙打開塔裡的寶箱；3 分鐘撿最多分'},
     ghost:{n:'幽靈城堡',e:'👻',dur:300,min:1,cnt:5,how:'燈全關了！躲開幽靈、找齊 5 根蠟燭，大家一起逃出大門'}};
@@ -18277,8 +18277,8 @@ const CG=(()=>{const G={on:false,m:null,ids:[],net:false};
   function lobSend(){toAll({t:'cgLob',org:L.org,m:L.m,st:[...L.st]});}
   const dnH=id=>id===me()?(NET.myName?NET.myName():'開房間的人'):(NET.pn(id)||'朋友');   /* 裁判那邊寫給大家看的名字 */
   function hostRx(d,f){const now=performance.now();switch(d.t){
-    case 'cgReq':{if(H){reply(f,{t:'cgX',why:'大家正在玩，等這一局結束再邀請'});break;}if(L){reply(f,{t:'cgX',why:`${f===L.org?'':dnH(L.org)+' '}已經在邀請了`});break;}const M=MODES[d.m];if(!M)break;
-      const ids=allIds();if(ids.length<2){if(M.min<=1)start(d.m,[f]);else reply(f,{t:'cgX',why:'這個要 2 個人以上連線才能玩'});break;}   /* 一個人：直接開始 */
+    case 'cgReq':{if(H){reply(f,{t:'cgX',why:'大家正在玩，等這一局結束再邀請',keep:1});break;}if(L){reply(f,{t:'cgX',why:`${f===L.org?'':dnH(L.org)+' '}已經在邀請了，先回覆那個邀請`,keep:1});break;}const M=MODES[d.m];if(!M)break;   /* keep：只是不接受這次要求，畫面上已經有的邀請視窗不要關 */
+      const ids=allIds();if(ids.length<2){if(M.min<=1)start(d.m,[f]);else reply(f,{t:'cgX',why:'這個要 2 個人以上連線才能玩',keep:1});break;}   /* 一個人：直接開始 */
       L={m:d.m,org:f,st:new Map(ids.map(id=>[id,id===f?'ok':'wait'])),end:now+(INV_T+1)*1000};toAll({t:'cgInv',m:d.m,org:f,ttl:INV_T});lobSend();break;}
     case 'cgOk':case 'cgNo':if(L&&L.st.get(f)==='wait'){L.st.set(f,d.t==='cgOk'?'ok':'no');lobSend();}break;
     case 'cgQ':if(L&&f===L.org){L=null;toAll({t:'cgX',why:`${dnH(f)} 取消了城堡遊戲`});}else if(L&&L.st.has(f)){L.st.set(f,'no');lobSend();}if(H)leave(f);break;}}
@@ -18362,27 +18362,28 @@ const CG=(()=>{const G={on:false,m:null,ids:[],net:false};
     if(H.ids.length<MODES[H.m].min||!H.ids.length)return end('few');
     if(MODES[H.m].min>1&&!H.it.size&&!(H.m==='bomb'&&H.pause)){const al=H.ids.filter(x=>!H.out.has(x)),n=al[Math.floor(Math.random()*al.length)];if(H.m==='bomb'){if(al.length<=1)return end('all');bombRound(performance.now(),false);}else{H.it.add(n);H.fr.delete(n);H.s0=H.m==='hide'?n:H.s0;H.hold[n]=performance.now()+2000;}}
     if(H.m==='bomb'&&H.ids.filter(x=>!H.out.has(x)).length<=1)return end('all');
-    sendS({k:'left',a:id});}
+    sendS({k:'left',a:id,nm:dnH(id)});}   /* 名字一起送：斷線的人可能已經從大家的名單拿掉了 */
   G.peerGone=id=>{if(NET.host&&id!=='*'){if(L&&L.st.has(id)){L.st.delete(id);if(L.org===id){L=null;toAll({t:'cgX',why:'邀請的人離開了'});}}leave(id);return;}
-    if(id==='*'||id==='0'){if(G.net){L=null;H=null;POP.hidden=true;if(G.on)cleanup('連線中斷，城堡遊戲結束了');}}};
+    if(id==='*'||id==='0'){if(G.net){L=null;H=null;popClose();if(G.on)cleanup('連線中斷，城堡遊戲結束了');}}};
   // ================= 每個人自己這邊 =================
   let S=null,endAt=0,popT=0,hudT=0,vis=false,bigT=0,tickT=0;
   function big(t,cls,sec){BIG.textContent=t;BIG.className=cls||'';BIG.hidden=false;bigT=sec||1.6;}
   function cliRx(d){switch(d.t){
     case 'cgInv':RES.hidden=true;if(d.org===me()){popLobby(d);break;}if(G.on)break;if(busy()){toHost({t:'cgNo'});break;}popInvite(d);break;
     case 'cgLob':if(d.org===me()||POP.dataset.k==='wait')popList(d);break;
-    case 'cgX':POP.hidden=true;if(G.on)cleanup(d.why);else if(d.why)toast('🏰 '+d.why);break;
-    case 'cgGo':POP.hidden=true;if(d.ids.includes(me()))begin(d);break;
+    case 'cgX':if(d.keep){if(d.why)toast('🏰 '+d.why);break;}popClose();if(G.on)cleanup(d.why);else if(d.why)toast('🏰 '+d.why);break;
+    case 'cgGo':popClose();if(d.ids.includes(me()))begin(d);break;
     case 'cgS':if(G.on)applyS(d);break;
     case 'cgG':if(G.on)GH.net=d.g;break;
     case 'cgE':if(G.on)finish(d);break;}}
+  function popClose(){POP.hidden=true;POP.dataset.k='';clearTimeout(popT);}   /* 關掉時連「15 秒沒回就自動不玩」也取消（不然會把下一次的邀請也回成不玩） */
   function popInvite(d){const M=MODES[d.m];POP.dataset.k='inv';POP.innerHTML=`🏰 <b>${esc(dn(d.org))}</b> 邀請大家在城堡玩 <b>${M.e} ${M.n}</b><div class="note" style="font-size:13px">${M.how}（答應會傳送到城堡）</div><div class="bt"><button data-a="ok" class="main">好！</button><button data-a="no">不玩</button></div><div class="ls"></div>`;
-    POP.hidden=false;AUDIO.sfx('chime');clearTimeout(popT);popT=setTimeout(()=>{if(POP.dataset.k==='inv'){POP.hidden=true;toHost({t:'cgNo'});}},INV_T*1000);}
+    POP.hidden=false;AUDIO.sfx('chime');clearTimeout(popT);popT=setTimeout(()=>{if(POP.dataset.k==='inv'&&!POP.hidden){popClose();toHost({t:'cgNo'});}},INV_T*1000);}
   function popLobby(d){const M=MODES[d.m];POP.dataset.k='lob';POP.innerHTML=`🏰 邀請大家玩 <b>${M.e} ${M.n}</b>，等大家回覆…<div class="ls"></div><div class="bt"><button data-a="cancel">取消</button></div>`;POP.hidden=false;clearTimeout(popT);}
   function popList(d){const ls=POP.querySelector('.ls');if(!ls)return;ls.innerHTML=d.st.map(([id,v])=>`${v==='ok'?'✅':v==='no'?'❌':'⏳'} ${esc(dn(id))}`).join('　');}
   POP.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;clearTimeout(popT);
     if(a==='ok'){toHost({t:'cgOk'});POP.dataset.k='wait';b.parentNode.innerHTML='<span class="note">答應了，等大家回覆…</span>';}
-    else if(a==='no'){POP.hidden=true;toHost({t:'cgNo'});}else if(a==='cancel'){POP.hidden=true;toHost({t:'cgQ'});}});
+    else if(a==='no'){popClose();toHost({t:'cgNo'});}else if(a==='cancel'){popClose();toHost({t:'cgQ'});}});
   function spawnOf(m,ids){const i=Math.max(0,ids.indexOf(me()));if(m==='statue')return [294.2+i*2.5,LINE_Z];return SPAWN[i%SPAWN.length];}
   function begin(d){G.on=true;G.m=d.m;G.ids=d.ids;G.net=NET.on&&d.ids.length>1;G.items=d.items;G.best=d.best;S={ph:'count',ids:d.ids,it:d.it,fr:[],fd:[],out:[],hold:d.m==='hide'?d.it:d.ids,tk:[],pts:{},hp:{},esc:[]};endAt=performance.now()+d.cnt*1000;
     PANEL.hidden=RES.hidden=true;const np=$c('netPanel');if(np)np.hidden=true;if(DECO.sit)DECO.stand(true);
@@ -18414,7 +18415,7 @@ const CG=(()=>{const G={on:false,m:null,ids:[],net:false};
       else if(e.k==='lock'){if(e.b===i)toast('🔒 寶箱鎖著，要先找到鑰匙');}
       else if(e.k==='scare'){if(e.b===i){big('👻 哇！被嚇回大廳','red',1.8);AUDIO.sfx('over');const sp=SPAWN[Math.floor(Math.random()*3)];   /* 不要剛好傳到大門口（出口） */teleport(sp[0],sp[1],0,0);}else toast(`👻 ${B} 被幽靈嚇回大廳了`);}
       else if(e.k==='esc'){if(e.b===i){big('🚪 逃出去了！等大家','ok',2);AUDIO.sfx('cheer');}else toast(`🚪 ${B} 逃出去了`);}
-      else if(e.k==='left')toast(`${A} 離開了城堡遊戲`);}
+      else if(e.k==='left')toast(`${NET.pn(e.a)||e.nm||A} 離開了城堡遊戲`);}
     hud(true);}
   function finish(d){const i=me(),M=MODES[d.m],sc=d.sc||{},nm=id=>esc(dn(id)),one=d.ids.length===1;let w='',ls=[],win=false,rec='';
     if(d.why==='few')w='人數不夠，遊戲結束';
@@ -18536,7 +18537,7 @@ function step(dt){
     if(joy.id!==null){f+=-joy.y;s+=joy.x;if(Math.hypot(joy.x,joy.y)>0.92)running=true;}
     if(BB.lock()){f=0;s=0;running=false;}   // 投籃、灌籃中不能走
     if(EMOTE.on&&EMOTE.step(dt,f,s)){f=0;s=0;}
-    if(RS.seat){f=0;s=0;}if(PAX.on){f=0;s=0;running=false;}if(CG.lock()){f=0;s=0;running=false;}   /* 城堡遊戲：被冰住、數數中 */   /* 坐朋友的車：不能走 */   // 在小餐館坐著等菜：不能走   // 做動作中：推搖桿就停
+    if(RS.seat){f=0;s=0;}if(PAX.on){f=0;s=0;running=false;}if(CG.lock()){f=0;s=0;running=false;}if(CG.on&&CG.m==='statue')running=false;   /* 城堡遊戲：被冰住、數數中；木頭人只能用走的（大廳 18 m，用跑的一次口令就到了） */   /* 坐朋友的車：不能走 */   // 在小餐館坐著等菜：不能走   // 做動作中：推搖桿就停
     const stage=running&&Math.hypot(f,s)>0.1?1:0;
     const speed=[2.4,5.5][stage]*comfort.speed;
     const len=Math.hypot(f,s);if(len>1){f/=len;s/=len;}
