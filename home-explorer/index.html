@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-25.12"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-25.14"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -675,6 +675,7 @@
   body.touch #netChatB{left:auto;right:calc(12px + var(--sar));top:calc(132px + var(--sat));transform:none}@media (orientation:landscape) and (max-height:520px){body.touch #netChatB{top:calc(94px + var(--sat));right:calc(104px + var(--sar))}}
   #netChat{position:fixed;right:calc(12px + var(--sar));top:calc(56px + var(--sat));z-index:41;width:min(380px,94vw);height:min(520px,70vh);padding:10px 12px;display:flex;flex-direction:column;gap:8px;color:#fff;background:rgba(18,24,30,.95)!important}
   body.touch #netChat{left:50%;right:auto;transform:translateX(-50%);top:calc(8px + var(--sat));height:min(470px,56vh)}   /* 手機：放上半部，鍵盤跳出來也看得到 */
+  @media (orientation:landscape) and (max-height:520px){body.touch #netChat{left:calc(8px + var(--sal));transform:none;width:min(340px,46vw)}}   /* 2026-10-25.14 手機橫拿：放中間會壓到右上的按鈕（城堡裡上面按鈕更多）→ 靠左、窄一點 */
   #netChat .hd{display:flex;align-items:center;gap:8px;font-size:17px}#netChat .hd .cnt{flex:1;font-size:12px;opacity:.75}#netChat .hd button{width:34px;height:34px;padding:0;border-radius:50%;background:#2b3440;color:#fff;border:1.5px solid #6c7a8a;font-size:16px}
   #netChat .log{flex:1;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;-webkit-user-select:text;user-select:text;touch-action:pan-y}
   #netChat .m{background:rgba(255,255,255,.08);border-radius:10px;padding:5px 9px;max-width:88%;align-self:flex-start}#netChat .m.me{align-self:flex-end;background:rgba(217,144,0,.22)}
@@ -714,11 +715,12 @@
   #netPanel button.main{background:#2f8fff!important;border-color:#bfe0ff!important;color:#fff}#netPanel .code{font-size:34px;letter-spacing:6px;color:#ffd23a;font-weight:900}
   #netPanel .st{margin:0;font-size:13px;opacity:.85;min-height:1em}
   #netChip{position:fixed;left:50%;top:calc(10px + var(--sat));transform:translateX(-50%);z-index:13;background:rgba(30,110,220,.85);color:#fff;border-radius:16px;padding:4px 12px;font-size:13px;font-weight:800;border:1px solid rgba(255,255,255,.5);white-space:nowrap}
-  #netInv{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:45;width:min(340px,90vw);padding:16px;text-align:center;display:flex;flex-direction:column;gap:10px;color:var(--ink,#fff)}
+  #netInv{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:65;width:min(340px,90vw);padding:16px;text-align:center;display:flex;flex-direction:column;gap:10px;color:var(--ink,#fff)}
+  #netChip.nofit{visibility:hidden}#netChip.mini{max-width:48px;overflow:hidden;text-overflow:clip}@media (orientation:landscape) and (max-height:520px){#netInv{top:56%;max-height:calc(100vh - 64px - var(--sat) - var(--sab));overflow:auto}}   /* 2026-10-25.14 手機橫拿：邀請視窗原本蓋到上面那排按鈕 → 往下放、太高就捲動；連線標籤放不下時先藏起來 */
   #netInv .row{display:flex;gap:10px;justify-content:center}#netInv button{flex:1;border-radius:10px;padding:10px;font-size:16px;font-weight:800;border:1px solid var(--line);background:var(--panel-2);color:inherit}#netInv button.ok{background:#e0408a!important;border-color:#ffb3d4!important;color:#fff}
   #ddVs{position:absolute;left:50%;top:calc(46px + var(--sat));transform:translateX(-50%);z-index:3;background:rgba(10,14,30,.75);border:1px solid rgba(255,255,255,.35);border-radius:12px;padding:5px 12px;color:#fff;font-size:13px;font-weight:800;text-align:center;white-space:nowrap;pointer-events:none}
   #ddVs b{font-size:16px;color:#ffd23a}#ddVs .me b{color:#7fe0ff}#ddVs .res{font-size:18px;color:#ffe14a}
-  #ddVs{white-space:normal;max-width:min(96vw,640px)}body.touch.dd #netChip{display:none!important}@media (max-width:600px) and (orientation:portrait){#ddVs{top:calc(4px + var(--sat));font-size:12px;padding:3px 8px;max-width:calc(100vw - 120px)}#ddVs b{font-size:13px}#ddUI #ddVs .rk{display:grid;grid-template-columns:auto auto;gap:0 10px;justify-items:start}#ddVs .rk i{min-width:15px;height:15px;line-height:15px;font-size:11px}#ddVs .res{font-size:14px}}   /* 手機直拿：名次列放最上面、小一點 */
+  #ddVs{white-space:normal;max-width:min(96vw,640px)}body.touch.dd #netChip{display:none!important}@media (orientation:landscape) and (max-height:520px){body.touch #ddVs{top:auto;bottom:calc(8px + var(--sab));max-width:calc(100vw - 400px)}}   /* 2026-10-25.14 手機橫拿：名次列原本壓在歌名上 → 放下面中間（左右兩邊是箭頭鈕） */@media (max-width:600px) and (orientation:portrait){#ddVs{top:calc(4px + var(--sat));font-size:12px;padding:3px 8px;max-width:calc(100vw - 120px)}#ddVs b{font-size:13px}#ddUI #ddVs .rk{display:grid;grid-template-columns:auto auto;gap:0 10px;justify-items:start}#ddVs .rk i{min-width:15px;height:15px;line-height:15px;font-size:11px}#ddVs .res{font-size:14px}}   /* 手機直拿：名次列放最上面、小一點 */
   #ddVs.side{top:auto;bottom:calc(64px + var(--sab));padding:6px 10px}#ddVs.side .rk{flex-direction:column;align-items:flex-start;gap:2px}#ddVs.side .res{font-size:15px}#ddVs .rk{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center}#ddVs .rk span{white-space:nowrap}#ddVs .rk span.q{opacity:.55}
   #ddVs .rk i{font-style:normal;display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:50%;background:#ffd23a;color:#222;font-size:12px;text-align:center;margin-right:4px}#ddVs .rk span.me{color:#7fe0ff}
   #ddVs .rk em{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:3px;border:1px solid #fff}#ddVs .rk small{margin-left:3px;color:#ffb27f}
@@ -10060,7 +10062,16 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
   const LIST=[
     {k:'gingang',name:'🍄 靈感菇',loop:true,bpm:100,meme:1,big:'🍄 靈感菇～',song:{id:'e-gingang',n:'靈感菇',bpm:100,k:67,bar:4,rep:2,ib:1,lead:'sq',s:"1/0.5 3/0.5 5/0.5 5/0.5 5/0.5 6/0.5 5/0.5 3/0.5 | 1/0.5 3/0.5 2 1/0.5 2/0.5 3 | 1/0.5 3/0.5 5/0.5 5/0.5 5/0.5 6/0.5 5/0.5 3/0.5 | 1/0.5 3/0.5 2 1/0.5 ,7/0.5 1"}},   /* 2026-10-25.8 使用者：「迷因錯了，靈感菇沒有經典音樂」→ 原本照童子軍歌的譜（1 3 5 5 5…1 3 2，7 2 1）不是迷因唱的那段；
        改成量 YouTube 單手鋼琴教學（8Vj4UwQzs_E）的音高：G B D D D E D B｜G B A－G A B－｜G B D D D E D B｜G B A－G F# G－（G 大調、約 100 bpm、八分音符）＝「靈感菇哩菇哩菇哩哇擦，靈感菇，靈感菇」；不用錄音，自己的編曲 */
-    {k:'sixseven',name:'6️⃣7️⃣ 67',dur:2.2,bpm:150,meme:1,big:'6️⃣ 7️⃣',shout:1},   /* 2026-10-25.11 使用者：「67 不就單純地跳出 67 文字然後喊出英文的 six seven」→ 不放音樂、不一直跳：畫面跳出「6️⃣ 7️⃣」、用英文朗讀喊「Six seven!」、手比一下（掌心朝上一上一下）2.2 秒就停 */
+    {k:'sixseven',name:'6️⃣7️⃣ 67',dur:2.2,bpm:150,meme:1,big:'6️⃣ 7️⃣',bub:'6️⃣7️⃣',say:'Six seven!',lang:'en',pitch:1.15},   /* 2026-10-25.11 使用者：「67 不就單純地跳出 67 文字然後喊出英文的 six seven」→ 不放音樂、不一直跳：畫面跳出「6️⃣ 7️⃣」、用英文朗讀喊「Six seven!」、手比一下（掌心朝上一上一下）2.2 秒就停 */
+    // 2026-10-25.13 使用者：「還有甚麼迷因嗎 動作就好」→ 我列 8 個 →「好哦 這些都加」：都跟 67 一樣，跳出一句字＋朗讀喊（say／lang 'zh' 'en' 'it'）＋一個動作，幾秒就停，不放原曲；動作自己編
+    {k:'kenchana',name:'🙅 肯恰拿',dur:3.2,meme:1,big:'🙅 肯恰拿～叮叮叮叮叮',bub:'肯恰拿～',say:'肯恰拿～叮叮叮叮叮！',lang:'zh',pitch:1.2,rate:1.1},   /* 2025 年度迷因第一名：韓文「沒關係」諧音；手往前比停、腳往後點，再左右晃「叮叮叮叮叮」 */
+    {k:'ruby',name:'👋 露比醬～嗨',dur:2.6,meme:1,big:'露比醬～ 嗨！👋',bub:'露比醬～嗨！',say:'露比醬～嗨！',lang:'zh',pitch:1.45},   /* 動漫歌開頭那句（不放歌）：兩手在嘴邊喊 → 跳一下舉手揮「嗨」 */
+    {k:'car',name:'😱 你後面有車',dur:2.6,meme:1,big:'😱 你後面有車！',bub:'你後面有車！',say:'你後面有車！你後面有車！',lang:'zh',pitch:1.1,rate:1.3},   /* 直播名場面：一手指前面、一手在頭上猛揮 */
+    {k:'wow',name:'🤩 WOW',dur:2.4,meme:1,big:'🤩 WOW～',bub:'WOW～',say:'Wow!',lang:'en',pitch:1.3,rate:0.75},   /* 韓綜的 WOW 手勢：兩手比 3 放在嘴巴兩邊 */
+    {k:'tung',name:'🥁 咚咚咚 Sahur',dur:3.0,meme:1,big:'🥁 Tung Tung Tung Sahur!',bub:'Tung tung sahur!',say:'Tung tung tung sahur!',lang:'en',pitch:0.9},   /* 義大利腦腐角色（只做動作，不做角色樣子）：兩手抱棍子往下敲三下，再高高舉起 */
+    {k:'ballerina',name:'🩰 卡布奇諾芭蕾',dur:3.0,meme:1,big:'🩰 Ballerina Cappuccina!',bub:'Ballerina!',say:'Ballerina Cappuccina!',lang:'it',pitch:1.3},   /* 也是腦腐角色：踮腳、兩手在頭上圍一個圈、原地轉一圈 */
+    {k:'kemu3',name:'💃 科目三',dur:4.4,bpm:128,meme:1,big:'💃 科目三！',bub:'科目三！',say:'科目三！',lang:'zh',pitch:1.1},   /* 抖音舞：兩手在身體前面左右甩、手腕一翻，腳跟著左右踩 */
+    {k:'sturdy',name:'👟 Sturdy',dur:3.6,bpm:140,meme:1,big:'👟 Sturdy!',bub:'Sturdy!',say:'Sturdy!',lang:'en'},   /* 2026 藍衣小男孩：膝蓋彎、兩腳輪流抬起來踩、上半身一頓一頓 */
     {k:'cancan',name:'🦵 康康舞',loop:true,bpm:150,meme:1,big:'🦵 康康舞！',song:{id:'e-cancan',n:'康康舞曲',bpm:150,k:72,bar:4,rep:2,ib:1,lead:'sq',s:"1/2 2/0.5 4/0.5 3/0.5 2/0.5 | 5 5 5/0.5 6/0.5 3/0.5 4/0.5 | 2 2 2/0.5 4/0.5 3/0.5 2/0.5 | 1/0.5 1'/0.5 7/0.5 6/0.5 5/0.5 4/0.5 3/0.5 2/0.5 | 1/2 2/0.5 4/0.5 3/0.5 2/0.5 | 5 5 5/0.5 6/0.5 3/0.5 4/0.5 | 2 2 2/0.5 4/0.5 3/0.5 2/0.5 | 1/0.5 5/0.5 2/0.5 3/0.5 1 0"}},
     {k:'sneak',name:'🤫 偷偷摸摸',loop:true,bpm:132,meme:1,big:'🤫 噓…',song:{id:'e-sneak',n:'山大王的大廳',bpm:132,k:69,bar:4,rep:2,ib:1,minor:true,lead:'saw',s:"1/0.5 2/0.5 b3/0.5 4/0.5 5/0.5 b3/0.5 5 | #4/0.5 2/0.5 #4 4/0.5 b2/0.5 4 | 1/0.5 2/0.5 b3/0.5 4/0.5 5/0.5 b3/0.5 5/0.5 1'/0.5 | b7/0.5 5/0.5 b3/0.5 5/0.5 b7/2"}},
     {k:'vibe',name:'😎 搖頭晃腦',loop:true,bpm:92,meme:1,big:'😎 好聽',song:{id:'e-vibe',n:'放鬆小調',bpm:92,k:65,bar:4,rep:2,ib:1,s:"3 5 6/0.5 5/0.5 3 | 2/2 0/2 | 3 5 6/0.5 1'/0.5 6 | 5/3 0"}},   /* 自己寫的 */
@@ -10096,7 +10107,7 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
     avatar.yaw=player.yaw+Math.PI+(it.face||0);   // 轉過來面對鏡頭（月球漫步：側面）
     if(it.k==='moon')E.addHat();
     E.prev=null;if(it.k==='bye')E.suit(true);   /* 換上忍者裝 */
-    if(it.shout)E.say67();else if(it.song&&musStart(it.song)){}else if(it.bpm){AUDIO.beat(it.bpm);E.beat=true;}   /* 迷因舞：配自己的歌；67：喊一聲；其他：鼓聲 */
+    if(it.say)E.say(it);else if(it.song&&musStart(it.song)){}else if(it.bpm){AUDIO.beat(it.bpm);E.beat=true;}   /* 迷因舞：配自己的歌；67：喊一聲；其他：鼓聲 */
     btn.textContent='停止';btn.classList.add('on');
     const el=document.getElementById('gBig');if(el){el.textContent=it.big||(it.k==='bye'?'Bye Bye Bye ⚔':it.k==='moon'?'月球漫步 🌙':it.name);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
   // 迷因舞的音樂：跳舞機合成器做好整首的事件表，一直循環播（每 40 ms 排 0.25 秒內要響的音）
@@ -10107,10 +10118,12 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
     for(let n=0;n<200;n++){if(m.i>=m.ev.length){m.i=0;m.t0+=m.len;}const e=m.ev[m.i],at=m.t0+e.t;if(at>hz)break;m.i++;if(at<now-0.03)continue;try{e.fn(Math.max(at,now),m.out);}catch(_){}}}
   function musStop(fade=0.15){const m=MZ;if(!m)return;MZ=null;clearInterval(m.timer);const c=AUDIO.A.ctx,g=m.out.gain,now=c.currentTime;g.cancelScheduledValues(now);g.setValueAtTime(g.value,now);g.linearRampToValueAtTime(0,now+fade);setTimeout(()=>{try{m.out.disconnect();}catch(_){}},fade*1000+400);}
   E.mz=()=>MZ;   /* 測試用 */
-  // 67：用手機的英文朗讀喊「Six seven!」（vol＝連線時朋友離多遠；沒有朗讀功能就只有字）
-  E.say67=(vol=1)=>{if(!window.speechSynthesis||!window.SpeechSynthesisUtterance)return false;try{const u=new SpeechSynthesisUtterance('Six seven!');u.lang='en-US';u.rate=1.05;u.pitch=1.15;u.volume=Math.max(0,Math.min(1,vol));
-    const vs=speechSynthesis.getVoices(),v=vs.find(x=>/^en[-_]US/i.test(x.lang)&&x.localService)||vs.find(x=>/^en[-_]US/i.test(x.lang))||vs.find(x=>/^en/i.test(x.lang));if(v)u.voice=v;
-    if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();speechSynthesis.speak(u);E.said67=(E.said67||0)+1;return true;}catch(_){return false;}};
+  // 迷因動作喊一句（67、肯恰拿…）：用手機的朗讀，lang 'zh' 中文（台灣優先）／'en' 英文／'it' 義大利文（沒有就英文）；vol＝連線時朋友離多遠；沒有朗讀功能就只有字
+  const SAYL={zh:['zh-TW',/^zh[-_]TW/i,/^zh/i],en:['en-US',/^en[-_]US/i,/^en/i],it:['it-IT',/^it/i,/^en/i]};
+  E.say=(it,vol=1)=>{if(!it||!it.say||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return false;try{const L=SAYL[it.lang]||SAYL.zh,u=new SpeechSynthesisUtterance(it.say);u.lang=L[0];u.rate=it.rate||1.05;u.pitch=it.pitch||1;u.volume=Math.max(0,Math.min(1,vol));
+    const vs=speechSynthesis.getVoices(),v=vs.find(x=>L[1].test(x.lang)&&x.localService)||vs.find(x=>L[1].test(x.lang))||vs.find(x=>L[2].test(x.lang));if(v){u.voice=v;u.lang=v.lang;}
+    if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();speechSynthesis.speak(u);E.said=(E.said||0)+1;return true;}catch(_){return false;}};
+  E.info=k=>LIST.find(x=>x.k===k);   /* 連線：朋友在做哪個動作（喊什麼、頭上跳什麼字） */
   E.stop=quiet=>{if(!E.on)return;const it=E.on;E.on=null;if(E.beat){AUDIO.beat(0);E.beat=false;}musStop();E.removeHat();E.suit(false);{const A=avatar;for(const ar of [A.armL,A.armR])if(ar.parent===A.chest)ar.position.y=1.47-A.J.WAIST;}btn.textContent='動作';btn.classList.remove('on');
     const A=avatar;A.body.rotation.set(0,0,0);A.body.position.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);A.zeroJoints();
     if(it.k==='moon'&&!quiet){const el=document.getElementById('gBig');if(el){el.textContent='Hee-hee!';el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}}};
@@ -10150,6 +10163,7 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
     const lx=fx0*Math.cos(-rz)-fy*Math.sin(-rz),ly=fx0*Math.sin(-rz)+fy*Math.cos(-rz),lz=fz0;
     const ez=Math.asin(cl(lx,-1,1)),ex=Math.atan2(-lz,-ly);arm.rotation.set(rx*k,0,rz*k);fore.rotation.set(ex*k,0,ez*k);}
   E.w67=[[0,0,0],[0,0,0]];   /* 67 的手腕（掌心朝上；調整用） */
+  E.kc=[0,0,1.4];E.rb=[0,0,0];E.ww=[0.14,1.56,0.2,0,0,0];   /* 肯恰拿「停」的手腕、露比醬喊的手腕、WOW 手的位置 x,y,z＋手腕（調整用） */
   E.byeW=[[0,1.57,0],[0,0,0],[0,1.57,0]];   // bye bye bye 三段的手腕（掌心朝前；調整用）
   E.ya=[0.2,1.57,0.17,1.0,-0.6,0.3,0,0];   // 比 YA：手的位置 x,y,z、手肘朝向 x,y,z、手腕 x,y（調整用）
   E.fh=[0.03,1.45,0.3,0,1.57];E.sal=[0.1,1.68,0.12,0,0];   // 手指愛心、敬禮：手的位置 x,y,z、手腕 x,y
@@ -10265,6 +10279,45 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
         if(p>=4&&p<6){H.rotation.x=0.35*Math.abs(Math.sin(Math.PI*2*b));C.rotation.x=0.15;}   // 啄
         else if(p>=6){a.body.position.y=-0.12;sL.rotation.x=sR.rotation.x=0.55;lL.rotation.x=lR.rotation.x=-0.28;C.rotation.z=0.15*Math.sin(Math.PI*2*b);a.body.position.x=0.04*Math.sin(Math.PI*2*b);}   // 蹲下扭
         break;}
+      // ---- 2026-10-25.13 迷因動作（喊一句＋動作，幾秒就停） ----
+      case 'kenchana':{const k=env(0.2,0.3);
+        if(t<1.3){const p=sm(cl(t/0.25,0,1))*k;   // 肯恰拿～：右手往前伸比「停」（掌心朝前）、左手叉腰、左腳往後點
+          ik(aR,fR,0.12,1.42,0.15+0.3*p,1,-0.3,0,k);hand(1,'flat');wR(...E.kc.map(v=>v*p));aL.rotation.set(0.1*k,0,-0.75*k);fL.rotation.set(-0.25*k,0,1.75*k);hand(-1,'flat');
+          lL.rotation.x=0.45*p;sL.rotation.x=0.35*p;tL.rotation.x=0.6*p;sR.rotation.x=0.1*p;C.rotation.x=0.08*p;H.rotation.x=0.1*p;}
+        else{const u=(t-1.3)/1.9*5,s=Math.sin(Math.PI*u),bo=Math.abs(s);   // 叮叮叮叮叮：左右晃五下，兩手握拳在胸前跟著擺
+          ik(aR,fR,0.16+0.06*s,1.28,0.2,1,-0.6,0,k);ik(aL,fL,-0.16+0.06*s,1.28,0.2,-1,-0.6,0,k);hand(1,'fist');hand(-1,'fist');
+          a.body.position.x=0.06*s*k;a.body.position.y=-0.03*bo*k;sL.rotation.x=sR.rotation.x=0.15*bo*k;C.rotation.z=-0.12*s*k;H.rotation.z=0.2*s*k;}
+        break;}
+      case 'ruby':{const k=env(0.2,0.3);
+        if(t<1.0){ik(aR,fR,0.07,1.6,0.19,1,-0.6,0,k);ik(aL,fL,-0.07,1.6,0.19,-1,-0.6,0,k);hand(1,'flat');hand(-1,'flat');wR(...E.rb.map(v=>v*k));wL(E.rb[0]*k,-E.rb[1]*k,-E.rb[2]*k);C.rotation.x=0.12*k;H.rotation.x=-0.08*k;}   // 露比醬～：兩手放嘴邊喊
+        else{const u=t-1.0,up=u<0.4?Math.sin(Math.PI*u/0.4):0,w=Math.sin(t*12);   // 嗨！：跳一下、右手高舉揮手、左手握拳在腰邊
+          a.body.position.y=0.12*up;tL.rotation.x=tR.rotation.x=0.5*up;aR.rotation.set(-2.85*k,0,(0.25+0.12*w)*k);fR.rotation.set(0,0,-0.2*w*k);hand(1,'open');wR(0,1.57*k,0);
+          aL.rotation.set(-0.35*k,0,-0.25*k);fL.rotation.x=-1.6*k;hand(-1,'fist');H.rotation.z=-0.15*k;C.rotation.z=-0.06*k;}
+        break;}
+      case 'car':{const k=env(0.15,0.3),w=Math.sin(t*14);   // 你後面有車！：右手指前面、左手在頭上猛揮、身體往前傾、頭搖來搖去
+        ik(aR,fR,0.18,1.52,0.55,1,-0.2,0,k);hand(1,'point');aL.rotation.set(-2.95*k,0,(-0.25+0.12*w)*k);fL.rotation.set(0,0,(0.25+0.55*w)*k);hand(-1,'open');wL(0,-1.57*k,0);
+        C.rotation.x=0.15*k;H.rotation.y=0.15*Math.sin(t*11)*k;H.rotation.x=-0.1*k;a.body.position.y=0.025*Math.abs(Math.sin(t*11))*k;sL.rotation.x=sR.rotation.x=0.12*k;break;}
+      case 'wow':{const k=env(0.25,0.3),lb=t<0.5?sm(t/0.5):1-sm(cl((t-0.5)/0.3,0,1));   // WOW：兩手比 3 放在嘴巴兩邊，先往後仰再往前「WOW～」
+        ik(aR,fR,E.ww[0],E.ww[1],E.ww[2],1,-0.6,0,k);ik(aL,fL,-E.ww[0],E.ww[1],E.ww[2],-1,-0.6,0,k);hand(1,'three');hand(-1,'three');wR(E.ww[3]*k,E.ww[4]*k,E.ww[5]*k);wL(E.ww[3]*k,-E.ww[4]*k,-E.ww[5]*k);
+        C.rotation.x=(-0.12*lb+0.06*(1-lb))*k;H.rotation.x=(-0.15*lb+0.05)*k;a.body.position.y=0.02*Math.sin(t*8)*k;break;}
+      case 'tung':{const k=env(0.2,0.3),U=[0.16,1.72,0.14],D=[0.04,1.08,0.45],T=[0.03,2.02,0.12];   // 咚咚咚 Sahur：兩手抱著棍子在右肩，往前下敲三下（0.35、0.75、1.15 秒），再高高舉起
+        let d=0,hi=0;if(t>=0.15&&t<1.35){const c=(t-0.15)/0.4,f=c%1;d=Math.sin(Math.PI*f);hi=Math.floor(c+0.5);}
+        if(hi>E.cnt&&hi<=3){E.cnt=hi;AUDIO.sfx('thud');}
+        const r=t<1.35?0:sm(cl((t-1.35)/0.3,0,1)),P=[0,1,2].map(i=>(U[i]+(D[i]-U[i])*d)*(1-r)+T[i]*r);
+        ik(aR,fR,P[0],P[1],P[2],1,-0.4,-0.2,k);ik(aL,fL,P[0]-0.07,P[1]-0.1,P[2],-1,-0.4,-0.2,k);hand(1,'fist');hand(-1,'fist');
+        sL.rotation.x=sR.rotation.x=0.3*d*k;lL.rotation.x=lR.rotation.x=-0.15*d*k;a.body.position.y=-0.05*d*k;C.rotation.x=(0.18*d-0.1*r)*k;H.rotation.x=(0.1*d-0.15*r)*k;break;}
+      case 'ballerina':{const k=env(0.3,0.4),sp=sm(cl((t-0.5)/2.0,0,1));   // 卡布奇諾芭蕾：踮腳、兩手在頭上圍一個圈、原地轉一圈
+        a.body.position.y=0.05*k;tL.rotation.x=tR.rotation.x=0.7*k;lL.rotation.z=0.03*k;lR.rotation.z=-0.03*k;
+        aR.rotation.set(-2.8*k,0,0.4*k);aL.rotation.set(-2.8*k,0,-0.4*k);fR.rotation.set(0,0,-1.15*k);fL.rotation.set(0,0,1.15*k);hand(1,'flat');hand(-1,'flat');
+        a.body.rotation.y=Math.PI*2*sp;H.rotation.z=0.12*k;H.rotation.x=-0.08*k;break;}
+      case 'kemu3':{const k=env(0.25,0.3),s=Math.sin(Math.PI*b),u=Math.max(0,s),v=Math.max(0,-s);   // 科目三：兩手在身體前面一起甩到左、再甩到右，手腕跟著翻；腳左右踩、身體跟著扭
+        aR.rotation.set(-0.95*k,0,(0.15+0.8*s)*k);aL.rotation.set(-0.95*k,0,(-0.15+0.8*s)*k);fR.rotation.set(-0.6*k,0,0);fL.rotation.set(-0.6*k,0,0);hand(1,'open');hand(-1,'open');wR(0,0,0.8*s*k);wL(0,0,0.8*s*k);   /* 一隻手甩到旁邊、另一隻橫過身體前面 */
+        sL.rotation.x=0.5*u*k;lL.rotation.x=-0.3*u*k;sR.rotation.x=0.5*v*k;lR.rotation.x=-0.3*v*k;a.body.position.x=0.06*s*k;a.body.position.y=-0.04*Math.abs(s)*k;C.rotation.y=0.3*s*k;C.rotation.z=0.06*s*k;H.rotation.z=-0.12*s*k;break;}
+      case 'sturdy':{const k=env(0.25,0.3),f=b%1,sd=Math.floor(b)%2?1:-1,lf=Math.sin(Math.PI*Math.min(1,f/0.6));   // Sturdy：膝蓋彎、兩腳開開，一拍抬一隻腳用力踩下去，上半身一頓一頓、兩手握拳跟著擺
+        lL.rotation.set(-0.3*k,0,-0.18*k);lR.rotation.set(-0.3*k,0,0.18*k);sL.rotation.x=sR.rotation.x=0.6*k;a.body.position.y=(-0.12-0.04*(1-lf))*k;
+        const L=sd<0?lL:lR,S=sd<0?sL:sR;L.rotation.x-=0.8*lf*k;S.rotation.x+=0.9*lf*k;
+        aR.rotation.set((-0.55+0.45*sd*lf)*k,0,0.25*k);aL.rotation.set((-0.55-0.45*sd*lf)*k,0,-0.25*k);fR.rotation.x=fL.rotation.x=-1.4*k;hand(1,'fist');hand(-1,'fist');
+        C.rotation.x=0.12*k;C.rotation.y=0.2*sd*lf*k;H.rotation.x=0.12*(1-lf)*k;break;}
       case 'sit':{const k=sm(cl(t/0.6,0,1));a.body.position.y=-0.48*k;lL.rotation.set(-1.5*k,0,-0.12*k);lR.rotation.set(-1.5*k,0,0.12*k);sL.rotation.x=sR.rotation.x=1.45*k;   // 坐在地上、膝蓋立起來、手抱膝蓋
         aR.rotation.set(-1.0*k,0,0.1*k);fR.rotation.set(-0.6*k,0,-0.6*k);aL.rotation.set(-1.0*k,0,-0.1*k);fL.rotation.set(-0.6*k,0,0.6*k);C.rotation.x=0.25*k;H.rotation.x=-0.15*k;break;}}};
   return E;})();
@@ -14948,7 +15001,7 @@ function mkAvatar(){   /* 2026-10-15 連線：對方的人物也用這個做（�
     const tj=new THREE.Group();tj.position.y=-0.034;t.add(tj);const b=new THREE.Mesh(FG.s2,mat);b.position.y=-0.013;tj.add(b);
     return {g:h,fingers,thumb:{f:t,j:tj},side};}
   const HAND_POSES={relax:[0.25,0.22,0.28,0.34,0.42,0.04],open:[0,0,0,0,0,0.14],flat:[0.05,0,0,0,0,0],fist:[0.95,1,1,1,1,0],point:[0.85,0,1,1,1,0],
-    peace:[0.9,0,0,1,1,0.3],thumb:[-1,1,1,1,1,0],heart:[0.35,0.55,1,1,1,0]};
+    peace:[0.9,0,0,1,1,0.3],thumb:[-1,1,1,1,1,0],heart:[0.35,0.55,1,1,1,0],three:[0.95,0,0,0,1,0.3]};   /* three：比 3（WOW 手勢） */
   A.hand=(side,name)=>{const H=side>0?A.handR:A.handL;if(!H)return;const P=HAND_POSES[name]||HAND_POSES.relax,sd=H.side;
     H.fingers.forEach((q,i)=>{const c=P[i+1];q.f.rotation.set((i-1.5)*P[5]*0.4,0,-sd*c*1.3);q.j.rotation.set(0,0,-sd*c*1.45);});
     const th=P[0],T=H.thumb;if(th<0){T.f.rotation.set(-1.25,0,sd*0.15);T.j.rotation.set(0,0,0);}   // 比讚：大拇指翹起來（往前）
@@ -17584,7 +17637,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       const m=R.mate,t=s.mt;if(m.root.parent!==scene)scene.add(m.root);m.root.visible=true;m.root.position.set(t[0],t[1],t[2]);m.root.rotation.y=t[3];m.body.position.y=t[4];m.parts.forEach((g,i)=>{if(g)g.rotation.set(t[5+i*3],t[6+i*3],t[7+i*3]);});}   /* 別人的隊友 23 號 */
     else if(R.mate&&R.mate.root.parent)scene.remove(R.mate.root);
     {const em=s.em||'';if(em!==R.em){R.em=em;if(R.hat){A.body.remove(R.hat);R.hat=null;}if(em==='moon'){R.hat=EMOTE.mkHat();A.body.add(R.hat);}   /* 月球漫步的帽子 */
-        if(em==='sixseven'){bubble(q.id,'6️⃣7️⃣',true,2.2);const d=Math.hypot(a[0]-camera.position.x,a[2]-camera.position.z);if(d<30)EMOTE.say67(1/(1+Math.max(0,d-3)/8));}   /* 朋友比 67：頭上跳出 67、喊一聲（越遠越小聲） */
+        {const inf=em&&EMOTE.info(em);if(inf&&inf.say){{const bt=inf.bub||inf.big;bubble(q.id,bt,Array.from(bt).length<=3,Math.min(3.2,inf.dur||2.4));};const d=Math.hypot(a[0]-camera.position.x,a[2]-camera.position.z);if(d<30)EMOTE.say(inf,1/(1+Math.max(0,d-3)/8));}}   /* 朋友做迷因動作（67、肯恰拿…）：頭上跳出那句、喊一聲（越遠越小聲） */
       const suit=em==='bye'&&!R.dk;if(suit!==!!R.suit&&q.cfg){R.suit=suit;A.dress(suit?{...q.cfg,O:EMOTE.DP}:q.cfg);A.root.traverse(x=>{x.userData.noCull=true;});R.h0=R.h1=null;}}}   /* Bye Bye Bye 的忍者裝 */
     {const g=s.g||'';if(g!==R.gs){R.gs=g;if(!R.gt){R.gt=mkSprite(null,1.25,0.31);R.gt.position.y=2.47;A.root.add(R.gt);}if(R.gt.material.map)R.gt.material.map.dispose();R.gt.material.map=g?tagTex(g,'rgba(30,30,40,0.88)'):null;R.gt.material.needsUpdate=true;R.gt.visible=!!g;}}   /* 名字上面：在玩什麼 */
     {const hw=s.hw||'';if(hw!==R.hwK){R.hwK=hw;if(R.hw&&R.hw.parent)R.hw.parent.remove(R.hw);R.hw=hw?PUSH.mkWear(hw):null;}if(R.hw&&R.hw.parent!==A.body)A.body.add(R.hw);}   /* 頭上戴的皇冠、兔耳朵 */
@@ -18007,8 +18060,22 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   const LAND=matchMedia('(orientation:landscape) and (max-height:520px)');
   function netLay(){if(!isTouch)return;const bt=document.querySelector('#topbar .btns'),vis=e=>!e.hidden&&getComputedStyle(e).display!=='none';if(!bt)return;
     let y=Math.round(bt.getBoundingClientRect().bottom)+6,bot=y;
-    for(const e of [chip,FXB,CHB]){if(!vis(e))continue;const top=LAND.matches&&e===CHB&&vis(FXB)?parseFloat(FXB.style.top):y;if(e.style.top!==top+'px')e.style.top=top+'px';const b=top+e.offsetHeight;bot=Math.max(bot,b);y=b+5;}   /* 手機橫拿：聊天在互動左邊、同一排 */
+    chip.classList.remove('nofit','mini');
+    const jb=$n('jumpBtn'),jr=LAND.matches&&jb&&vis(jb)?jb.getBoundingClientRect():null;
+    const dodge=(e,top)=>{const r=jr&&top<jr.bottom&&top+e.offsetHeight>jr.top?Math.round(innerWidth-jr.left+6)+'px':'';if(e.style.right!==r)e.style.right=r;};   /* 2026-10-25.14 手機橫拿、上面按鈕兩排（城堡）時會排到「跳」那麼低 → 放到「跳」的左邊 */
+    for(const e of [chip,FXB,CHB]){if(!vis(e))continue;let top=LAND.matches&&e===CHB&&vis(FXB)?parseFloat(FXB.style.top):y;
+      if(e!==CHB)dodge(e,top);
+      if(e===chip){if(layHit(e,top))chip.classList.add('mini');for(let i=0;i<6;i++){dodge(e,top);const nb=layHit(e,top);if(!nb)break;top=nb+4;}if(top+e.offsetHeight>innerHeight*0.6){chip.classList.add('nofit');continue;}}   /* 2026-10-25.14 連線標籤會蓋到遊戲自己的按鈕、資訊（鬥牛的近鏡頭、賽車的速度名次、小地圖）→ 往下讓開，放不下就先藏起來 */
+      if(e.style.top!==top+'px')e.style.top=top+'px';const b=top+e.offsetHeight;bot=Math.max(bot,b);y=b+5;}   /* 手機橫拿：聊天在互動左邊、同一排 */
+    CHB.style.right=LAND.matches&&vis(FXB)&&vis(CHB)?Math.round(innerWidth-FXB.getBoundingClientRect().left+6)+'px':'';   /* 2026-10-25.14 互動按鈕寫朋友名字變長 → 聊天跟著往左，不重疊 */
     document.documentElement.style.setProperty('--netb',(bot+8)+'px');}
+  const LAY_OBS='button,[data-k],#joy,#minimap,#rcMap,#place,[id$="Hud"]';
+  function layHit(el,top){const h=el.offsetHeight,r0=el.getBoundingClientRect(),L=r0.left,R=r0.right,T=top,B=top+h;   /* 標籤放在 top 時會蓋到哪個（回傳它的底），沒有就 0 */
+    for(const e of document.querySelectorAll(LAY_OBS)){if(e===chip||e===FXB||e===CHB||e.closest('#topbar')||e.closest('#netPanel,#netInv,#netFxP,#netChat'))continue;
+      if(!e.getClientRects().length){continue;}const cs=getComputedStyle(e);if(cs.visibility==='hidden'||+cs.opacity===0)continue;
+      const r1=e.getBoundingClientRect(),kids=[...e.children].map(c=>c.getBoundingClientRect());let rs=r1.width*r1.height>innerWidth*innerHeight*0.25?kids:[r1,...kids];   /* 整片的資訊層：看裡面的東西；字超出框（位置框）也要算 */
+      for(const q of rs)if(q.width>2&&q.height>2&&q.left<R&&q.right>L&&q.top<B&&q.bottom>T)return Math.round(q.bottom);}
+    return 0;}
   addEventListener('resize',()=>{lT=0;});
   N.tick=dt=>{fxTick(dt);if(!N.on){return;}sT-=dt;cT-=dt;vT-=dt;lT-=dt;if(lT<=0){lT=0.25;netLay();}
     if(sT<=0){sT=EMOTE.on||BB.on||SKATE.on||RACE.on||RIDE.on||PAX.on||(typeof CG!=='undefined'&&CG.on)?1/20:1/12;bc(pack());}   /* 開車、坐車也是 20 次（乘客看到的車才不會一頓一頓） */   /* 跳舞、籃球、直排輪動作快：每秒傳 20 次（平常 12 次） */
@@ -18289,7 +18356,8 @@ const CG=(()=>{const G={on:false,m:null,ids:[],net:false};
     #cgPop .ls{margin-top:6px;font-size:14px;line-height:1.7}
     #cgP button,#cgPop button,#cgR button{color:#fff;background:#3a4258;border:1px solid #5a6582;border-radius:10px;padding:8px 12px;font-size:15px;cursor:pointer}#cgP button.main,#cgPop button.main,#cgR button.main{background:#ffcf4a;color:#2a1a00;border-color:#ffcf4a}#cgP .md{background:#2c3446}
     #cgHud{position:fixed;left:8px;top:calc(env(safe-area-inset-top,0px) + 56px);z-index:12;background:rgba(15,18,28,.82);color:#fff;border-radius:10px;padding:6px 10px;font-size:14px;line-height:1.45;max-width:min(330px,calc(100vw - 24px));pointer-events:auto}
-    #cgHud b{color:#ffd76a}#cgHud .it{color:#ff8a7a;font-weight:800}#cgHud button{margin-left:6px;font-size:12px;padding:2px 8px;background:#ff5a4f;color:#fff;border:0;border-radius:6px;font-weight:800}
+    #cgHud b{color:#ffd76a}#cgHud .it{color:#ff8a7a;font-weight:800}#cgHud button{margin-left:6px;font-size:13px;padding:6px 12px;min-height:32px;background:#ff5a4f;color:#fff;border:0;border-radius:8px;font-weight:800}   /* 2026-10-25.14 退出鈕原本 40×21 太小，手指按不準 */
+    @media (orientation:landscape) and (max-height:520px){#cgPop{top:50%;transform:translate(-50%,-50%);max-height:calc(100vh - 16px);overflow:auto}}   /* 手機橫拿：邀請視窗原本在上面，蓋到互動、聊天 → 放中間 */
     #cgBlind{position:fixed;inset:0;background:#000;z-index:11;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;pointer-events:none}#cgBlind b{font-size:64px;margin:8px 0}#cgBlind div{font-size:20px;padding:0 16px}
     #cgIce{position:fixed;inset:0;z-index:9;pointer-events:none;box-shadow:inset 0 0 120px 40px rgba(120,210,255,.75);background:rgba(160,225,255,.12)}
     #cgDark{position:fixed;inset:0;z-index:9;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,rgba(0,0,0,0) 22%,rgba(0,0,8,.55) 60%,rgba(0,0,10,.88) 100%)}
@@ -18553,7 +18621,10 @@ const CG=(()=>{const G={on:false,m:null,ids:[],net:false};
     HUD.innerHTML=`<b>${M.e} ${ttl(M)}</b>${G.m==='lava'&&S.ph==='play'?'':`　⏱ ${mmss(left)}`}<br>${t}<button data-q="1">退出</button>`;HUD.hidden=false;}
   HUD.addEventListener('click',e=>{if(G.on&&e.target.closest('[data-q]')){toHost({t:'cgQ'});cleanup('你退出了城堡遊戲');}});
   G.tick=dt=>{if(local()&&(L||H))hostTick(dt);
-    {const sh=!G.on&&mode==='walk'&&started&&inArea(player.pos.x,player.pos.y);if(BTN.hidden===sh)BTN.hidden=!sh;if(sh){G.bT=(G.bT||0)-dt;if(G.bT<=0){G.bT=0.5;const c=$c('netChatB'),b=c&&!c.hidden?c.getBoundingClientRect():null;BTN.style.top=(b?Math.round(b.bottom+8):(isTouch?132:170))+'px';}}}
+    if(!RES.hidden&&!G.on&&busy())RES.hidden=true;   /* 2026-10-25.14 結果視窗沒關就去玩別的（跳舞機、賽車…）→ 自己關掉，不要蓋住那邊的按鈕 */
+    {const sh=!G.on&&mode==='walk'&&started&&inArea(player.pos.x,player.pos.y);if(BTN.hidden===sh)BTN.hidden=!sh;if(sh){G.bT=(G.bT||0)-dt;if(G.bT<=0){G.bT=0.5;const c=$c('netChatB'),b=c&&!c.hidden?c.getBoundingClientRect():null,land=isTouch&&innerWidth>innerHeight&&innerHeight<=520;
+        if(land){BTN.style.top=(b?Math.round(b.top):56)+'px';BTN.style.right=b?Math.round(innerWidth-b.left+6)+'px':'';}   /* 2026-10-25.14 手機橫拿：放聊天下面會壓到「跳」→ 改放聊天左邊同一排（沒連線就放上面那排按鈕下面） */
+        else{BTN.style.right='';BTN.style.top=(b?Math.round(b.bottom+8):(isTouch?132:170))+'px';}}}}
     if(!G.on)return;if(G.net&&!NET.on){cleanup('連線中斷，城堡遊戲結束了');return;}
     if(RIDE.on)RIDE.stop(true);if(mode==='aerial')toggleAerial();
     if(mode==='walk'&&!inArea(player.pos.x,player.pos.y)&&!(G.m==='ghost'&&S.esc.includes(me()))){G.outT=(G.outT||0)+dt;if(G.outT>0.4){G.outT=0;const sp=SPAWN[Math.floor(Math.random()*SPAWN.length)];teleport(sp[0],sp[1],0,0);toast('🏰 只能在城堡裡面玩');}}else G.outT=0;   /* 跑出城堡（或按了「前往」）＝拉回大廳 */
