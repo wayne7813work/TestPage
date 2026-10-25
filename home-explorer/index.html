@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-25.14"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-25.15"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -18804,7 +18804,37 @@ NM.applyPrizes();
 function warmNow(){const hid=[],lay=[];scene.traverse(o=>{if(!o.visible&&!o.isLight){hid.push(o);o.visible=true;}if(o.isMesh&&o.layers.mask===2){lay.push(o);o.layers.set(0);}});
   try{renderer.compile(scene,camera);}catch(_){}for(const o of hid)o.visible=false;for(const o of lay)o.layers.set(1);}
 for(const [obj,fn] of [[NM,'start'],[NM,'startArmy'],[SB,'start'],[KF,'start'],[RB,'start'],[RACE,'pick'],[GAME,'start'],[TN,'start'],[BB,'start'],[MU,'start']]){const f=obj[fn];if(typeof f!=='function')continue;obj[fn]=(...a)=>{const r=f(...a);try{warmNow();}catch(_){}return r;};}
-window.__dbg={CG,CREL,EVICT,ULM,sun,PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+/* ---------------- 2026-10-25.15 彈出視窗統一的關閉鈕（使用者：「目前所有彈出視窗 關閉按鈕可以明顯一點 統一一點嗎」） ----------------
+   每個彈出視窗右上角都放同一顆：紅色圓形、白色 ✕（手機 40 px）；視窗會捲動時固定在右上角不會被捲走。
+   按了＝那個視窗原本的關閉方式（原本的 ✕／關閉／離開／取消／不要…），沒有就藏起來；原本「✕」開頭的鈕（✕、✕ 關閉、✕ 離開）藏起來（不要兩顆 ✕），沒有 ✕ 的「關閉」「離開」字按鈕照留。
+   視窗內容重新產生（innerHTML）時自動補回去。 */
+const XC=(()=>{
+  const SEL='#menu,#emotePanel,#closet,#rcPanel,#rbPanel,#sbPanel,#muPanel,#muChart,#ddPanel,#kfPanel,#cuPanel,#nmPanel,#skModPanel,#gOver,#decoInv,#decoP,#puPanel,#rsPhoto,#rsPanel,#bgmBoxP,#netPanel,#netChat,#netFxP,#netPhoto,.paxP,#cgP,#cgR,#netInv,#cgPop';
+  const FN={menu:()=>document.getElementById('bMenu').click(),emotePanel:()=>EMOTE.toggle()};   // 用上面按鈕開關的選單：再按一次那顆
+  const ICON=/^\s*[✕×✖]/,TXT=[/^\s*[✕×✖]/,/關閉/,/離開|結束/,/取消|不要|不玩/];
+  const css=document.createElement('style');css.textContent=
+    '.xcw{position:sticky;top:0;height:0;z-index:30;pointer-events:none;grid-column:1/-1;flex:none;margin:0!important;padding:0!important}'+
+    '.xcold{display:none!important}';
+  document.head.appendChild(css);
+  const LOOK={position:'absolute',top:'-2px',right:'-4px',width:'38px',height:'38px','min-width':'0','min-height':'0',margin:'0',padding:'0','border-radius':'50%',background:'#e5484d',color:'#fff',
+    border:'2.5px solid #fff','box-shadow':'0 2px 8px rgba(0,0,0,.45)',font:'900 20px/1 system-ui,sans-serif',display:'flex','align-items':'center','justify-content':'center','pointer-events':'auto',cursor:'pointer','text-shadow':'none',transform:'none',flex:'none'};
+  const look=b=>{for(const k in LOOK)b.style.setProperty(k,LOOK[k],'important');};   // 每個視窗自己的 button 樣式很多都有 !important → 用行內 !important 蓋過去
+  function target(p){const bs=[...p.querySelectorAll('button')].filter(b=>!b.classList.contains('xc')&&!/丟掉/.test(b.textContent));   /* 只看字（data-x 有的視窗拿來當一般按鈕，例如音樂教室的「指法表」） */
+    for(const re of TXT)for(const b of bs)if(re.test(b.textContent))return b;return null;}
+  function close(p){const f=FN[p.id];if(f){f();return;}const t=target(p);if(t)t.click();else p.hidden=true;}
+  function fit(p){
+    {const t=target(p);if(t&&ICON.test(t.textContent))t.classList.add('xcold');}   /* 只藏真的是「關閉」的那一顆（搜尋框旁邊清除用的 ✕ 不能藏） */   // 原本「✕」開頭的鈕：藏起來（還是靠它關）
+    let w=p.querySelector(':scope>.xcw');if(!w){w=document.createElement('div');w.className='xcw';const b=document.createElement('button');b.className='xc';b.type='button';b.textContent='✕';b.setAttribute('aria-label','關閉');look(b);w.appendChild(b);
+      for(const ev of ['pointerdown','touchstart','mousedown'])b.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
+      b.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();close(p);});}
+    if(p.firstChild!==w)p.insertBefore(w,p.firstChild);
+    const h=[...p.children].find(c=>c!==w&&c.offsetHeight>0);if(h&&!h.classList.contains('xcpad')){h.classList.add('xcpad');h.style.setProperty('padding-right','40px','important');}}   // 標題讓出右邊，字不要被 ✕ 蓋住
+  const seen=new WeakSet();
+  function scan(){for(const p of document.querySelectorAll(SEL)){if(!seen.has(p)){seen.add(p);new MutationObserver(()=>{if(!p.hidden)fit(p);}).observe(p,{childList:true});}if(!p.hidden&&getComputedStyle(p).display!=='none')fit(p);}}
+  setInterval(scan,500);scan();
+  {const m=document.getElementById('mmClose');if(m){look(m);m.style.removeProperty('display');m.style.setProperty('line-height','33px','important');m.style.setProperty('text-align','center','important');m.style.setProperty('top','6px','important');m.style.setProperty('right','6px','important');m.textContent='✕';}}   /* 電腦的大地圖：自己的關閉鈕換成一樣的樣子（顯示／藏起來照原本：小地圖時不出現） */
+  return {scan,close};})();
+window.__dbg={XC,CG,CREL,EVICT,ULM,sun,PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
