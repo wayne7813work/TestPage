@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-25.5"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-25.7"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -917,7 +917,7 @@
   <input id="fov" type="range" min="45" max="80" step="1" value="60">
   <label style="margin-top:10px"><span>防暈模式（關掉畫面震動、灌籃運鏡、閃光；移動、轉頭時畫面四周變暗）</span><input id="calm" type="checkbox"></label>
   <label style="margin-top:10px"><span>省電模式（降低解析度、每秒 30 張，手機比較不燙）</span><input id="eco" type="checkbox"></label>
-  <label style="margin-top:10px"><span>超省記憶體（沒有影子、圖片糊一點；手機、平板一直「網頁重新整理」時打開）</span><input id="ulm" type="checkbox"></label>
+  <label style="margin-top:10px"><span>超省記憶體（沒有影子、牆壁地板花紋糊一點，字不受影響；手機、平板一直「網頁重新整理」時打開）</span><input id="ulm" type="checkbox"></label>
   <label style="margin-top:10px"><span>小孩視角（身高約 130 cm）</span><input id="kid" type="checkbox"></label>
   <label style="margin-top:10px"><span>第三人稱鏡頭距離</span><span id="camdVal">4.2 m</span></label>
   <input id="camd" type="range" min="1.5" max="12" step="0.1" value="4.2">
@@ -1338,9 +1338,10 @@ renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 /* 2026-10-23.2 使用者：「（門前開車特技撞建築）當機重開、手機變好燙」（iPhone 13）→ 量到電腦上貼圖約 300 MB、陰影 128 MB、模型 65 MB、程式 120 MB；
    手機、平板：超過 1024 的貼圖上傳時自動縮成 1024（three.js 照 maxTextureSize 縮，省約 70 MB）、陰影 4096→2048（省約 96 MB）、遠處小東西早一點不畫（dcull） */
 const LOWMEM=isTouch;if(LOWMEM)renderer.capabilities.maxTextureSize=Math.min(renderer.capabilities.maxTextureSize,1024);
-/* 2026-10-24.7 超省記憶體（選單開關，預設關，記在 home-ulm）：影子整個關（不建陰影圖）、貼圖上限 512 */
+/* 2026-10-24.7 超省記憶體（選單開關，記在 home-ulm）：影子整個關（不建陰影圖）、貼圖上限 512
+   2026-10-25.6 試過手機、平板預設開 → 使用者：「不能預設超省記憶體，每個遊玩的地方提示字都被移除了」→ 改回大家都預設關 */
 const ULM={on:false,max0:renderer.capabilities.maxTextureSize};try{ULM.on=localStorage.getItem('home-ulm')==='1';}catch(_){}
-if(ULM.on)renderer.capabilities.maxTextureSize=Math.min(ULM.max0,512);
+/* 2026-10-25.6 不再把所有貼圖壓到 512（看板、招牌、說明的字會糊到看不出來）→ 改成手機、平板重複花紋的材質圖（牆、地板）再縮一半（lowmemShrink），有字的圖不動 */
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=0.9;
 document.getElementById('app').appendChild(renderer.domElement);
 const ANISO=renderer.capabilities.getMaxAnisotropy();
@@ -10053,7 +10054,15 @@ for(const b of root.querySelectorAll('[data-n]'))b.onclick=e=>{e.stopPropagation
    跳舞時有節奏鼓聲（自己合成的鼓＋貝斯，不是原曲）。月球漫步會戴上黑色紳士帽、自己往後滑。 */
 const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
   const panel=document.getElementById('emotePanel'),btn=document.getElementById('bEmote');
+  // 2026-10-25.7 使用者：「遊戲增加靈感菇的動作音樂、動作多一堆迷因 音樂跟動作、還有什麼 67 的迷因」→ 迷因舞（meme）：動作都是自己編的；
+  // 音樂用跳舞機的合成器（DD.music）：沒有版權的老曲子（靈感菇＝童子軍歌 Ging Gang Goolie 1905、康康舞＝奧芬巴哈 1858、山大王的大廳＝葛利格 1875）或自己寫的旋律（67 的原曲有版權，不用）
   const LIST=[
+    {k:'gingang',name:'🍄 靈感菇',loop:true,bpm:126,meme:1,big:'🍄 靈感菇～',song:{id:'e-gingang',n:'靈感菇',bpm:126,k:72,bar:4,rep:2,ib:1,lead:'sq',s:"1 3 5/0.5 5/0.5 5/0.5 5/0.5 | 5/0.5 5/0.5 5/0.5 5/0.5 5 3 | 1 3 2/2 | ,7 2 1/2 | 1 3 5/0.5 5/0.5 5/0.5 5/0.5 | 5/0.5 5/0.5 5/0.5 5/0.5 5 3 | 1 3 2/2 | ,7 2 1/2 | 6 4 6/0.5 6/0.5 5/0.5 3/0.5 | 5/0.5 5/0.5 4/0.5 3/0.5 4 2 | 3/2 5/2 | 6 4 6/0.5 6/0.5 5/0.5 3/0.5 | 5/0.5 5/0.5 4/0.5 3/0.5 4 2 | 1/4"}},   /* 簡譜照 kalimbatabs 的 Ging Gang Goolie，節奏自己排 */
+    {k:'sixseven',name:'6️⃣7️⃣ 67',loop:true,bpm:140,meme:1,big:'6️⃣ 7️⃣',song:{id:'e-67',n:'67 節奏',bpm:140,k:60,bar:4,rep:2,ib:1,minor:true,sty:'drift',lead:'saw',s:"6/0.5 0/0.5 6/0.5 6/0.5 0/0.5 1'/0.5 7/0.5 6/0.5 | 5/0.5 0/0.5 5/0.5 5/0.5 0 3 | 6/0.5 0/0.5 6/0.5 6/0.5 0/0.5 1'/0.5 7/0.5 6/0.5 | 3'/0.5 2'/0.5 1'/0.5 7/0.5 6/2"}},   /* 自己寫的嘻哈小段（不是原曲） */
+    {k:'cancan',name:'🦵 康康舞',loop:true,bpm:150,meme:1,big:'🦵 康康舞！',song:{id:'e-cancan',n:'康康舞曲',bpm:150,k:72,bar:4,rep:2,ib:1,lead:'sq',s:"1/2 2/0.5 4/0.5 3/0.5 2/0.5 | 5 5 5/0.5 6/0.5 3/0.5 4/0.5 | 2 2 2/0.5 4/0.5 3/0.5 2/0.5 | 1/0.5 1'/0.5 7/0.5 6/0.5 5/0.5 4/0.5 3/0.5 2/0.5 | 1/2 2/0.5 4/0.5 3/0.5 2/0.5 | 5 5 5/0.5 6/0.5 3/0.5 4/0.5 | 2 2 2/0.5 4/0.5 3/0.5 2/0.5 | 1/0.5 5/0.5 2/0.5 3/0.5 1 0"}},
+    {k:'sneak',name:'🤫 偷偷摸摸',loop:true,bpm:132,meme:1,big:'🤫 噓…',song:{id:'e-sneak',n:'山大王的大廳',bpm:132,k:69,bar:4,rep:2,ib:1,minor:true,lead:'saw',s:"1/0.5 2/0.5 b3/0.5 4/0.5 5/0.5 b3/0.5 5 | #4/0.5 2/0.5 #4 4/0.5 b2/0.5 4 | 1/0.5 2/0.5 b3/0.5 4/0.5 5/0.5 b3/0.5 5/0.5 1'/0.5 | b7/0.5 5/0.5 b3/0.5 5/0.5 b7/2"}},
+    {k:'vibe',name:'😎 搖頭晃腦',loop:true,bpm:92,meme:1,big:'😎 好聽',song:{id:'e-vibe',n:'放鬆小調',bpm:92,k:65,bar:4,rep:2,ib:1,s:"3 5 6/0.5 5/0.5 3 | 2/2 0/2 | 3 5 6/0.5 1'/0.5 6 | 5/3 0"}},   /* 自己寫的 */
+    {k:'chicken',name:'🐔 小雞舞',loop:true,bpm:132,meme:1,big:'🐔 咕咕咕！',song:{id:'e-chicken',n:'小雞波卡',bpm:132,k:67,bar:4,rep:2,ib:1,lead:'sq',s:"5/0.5 5/0.5 3 5/0.5 5/0.5 3 | 5/0.5 6/0.5 5/0.5 4/0.5 3 1 | 2/0.5 2/0.5 ,7 2/0.5 2/0.5 ,7 | 2/0.5 3/0.5 2/0.5 1/0.5 ,7 ,5 | 5/0.5 5/0.5 3 5/0.5 5/0.5 3 | 5/0.5 6/0.5 5/0.5 4/0.5 3 1 | 2/0.5 3/0.5 2/0.5 ,7/0.5 1 1 | 1/2 0/2"}},   /* 自己寫的（不是那首有版權的小雞舞曲） */
     {k:'moon',name:'月球漫步',loop:true,bpm:112,face:Math.PI/2},
     {k:'bye',name:'Bye Bye Bye（忍者裝）',loop:true,bpm:172},
     {k:'floss',name:'牙線舞',loop:true,bpm:128},
@@ -10074,7 +10083,9 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
   const SHO=new V3();const shoulder=arm=>{SHO.copy(arm.position);const q=arm.parent;if(q&&q.userData.chest)SHO.add(q.position);return SHO;};   // 肩膀（身體座標）
   function reach(arm,x,y,z){const p=shoulder(arm),dx=x-p.x,dy=y-p.y,dz=z-p.z,l=Math.hypot(dx,dy,dz)||1;arm.rotation.set(Math.atan2(-dz/l,-dy/l),0,Math.asin(cl(dx/l,-1,1)));}
   // 清單
-  for(const it of LIST){const b=document.createElement('button');b.textContent=it.name;b.onclick=e=>{e.stopPropagation();panel.hidden=true;btn.classList.remove('on');E.start(it.k);};panel.appendChild(b);}
+  {const st=document.createElement('style');st.textContent='#emotePanel .emh{grid-column:1/-1;font-weight:800;font-size:13px;opacity:.85;margin:2px 0 -2px}#emotePanel button.meme{background:#3a2a55;border-color:#8a63d2}';document.head.appendChild(st);}
+  let hdM=false,hdO=false;const hd=t=>{const h=document.createElement('div');h.className='emh';h.textContent=t;panel.appendChild(h);};
+  for(const it of LIST){if(it.meme&&!hdM){hdM=true;hd('🔥 迷因舞（有音樂）');}if(!it.meme&&hdM&&!hdO){hdO=true;hd('其他動作');}const b=document.createElement('button');b.textContent=it.name;if(it.meme)b.className='meme';b.onclick=e=>{e.stopPropagation();panel.hidden=true;btn.classList.remove('on');E.start(it.k);};panel.appendChild(b);}
   E.toggle=()=>{panel.hidden=!panel.hidden;btn.classList.toggle('on',!panel.hidden);if(!panel.hidden){menu.hidden=true;bMenu.classList.remove('on');}};
   btn.onclick=e=>{e.stopPropagation();if(E.on){E.stop();return;}E.toggle();};
   E.can=()=>started&&mode==='walk'&&!GAME.on&&!BALLOON.riding&&!player.climb&&!RACE.on&&!NM.on&&!RB.on&&!SB.on&&!CU.on&&!MU.on&&!DD.on&&!KF.on&&!PUSH.on&&!FISH.on&&!RS.on;
@@ -10084,10 +10095,18 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
     avatar.yaw=player.yaw+Math.PI+(it.face||0);   // 轉過來面對鏡頭（月球漫步：側面）
     if(it.k==='moon')E.addHat();
     E.prev=null;if(it.k==='bye')E.suit(true);   /* 換上忍者裝 */
-    if(it.bpm){AUDIO.beat(it.bpm);E.beat=true;}
+    if(it.song&&musStart(it.song)){}else if(it.bpm){AUDIO.beat(it.bpm);E.beat=true;}   /* 迷因舞：配自己的歌；其他：鼓聲 */
     btn.textContent='停止';btn.classList.add('on');
-    const el=document.getElementById('gBig');if(el){el.textContent=it.k==='bye'?'Bye Bye Bye ⚔':it.k==='moon'?'月球漫步 🌙':it.name;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
-  E.stop=quiet=>{if(!E.on)return;const it=E.on;E.on=null;if(E.beat){AUDIO.beat(0);E.beat=false;}E.removeHat();E.suit(false);{const A=avatar;for(const ar of [A.armL,A.armR])if(ar.parent===A.chest)ar.position.y=1.47-A.J.WAIST;}btn.textContent='動作';btn.classList.remove('on');
+    const el=document.getElementById('gBig');if(el){el.textContent=it.big||(it.k==='bye'?'Bye Bye Bye ⚔':it.k==='moon'?'月球漫步 🌙':it.name);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
+  // 迷因舞的音樂：跳舞機合成器做好整首的事件表，一直循環播（每 40 ms 排 0.25 秒內要響的音）
+  let MZ=null;
+  function musStart(S){try{AUDIO.init&&AUDIO.init();}catch(_){}const c=AUDIO.A&&AUDIO.A.ctx;if(!c||typeof DD==='undefined'||!DD.music)return false;const r=DD.music(S);if(!r||!r.ev.length)return false;musStop(0.02);
+    const out=c.createGain();out.gain.value=0.85;out.connect(AUDIO.A.sfx);MZ={ev:r.ev,len:r.len,t0:c.currentTime+0.08,i:0,out};MZ.timer=setInterval(musPump,40);return true;}
+  function musPump(){const m=MZ;if(!m)return;const c=AUDIO.A.ctx;if(c.state!=='running')return;const now=c.currentTime,hz=now+0.25;
+    for(let n=0;n<200;n++){if(m.i>=m.ev.length){m.i=0;m.t0+=m.len;}const e=m.ev[m.i],at=m.t0+e.t;if(at>hz)break;m.i++;if(at<now-0.03)continue;try{e.fn(Math.max(at,now),m.out);}catch(_){}}}
+  function musStop(fade=0.15){const m=MZ;if(!m)return;MZ=null;clearInterval(m.timer);const c=AUDIO.A.ctx,g=m.out.gain,now=c.currentTime;g.cancelScheduledValues(now);g.setValueAtTime(g.value,now);g.linearRampToValueAtTime(0,now+fade);setTimeout(()=>{try{m.out.disconnect();}catch(_){}},fade*1000+400);}
+  E.mz=()=>MZ;   /* 測試用 */
+  E.stop=quiet=>{if(!E.on)return;const it=E.on;E.on=null;if(E.beat){AUDIO.beat(0);E.beat=false;}musStop();E.removeHat();E.suit(false);{const A=avatar;for(const ar of [A.armL,A.armR])if(ar.parent===A.chest)ar.position.y=1.47-A.J.WAIST;}btn.textContent='動作';btn.classList.remove('on');
     const A=avatar;A.body.rotation.set(0,0,0);A.body.position.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);A.zeroJoints();
     if(it.k==='moon'&&!quiet){const el=document.getElementById('gBig');if(el){el.textContent='Hee-hee!';el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}}};
   // 月球漫步的紳士帽（黑色、白色帽帶）
@@ -10125,6 +10144,7 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
     let fx0=IK_F.x,fy=IK_F.y*Math.cos(-rx)-IK_F.z*Math.sin(-rx),fz0=IK_F.y*Math.sin(-rx)+IK_F.z*Math.cos(-rx);
     const lx=fx0*Math.cos(-rz)-fy*Math.sin(-rz),ly=fx0*Math.sin(-rz)+fy*Math.cos(-rz),lz=fz0;
     const ez=Math.asin(cl(lx,-1,1)),ex=Math.atan2(-lz,-ly);arm.rotation.set(rx*k,0,rz*k);fore.rotation.set(ex*k,0,ez*k);}
+  E.w67=[[0,0,0],[0,0,0]];   /* 67 的手腕（掌心朝上；調整用） */
   E.byeW=[[0,1.57,0],[0,0,0],[0,1.57,0]];   // bye bye bye 三段的手腕（掌心朝前；調整用）
   E.ya=[0.2,1.57,0.17,1.0,-0.6,0.3,0,0];   // 比 YA：手的位置 x,y,z、手肘朝向 x,y,z、手腕 x,y（調整用）
   E.fh=[0.03,1.45,0.3,0,1.57];E.sal=[0.1,1.68,0.12,0,0];   // 手指愛心、敬禮：手的位置 x,y,z、手腕 x,y
@@ -10221,6 +10241,30 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
         aL.rotation.set(0.1*k,0,-0.75*k);fL.rotation.set(-0.25*k,0,1.75*k);hand(-1,'flat');H.rotation.set(0.05*k,0,0.2*k);break;}
       case 'bheart':{const k=env(0.35,0.35);aR.rotation.set(-2.75*k,0,0.55*k);aL.rotation.set(-2.75*k,0,-0.55*k);fR.rotation.set(0,0,-1.5*k);fL.rotation.set(0,0,1.5*k);   // 兩手舉高、手肘彎，在頭頂比一個大愛心
         hand(1,'flat');hand(-1,'flat');H.rotation.z=0.1*Math.sin(t*4)*k;C.rotation.z=0.05*Math.sin(t*4)*k;break;}
+      case 'gingang':{const p=b%16,s=Math.sin(Math.PI*b),bo=Math.abs(s);   // 靈感菇：雙手合在胸前、頭左右晃（一拍一下）、膝蓋跟著彈；每 8 拍最後兩拍「ging gang goo」兩手打開；每 16 拍最後兩拍假裝吃一口
+        a.body.position.y=-0.04*bo;sL.rotation.x=sR.rotation.x=0.18*bo;lL.rotation.x=lR.rotation.x=-0.09*bo;H.rotation.z=0.26*s;C.rotation.z=0.08*s;
+        if(p>=14){ik(aR,fR,0.03,1.55,0.17,0.8,-0.5,0);hand(1,'fist');ik(aL,fL,-0.05,1.2,0.3,-0.8,-0.6,0);hand(-1,'flat');H.rotation.z=0;H.rotation.x=0.1+0.08*Math.sin(t*20);}   // 吃一口（嚼嚼嚼）
+        else if(p%8>=6){aR.rotation.set(-0.45,0,1.05);aL.rotation.set(-0.45,0,-1.05);fR.rotation.x=fL.rotation.x=-0.55;hand(1,'open');hand(-1,'open');C.rotation.x=-0.1;H.rotation.x=-0.15;}   // 兩手打開
+        else{ik(aR,fR,0.04,1.3,0.28,0.8,-0.6,0);ik(aL,fL,-0.04,1.3,0.28,-0.8,-0.6,0);hand(1,'flat');hand(-1,'flat');}   // 雙手合十
+        break;}
+      case 'sixseven':{const s=Math.sin(Math.PI*b),bo=Math.abs(s);   // 67：前臂往前平舉、掌心朝上，一拍右手上左手下、下一拍交換（像蹺蹺板）；肩膀、頭跟著晃
+        ik(aR,fR,0.2,1.22+0.11*s,0.3,0.5,-0.85,-0.1);ik(aL,fL,-0.2,1.22-0.11*s,0.3,-0.5,-0.85,-0.1);hand(1,'flat');hand(-1,'flat');wR(...E.w67[0]);wL(...E.w67[1]);   /* 兩手在胸前往前伸（手肘彎），一高一低差約 22 cm */
+        a.body.position.y=-0.03*bo;sL.rotation.x=sR.rotation.x=0.12*bo;H.rotation.z=0.12*s;C.rotation.y=0.1*s;C.rotation.x=0.05;break;}
+      case 'cancan':{const ph=b%4,f=b%1,kk=Math.sin(Math.PI*f),L=ph<2,up=Math.floor(ph)%2;   // 康康舞：叉腰；一隻腳先抬膝、下一拍往前踢高，換腳
+        ik(aR,fR,0.22,1.02,0.02,0.7,0,-0.7);ik(aL,fL,-0.22,1.02,0.02,-0.7,0,-0.7);hand(1,'fist');hand(-1,'fist');
+        const leg=L?lL:lR,sh=L?sL:sR;if(up){leg.rotation.x=-1.7*kk;sh.rotation.x=0.15;}else{leg.rotation.x=-1.0*kk;sh.rotation.x=1.5*kk;}(L?sR:sL).rotation.x=0.12;
+        a.body.position.y=0.04*kk-0.02;C.rotation.x=-0.12*kk*up;H.rotation.z=L?0.1:-0.1;H.rotation.x=-0.1*kk*up;break;}
+      case 'sneak':{const s=Math.sin(Math.PI*b),u=Math.max(0,s),v=Math.max(0,-s);   // 偷偷摸摸：蹲低、踮腳尖、膝蓋輪流抬很高；右手食指「噓」、左手往前探；每 4 拍頭往左右偷看
+        a.body.position.y=-0.24;C.rotation.x=0.2;lL.rotation.x=-0.55-0.75*u;sL.rotation.x=1.0+0.8*u;lR.rotation.x=-0.55-0.75*v;sR.rotation.x=1.0+0.8*v;tL.rotation.x=tR.rotation.x=0.45;
+        ik(aR,fR,0.02,1.66,0.27,0.9,-0.4,0);hand(1,'point');aL.rotation.set(-1.05,0,-0.25);fL.rotation.x=-0.7;hand(-1,'open');H.rotation.y=0.55*Math.sin(Math.PI*b/4);H.rotation.x=-0.18;break;}
+      case 'vibe':{const s=Math.sin(Math.PI*2*b),h=Math.abs(Math.sin(Math.PI*b));   // 搖頭晃腦：雙手抱胸、頭跟著節拍往前點（一拍一下）、膝蓋輕彈、身體慢慢左右晃
+        ik(aR,fR,-0.14,1.28,0.2,0.7,-0.6,0);ik(aL,fL,0.14,1.24,0.25,-0.7,-0.6,0);hand(1,'flat');hand(-1,'flat');
+        H.rotation.x=0.24*Math.max(0,s)-0.04;C.rotation.x=0.05*Math.max(0,s);a.body.position.y=-0.025*h;sL.rotation.x=sR.rotation.x=0.08*h;C.rotation.z=0.06*Math.sin(Math.PI*b/2);break;}
+      case 'chicken':{const fl=Math.abs(Math.sin(Math.PI*2*b)),p=b%8;   // 小雞舞：雙手夾在腋下拍翅膀（手肘一上一下）、往前啄、蹲下扭屁股
+        ik(aR,fR,0.1,1.3,0.17,1,-0.5+1.1*fl,-0.3);ik(aL,fL,-0.1,1.3,0.17,-1,-0.5+1.1*fl,-0.3);hand(1,'fist');hand(-1,'fist');   /* 手在胸前、手肘往外一上一下 */
+        if(p>=4&&p<6){H.rotation.x=0.35*Math.abs(Math.sin(Math.PI*2*b));C.rotation.x=0.15;}   // 啄
+        else if(p>=6){a.body.position.y=-0.12;sL.rotation.x=sR.rotation.x=0.55;lL.rotation.x=lR.rotation.x=-0.28;C.rotation.z=0.15*Math.sin(Math.PI*2*b);a.body.position.x=0.04*Math.sin(Math.PI*2*b);}   // 蹲下扭
+        break;}
       case 'sit':{const k=sm(cl(t/0.6,0,1));a.body.position.y=-0.48*k;lL.rotation.set(-1.5*k,0,-0.12*k);lR.rotation.set(-1.5*k,0,0.12*k);sL.rotation.x=sR.rotation.x=1.45*k;   // 坐在地上、膝蓋立起來、手抱膝蓋
         aR.rotation.set(-1.0*k,0,0.1*k);fR.rotation.set(-0.6*k,0,-0.6*k);aL.rotation.set(-1.0*k,0,-0.1*k);fL.rotation.set(-0.6*k,0,0.6*k);C.rotation.x=0.25*k;H.rotation.x=-0.15*k;break;}}};
   return E;})();
@@ -10352,6 +10396,8 @@ const DD=(()=>{
     {const tm=S.k+last.tr+(S.minor?-3:0),f=mf(tm);add(L.end,(t,o)=>{Y.tone('square',f,0,t,1.4,0.05,o,['lowpass',2600,1.5],{a:0.006,hold:0.5});Y.tone('triangle',f*2,0,t,1.4,0.03,o);});}
     ev.sort((a,b)=>a.t-b.t);return ev;}
   const MZ={ev:[],i:0,out:null,timer:null};
+  // 2026-10-25.7 動作（EMOTE）的迷因舞也用這套合成器配音樂：給一首歌（跟 SONGS 同樣寫法），回傳事件表和一輪多長（秒）
+  D.music=S=>{if(!S.notes){if(S.s)Object.assign(S,parse(S.s,S.k));else{S.notes=[];S.len=0;}}if(!ac()||!AUDIO.syn)return null;const L=layout(S);return {ev:buildMusic(S).sort((x,y)=>x.t-y.t),len:L.total*60/S.bpm};};
   function mzStart(S){const c=ac();MZ.ev=c&&AUDIO.syn?buildMusic(S):[];MZ.i=0;if(MZ.out){try{MZ.out.disconnect();}catch(_){}MZ.out=null;}if(!c)return;
     MZ.v=0.9*(S.vol||1);MZ.out=c.createGain();MZ.out.gain.value=MZ.v;MZ.out.connect(AUDIO.A.sfx);clearInterval(MZ.timer);MZ.timer=setInterval(mzPump,40);}
   function mzPump(){if(!D.play||D.paused||!MZ.out)return;const c=ac();if(!c||c.state!=='running')return;const now=c.currentTime,hz=now+0.25;
@@ -14222,7 +14268,7 @@ const SHRUNK=new WeakSet(),SHRC=new WeakMap(),SHR2=new WeakSet();   /* SHR2＝�
 function lowmemShrink(){if(!LOWMEM||DCULL.clock-EVICT.lastS<10)return;EVICT.lastS=DCULL.clock;
   scene.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms)for(const k in m){const v=m[k];if(!v||!v.isTexture||SHRUNK.has(v))continue;SHRUNK.add(v);const c=v.image;
     if(!c||c.tagName!=='CANVAS'||SHR2.has(c)||v.version!==1||v.wrapS!==THREE.RepeatWrapping||c.width*c.height<512*256)continue;
-    let c2=SHRC.get(c);if(!c2){c2=document.createElement('canvas');c2.width=Math.max(1,c.width>>1);c2.height=Math.max(1,c.height>>1);c2.getContext('2d').drawImage(c,0,0,c2.width,c2.height);SHRC.set(c,c2);SHR2.add(c2);EVICT.shrMB+=(c.width*c.height-c2.width*c2.height)*4/1048576;}
+    let c2=SHRC.get(c);if(!c2){const sh=ULM.on?2:1;c2=document.createElement('canvas');c2.width=Math.max(1,c.width>>sh);c2.height=Math.max(1,c.height>>sh);   /* 超省記憶體：邊長再減半（只有重複花紋的材質圖） */c2.getContext('2d').drawImage(c,0,0,c2.width,c2.height);SHRC.set(c,c2);SHR2.add(c2);EVICT.shrMB+=(c.width*c.height-c2.width*c2.height)*4/1048576;}
     v.image=c2;v.version++;v.source.needsUpdate=true;EVICT.shr++;
     if(window.WeakRef){const wr=new WeakRef(c);Object.defineProperty(v,'needsUpdate',{configurable:true,set(x){if(x!==true)return;const o0=wr.deref();if(o0&&this.image!==o0)this.image=o0;this.version++;this.source.needsUpdate=true;}});}}});}   /* 保險：之後程式又畫了原本的 canvas（設 needsUpdate）→ 換回原本的大圖 */
 // 2026-10-24.7 超省記憶體（手機、平板自動，看不出差別的部分）：程式畫的圖（canvas）送進顯示晶片以後，手機記憶體裡還留著一份（量到 466 張、219 MB）。
@@ -17258,14 +17304,11 @@ const GAME=(()=>{
 /* ---------------- 省電模式 ---------------- */
 {const cb=document.getElementById('eco');cb.checked=POWER.save;
  cb.onchange=()=>{POWER.save=cb.checked;try{localStorage.setItem('home-eco',POWER.save?'1':'0');}catch(_){}renderer.setPixelRatio(pixelRatio());fitView(true);toast(POWER.save?'省電模式：解析度降低、每秒 30 張':'一般畫質');};}
-/* 超省記憶體：馬上套用。影子關＝釋放陰影圖；貼圖上限改了以後，超過 512 的貼圖釋放掉，下一格 three.js 照新的上限重新上傳 */
+/* 超省記憶體：影子馬上關（釋放陰影圖）；牆壁地板花紋再縮小是重新整理後才套用（lowmemShrink 每張只處理一次） */
 {const cb=document.getElementById('ulm');cb.checked=ULM.on;
  cb.onchange=()=>{ULM.on=cb.checked;try{localStorage.setItem('home-ulm',ULM.on?'1':'0');}catch(_){}
   sun.castShadow=!ULM.on;if(ULM.on&&sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}renderer.shadowMap.needsUpdate=true;
-  renderer.capabilities.maxTextureSize=ULM.on?Math.min(ULM.max0,512):LOWMEM?Math.min(ULM.max0,1024):ULM.max0;
-  const done=new Set();scene.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms)for(const k in m){const v=m[k];if(!v||!v.isTexture||done.has(v)||v.isRenderTargetTexture||v.isVideoTexture||!v.image)continue;done.add(v);
-   if(Math.max(v.image.width||0,v.image.height||0)>512&&renderer.properties.get(v).__webglTexture)v.dispose();}});
-  toast(ULM.on?'超省記憶體：沒有影子、圖片糊一點':'超省記憶體關掉：影子、清楚的圖片回來了');};}
+  toast(ULM.on?`超省記憶體：沒有影子${LOWMEM?'（重新整理後牆壁地板的花紋也會再縮小）':''}`:'超省記憶體關掉：影子回來了');};}
 
 /* ---------------- 全螢幕、上一頁 ---------------- */
 // 全螢幕：手機橫向時把網址列藏起來（iPhone Safari 不支援，請用「加入主畫面」從主畫面打開）
