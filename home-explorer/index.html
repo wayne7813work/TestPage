@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-24.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-24.7"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -917,6 +917,7 @@
   <input id="fov" type="range" min="45" max="80" step="1" value="60">
   <label style="margin-top:10px"><span>防暈模式（關掉畫面震動、灌籃運鏡、閃光；移動、轉頭時畫面四周變暗）</span><input id="calm" type="checkbox"></label>
   <label style="margin-top:10px"><span>省電模式（降低解析度、每秒 30 張，手機比較不燙）</span><input id="eco" type="checkbox"></label>
+  <label style="margin-top:10px"><span>超省記憶體（沒有影子、圖片糊一點；手機、平板一直「網頁重新整理」時打開）</span><input id="ulm" type="checkbox"></label>
   <label style="margin-top:10px"><span>小孩視角（身高約 130 cm）</span><input id="kid" type="checkbox"></label>
   <label style="margin-top:10px"><span>第三人稱鏡頭距離</span><span id="camdVal">4.2 m</span></label>
   <input id="camd" type="range" min="1.5" max="12" step="0.1" value="4.2">
@@ -1090,6 +1091,7 @@ const RING = {cx:-16, cz:110, r0:15, r1:26};   // 大圓環：中心、安全島
 const FIELD = {cx:14, cz:49, L:24, r0:7, r1:11, x0:-10, x1:38, z0:37, z1:61.5};
 // 跳台公園（使用者要求：運動場附近弄一個大跳台、中跳台）：運動場東邊的空地，運動場東側圍籬開口直接溜過去
 const JUMP_PARK = {x0:107, x1:236, z0:30, z1:70};
+const RKP_R = {x0:300, x1:410, z0:140, z1:292};   /* 2026-10-24.5 火箭試車場：城堡大道南邊的空草地（入口 x 316～328 從大道下來） */
 const CASTLE_R = {x0:280, x1:316, z0:62, z1:90};   /* 2026-10-21.2 城堡豪宅：圓環大道往東延長（城堡大道）的北邊，大門朝南 */   // 使用者：跳台放旁邊一點、要有助跑的直線 → 搬到東邊大路東側的空地，60 m 直線助跑道
 // 籃球場（使用者要求：圓環那邊再擴大、弄一個籃球場）：圓環東南邊、圓環大道南側，標準全場 28×15
 const COURT = {cx:36, cz:133, L:28, W:15};COURT.x0=COURT.cx-COURT.L/2;COURT.x1=COURT.cx+COURT.L/2;COURT.z0=COURT.cz-COURT.W/2;COURT.z1=COURT.cz+COURT.W/2;
@@ -1336,6 +1338,9 @@ renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 /* 2026-10-23.2 使用者：「（門前開車特技撞建築）當機重開、手機變好燙」（iPhone 13）→ 量到電腦上貼圖約 300 MB、陰影 128 MB、模型 65 MB、程式 120 MB；
    手機、平板：超過 1024 的貼圖上傳時自動縮成 1024（three.js 照 maxTextureSize 縮，省約 70 MB）、陰影 4096→2048（省約 96 MB）、遠處小東西早一點不畫（dcull） */
 const LOWMEM=isTouch;if(LOWMEM)renderer.capabilities.maxTextureSize=Math.min(renderer.capabilities.maxTextureSize,1024);
+/* 2026-10-24.7 超省記憶體（選單開關，預設關，記在 home-ulm）：影子整個關（不建陰影圖）、貼圖上限 512 */
+const ULM={on:false,max0:renderer.capabilities.maxTextureSize};try{ULM.on=localStorage.getItem('home-ulm')==='1';}catch(_){}
+if(ULM.on)renderer.capabilities.maxTextureSize=Math.min(ULM.max0,512);
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=0.9;
 document.getElementById('app').appendChild(renderer.domElement);
 const ANISO=renderer.capabilities.getMaxAnisotropy();
@@ -1767,6 +1772,27 @@ function sportsCar(color){
   for(const z of [-0.65,0.65]){g.add(mesh(box(0.05,0.06,0.4),MAT.headLight,2.27,0.52,z));g.add(mesh(box(0.05,0.07,0.45),MAT.tailLight,-2.27,0.72,z));}
   return g;
 }
+// 2026-10-24.5 火箭跑車（原創：低矮楔形車身、雙座玻璃座艙、底盤兩個吸地風扇發藍光、四角往下的噴射口＋車尾兩個往後的噴射口；火焰平常藏起來）
+const rocketShapes={
+  lower:extShape([[-2.2,0.24],[2.2,0.24],[2.3,0.4],[1.3,0.66],[-1.5,0.78],[-2.25,0.7]],1.9,0.06),
+  cabin:extShape([[1.1,0.66],[0.2,1.28],[-1.0,1.32],[-1.7,0.8]],1.5,0.04)};
+const ROCKET_FL=new THREE.MeshBasicMaterial({color:'#ffb24a',transparent:true,opacity:0.85,blending:THREE.AdditiveBlending,depthWrite:false});
+const ROCKET_FAN=new THREE.MeshBasicMaterial({color:'#5fe6ff',transparent:true,opacity:0.75,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+function rocketCar(color){
+  const g=new THREE.Group(),pm=paintMat(color),wh=[],dn=[],bk=[];
+  g.add(mesh(rocketShapes.lower,pm));g.add(mesh(rocketShapes.cabin,MAT.glassDark));
+  for(const z of [-0.96,0.96])g.add(mesh(box(3.2,0.06,0.02),MAT.white||MAT.steel,0.1,0.52,z));   // 側邊白線
+  g.add(mesh(box(0.42,0.05,1.7),pm,-2.0,0.98,0));for(const z of [-0.55,0.55])g.add(mesh(box(0.08,0.24,0.05),MAT.black,-1.95,0.86,z));   // 尾翼
+  for(const x of [-1.38,1.4])for(const z of [-0.84,0.84]){const w=new THREE.Group();w.position.set(x,0.33,z);w.add(mesh(cyl(0.33,0.33,0.26,16),MAT.rubber,0,0,0,Math.PI/2));w.add(mesh(cyl(0.23,0.23,0.27,10),MAT.steel,0,0,0,Math.PI/2));
+    for(let i=0;i<3;i++)w.add(mesh(box(0.42,0.04,0.28),MAT.black,0,0,0,0,0,i*Math.PI/3));g.add(w);wh.push(w);}
+  for(const x of [-0.9,0.9]){const f=mesh(G('rkFan',()=>new THREE.CircleGeometry(0.42,20)),ROCKET_FAN,x,0.2,0,Math.PI/2);g.add(f);}   // 底盤吸地風扇（藍光）
+  for(const [x,z] of [[1.75,-0.62],[1.75,0.62],[-1.75,-0.62],[-1.75,0.62]]){g.add(mesh(cyl(0.12,0.15,0.12,10),MAT.steel,x,0.22,z));const fl=mesh(G('rkFlD',()=>{const c=new THREE.ConeGeometry(0.24,1.7,10);c.rotateX(Math.PI);c.translate(0,-0.85,0);return c;}),ROCKET_FL,x,0.16,z);fl.visible=false;g.add(fl);dn.push(fl);}
+  for(const z of [-0.42,0.42]){g.add(mesh(cyl(0.13,0.16,0.2,10),MAT.steel,-2.28,0.56,z,0,0,Math.PI/2));const fl=mesh(G('rkFlB',()=>{const c=new THREE.ConeGeometry(0.22,2.2,10);c.rotateZ(Math.PI/2);c.translate(-1.1,0,0);return c;}),ROCKET_FL,-2.36,0.56,z);fl.visible=false;g.add(fl);bk.push(fl);}
+  for(const z of [-0.65,0.65]){g.add(mesh(box(0.05,0.06,0.42),MAT.headLight,2.27,0.42,z));g.add(mesh(box(0.05,0.07,0.4),MAT.tailLight,-2.25,0.72,z));}
+  g.userData.wh=wh;g.userData.fl={dn,bk};return g;
+}
+// 噴射火焰：dn＝往下（0～1）、bk＝往後（0～1）；連線時別人的車也用這個
+function rocketFlame(o,dn,bk){const f=o&&o.userData.fl;if(!f)return;const t=performance.now()*0.03;for(const m of f.dn){m.visible=dn>0.02;if(m.visible)m.scale.set(1,dn*(0.75+0.25*Math.sin(t+m.position.x*3)),1);}for(const m of f.bk){m.visible=bk>0.02;if(m.visible)m.scale.set(bk*(0.8+0.2*Math.sin(t*1.3+m.position.z*5)),1,1);}}
 const luxShapes={
   lower:extShape([[-2.6,0.3],[2.55,0.3],[2.65,0.8],[1.7,1.0],[-2.45,1.04],[-2.65,0.86]],1.84,0.06),
   cabin:extShape([[1.45,0.98],[0.55,1.5],[-1.25,1.53],[-2.15,1.02]],1.68,0.03),
@@ -2687,15 +2713,18 @@ function nearCab(){if(!started||mode!=='walk')return null;const px=player.pos.x,
    撞到牆、車、房子會彈開、掉速度（不會撞壞東西）。上坡下坡、跳台照地面高度；騎過跳台會飛起來（特技在第三階段）。
    座標：車子模型都是「車頭朝 +x」（跟路邊停的車一樣），方向 H 跟人物一樣（往前＝(-sin H, -cos H)），模型轉 H+π/2。 */
 const RIDE=(()=>{
+  const CK=k=>k==='car'||k==='rocket';   /* 2026-10-24.5 火箭跑車也是「汽車」：碰撞、甩尾、特技、引擎聲都跟汽車一樣 */
   const R={on:false,k:null,x:0,z:0,y:0,h:0,v:0,vy:0,ground:true,steer:0,lean:0,pitch:0,obj:null,wh:[],ped:0,wig:0,lastS:0,gy:0,told:{},camP:null,hud:null};
   const T={
     bike:{n:'腳踏車',e:'🚲',fee:10,vmax:7.5,acc:3.0,brake:7,rev:1.4,turn:2.0,r:0.42,L:1.1,seat:0.93,sx:-0.2,sz:0,cam:4.2,camH:1.9,arm:-1.15,col:'#f2a51a'},
     scooter:{n:'機車',e:'🛵',fee:30,vmax:15,acc:5.5,brake:9,rev:1.8,turn:1.7,r:0.5,L:1.3,seat:0.83,sx:-0.32,sz:0,cam:4.8,camH:2.0,arm:-1.0,col:'#e9eef0'},
     car:{n:'汽車',e:'🚗',fee:50,vmax:24,acc:6.5,brake:12,rev:4,turn:1.3,r:0.92,L:4.6,seat:0.4,sx:-0.25,sz:-0.4,cam:7.8,camH:2.9,arm:-0.95,col:'#2f7fd1'},
-    twist:{n:'扭扭車',e:'🛷',fee:10,vmax:3.4,acc:1.4,brake:4,rev:0.8,turn:2.3,r:0.36,L:0.8,seat:0.3,sx:-0.12,sz:0,cam:3.3,camH:1.5,arm:-0.9,col:'#ff5d8f'}};
+    twist:{n:'扭扭車',e:'🛷',fee:10,vmax:3.4,acc:1.4,brake:4,rev:0.8,turn:2.3,r:0.36,L:0.8,seat:0.3,sx:-0.12,sz:0,cam:3.3,camH:1.5,arm:-0.9,col:'#ff5d8f'},
+    rocket:{n:'火箭跑車',e:'🚀',fee:80,vmax:50,acc:9,brake:16,rev:5,turn:1.35,r:0.92,L:4.4,seat:0.36,sx:-0.35,sz:-0.38,cam:8.4,camH:2.9,arm:-0.95,col:'#d8262c',evol:0.45,epitch:1.25}};   /* 2026-10-24.5 原創「火箭跑車」（使用者看到新聞的飛天跑車）：彈射起步、噴射跳躍、懸停、飛行 */
   const ST=[{k:'bike',x:64,z:5.6,ry:0,n:'巷口單車站'},{k:'bike',x:60,z:104.2,ry:0,n:'圓環大道單車站'},{k:'bike',x:286,z:104.2,ry:0,n:'城堡大道單車站'},
     {k:'scooter',x:108,z:14,ry:Math.PI/2,n:'機車出租'},{k:'car',x:130,z:117.6,ry:0,n:'租車行'},{k:'twist',x:16,z:26,ry:0,n:'扭扭車出租'},
-    {k:'car',x:446,z:117.6,ry:0,n:'山腳租車'},{k:'scooter',x:446,z:103.4,ry:0,n:'山腳機車'},{k:'bike',x:430,z:103.4,ry:0,n:'山腳單車站'}];   /* 2026-10-21.9 雲霧山山腳 */
+    {k:'car',x:446,z:117.6,ry:0,n:'山腳租車'},{k:'scooter',x:446,z:103.4,ry:0,n:'山腳機車'},{k:'bike',x:430,z:103.4,ry:0,n:'山腳單車站'},   /* 2026-10-21.9 雲霧山山腳 */
+    {k:'rocket',x:322,z:154,ry:0,sry:Math.PI,n:'火箭試車場'}];   /* sry：牌子轉向北（人從城堡大道那邊走過來，不然看到的是反面、字左右顛倒） */   /* 2026-10-24.5 城堡大道南邊的空地 */
   R.T=T;R.ST=ST;
   const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
   // ---------- 模型（車頭朝 +x） ----------
@@ -2709,18 +2738,18 @@ const RIDE=(()=>{
   function twistModel(col){const g=new THREE.Group(),pm=paintMat(col),k=MAT.black;g.add(mesh(box(0.7,0.12,0.36),pm,-0.05,0.2,0));g.add(mesh(box(0.22,0.18,0.34),pm,-0.3,0.33,0));g.add(mesh(box(0.3,0.1,0.3),pm,0.26,0.24,0,0,0,0.35));
     g.add(mesh(cyl(0.02,0.02,0.32,6),k,0.3,0.42,0,0,0,0.35));{const sw=mesh(G('twSw',()=>new THREE.TorusGeometry(0.12,0.02,6,16)),k,0.25,0.58,0,0,Math.PI/2,0);sw.rotation.set(0,Math.PI/2,0.35);g.add(sw);}
     const wh=[];for(const [x,z] of [[0.32,0],[-0.35,-0.15],[-0.35,0.15]]){const w=new THREE.Group();w.position.set(x,0.06,z);w.add(mesh(cyl(0.06,0.06,0.04,10),k,0,0,0,Math.PI/2));g.add(w);wh.push(w);}g.userData.wh=wh;return g;}
-  function modelOf(k,col){const c=col||T[k].col;return k==='bike'?bikeModel(c):k==='twist'?twistModel(c):k==='scooter'?scooter(c):sportsCar(c);}
+  function modelOf(k,col){const c=col||T[k].col;return k==='bike'?bikeModel(c):k==='twist'?twistModel(c):k==='scooter'?scooter(c):k==='rocket'?rocketCar(c):sportsCar(c);}
   R.modelOf=modelOf;
   // ---------- 站牌：柱子＋牌子（貼圖）＋停著的車（合併進靜態網格） ----------
-  const signTex=(s,T0)=>{const [c,g]=cvs(512,256);g.fillStyle=s.k==='bike'?'#f2a51a':s.k==='scooter'?'#2f8fd6':s.k==='car'?'#2f9a5a':'#ff5d8f';g.fillRect(0,0,512,256);g.fillStyle='#fff';g.fillRect(14,14,484,228);
+  const signTex=(s,T0)=>{const [c,g]=cvs(512,256);g.fillStyle=s.k==='bike'?'#f2a51a':s.k==='scooter'?'#2f8fd6':s.k==='rocket'?'#d8262c':CK(s.k)?'#2f9a5a':'#ff5d8f';g.fillRect(0,0,512,256);g.fillStyle='#fff';g.fillRect(14,14,484,228);
     g.textAlign='center';g.textBaseline='middle';g.font='120px sans-serif';g.fillText(T0.e,96,128);g.fillStyle='#222';g.font=`900 64px ${FONT}`;g.fillText('租'+T0.n,320,96);g.fillStyle='#d9534f';g.font=`800 50px ${FONT}`;g.fillText(`${T0.fee} 元・按 F`,320,178);
     const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;};
   for(const s of ST){const t0=T[s.k],c=Math.cos(s.ry),sn=Math.sin(s.ry),W=(lx,lz)=>[s.x+lx*c+lz*sn,s.z-lx*sn+lz*c];   // 站的本地座標：x 沿著路、z 往後
     const [px,pz]=W(-1.6,0);M.add(mbox(px-0.06,px+0.06,0,2.6,pz-0.06,pz+0.06),MAT.steel);addCircle(px,pz,0.1,2.6);
-    {const g=new THREE.PlaneGeometry(1.6,0.8);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:signTex(s,t0),side:THREE.DoubleSide,toneMapped:false}));m.position.set(px,2.6,pz);m.rotation.y=s.ry;scene.add(m);}
-    const n=s.k==='car'?2:3,gap=s.k==='car'?2.6:s.k==='twist'?0.9:1.0;
-    for(let i=0;i<n;i++){const [x,z]=W(i*gap,s.k==='car'?1.8:0.5),o=modelOf(s.k,s.k==='car'?['#2f7fd1','#e8504a'][i]:s.k==='scooter'?['#e9eef0','#2f8fd6','#f5c542'][i]:s.k==='twist'?['#ff5d8f','#3fa0e0','#5cc06a'][i]:null);o.position.set(x,0.03,z);o.rotation.y=s.ry+Math.PI/2;o.updateMatrixWorld(true);M.addObject(o);
-      const L=s.k==='car'?4.4:s.k==='twist'?0.8:1.7,Wd=s.k==='car'?1.9:0.6,hx=Math.abs(Math.cos(o.rotation.y))*L/2+Math.abs(Math.sin(o.rotation.y))*Wd/2,hz=Math.abs(Math.sin(o.rotation.y))*L/2+Math.abs(Math.cos(o.rotation.y))*Wd/2;addBox(x-hx,x+hx,z-hz,z+hz,s.k==='car'?1.2:0.9);}
+    {const g=new THREE.PlaneGeometry(1.6,0.8);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:signTex(s,t0),side:THREE.DoubleSide,toneMapped:false}));m.position.set(px,2.6,pz);m.rotation.y=s.sry??s.ry;scene.add(m);}
+    const n=CK(s.k)?2:3,gap=CK(s.k)?2.6:s.k==='twist'?0.9:1.0;
+    for(let i=0;i<n;i++){const [x,z]=W(i*gap,CK(s.k)?1.8:0.5),o=modelOf(s.k,CK(s.k)?['#2f7fd1','#e8504a'][i]:s.k==='scooter'?['#e9eef0','#2f8fd6','#f5c542'][i]:s.k==='twist'?['#ff5d8f','#3fa0e0','#5cc06a'][i]:null);o.position.set(x,0.03,z);o.rotation.y=s.ry+Math.PI/2;o.updateMatrixWorld(true);M.addObject(o);
+      const L=CK(s.k)?4.4:s.k==='twist'?0.8:1.7,Wd=CK(s.k)?1.9:0.6,hx=Math.abs(Math.cos(o.rotation.y))*L/2+Math.abs(Math.sin(o.rotation.y))*Wd/2,hz=Math.abs(Math.sin(o.rotation.y))*L/2+Math.abs(Math.cos(o.rotation.y))*Wd/2;addBox(x-hx,x+hx,z-hz,z+hz,CK(s.k)?1.2:0.9);}
     if(s.k==='bike'){const [x0,z0]=W(-0.5,0.5),[x1,z1]=W(2.5,0.5);M.add(mbox(Math.min(x0,x1),Math.max(x0,x1),0,0.05,Math.min(z0,z1)-0.35,Math.max(z0,z1)+0.35),MAT.steel);}}
   // ---------- 狀態 ----------
   const free=anyY=>started&&mode==='walk'&&!R.on&&!GAME.on&&!SKATE.on&&!RACE.on&&!BALLOON.riding&&!LIE.on&&!DECO.sit&&!TN.on&&!BB.on&&(anyY||player.y<=1.5);
@@ -2768,29 +2797,35 @@ const RIDE=(()=>{
     else{for(const k of r.hidBk||[]){k.PA.array.set(k.data,k.a);k.PA.addUpdateRange(k.a,k.data.length);k.PA.needsUpdate=true;}r.hidBk=null;}
     r.hid=hide;for(const c of r.cols)c.off=hide;for(const sf of r.surfs)sf.off=hide;renderer.shadowMap.needsUpdate=true;}
   function startPark(r){const k=r.ride||PK[r.name];let o,x=r.cx,z=r.cz,h=r.ry-Math.PI/2;if(r.mv){const m=r.mv;unpark(m);saveMV();o=m.o;x=m.x;z=m.z;h=m.h;}else{o=parkModel(r);hidePark(r,true);}R.start(k,x,z,h,o);R.park=r;R.tn=r.tune?{...T[k],...r.tune}:null;   /* 鄰居的車：每款開起來不一樣 */
-    R.ghost=[];R.gx=x;R.gz=z;const gr=T[k].r+(k==='car'?2.4:1.3);for(const c of colliders)if(c.veh&&!c.off&&c.x0<x+gr&&c.x1>x-gr&&c.z0<z+gr&&c.z1>z-gr){c.off=true;R.ghost.push(c);}   /* 擠在一排的機車、被前面的車擋住：緊鄰的車先穿過去，開離開了碰撞再恢復（不然卡住出不來） */
+    R.ghost=[];R.gx=x;R.gz=z;const gr=T[k].r+(CK(k)?2.4:1.3);for(const c of colliders)if(c.veh&&!c.off&&c.x0<x+gr&&c.x1>x-gr&&c.z0<z+gr&&c.z1>z-gr){c.off=true;R.ghost.push(c);}   /* 擠在一排的機車、被前面的車擋住：緊鄰的車先穿過去，開離開了碰撞再恢復（不然卡住出不來） */
     toast(`🔑 開這台${r.name}（免費）：W／搖桿往前加速、S 煞車倒退、A／D 轉彎；按 F 下車，車子就停在那裡（走到原本的車位按 F 可以叫它開回去）`);}
   R.label=()=>{{const px=PAX&&PAX.label();if(px)return px;}if(R.on)return R.park?`🔑 下車（車子停在這裡）`:`${T[R.k].e} 下車（還車）`;const s=near();if(s)return `${T[s.k].e} 租${T[s.k].n}（${T[s.k].fee} 元）`;
     const pk=nearPark();if(pk)return `🔑 開這台${pk.name}（免費）`;{const sp=nearSpot();if(sp)return `🔑 叫${sp.r.name}開回車位`;}if(MOUNT&&MOUNT.shopNear())return '🛒 買山頂點心（10 元）';return null;};
   R.act=()=>{if(PAX&&PAX.act())return;if(R.on){R.stop();return;}const s=near();if(!s){const pk=nearPark();if(pk)startPark(pk);else{const sp=nearSpot();if(sp)sendHome(sp);else if(MOUNT&&MOUNT.shopNear())MOUNT.shopBuy();}return;}const t0=T[s.k],m=PUSH.W.money|0;if(m<t0.fee){toast(`零用錢不夠：租${t0.n}要 ${t0.fee} 元（還差 ${t0.fee-m} 元，玩小遊戲可以賺）`);AUDIO.sfx('beep');return;}
     PUSH.W.money=m-t0.fee;PUSH.save();R.start(s.k,player.pos.x,player.pos.y,player.yaw);toast(`${t0.e} 租了${t0.n}（-${t0.fee} 元）：${s.k==='twist'?'左右左右一直扭就會前進（W 慢慢滑）':'W／搖桿往前加速、S 煞車倒退、A／D 轉彎'}；再按 F 下車還車`);};
   R.start=(k,x,z,h,obj)=>{if(R.on)R.stop(true);if(EMOTE.on)EMOTE.stop(true);R.on=true;R.k=k;R.x=x;R.z=z;R.h=h;R.v=0;R.vy=0;R.ground=true;R.steer=0;R.lean=0;R.pitch=0;R.ped=0;R.wig=0;R.lastS=0;R.camP=null;R.vh=h;R.tr=null;R.fx={flip:0,spin:0,roll:0,wh:0,sup:0};R.score=0;R.combo=0;R.drifting=false;R.driftT=0;R.wob=0;
-    R.y=heightAt(x,z,player.y+0.3);R.gy=R.y;const o=obj||modelOf(k);o.rotation.order='YXZ';scene.add(o);R.obj=o;R.wh=o.userData.wh||[];avatar.root.rotation.order='YXZ';AUDIO.sfx(k==='car'||k==='scooter'?'takeoff':'click');
+    R.y=heightAt(x,z,player.y+0.3);R.gy=R.y;const o=obj||modelOf(k);o.rotation.order='YXZ';scene.add(o);R.obj=o;R.wh=o.userData.wh||[];avatar.root.rotation.order='YXZ';AUDIO.sfx(CK(k)||k==='scooter'?'takeoff':'click');
     if(!R.hud){const d=document.createElement('div');d.id='rideHud';d.style.cssText='position:fixed;left:50%;top:calc(10px + var(--sat,0px));transform:translateX(-50%);z-index:12;background:rgba(20,26,34,.82);color:#fff;border-radius:12px;padding:6px 14px;font:800 15px/1.2 '+FONT+';pointer-events:none;white-space:nowrap';document.body.appendChild(d);R.hud=d;}
     if(!R.btns){const css=document.createElement('style');css.textContent='#rdBtns{position:fixed;right:24px;bottom:236px;display:flex;flex-direction:column;gap:10px;z-index:11}#rdBtns[hidden],#rdBtns button[hidden]{display:none!important}#rdBtns button{width:66px;height:66px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(18,24,30,.6);color:#fff;font-size:15px;font-weight:800;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;text-shadow:0 1px 2px rgba(0,0,0,.65)}#rdBtns button small{font-size:10px;opacity:.7;margin-top:2px}#rdBtns button.on{background:rgba(255,180,84,.8);color:#3a2300}body.touch #rdBtns{left:auto;right:calc(29px + var(--sar));bottom:calc(240px + var(--sab));transform:none;flex-direction:column;gap:8px}body.touch #rdBtns button{width:62px;height:62px}@media (orientation:landscape) and (max-height:520px){body.touch #rdBtns{right:calc(112px + var(--sar));bottom:calc(16px + var(--sab));flex-direction:row;flex-wrap:wrap-reverse;justify-content:flex-end;width:132px}}body.touch #rideHud{top:calc(60px + var(--sat,0px))!important;white-space:normal!important;width:max-content;max-width:calc(100vw - 24px);text-align:center;line-height:1.35}@media (orientation:portrait){body.touch #rideHud{top:calc(94px + var(--sat,0px))!important}}';document.head.appendChild(css);
-      const d=document.createElement('div');d.id='rdBtns';d.innerHTML='<button data-k="trick">特技<small>T</small></button><button data-k="hb">甩尾<small>空白鍵</small></button><button data-k="race" hidden>比賽<small>R</small></button>';document.body.appendChild(d);R.btns=d;
+      const d=document.createElement('div');d.id='rdBtns';d.innerHTML='<button data-k="trick">特技<small>T</small></button><button data-k="hb">甩尾<small>空白鍵</small></button><button data-k="race" hidden>比賽<small>R</small></button><button data-k="lch" hidden>彈射<small>L</small></button><button data-k="fly" hidden>飛行<small>G</small></button><button data-k="dn" hidden>下降<small>C</small></button>';document.body.appendChild(d);R.btns=d;
+      d.querySelector('[data-k="lch"]').addEventListener('pointerdown',e=>{e.preventDefault();R.launch();});d.querySelector('[data-k="fly"]').addEventListener('pointerdown',e=>{e.preventDefault();R.toggleFly();});
+      {const db=d.querySelector('[data-k="dn"]');db.addEventListener('pointerdown',e=>{e.preventDefault();R.dnBtn=true;db.classList.add('on');});for(const ev of ['pointerup','pointercancel','pointerleave'])db.addEventListener(ev,()=>{R.dnBtn=false;db.classList.remove('on');});}   /* 2026-10-24.5 火箭跑車的按鈕 */
       for(const ev of ['touchstart','pointerdown','mousedown'])d.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
       const tb=d.querySelector('[data-k="trick"]'),hbB=d.querySelector('[data-k="hb"]');tb.addEventListener('pointerdown',e=>{e.preventDefault();R.doTrick();});d.querySelector('[data-k="race"]').addEventListener('pointerdown',e=>{e.preventDefault();if(MOUNT)MOUNT.raceStart(R);});
       hbB.addEventListener('pointerdown',e=>{e.preventDefault();R.hbBtn=true;hbB.classList.add('on');});for(const ev of ['pointerup','pointercancel','pointerleave'])hbB.addEventListener(ev,()=>{R.hbBtn=false;hbB.classList.remove('on');});}
-    R.btns.hidden=false;R.btns.querySelector('[data-k="hb"]').hidden=k!=='car';R.hud.hidden=false;syncActBtn();};
+    R.btns.hidden=false;R.btns.querySelector('[data-k="hb"]').hidden=!CK(k);for(const q of ['lch','fly'])R.btns.querySelector(`[data-k="${q}"]`).hidden=k!=='rocket';R.btns.querySelector('[data-k="dn"]').hidden=true;
+    {const hb=R.btns.querySelector('[data-k="hb"] small');if(hb)hb.textContent=k==='rocket'?'X':'空白鍵';}
+    R.gas=1;R.lch=null;R.fly=false;R.glide=false;R.fdn=R.fbk=0;R.dnBtn=false;R.lp=null;R.lpCam=0;R.camSlow=0;R.jr=null;R.fr=null;R.rgI=-1;
+    if(k==='rocket'&&!R.toldR){R.toldR=true;setTimeout(()=>{if(R.on&&R.k==='rocket')toast('🚀 停住按「彈射」1 秒破百；「跳」噴射、按住懸停；「飛行」飛上天');},4200);}   /* 2026-10-24.6 實測：原本手機上 7 行、蓋住彈射倒數 → 改短、晚一點出來 */
+    R.hud.hidden=false;syncActBtn();};
   R.stop=quiet=>{if(!R.on)return;const ln=R.lent;if(PAX)PAX.onStop();const t0=R.tn||T[R.k],sd=-Math.cos(R.h),sz=Math.sin(R.h);   // 下車：站到車子左邊
-    R.on=false;R.tn=null;if(MOUNT)MOUNT.cancel();if(R.eng){R.eng.stop();R.eng=null;}const pk=R.park;if(R.obj){if(pk)parkAt(pk,R.obj,R.x,R.z,R.y,R.h,R.ground?R.pitch:0);else scene.remove(R.obj);R.obj=null;}if(R.ghost){for(const c of R.ghost)c.off=false;R.ghost=null;}R.park=null;   /* 路邊車、鄰居的車：停在下車的地方 */if(R.hud)R.hud.hidden=true;if(R.btns)R.btns.hidden=true;R.hbBtn=false;if(tipEl)tipEl.style.opacity=0;avatar.root.rotation.set(0,avatar.root.rotation.y,0);avatar.root.rotation.order='XYZ';avatar.body.rotation.z=0;
+    R.on=false;R.tn=null;if(MOUNT)MOUNT.cancel();if(R.k==='rocket'&&RKP){RKP.rings(false,-1);R.fr=null;R.fly=false;R.glide=false;R.lp=null;}   /* 2026-10-24.5 下車：天空的圈圈藏起來 */if(R.eng){R.eng.stop();R.eng=null;}const pk=R.park;if(R.obj){if(pk)parkAt(pk,R.obj,R.x,R.z,R.y,R.h,R.ground?R.pitch:0);else scene.remove(R.obj);R.obj=null;}if(R.ghost){for(const c of R.ghost)c.off=false;R.ghost=null;}R.park=null;   /* 路邊車、鄰居的車：停在下車的地方 */if(R.hud)R.hud.hidden=true;if(R.btns)R.btns.hidden=true;R.hbBtn=false;if(tipEl)tipEl.style.opacity=0;avatar.root.rotation.set(0,avatar.root.rotation.y,0);avatar.root.rotation.order='XYZ';avatar.body.rotation.z=0;
     const off=t0.r+0.6;player.pos.set(R.x+sd*off,R.z+sz*off);resolve(player.pos,0.3,R.y);player.y=heightAt(player.pos.x,player.pos.y,R.y+0.4);player.vy=0;player.vel.set(0,0);player.yaw=R.h;avatar.yaw=R.h;
     if(!quiet){toast(ln?`🔑 下車了，車子停在這裡（是${NET.pn(String(ln.from))||'朋友'}的車，已經告訴他了）`:pk?`🔑 下車了，${pk.name}停在這裡${R.score?`（這趟特技 ${R.score} 分）`:''}；要叫它回去：走到原本的車位按 F`:`${t0.e} 還車了，謝謝光臨${R.score?`（這趟特技 ${R.score} 分，最高 ${R.best} 分）`:''}`);AUDIO.sfx('click');}syncActBtn();};
   // ---------- 特技（2026-10-21.8 第三階段）----------
   // 地上（T／特技鈕）：腳踏車、機車翹孤輪；汽車快的時候兩輪側開、慢的時候原地甩圈；扭扭車原地轉兩圈。汽車按住「空白鍵／甩尾鈕」轉彎＝甩尾（越久分數越高）。
   // 空中（騎過跳台、跳起來）：腳踏車 360／後空翻輪流、機車後空翻／超人飛、汽車空中翻滾／後空翻。先算還有多久落地、照時間轉完；落地時還沒轉完＝摔車（停下來，不會壞）。
-  const TR={wheelie:{n:'翹孤輪',p:60},twowheel:{n:'兩輪側開',p:80},donut:{n:'原地甩圈',p:150},twirl:{n:'原地轉兩圈',p:120},spin:{n:'空中 360',p:300},flip:{n:'後空翻',p:500},superman:{n:'超人飛',p:400},roll:{n:'空中翻滾',p:600}};
+  const TR={wheelie:{n:'翹孤輪',p:60},twowheel:{n:'兩輪側開',p:80},donut:{n:'原地甩圈',p:150},twirl:{n:'原地轉兩圈',p:120},spin:{n:'空中 360',p:300},flip:{n:'後空翻',p:500},superman:{n:'超人飛',p:400},roll:{n:'空中翻滾',p:600},lpflip:{n:'倒吊彎道翻身落地',p:1500}};
   R.score=0;R.best=0;try{R.best=+localStorage.getItem('home-ride-best')||0;}catch(_){}R.vh=0;R.alt=0;R.tr=null;R.fx={flip:0,spin:0,roll:0,wh:0,sup:0};R.combo=0;R.comboT=0;R.driftT=0;R.driftS=0;R.drifting=false;R.hbBtn=false;R.tk=false;R.wob=0;
   let tipEl=null,tipT=0;const tip=(t,big)=>{if(!tipEl){tipEl=document.createElement('div');tipEl.style.cssText='position:fixed;left:50%;top:28%;transform:translate(-50%,-50%);z-index:13;color:#fff;font:900 30px/1.2 '+FONT+';text-shadow:0 2px 6px rgba(0,0,0,.7),0 0 2px #000;pointer-events:none;text-align:center;white-space:nowrap;transition:opacity .3s';document.body.appendChild(tipEl);}
     tipEl.textContent=t;tipEl.style.fontSize=big?'32px':'22px';tipEl.style.color=big?'#ffe14a':'#fff';tipEl.style.opacity=1;tipT=big?1.6:1.2;};
@@ -2799,16 +2834,19 @@ const RIDE=(()=>{
     tip(`${tr.n} +${pts}${R.combo>1?`（連續 ×${R.combo}）`:''}${cm>1?`（一起歡呼 ×${cm}）`:''}`,true);AUDIO.sfx(pts>=500?'bigcheer':'combo');saveBest();};
   const G0=20,landT=()=>{const hy=heightAt(R.x,R.z,R.y+0.1),d=R.y-hy;return (R.vy+Math.sqrt(Math.max(0,R.vy*R.vy+2*G0*d)))/G0;};
   R.doTrick=()=>{if(!R.on||R.tr)return;const k=R.k,sp=Math.abs(R.v);let t=null;
-    if(R.ground){if(k==='twist')t={k:'twirl',dur:1.2};else if(k==='car')t=sp>7?{k:'twowheel',dur:2.4}:{k:'donut',dur:2.4,dir:R.steer<-0.1?1:-1};else{if(sp<2){tip('騎快一點才能翹孤輪');return;}t={k:'wheelie',dur:2.2};}}
-    else{const tl=landT();if(tl<0.28){tip('太低了，來不及');return;}const opts=k==='bike'?['spin','flip']:k==='scooter'?['flip','superman']:k==='car'?['roll','flip']:['spin'];t={k:opts[R.alt++%opts.length],dur:Math.min(1.3,tl*0.9),air:true};}
+    if(R.ground){if(k==='twist')t={k:'twirl',dur:1.2};else if(CK(k))t=sp>7?{k:'twowheel',dur:2.4}:{k:'donut',dur:2.4,dir:R.steer<-0.1?1:-1};else{if(sp<2){tip('騎快一點才能翹孤輪');return;}t={k:'wheelie',dur:2.2};}}
+    else{const tl=landT();if(tl<0.28){tip('太低了，來不及');return;}const opts=k==='bike'?['spin','flip']:k==='scooter'?['flip','superman']:CK(k)?['roll','flip']:['spin'];t={k:opts[R.alt++%opts.length],dur:Math.min(1.3,tl*0.9),air:true};}
     t.t=0;R.tr=t;AUDIO.sfx('whoosh');};
   const sm=u=>u*u*(3-2*u),angD=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
-  function endTrick(ok){const q=R.tr;R.tr=null;R.fx.flip=R.fx.spin=R.fx.roll=R.fx.wh=R.fx.sup=0;if(!q)return;if(ok)award(q.k);else{R.v*=0.25;R.wob=0.6;tip('摔車了！再試一次');AUDIO.sfx('thud');}}
+  function endTrick(ok){const q=R.tr;R.tr=null;R.fx.flip=R.fx.spin=R.fx.roll=R.fx.wh=R.fx.sup=0;if(!q)return;if(ok){award(q.k);if(q.k==='lpflip'){EARN(30,'倒吊彎道');R.lpN=(R.lpN|0)+1;}}else{R.v*=0.25;R.wob=0.6;tip('摔車了！再試一次');AUDIO.sfx('thud');}}
   // ---------- 每一格：開車 ----------
   const tp=new V2();
   R.step=(dt,f,s,run)=>{const t0=R.tn||T[R.k];dt=Math.min(dt,0.05);
     {const tk=!!keys.KeyT;if(tk&&!R.tk)R.doTrick();R.tk=tk;}if(tipT>0){tipT-=dt;if(tipT<=0&&tipEl)tipEl.style.opacity=0;}if(R.comboT>0)R.comboT-=dt;if(R.wob)R.wob=Math.max(0,R.wob-dt);
-    const hb=R.k==='car'&&(keys.Space||jumpHeld||R.hbBtn);
+    const RK=R.k==='rocket',hb=CK(R.k)&&(RK?(R.hbBtn||!!keys.KeyX):(keys.Space||jumpHeld||R.hbBtn));   /* 火箭跑車：空白鍵／跳＝噴射，甩尾改 X 或甩尾鈕 */
+    if(RK&&R.lp){loopStep(dt,t0);return;}if(R.lpCam>0)R.lpCam-=dt;
+    if(RK&&R.ground&&!R.fly&&RKP){const LP=RKP.LP;if(Math.abs(R.z-LP.zc)<LP.w/2&&R.x>LP.cx-32&&R.x<LP.cx-1.6&&-Math.sin(R.h)>0.85&&R.v>8)R.lpCam=Math.max(R.lpCam||0,0.4);   /* 2026-10-24.6 實測：衝向彎道時就先把鏡頭慢慢移到側面（不然鏡頭來不及，畫面卡在軌道後面） */
+      if(Math.abs(R.z-LP.zc)<LP.w/2+0.2&&R.x>LP.cx-1.6&&R.x<LP.cx+0.6&&-Math.sin(R.h)>0.85&&R.v>0){   /* 2026-10-24.6 實測：偏中線 2.4 m 就撞上去 → 整條道（6 m）都算，進去後 loopStep 會拉回中間 */if(R.v>=8)loopStart();else if(!R.lpTold){R.lpTold=true;tip('太慢了！加速到 30 km/h 以上再衝進去');}}else R.lpTold=false;}
     if(R.k==='twist'){const ds=Math.abs(s-R.lastS);R.lastS=s;R.wig=Math.max(0,R.wig*Math.exp(-dt*1.6)+ds*1.1);const want=Math.min(t0.vmax,R.wig*1.6)+(f>0?0.9*f:0);   // 扭扭車：方向盤左右扭得越快越快
       if(f<0&&R.v>0.1)R.v=Math.max(0,R.v-t0.brake*dt);else if(f<0)R.v=Math.max(-t0.rev,R.v-t0.acc*dt);else R.v+=(want-R.v)*Math.min(1,dt*(want>R.v?1.8:0.8));}
     else if(R.ground){const vmax=t0.vmax*(run&&R.k!=='bike'?1.15:1);if(f>0.05){R.v+=t0.acc*f*dt*(R.v<0?2:1-Math.max(0,R.v)/vmax*0.55);R.v=Math.min(R.v,vmax);}
@@ -2816,37 +2854,40 @@ const RIDE=(()=>{
       else R.v-=Math.sign(R.v)*Math.min(Math.abs(R.v),(0.6+Math.abs(R.v)*0.05)*dt);}
     if(R.wob)R.v*=Math.exp(-dt*3);
     if(R.ground&&R.k!=='twist')R.v=cl(R.v-9.8*Math.sin(R.pitch)*0.45*dt,-t0.vmax*1.3,t0.vmax*1.3);   // 下坡會越滑越快、上坡會慢下來
+    if(RK)rocketStep(dt,f,t0);
     R.steer+=(s-R.steer)*Math.min(1,dt*(R.k==='twist'?14:7));
-    let sp=Math.abs(R.v);const grip=R.ground?1:0;
+    let sp=Math.abs(R.v);const grip=R.ground?1:RK?(R.fly?1:R.thr?0.55:0):0;   /* 火箭跑車噴射中、飛行中在空中也能轉 */
     // 汽車甩尾：按住手煞車轉彎＝車尾甩出去（車身方向 h 跟移動方向 vh 分開）
-    if(R.k==='car'){if(hb&&R.ground&&sp>5&&Math.abs(R.steer)>0.25)R.drifting=true;else if(!hb||sp<3||!R.ground)R.drifting=false;
+    if(CK(R.k)){if(hb&&R.ground&&sp>5&&Math.abs(R.steer)>0.25)R.drifting=true;else if(!hb||sp<3||!R.ground)R.drifting=false;
       if(hb&&!R.drifting&&R.ground&&!R.tr)R.v-=Math.sign(R.v)*Math.min(Math.abs(R.v),6*dt);}
     if(R.drifting){R.driftT+=dt;R.driftS+=Math.abs(angD(R.h,R.vh))*sp*dt*12;R.v-=Math.sign(R.v)*1.1*dt;}
     else if(R.driftT>0){if(R.driftT>0.8){const cm=PAX?PAX.cheerMult():1,n=(Math.round(R.driftS)+50)*cm;R.score+=n;if(cm>1)PAX.cheered(n);R.combo=R.comboT>0?R.combo+1:1;R.comboT=3;tip(`甩尾 ${R.driftT.toFixed(1)} 秒 +${n}${cm>1?`（一起歡呼 ×${cm}）`:''}`,true);AUDIO.sfx('combo');saveBest();}R.driftT=0;R.driftS=0;}
-    let yr=R.steer*t0.turn*Math.min(1,sp/(R.k==='car'?3.5:2.2))/(1+sp*(R.k==='car'?0.035:0.05))*Math.sign(R.v||1)*grip;if(R.drifting)yr*=2.1;
+    let yr=R.steer*t0.turn*Math.min(1,sp/(CK(R.k)?3.5:2.2))/(1+sp*(CK(R.k)?0.035:0.05))*Math.sign(R.v||1)*grip;if(R.drifting)yr*=2.1;
     // 特技進行中
     if(R.tr){const q=R.tr;q.t+=dt;const u=Math.min(1,q.t/q.dur),w=u<0.15?u/0.15:u>0.85?(1-u)/0.15:1;
       if(q.k==='wheelie')R.fx.wh=0.5*w;else if(q.k==='twowheel')R.fx.roll=0.62*w;else if(q.k==='donut'){yr=3.8*q.dir;R.v+=(2.6-R.v)*Math.min(1,dt*3);R.drifting=false;}
+      else if(q.k==='lpflip')R.fx.roll=Math.PI*(1+sm(u));   /* 倒吊彎道：從倒過來慢慢翻正 */
       else if(q.k==='twirl')R.fx.spin=Math.PI*4*sm(u);else if(q.k==='spin')R.fx.spin=Math.PI*2*sm(u);else if(q.k==='flip')R.fx.flip=Math.PI*2*sm(u);else if(q.k==='roll')R.fx.roll=Math.PI*2*sm(u);else if(q.k==='superman')R.fx.sup=Math.sin(Math.PI*u);
       if(q.t>=q.dur)endTrick(true);}
-    R.h-=yr*dt;R.vh=R.k==='car'?R.vh+angD(R.h,R.vh)*Math.min(1,dt*(R.drifting||(R.tr&&R.tr.k==='donut')?1.5:10)):R.h;
+    R.h-=yr*dt;R.vh=CK(R.k)?R.vh+angD(R.h,R.vh)*Math.min(1,dt*(R.drifting||(R.tr&&R.tr.k==='donut')?1.5:10)):R.h;
     if(MOUNT&&MOUNT.hold()){R.v=0;R.steer=0;}   // 山路比賽倒數中：不能動
     // 移動＋碰撞（每 0.25 m 一小步；汽車用前、中、後三個圓）
     const fx=-Math.sin(R.h),fz=-Math.cos(R.h),mfx=-Math.sin(R.vh),mfz=-Math.cos(R.vh),mx=mfx*R.v*dt,mz=mfz*R.v*dt,n=Math.max(1,Math.ceil(Math.hypot(mx,mz)/0.25));let hit=0;
     for(let i=0;i<n;i++){R.x+=mx/n;R.z+=mz/n;
-      if(R.k==='car'){let ax=0,az=0;for(const o of [1.45,0,-1.45]){tp.set(R.x+fx*o,R.z+fz*o);const bx=tp.x,bz=tp.y;resolve(tp,t0.r,Math.max(R.y,heightAt(bx,bz,R.y+0.6)));ax+=tp.x-bx;az+=tp.y-bz;}if(Math.abs(ax)+Math.abs(az)>1e-4){R.x+=ax/3*1.5;R.z+=az/3*1.5;hit=Math.max(hit,Math.hypot(ax,az));}}
+      if(CK(R.k)){let ax=0,az=0;for(const o of [1.45,0,-1.45]){tp.set(R.x+fx*o,R.z+fz*o);const bx=tp.x,bz=tp.y;resolve(tp,t0.r,Math.max(R.y,heightAt(bx,bz,R.y+0.6)));ax+=tp.x-bx;az+=tp.y-bz;}if(Math.abs(ax)+Math.abs(az)>1e-4){R.x+=ax/3*1.5;R.z+=az/3*1.5;hit=Math.max(hit,Math.hypot(ax,az));}}
       else{tp.set(R.x,R.z);resolve(tp,t0.r,R.y);const d=Math.hypot(tp.x-R.x,tp.y-R.z);if(d>1e-4){R.x=tp.x;R.z=tp.y;hit=Math.max(hit,d);}}}
     R.x=cl(R.x,BOUND.x0,BOUND.x1);R.z=cl(R.z,BOUND.z0,BOUND.z1);
-    if(R.ghost&&R.ghost.length&&Math.hypot(R.x-R.gx,R.z-R.gz)>(R.k==='car'?5:3)){const m=t0.r+(R.k==='car'?1.6:0.25);R.ghost=R.ghost.filter(c=>{const d=Math.hypot(Math.max(c.x0-R.x,0,R.x-c.x1),Math.max(c.z0-R.z,0,R.z-c.z1));if(d>m){c.off=false;return false;}return true;});}   // 開離原車位、也離開那些車了：碰撞恢復
-    if(hit>0.01){if(sp>4&&!R.bumpT){AUDIO.sfx(R.k==='car'?'heavy':'thud');R.bumpT=0.5;R.bumps=(R.bumps||0)+1;}R.v*=Math.pow(0.2,Math.min(1,hit*4));if(R.tr&&!R.tr.air&&R.tr.k!=='donut')endTrick(true);}if(R.bumpT)R.bumpT=Math.max(0,R.bumpT-dt);
+    if(R.ghost&&R.ghost.length&&Math.hypot(R.x-R.gx,R.z-R.gz)>(CK(R.k)?5:3)){const m=t0.r+(CK(R.k)?1.6:0.25);R.ghost=R.ghost.filter(c=>{const d=Math.hypot(Math.max(c.x0-R.x,0,R.x-c.x1),Math.max(c.z0-R.z,0,R.z-c.z1));if(d>m){c.off=false;return false;}return true;});}   // 開離原車位、也離開那些車了：碰撞恢復
+    if(hit>0.01){if(sp>4&&!R.bumpT){AUDIO.sfx(CK(R.k)?'heavy':'thud');R.bumpT=0.5;R.bumps=(R.bumps||0)+1;}R.v*=Math.pow(0.2,Math.min(1,hit*4));if(R.tr&&!R.tr.air&&R.tr.k!=='donut')endTrick(true);}if(R.bumpT)R.bumpT=Math.max(0,R.bumpT-dt);
     // 高度：照地面（樓梯、斜坡、跳台）；離開地面就飛（從斜坡帶著往上的速度）
     const hy=heightAt(R.x,R.z,R.y+0.1);
     if(R.ground){if(hy<R.y-0.12-((R.gvy||0)>0.5?0:Math.abs(R.v)*dt*0.35)){R.ground=false;   /* 2026-10-21.11 下坡：每格掉一點點照樣貼著路（不然快速下山一直「離地」，煞不住也不能轉）；正在往上衝（跳台）照樣會飛 */R.vy=Math.max(0,R.gvy||0);}else{const gvy=(hy-R.y)/dt;R.gvy=R.gvy===undefined?gvy:R.gvy+(gvy-R.gvy)*Math.min(1,dt*20);R.y=hy;R.vy=0;}}
     if(!R.ground){R.vy-=G0*dt;R.y+=R.vy*dt;if(R.y<=hy){const hard=R.vy<-7;R.y=hy;R.vy=0;R.ground=true;R.gvy=0;
         if(R.tr&&R.tr.air)endTrick(R.tr.t>=R.tr.dur*0.85);else if(hard){AUDIO.sfx('thud');R.v*=0.85;}}}
+    if(RK)jumpCourse(dt,hit);   /* 2026-10-24.5 飛越挑戰計分 */
     // 前後輪高度差＝車身前後傾；兩輪車轉彎壓車
-    {const hl=t0.L/2,hf=heightAt(R.x+fx*hl,R.z+fz*hl,R.y+0.5),hb2=heightAt(R.x-fx*hl,R.z-fz*hl,R.y+0.5),tgt=R.ground?Math.atan2(hf-hb2,t0.L):R.pitch-0.25*dt;R.pitch+=(cl(tgt,-0.6,0.6)-R.pitch)*Math.min(1,dt*10);}
-    sp=Math.abs(R.v);const two=R.k==='bike'||R.k==='scooter';R.lean+=((two?cl(R.steer*Math.min(1,sp/t0.vmax)*0.55,-0.5,0.5):R.k==='car'?cl(-R.steer*sp*0.004,-0.05,0.05)+(R.drifting?angD(R.h,R.vh)*0.08:0):0)+(R.wob?Math.sin(R.wob*30)*0.12:0)-R.lean)*Math.min(1,dt*6);
+    {const hl=t0.L/2,hf=heightAt(R.x+fx*hl,R.z+fz*hl,R.y+0.5),hb2=heightAt(R.x-fx*hl,R.z-fz*hl,R.y+0.5),tgt=R.ground?Math.atan2(hf-hb2,t0.L):RK&&(R.fly||R.thr)?cl(R.vy*0.03,-0.25,0.25):R.pitch-0.25*dt;R.pitch+=(cl(tgt,-0.6,0.6)-R.pitch)*Math.min(1,dt*10);}
+    sp=Math.abs(R.v);const two=R.k==='bike'||R.k==='scooter';R.lean+=((two?cl(R.steer*Math.min(1,sp/t0.vmax)*0.55,-0.5,0.5):CK(R.k)?cl(-R.steer*sp*0.004,-0.05,0.05)+(R.drifting?angD(R.h,R.vh)*0.08:0):0)+(R.wob?Math.sin(R.wob*30)*0.12:0)-R.lean)*Math.min(1,dt*6);
     // 給其他系統看的位置（小地圖、位置顯示、連線）
     player.pos.set(R.x,R.z);player.y=R.y;player.vy=0;player.ground=R.ground;player.vel.set(mfx*R.v,mfz*R.v);player.yaw=R.h;
     // 車子（特技：翹孤輪抬前輪、兩輪側開抬一邊、空中轉）
@@ -2856,32 +2897,136 @@ const RIDE=(()=>{
     if(MOUNT)MOUNT.tick(dt,R);
     {const ok=!!(MOUNT&&MOUNT.raceOK(R)),b=R.btns&&R.btns.querySelector('[data-k="race"]');if(b&&b.hidden===ok)b.hidden=!ok;const kr=!!keys.KeyR;if(kr&&!R.kr&&ok)MOUNT.raceStart(R);R.kr=kr;}   // 山路比賽：停在拱門前才出現
     // 引擎聲（2026-10-21.10）：汽車、機車；用賽車那個「好聽的時候才大聲」的引擎（定速很小聲，踩油門、換檔、甩尾才出來），整體再調小
-    if(R.k==='car'||R.k==='scooter'){if(!R.eng&&AUDIO.engine)R.eng=AUDIO.engine({vol:t0.evol??(R.k==='car'?0.5:0.38),pitch:t0.epitch??(R.k==='car'?1:1.7)});
-      if(R.eng){const ng=R.k==='car'?5:3,gs=t0.vmax*1.15/ng,gear=Math.min(ng-1,Math.floor(sp/gs)),rpm=sp<0.5?0.12:Math.max(0,Math.min(1,0.25+0.75*(sp-gear*gs)/gs));R.eng.set(rpm,f>0.05?Math.min(1,f):0,0,R.drifting?0.7:0,Math.min(1,sp/40));}}
-    if(R.hud){const kmh=Math.round(sp*3.6);R.hud.textContent=`${t0.e} ${t0.n}　${kmh} km/h　⭐ ${R.score}${R.drifting?'　💨 甩尾中':''}${MOUNT?MOUNT.hud(R):''}${PAX?PAX.drvHud():''}`;}};
-  R.net=()=>{const lift=R.obj?R.obj.position.y-R.y-0.03:0,r3=v=>Math.round(v*1000)/1000;return [R.k,r3(R.x),r3(R.y+lift),r3(R.z),r3(R.h+R.fx.spin),r3(R.lean+R.fx.roll),r3(R.pitch+R.fx.flip+R.fx.wh),r3(R.v),R.park&&R.park.carIdx!=null?R.park.carIdx:(R.lentMi??-1)];};
+    if(CK(R.k)||R.k==='scooter'){if(!R.eng&&AUDIO.engine)R.eng=AUDIO.engine({vol:t0.evol??(CK(R.k)?0.5:0.38),pitch:t0.epitch??(CK(R.k)?1:1.7)});
+      if(R.eng){const ng=CK(R.k)?5:3,gs=t0.vmax*1.15/ng,gear=Math.min(ng-1,Math.floor(sp/gs)),rpm=sp<0.5?0.12:Math.max(0,Math.min(1,0.25+0.75*(sp-gear*gs)/gs));R.eng.set(rpm,f>0.05?Math.min(1,f):0,0,R.drifting?0.7:0,Math.min(1,sp/40));}}
+    if(RK)rocketFlame(R.obj,R.fdn||0,R.fbk||0);
+    if(R.hud){const kmh=Math.round(sp*3.6);R.hud.textContent=`${t0.e} ${t0.n}　${kmh} km/h　⭐ ${R.score}${R.drifting?'　💨 甩尾中':''}${RK?rocketHud():''}${MOUNT?MOUNT.hud(R):''}${PAX?PAX.drvHud():''}`;}};
+  // ---------- 2026-10-24.5 火箭跑車：彈射起步、噴射跳躍、懸停、飛行 ----------
+  // 彈射：倒數 3 秒，之後 1.8 秒每秒加速 34 m/s（0～100 km/h 約 0.8 秒，紀錄存 home-rk06）；
+// 冷氣瓶 R.gas（0～1）：在地上沒噴的時候慢慢補滿。跳躍一次 12%（約 4.2 m 高）、往下掉時按住＝懸停每秒 22%（約 4.5 秒）；飛行模式每秒 0.8%（約 2 分鐘），沒氣了就慢慢滑翔降落（不會摔）。
+  R.gas=1;R.lch=null;R.fly=false;R.glide=false;R.upP=false;R.thr=false;R.fdn=0;R.fbk=0;R.dnBtn=false;R.best06=0;try{R.best06=+localStorage.getItem('home-rk06')||0;}catch(_){}
+  R.launch=()=>{if(!R.on||R.k!=='rocket')return;if(!R.ground||R.fly){tip('要在地上才能彈射');return;}if(R.lch)return;if(Math.abs(R.v)>1.5){tip('先停下來，才能彈射起步');return;}R.lch={st:'cd',t:0,n:4};AUDIO.sfx('click');};
+  R.toggleFly=()=>{if(!R.on||R.k!=='rocket')return;if(R.fly){R.fly=false;R.glide=!R.ground;tip(R.ground?'飛行模式關了':'關掉飛行：慢慢降落');return;}if(R.gas<0.15){tip('冷氣瓶快空了，先在地上補氣');return;}R.fly=true;R.glide=false;R.lch=null;if(R.ground){R.ground=false;R.vy=5;}tip('🛫 飛行模式',true);AUDIO.sfx('whoosh');
+    if(!R.toldF){R.toldF=true;toast('🛫 「跳」往上、「下降」往下；穿過黃色圈圈＝飛行計時賽');}};
+  function rocketStep(dt,f,t0){const up=!!(keys.Space||jumpHeld),dn=!!(keys.KeyC||R.dnBtn);let fdn=0,fbk=0;R.thr=false;
+    {const kl=!!keys.KeyL;if(kl&&!R.kl)R.launch();R.kl=kl;const kg=!!keys.KeyG;if(kg&&!R.kg)R.toggleFly();R.kg=kg;}
+    if(R.lch){const L=R.lch;L.t+=dt;if(L.st==='cd'){R.v=0;const n=3-Math.floor(L.t);if(n!==L.n&&n>0){L.n=n;tip(String(n),true);AUDIO.sfx('beep');}fbk=0.15;if(L.t>=3){L.st='go';L.t=0;tip('🚀 彈射！',true);AUDIO.sfx('takeoff');AUDIO.sfx('whoosh');}}
+      else{R.v=Math.min(t0.vmax*1.1,R.v+34*dt);fbk=1;if(!L.rec&&R.v>=27.8){L.rec=L.t;const s=L.rec.toFixed(2);const nb=!R.best06||L.rec<R.best06;if(nb){R.best06=L.rec;try{localStorage.setItem('home-rk06',String(L.rec));}catch(_){}}tip(`0～100 km/h：${s} 秒${nb?'（新紀錄！）':''}`,true);}if(L.t>1.8||!R.ground)R.lch=null;}}
+    if(R.fly){if(R.gas<=0){R.fly=false;R.glide=true;tip('冷氣瓶用完了：慢慢滑翔降落');AUDIO.sfx('beep');}
+      else{R.gas=Math.max(0,R.gas-dt/125);if(R.ground){if(up){R.ground=false;R.vy=5;}}else{const tv=up?8:dn?-8:0;R.vy+=(tv-R.vy)*Math.min(1,dt*2.2)+G0*dt;R.thr=true;fdn=up?1:dn?0.25:0.55;
+        if(f>0.05){R.v=Math.min(t0.vmax*0.9,R.v+8*f*dt);fbk=0.4+0.6*f;}else if(f<-0.05)R.v=Math.max(-6,R.v-10*(-f)*dt);else R.v-=Math.sign(R.v)*Math.min(Math.abs(R.v),1.5*dt);}}}
+    else if(R.glide){if(R.ground)R.glide=false;else{R.vy+=(-4-R.vy)*Math.min(1,dt*2)+G0*dt;fdn=0.2;R.thr=true;}}
+    else if(!R.lch){if(up&&!R.upP&&R.ground&&R.gas>0.12){R.vy=13;R.ground=false;R.gvy=0;R.gas-=0.12;AUDIO.sfx('whoosh');fdn=1;R.thr=true;}   // 噴射跳躍：大約 3.6 m 高
+      else if(up&&!R.ground&&R.gas>0&&R.vy<=0.5){R.gas=Math.max(0,R.gas-0.22*dt);R.vy+=(G0+(0-R.vy)*3)*dt;R.thr=true;fdn=0.8;if(f>0.05){R.v=Math.min(t0.vmax,R.v+5*f*dt);fbk=0.6;}}}   // 按住＝懸停（往上衝的時候照常往上，掉下來時拉住）
+    if(R.ground&&!up&&!R.fly)R.gas=Math.min(1,R.gas+0.35*dt);
+    if(R.y>160&&R.vy>0)R.vy=0;   // 最高 160 m
+    // 第三階段：飛行計時賽（穿過第 1 個圈圈開始計時，依序穿過全部；3 分鐘沒飛完就取消）
+    if(RKP&&RKP.RG){const RG=RKP.RG,N=RG.length,nx=R.fr?R.fr.i:0,q=RG[nx],d=Math.hypot(R.x-q.x,R.y+0.6-q.y,R.z-q.z);
+      if(d<5.6){if(!R.fr){R.fr={i:1,t:0};tip(`🏁 飛行計時賽開始！穿過 ${N} 個圈圈`,true);AUDIO.sfx('go');}else{R.fr.i++;AUDIO.sfx('chime');if(R.fr.i>=N){const t=R.fr.t,b=+(localStorage.getItem('home-rkfly')||0),nb=!b||t<b;if(nb)try{localStorage.setItem('home-rkfly',String(t));}catch(_){}
+          tip(`🏆 飛完了！${t.toFixed(1)} 秒${nb?'（新紀錄！）':`（最快 ${b.toFixed(1)} 秒）`}`,true);AUDIO.sfx('bigcheer');EARN(nb?100:60,'飛行計時賽');R.score+=2000;saveBest();R.fr=null;}else tip(`第 ${R.fr.i}／${N} 個 ✔`);}}
+      if(R.fr){R.fr.t+=dt;if(R.fr.t>180){R.fr=null;tip('飛太久了，計時賽取消（再穿過第 1 個圈圈重來）');}}
+      const ni=R.fr?R.fr.i:0;if(R.rgI!==ni){R.rgI=ni;RKP.rings(true,ni);}const tq=RG[ni];RKP.arrow(R.fly||!!R.fr,R.x,R.y+3.6,R.z,tq.x,tq.y,tq.z);}
+    R.upP=up;R.fdn+=(fdn-R.fdn)*Math.min(1,dt*12);R.fbk+=(fbk-R.fbk)*Math.min(1,dt*12);
+    if(R.btns){const db=R.btns.querySelector('[data-k="dn"]'),fb=R.btns.querySelector('[data-k="fly"]');if(db.hidden===R.fly)db.hidden=!R.fly;fb.classList.toggle('on',R.fly);}}
+  // ---------- 2026-10-24.5 第二階段：倒吊彎道（照路線走的特技；風扇吸住，速度只會慢慢掉、最低 9 m/s） ----------
+  function loopStart(){const LP=RKP.LP;R.lp={th:0,v0:Math.max(R.v,9),v:Math.max(R.v,9)};R.lch=null;R.tr=null;R.drifting=false;R.lpCam=99;R.camSlow=0;tip('🌀 吸地風扇啟動！',true);AUDIO.sfx('whoosh');}
+  function loopStep(dt,t0){const LP=RKP.LP,L=R.lp,o=R.obj;L.th+=L.v*dt/LP.r;const hgt=LP.r*(1-Math.cos(Math.min(L.th,Math.PI)));L.v=Math.max(9,Math.sqrt(Math.max(0,L.v0*L.v0-2*9.8*0.45*hgt)));
+    if(L.th>=Math.PI){R.lp=null;R.h+=Math.PI;R.vh=R.h;R.pitch=0;R.x=LP.cx;R.y=2*LP.r;R.v=L.v;R.vy=1.5;R.ground=false;R.gvy=0;R.lpCam=1.6;R.camSlow=2.5;   /* 離開彎道：倒著往西飛，空中翻正 */
+      const tl=landT();R.tr={k:'lpflip',dur:Math.max(0.5,tl*0.9),air:true,t:0};tip('🙃 倒過來了！',true);AUDIO.sfx('whoosh');return;}
+    R.x=LP.cx+LP.r*Math.sin(L.th);R.y=hgt;R.z+=(LP.zc-R.z)*Math.min(1,dt*3);R.v=L.v;R.pitch=L.th;R.fdn=0;R.fbk+=(0.5-R.fbk)*Math.min(1,dt*8);
+    player.pos.set(R.x,R.z);player.y=R.y;player.vy=0;player.ground=false;player.vel.set(R.v,0);player.yaw=R.h;
+    o.position.set(R.x,R.y+0.03,R.z);o.rotation.set(R.lean,R.h+Math.PI/2,R.pitch);for(const w of R.wh)w.rotation.z-=R.v*dt/0.3;rocketFlame(o,0,R.fbk);
+    if(R.eng)R.eng.set(0.9,1,0,0,Math.min(1,R.v/40));if(R.hud)R.hud.textContent=`${t0.e} ${t0.n}　${Math.round(R.v*3.6)} km/h　🌀 倒吊彎道 ${Math.round(L.th/Math.PI*180)}°`;}
+  // ---------- 第二階段：飛越挑戰（在跳台那條道上起飛 → 飛過去的車、大卡車都算；撞到就不算） ----------
+  function jumpCourse(dt,hit){const JL=RKP.JL;if(!JL)return;const inLane=R.z>JL.z0&&R.z<JL.z1;
+    if(!R.jr){if(!R.ground&&inLane&&R.x>JL.kx0-4&&R.x<RKP.OB[0].x0&&-Math.sin(R.h)>0.6)R.jr={ok:true,mins:RKP.OB.map(()=>99)};return;}
+    const J=R.jr;if(hit>0.01||!inLane)J.ok=false;RKP.OB.forEach((ob,i)=>{if(R.x>ob.x0-0.9&&R.x<ob.x1+0.9)J.mins[i]=Math.min(J.mins[i],R.y);});
+    if(R.ground){R.jr=null;if(!J.ok){tip('撞到了！跳台頂按「跳」噴射，在空中按住懸停才飛得過大卡車');return;}let cars=0,truck=false;RKP.OB.forEach((ob,i)=>{if(R.x>ob.x1&&J.mins[i]<99&&J.mins[i]>ob.top+0.1){if(ob.n==='truck')truck=true;else cars++;}});
+      if(!cars&&!truck){tip('還沒飛過去：用跳台＋按跳噴射');return;}const sc=cars*200+(truck?800:0),best=+(localStorage.getItem('home-rkjump')||0);R.score+=sc;saveBest();
+      tip(`🚗 飛越 ${cars} 台車${truck?'＋🚚 大卡車':''}！+${sc}${sc>best?'（新紀錄）':''}`,true);AUDIO.sfx(truck?'bigcheer':'combo');EARN(cars*5+(truck?30:0),'飛越挑戰');if(sc>best)try{localStorage.setItem('home-rkjump',String(sc));}catch(_){}}}
+  R.loopStart=loopStart;
+  function rocketHud(){const n=Math.round(R.gas*10);return `${R.fr?`　🏁 ${R.fr.i}／${RKP.RG.length} ${R.fr.t.toFixed(1)} 秒`:''}　🧯 ${'■'.repeat(n)}${'□'.repeat(10-n)}${R.fly?'　🛫 飛行中 '+Math.max(0,Math.round(R.y-heightAt(R.x,R.z,R.y+0.1)))+' m':R.glide?'　🪂 滑翔降落':''}${R.lch&&R.lch.st==='cd'?'　🚀 準備彈射':''}`;}
+  R.net=()=>{const lift=R.obj?R.obj.position.y-R.y-0.03:0,r3=v=>Math.round(v*1000)/1000;return [R.k,r3(R.x),r3(R.y+lift),r3(R.z),r3(R.h+R.fx.spin),r3(R.lean+R.fx.roll),r3(R.pitch+R.fx.flip+R.fx.wh),r3(R.v),R.park&&R.park.carIdx!=null?R.park.carIdx:(R.lentMi??-1),R.k==='rocket'?Math.round((R.fdn||0)*9)*10+Math.round((R.fbk||0)*9):0];};   /* [9]：火箭跑車的火焰（十位＝往下、個位＝往後） */
   // ---------- 人物坐在車上（跟著車子整個轉：翻滾、後空翻時人也一起） ----------
   const sv=new V3(),qy=new THREE.Quaternion().setFromAxisAngle(new V3(0,1,0),Math.PI/2);   /* 車頭 +x → 人物前面 +z */
   R.seatPos=()=>{const t0=R.tn||T[R.k],c=Math.cos(R.h+Math.PI/2),sn=Math.sin(R.h+Math.PI/2);return [R.x+t0.sx*c+t0.sz*sn,R.z-t0.sx*sn+t0.sz*c];};
   R.pose=(a,dt)=>{const t0=R.tn||T[R.k],sc=bodyH().scale,o=R.obj;a.zeroJoints&&a.zeroJoints();o.updateMatrixWorld(true);
-    const sup=R.fx.sup;sv.set(t0.sx,t0.seat-0.93*sc+(R.k==='car'?0.02:0)+sup*0.35,t0.sz);o.localToWorld(sv);a.root.position.copy(sv);a.root.quaternion.copy(o.quaternion).multiply(qy);a.yaw=R.h;
+    const sup=R.fx.sup;sv.set(t0.sx,t0.seat-0.93*sc+(CK(R.k)?0.02:0)+sup*0.35,t0.sz);o.localToWorld(sv);a.root.position.copy(sv);a.root.quaternion.copy(o.quaternion).multiply(qy);a.yaw=R.h;
     a.body.position.y=0;a.body.rotation.x=R.k==='bike'?0.25:R.k==='scooter'?0.05:0;if(R.fx.wh)a.body.rotation.x-=R.fx.wh*0.6;
     const p=R.ped;if(R.k==='bike'){a.legL.rotation.x=-0.75+Math.sin(p)*0.45;a.legR.rotation.x=-0.75-Math.sin(p)*0.45;a.shinL.rotation.x=0.9-Math.cos(p)*0.5;a.shinR.rotation.x=0.9+Math.cos(p)*0.5;}
     else if(R.k==='scooter'){a.legL.rotation.x=a.legR.rotation.x=-1.25;a.shinL.rotation.x=a.shinR.rotation.x=1.35;}
-    else{a.legL.rotation.x=a.legR.rotation.x=-1.45;a.shinL.rotation.x=a.shinR.rotation.x=R.k==='car'?0.5:0.25;}
+    else{a.legL.rotation.x=a.legR.rotation.x=-1.45;a.shinL.rotation.x=a.shinR.rotation.x=CK(R.k)?0.5:0.25;}
     const st=R.steer*0.25;a.armL.rotation.x=t0.arm+st;a.armR.rotation.x=t0.arm-st;a.armL.rotation.z=-0.12;a.armR.rotation.z=0.12;if(a.foreL){a.foreL.rotation.x=-0.35;a.foreR.rotation.x=-0.35;}
     if(R.k==='twist'){a.armL.rotation.x=t0.arm+R.steer*0.4;a.armR.rotation.x=t0.arm-R.steer*0.4;}
     if(sup>0.02){a.body.rotation.x=1.25*sup;a.legL.rotation.x=a.legR.rotation.x=0.4*sup;a.shinL.rotation.x=a.shinR.rotation.x=0.1;a.armL.rotation.x=a.armR.rotation.x=-1.2-1.4*sup;a.armL.rotation.z=-0.3;a.armR.rotation.z=0.3;}};   // 超人飛：人飛出去、手往前伸
   // ---------- 鏡頭：在車子後面追（第一人稱＝駕駛座） ----------
   const cv=new V3(),lk=new V3();
   R.camera=dt=>{const t0=R.tn||T[R.k],fx=-Math.sin(R.h),fz=-Math.cos(R.h);
+    if(R.k==='rocket'&&(R.lp||R.lpCam>0)&&RKP){const LP=RKP.LP;cv.set(LP.cx-6,8.5,LP.zc+24);if(!R.camP)R.camP=camera.position.clone();R.camP.lerp(cv,Math.min(1,dt*2.2));camera.position.copy(R.camP);lk.set(R.x,R.y+0.8,R.z);camera.lookAt(lk);return;}   /* 2026-10-24.5 倒吊彎道：鏡頭慢慢移到側面看（使用者容易頭暈：不跟著車子翻、地平線不歪；第一人稱也一樣） */
+    if(R.camSlow>0)R.camSlow-=dt;
     if(view==='first'){const [px,pz]=R.seatPos(),sc=bodyH().scale;camera.position.set(px+fx*0.15,R.y+t0.seat+0.62*sc,pz+fz*0.15);camera.rotation.set(player.pitch*0.5-0.05+R.pitch,R.h,-R.lean*0.6,'YXZ');return;}
-    const d=t0.cam+Math.abs(R.v)*0.08;cv.set(R.x-fx*d,R.y+t0.camH+Math.abs(R.v)*0.02,R.z-fz*d);if(!R.camP||R.camP.distanceTo(cv)>30)R.camP=cv.clone();R.camP.lerp(cv,Math.min(1,dt*5));
+    const d=t0.cam+Math.abs(R.v)*0.08;cv.set(R.x-fx*d,R.y+t0.camH+Math.abs(R.v)*0.02,R.z-fz*d);if(!R.camP||R.camP.distanceTo(cv)>(R.camSlow>0?60:30))R.camP=cv.clone();R.camP.lerp(cv,Math.min(1,dt*(R.camSlow>0?1.5:R.k==='rocket'?5+Math.abs(R.v)*0.16:5)));   /* 火箭跑車 160 km/h 時鏡頭會落後 20 m（車子變很小）→ 越快跟得越緊 */
     R.camP.y=Math.max(R.camP.y,heightAt(R.camP.x,R.camP.z,R.y+3)+0.6);camera.position.copy(R.camP);lk.set(R.x+fx*2,R.y+1.0,R.z+fz*2);camera.lookAt(lk);};
-  R.jump=()=>{if(!R.ground||R.k==='car')return;R.vy=R.k==='bike'?5.2:R.k==='scooter'?4.6:2.6;R.ground=false;AUDIO.sfx('whoosh');};   // 跳（汽車：空白鍵是手煞車、甩尾）
+  R.jump=()=>{if(!R.ground||CK(R.k))return;R.vy=R.k==='bike'?5.2:R.k==='scooter'?4.6:2.6;R.ground=false;AUDIO.sfx('whoosh');};   // 跳（汽車：空白鍵是手煞車、甩尾）
   R.guard=()=>{if(!mvInit){mvInit=true;loadMV();}if(GAME.on&&MV.length)R.homeAll(true);if(GAME.on&&R.lentR)R.unlend();   /* 打怪：停在外面的車先全部回車位 */
     if(R.on&&(GAME.on||DD.on||KF.on||PUSH.on||FISH.on||RS.on||MU.on||CU.on||SB.on||RB.on||NM.on||RACE.on||BALLOON.riding||LIE.on||DECO.sit||SKATE.on||TN.on||BB.on))R.stop(true);};
   return R;})();
+/* ---------------- 火箭試車場（2026-10-24.5 使用者：新聞的飛天跑車「三個階段都做」） ----------------
+   城堡大道南邊的空草地 RKP_R：一大片柏油、入口租車點（RIDE 的 ST）、彈射直線道（起跑黃線往東每 10 m 一條線）；
+   第二階段：倒吊彎道、飛越挑戰（RKP.step 由 RIDE.step 呼叫）；第三階段：天空的圈圈（飛行計時賽）。 */
+const RKP=(()=>{const Z=RKP_R,P={};
+  M.add(groundRect(Z.x0,Z.x1,Z.z0,Z.z1,0.015),MAT.asphalt);M.add(groundRect(316,328,114,Z.z0,0.016),MAT.asphalt);   // 柏油場地＋從城堡大道下來的路
+  for(const [a,b,c,d] of [[Z.x0+1,Z.x1-1,Z.z0+1,Z.z0+1.15],[Z.x0+1,Z.x1-1,Z.z1-1.15,Z.z1-1],[Z.x0+1,Z.x0+1.15,Z.z0+1,Z.z1-1],[Z.x1-1.15,Z.x1-1,Z.z0+1,Z.z1-1]])M.add(groundRect(a,b,c,d,0.022),MAT.line);
+  const RW={x0:305,x1:405,z0:162,z1:172};P.RW=RW;   // 彈射直線道（100 m）
+  for(const z of [RW.z0,RW.z1])M.add(groundRect(RW.x0,RW.x1,z-0.08,z+0.08,0.022),MAT.line);
+  for(let x=RW.x0;x<=RW.x1;x+=10)M.add(groundRect(x-0.12,x+0.12,RW.z0,RW.z1,0.023),x===RW.x0?MAT.yellow:MAT.line);
+  // 入口大招牌（朝北，從城堡大道看得到）
+  {const [c,g]=cvs(1024,256);const gr=g.createLinearGradient(0,0,1024,0);gr.addColorStop(0,'#1b2a4a');gr.addColorStop(1,'#3a1530');g.fillStyle=gr;g.fillRect(0,0,1024,256);g.strokeStyle='#ff9a3a';g.lineWidth=12;g.strokeRect(8,8,1008,240);
+    g.textAlign='center';g.textBaseline='middle';g.fillStyle='#ffd25a';g.font=`900 104px ${FONT}`;g.fillText('🚀 火箭試車場',512,100);g.fillStyle='#fff';g.font=`700 44px ${FONT}`;g.fillText('彈射起步・噴射跳躍・倒吊彎道・飛越挑戰・飛上天',512,196);
+    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const m=new THREE.Mesh(new THREE.PlaneGeometry(8,2),new THREE.MeshBasicMaterial({map:t,toneMapped:false,side:THREE.DoubleSide}));m.position.set(322,5.2,139.6);m.rotation.y=Math.PI;scene.add(m);
+    for(const x of [318.2,325.8]){M.add(mbox(x-0.12,x+0.12,0,4.2,139.48,139.72),MAT.steel);addCircle(x,139.6,0.15,4.2);}}
+  const board=(txt,sub,x,z,ry,col)=>{const [c,g]=cvs(768,256);g.fillStyle=col;g.fillRect(0,0,768,256);g.fillStyle='#fff';g.fillRect(10,10,748,236);g.fillStyle=col;g.textAlign='center';g.textBaseline='middle';g.font=`900 84px ${FONT}`;g.fillText(txt,384,96);g.fillStyle='#333';g.font=`700 40px ${FONT}`;g.fillText(sub,384,190);
+    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const m=new THREE.Mesh(new THREE.PlaneGeometry(4.2,1.4),new THREE.MeshBasicMaterial({map:t,toneMapped:false,side:THREE.DoubleSide}));m.position.set(x,3.2,z);m.rotation.y=ry;scene.add(m);M.add(mbox(x-0.08,x+0.08,0,2.5,z-0.08,z+0.08),MAT.steel);addCircle(x,z,0.12,2.5);};
+  // ---- 第二階段（2026-10-24.5）：倒吊彎道（照新聞：吸地風扇黏在彎道上，一路開到倒過來，衝出去翻身落地）----
+  // 半圈：圓心 (cx, r) 在 z＝zc 的直立平面；車子從 x＝cx 往東開進去，沿著內側爬到頂（倒吊、往西），離開彎道往西飛、翻正落在進場道上。實際的動作在 RIDE 的 loopStep。
+  const LP={cx:372,zc:220,r:8,w:6};P.LP=LP;
+  {const trk=std({color:'#2a2f3a',roughness:0.6,metalness:0.4}),glow=new THREE.MeshBasicMaterial({color:'#5fe6ff',toneMapped:false}),N=30;
+    for(let i=0;i<N;i++){const a0=i/N*Math.PI,a1=(i+1)/N*Math.PI,am=(a0+a1)/2,rr=LP.r+0.18,L=rr*(a1-a0)+0.06;
+      const g=new THREE.BoxGeometry(L,0.36,LP.w);g.rotateZ(am);g.translate(LP.cx+rr*Math.sin(am),LP.r-rr*Math.cos(am),LP.zc);M.add(g,trk);
+      for(const s of [-1,1]){const e=new THREE.BoxGeometry(L,0.5,0.12);e.rotateZ(am);e.translate(LP.cx+(LP.r-0.05)*Math.sin(am),LP.r-(LP.r-0.05)*Math.cos(am),LP.zc+s*(LP.w/2-0.06));M.add(e,glow);}}   // 兩邊發藍光的護欄（吸地風扇的軌道）
+    for(const a of [0.55,0.95,1.35,1.75,2.15,2.55,2.95]){const x=LP.cx+(LP.r+0.36)*Math.sin(a),y=LP.r-(LP.r+0.36)*Math.cos(a);if(y<0.6)continue;   // 撐柱：在軌道兩側外面（車子不會穿過），頂上一根橫梁跨過軌道外側
+      for(const s of [-1,1]){const z=LP.zc+s*(LP.w/2+0.35);M.add(mbox(x-0.16,x+0.16,0,y+0.3,z-0.16,z+0.16),MAT.steel);}
+      const b=new THREE.BoxGeometry(0.3,0.3,LP.w+1.0);b.translate(LP.cx+(LP.r+0.55)*Math.sin(a),LP.r-(LP.r+0.55)*Math.cos(a),LP.zc);M.add(b,MAT.steel);}
+    addBox(LP.cx+2.5,LP.cx+LP.r+0.8,LP.zc-LP.w/2,LP.zc+LP.w/2,2*LP.r+0.6);   /* 不是從入口衝進去（或太慢）就撞到（汽車前面那顆碰撞圓在車頭前 2.4 m，所以從 cx+2.5 開始，進場點 cx−1.6～cx+0.6 才碰得到） */
+    for(let x=322;x<LP.cx-1;x+=6)M.add(groundRect(x,x+2.4,LP.zc-0.15,LP.zc+0.15,0.024),MAT.yellow);   // 進場道中線
+    for(const s of [-1,1])M.add(groundRect(318,LP.cx,LP.zc+s*LP.w/2-0.08,LP.zc+s*LP.w/2+0.08,0.024),MAT.line);
+    board('🌀 倒吊彎道','往東加速衝進去（30 km/h 以上）',336,LP.zc-LP.w/2-1.6,Math.PI/2,'#2f7fd1');}
+  // ---- 第二階段：飛越挑戰（照新聞：跳過一排汽車和一台大卡車）：跳台（0→1.6 m）＋並排 5 台車＋大卡車拖車 ----
+  const JL={z0:253,z1:267,kx0:318,kx1:326,kh:1.6};P.JL=JL;P.OB=[];
+  {const zc=(JL.z0+JL.z1)/2,ramp=std({color:'#d8562c',roughness:0.7});
+    {const g=new THREE.BufferGeometry(),x0=JL.kx0,x1=JL.kx1,h=JL.kh,z0=zc-3,z1=zc+3,v=[x0,0,z0,x1,h,z1,x1,h,z0, x0,0,z0,x0,0,z1,x1,h,z1, x1,0,z0,x1,h,z0,x1,h,z1, x1,0,z0,x1,h,z1,x1,0,z1];   /* 斜面朝上、背面朝東 */g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.computeVertexNormals();
+      const uv=[];for(let i=0;i<v.length/3;i++)uv.push(0,0);g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));M.add(g,ramp);
+      for(const s of [-1,1]){const sg=new THREE.BufferGeometry(),zz=s<0?z0:z1,w=[x0,0,zz,x1,0,zz,x1,h,zz];sg.setAttribute('position',new THREE.Float32BufferAttribute(w,3));sg.computeVertexNormals();sg.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,0,0,0,0],2));M.add(sg,std({color:'#8a3a1e',roughness:0.8,side:THREE.DoubleSide}));}
+      surfaces.push({x0,x1,z0,z1,ramp:true,axis:'x',za:x0,ya:0.03,zb:x1,yb:h});addBox(x1,x1+0.15,z0,z1,h);}
+    const cols=['#2f7fd1','#e8504a','#f5c542','#5cc06a','#9a5cd6'];
+    for(let i=0;i<5;i++){const x=333+i*2.25,o=sportsCar(cols[i]);o.position.set(x,0.03,zc);o.rotation.y=Math.PI/2;o.updateMatrixWorld(true);M.addObject(o);addBox(x-1.0,x+1.0,zc-2.3,zc+2.3,1.25);P.OB.push({x0:x-1.0,x1:x+1.0,top:1.25,n:'car'});}
+    {const x0=345.2,x1=348.0,h=4.0,tr=std({color:'#e8e8e8',roughness:0.6});M.add(mbox(x0,x1,1.1,h,zc-6.5,zc+6.5),tr);M.add(mbox(x0+0.02,x1-0.02,0.5,1.1,zc-6.2,zc+6.2),MAT.black);
+      for(const z of [zc-5.2,zc-3.8,zc+3.8,zc+5.2])for(const x of [x0+0.3,x1-0.3])M.add(cyl(0.5,0.5,0.4,14).clone().rotateZ(Math.PI/2).translate(x,0.5,z),MAT.rubber);
+      {const [c,g]=cvs(512,128);g.fillStyle='#1b6fd1';g.fillRect(0,0,512,128);g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.font=`900 70px ${FONT}`;g.fillText('🚚 大卡車',256,66);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+        for(const s of [-1,1]){const m=new THREE.Mesh(new THREE.PlaneGeometry(6,1.5),new THREE.MeshBasicMaterial({map:t,toneMapped:false}));m.position.set(s<0?x0-0.01:x1+0.01,2.6,zc);m.rotation.y=s<0?-Math.PI/2:Math.PI/2;scene.add(m);}}
+      addBox(x0,x1,zc-6.5,zc+6.5,h);P.OB.push({x0,x1,top:h,n:'truck'});}
+    for(const s of [-1,1])M.add(groundRect(312,395,zc+s*7-0.08,zc+s*7+0.08,0.024),MAT.line);
+    for(let x=352;x<=392;x+=10)M.add(groundRect(x-0.1,x+0.1,zc-7,zc+7,0.024),MAT.line);   // 落地區每 10 m 一條線
+    board('🚗 飛越挑戰','衝上跳台按跳噴射、按住懸停，飛過大卡車',312,JL.z0-1.6,Math.PI/2,'#d8562c');}
+  // ---- 第三階段（2026-10-24.5）：飛行計時賽：天空 10 個圈圈（試車場 → 城堡 → 跳台公園 → 運動場 → 大圓環 → 我家上空 → 夜市 → 回試車場）；租火箭跑車才建、才看得到 ----
+  P.RG=[[352,22,232],[300,34,124],[298,42,52],[200,32,44],[110,28,52],[40,30,100],[-16,34,80],[6,26,2],[90,36,150],[240,30,200],[350,18,262]].map(([x,y,z])=>({x,y,z}));
+  let rg=null,arrow=null;const rgM=new THREE.MeshBasicMaterial({color:'#5fe6ff',transparent:true,opacity:0.45,toneMapped:false}),rgHi=new THREE.MeshBasicMaterial({color:'#ffd23a',toneMapped:false});
+  P.rings=(on,next)=>{if(!on&&!rg)return;if(!rg){const tg=new THREE.TorusGeometry(5,0.35,8,28);rg=P.RG.map((p,i)=>{const m=new THREE.Mesh(tg,rgM);m.position.set(p.x,p.y,p.z);const q=P.RG[Math.min(P.RG.length-1,i+1)],o=P.RG[Math.max(0,i-1)];m.lookAt(q.x-o.x+p.x,p.y,q.z-o.z+p.z);m.userData.noCull=true;scene.add(m);return m;});   /* 圈圈面向飛行方向 */
+      const ag=new THREE.ConeGeometry(0.3,1.1,12);ag.rotateX(Math.PI/2);arrow=new THREE.Mesh(ag,new THREE.MeshBasicMaterial({color:'#ffd23a',transparent:true,opacity:0.7,toneMapped:false}));arrow.userData.noCull=true;arrow.visible=false;scene.add(arrow);}
+    rg.forEach((m,i)=>{m.visible=on;m.material=i===next?rgHi:rgM;m.scale.setScalar(i===next?1.15:1);});if(!on)arrow.visible=false;};
+  // 指路箭頭：只有飛行中、計時賽中才出現（2026-10-24.6 實測：在地上開車時從車後面看是一個大黃圓，擋住畫面中間）
+  P.arrow=(show,x,y,z,tx,ty,tz)=>{if(!arrow)return;arrow.visible=!!show;if(!show)return;arrow.position.set(x,y,z);arrow.lookAt(tx,ty,tz);};
+  return P;})();
 /* ---------------- 雲霧山山路（2026-10-21.9 使用者：「最好再弄一個山路，體驗一下飆車」——名字用原創的「雲霧山」） ----------------
    位置：城堡大道一直往東開到底（x 470），山在 x 440～1000、z 40～640。盤山公路：五段來回＋四個髮夾彎，一路爬到山頂停車場（約 105 m 高），全長約 1.6 km。
    高度照「沿路走了多遠」平均往上（坡度約 6%），山的地形從路面往兩邊斜下去（上坡那邊切出路肩）；山頂有一座尖山。
@@ -2979,7 +3124,7 @@ var MOUNT=(()=>{
     if(k==='bike'){A.legL.rotation.x=-0.75+Math.sin(p)*0.45;A.legR.rotation.x=-0.75-Math.sin(p)*0.45;A.shinL.rotation.x=0.9-Math.cos(p)*0.5;A.shinR.rotation.x=0.9+Math.cos(p)*0.5;}
     else{A.legL.rotation.x=A.legR.rotation.x=-1.25;A.shinL.rotation.x=A.shinR.rotation.x=1.35;}
     A.armL.rotation.x=t0.arm;A.armR.rotation.x=t0.arm;A.armL.rotation.z=-0.12;A.armR.rotation.z=0.12;if(A.foreL){A.foreL.rotation.x=-0.35;A.foreR.rotation.x=-0.35;}}
-  C.raceOK=R=>{if(race||!R.on||R.k==='twist'||!R.ground||Math.abs(R.v)>2)return null;const n=near(R.x,R.z);if(!n||n.d>C.W)return null;if(n.i<=IF+3)return 'up';if(n.i>=IT-3)return 'down';return null;};
+  C.raceOK=R=>{if(race||!R.on||R.k==='twist'||R.k==='rocket'||!R.ground   /* 2026-10-24.6 實測：火箭跑車按「比賽」會出錯（電腦對手沒有火箭跑車），而且會飛不公平 → 不能比 */||Math.abs(R.v)>2)return null;const n=near(R.x,R.z);if(!n||n.d>C.W)return null;if(n.i<=IF+3)return 'up';if(n.i>=IT-3)return 'down';return null;};
   C.raceStart=R=>{const dir=C.raceOK(R);if(!dir)return;const up=dir==='up',s0=(up?1:P.length-3)*STEP,q=at(s0,{}),fx=up?q.tx:-q.tx,fz=up?q.tz:-q.tz,h=Math.atan2(-fx,-fz);
     run=null;R.x=q.x;R.z=q.z;R.y=q.y;R.h=R.vh=h;R.v=0;R.steer=0;R.camP=null;   /* 你在中間，電腦在左右兩邊 */
     race={dir,k:R.k,st:'count',cd:0,t:0,ais:[],fin:[],place:1,lastN:0,bumpT:0};
@@ -7229,12 +7374,13 @@ const NM=(()=>{
     c.fillStyle=q?'#e8a000':x?'#7a4fd8':g.v>=0?(g.green?'#1fae55':'#1f8fd8'):'#d8262c';c.fillRect(0,0,W2,H2);c.strokeStyle='#fff';c.lineWidth=7;c.strokeRect(3.5,3.5,W2-7,H2-7);
     const t=q?'❓ ×2／歸零':x?`×${g.v}`:(g.lock?'🔒 ':'')+(g.v>=0?'+':'')+g.v+(g.small?'':' 人'),px=Math.min(H2*0.72,W2*0.9/Math.max(1.6,t.length*0.62));c.font=`900 ${px}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=px*0.14;c.strokeStyle='rgba(0,0,0,.7)';c.strokeText(t,W2/2,H2*0.54);c.fillStyle='#fff';c.fillText(t,W2/2,H2*0.54);g.tex.needsUpdate=true;
     if(g.panel)g.panel.material=AGPAN[panKey(g)];}
-  const ATL=(()=>{const [c,g]=cvs(2048,2048),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;let drawn=false;
+  // 2026-10-24.7 這張大圖（128 個「+數字」牌子排在一起，16 MB）以前一開網頁就建；改成第一次玩大軍團（init）才放大成 2048×2048 畫上去
+  const ATL=(()=>{const [c,g]=cvs(1,1),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;let drawn=false;
     const mat=new THREE.MeshBasicMaterial({map:tex,toneMapped:false,side:THREE.DoubleSide});
     mat.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>'+String.fromCharCode(10)+'attribute vec2 uvOff;').replace('#include <uv_vertex>',['#include <uv_vertex>','#ifdef USE_MAP','vMapUv=vMapUv*vec2(0.125,0.0625)+uvOff;','#endif'].join(String.fromCharCode(10)));};   /* 每塊牌子取大圖裡自己那一格 */
     const geo=new THREE.PlaneGeometry(1.6,0.8).rotateY(-Math.PI/2),UO=new THREE.InstancedBufferAttribute(new Float32Array(300*2),2);geo.setAttribute('uvOff',UO);
     const m=im(geo,mat,300);m.frustumCulled=false;const post=im(new THREE.BoxGeometry(0.12,1.6,0.12),AGPOST,600);post.frustumCulled=false;
-    return {m,post,UO,init(){if(drawn)return;drawn=true;for(let v=0;v<128;v++){const col=v%8,row=Math.floor(v/8);g.save();g.translate(col*256,row*128);agDraw({ctx:g,tex,cw:256,ch:128,sc:1,op:'+',v,noClear:true,green:true});g.restore();}tex.needsUpdate=true;}};})();
+    return {m,post,UO,init(){if(drawn)return;drawn=true;c.width=c.height=2048;tex.dispose();for(let v=0;v<128;v++){const col=v%8,row=Math.floor(v/8);g.save();g.translate(col*256,row*128);agDraw({ctx:g,tex,cw:256,ch:128,sc:1,op:'+',v,noClear:true,green:true});g.restore();}tex.needsUpdate=true;}};})();
   function smallTex(v){const k='+'+v;if(AGS.small[k])return AGS.small[k];const [c,ctx]=cvs(256,128),tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;
     agDraw({ctx,tex,cw:256,ch:128,sc:1,op:'+',v});return AGS.small[k]=new THREE.MeshBasicMaterial({map:tex,toneMapped:false,side:THREE.DoubleSide});}
   function aGate(x,z0,z1,op,v,small){if(small){const g={x,z0,z1,op,v:Math.min(127,v),acc:0,used:false,small:true,fade:0,sc:1};A.gates.push(g);return g;}   /* 小牌子不做 mesh，在 armyDraw 一次畫完 */
@@ -14066,19 +14212,56 @@ function dcull(dt){if(!DCULL.on)return;DCULL.clock=(DCULL.clock||0)+dt;DCULL.t-=
 const EVICT={last:0,tex:0,geo:0,shr:0,shrMB:0,lastS:-99};
 // 另外：重複鋪的材質圖（牆、地板、磚、木紋…用程式畫的 canvas，wrap＝Repeat、建好後沒再更新過）在手機上量到 199 張、115 MB（canvas 本身那份，顯示記憶體還要再一份）；
 // 手機、平板把 512×256 以上的這種圖縮成一半（面積 1/4），原本的 canvas 沒人用就會被回收；有更新過的（version>1）、不是 Repeat 的（招牌、字、會再畫的）都不動。
-const SHRUNK=new WeakSet(),SHRC=new WeakMap();
+const SHRUNK=new WeakSet(),SHRC=new WeakMap(),SHR2=new WeakSet();   /* SHR2＝縮好的那張（共用 source 的另一個 Texture 不要再縮一次） */
 function lowmemShrink(){if(!LOWMEM||DCULL.clock-EVICT.lastS<10)return;EVICT.lastS=DCULL.clock;
   scene.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms)for(const k in m){const v=m[k];if(!v||!v.isTexture||SHRUNK.has(v))continue;SHRUNK.add(v);const c=v.image;
-    if(!c||c.tagName!=='CANVAS'||v.version!==1||v.wrapS!==THREE.RepeatWrapping||c.width*c.height<512*256)continue;
-    let c2=SHRC.get(c);if(!c2){c2=document.createElement('canvas');c2.width=Math.max(1,c.width>>1);c2.height=Math.max(1,c.height>>1);c2.getContext('2d').drawImage(c,0,0,c2.width,c2.height);SHRC.set(c,c2);EVICT.shrMB+=(c.width*c.height-c2.width*c2.height)*4/1048576;}
+    if(!c||c.tagName!=='CANVAS'||SHR2.has(c)||v.version!==1||v.wrapS!==THREE.RepeatWrapping||c.width*c.height<512*256)continue;
+    let c2=SHRC.get(c);if(!c2){c2=document.createElement('canvas');c2.width=Math.max(1,c.width>>1);c2.height=Math.max(1,c.height>>1);c2.getContext('2d').drawImage(c,0,0,c2.width,c2.height);SHRC.set(c,c2);SHR2.add(c2);EVICT.shrMB+=(c.width*c.height-c2.width*c2.height)*4/1048576;}
     v.image=c2;v.version++;v.source.needsUpdate=true;EVICT.shr++;
     if(window.WeakRef){const wr=new WeakRef(c);Object.defineProperty(v,'needsUpdate',{configurable:true,set(x){if(x!==true)return;const o0=wr.deref();if(o0&&this.image!==o0)this.image=o0;this.version++;this.source.needsUpdate=true;}});}}});}   /* 保險：之後程式又畫了原本的 canvas（設 needsUpdate）→ 換回原本的大圖 */
-function gpuEvict(){lowmemShrink();if(!LOWMEM||DCULL.clock-EVICT.last<4)return;EVICT.last=DCULL.clock;if(DD.on||KF.on||!started)return;
+// 2026-10-24.7 超省記憶體（手機、平板自動，看不出差別的部分）：程式畫的圖（canvas）送進顯示晶片以後，手機記憶體裡還留著一份（量到 466 張、219 MB）。
+// 改：30 秒沒再更新、256×256 以上的 canvas（還沒上傳的也一樣，之後上傳直接用 PNG） → 存成 PNG（壓縮過、小很多），canvas 縮成 1×1，放掉那份記憶體。
+// 要用到原圖時自動接回來：three.js 重新上傳（gpuEvict 釋放後走回來、換貼圖上限）、別的 canvas drawImage／createPattern 它 → 直接改用 PNG；
+// 程式又要在它上面畫（呼叫它的任何 2D 方法、改大小、toDataURL）→ 先放回原本大小、把 PNG 畫回去、畫筆設定（字型、顏色、變形、虛線）照舊，再畫。接回來兩次的不再放。
+// 另外：同一張 canvas 做了兩個 Texture（map、emissiveMap 各 tex(c) 一次）會上傳兩份 → 改成共用同一個 source。
+const CREL={map:new WeakMap(),seen:new WeakMap(),no:new WeakSet(),bk:new WeakMap(),busy:false,last:-99,scan:-99,list:[],n:0,mb:0,back:0,merged:0};
+if(LOWMEM){const P2=CanvasRenderingContext2D.prototype,D=Object.getOwnPropertyDescriptor,HC=HTMLCanvasElement.prototype;
+  CREL.dI=P2.drawImage;CREL.cP=P2.createPattern;CREL.setW=D(HC,'width').set;CREL.setH=D(HC,'height').set;
+  CREL.meth=Object.getOwnPropertyNames(P2).filter(k=>k!=='constructor'&&typeof D(P2,k).value==='function');
+  CREL.props=['fillStyle','strokeStyle','lineWidth','lineCap','lineJoin','miterLimit','lineDashOffset','font','textAlign','textBaseline','direction','globalAlpha','globalCompositeOperation','imageSmoothingEnabled','imageSmoothingQuality','shadowBlur','shadowColor','shadowOffsetX','shadowOffsetY','filter','letterSpacing','wordSpacing','fontKerning'].filter(k=>k in P2);
+  const sub=a=>{const r=a&&CREL.map.get(a);return r?r.img:a;};
+  P2.drawImage=function(s,...a){return CREL.dI.call(this,sub(s),...a);};
+  P2.createPattern=function(s,rep){return CREL.cP.call(this,sub(s),rep);};
+  for(const GL of [window.WebGL2RenderingContext,window.WebGLRenderingContext])if(GL)for(const k of ['texImage2D','texSubImage2D']){const f=GL.prototype[k];GL.prototype[k]=function(...a){const i=a.length-1;if(a[i]&&a[i].tagName==='CANVAS')a[i]=sub(a[i]);return f.apply(this,a);};}}
+function crState(g){const P2=CanvasRenderingContext2D.prototype,s={};for(const k of CREL.props)s[k]=g[k];if(P2.getTransform)s.tf=P2.getTransform.call(g);s.ld=P2.getLineDash.call(g);return s;}
+function crApply(g,s){const P2=CanvasRenderingContext2D.prototype;for(const k of CREL.props)try{g[k]=s[k];}catch(_){}if(s.tf)P2.setTransform.call(g,s.tf);P2.setLineDash.call(g,s.ld);}
+function crRelease(c,img){const g=c.getContext('2d');if(!g)return;const r={c,g,img,W:c.width,H:c.height},s=crState(g);
+  CREL.setW.call(c,1);CREL.setH.call(c,1);crApply(g,s);CREL.map.set(c,r);CREL.n++;CREL.mb+=r.W*r.H*4/1048576;
+  for(const k of CREL.meth)g[k]=function(...a){crBack(r);return CanvasRenderingContext2D.prototype[k].apply(this,a);};
+  for(const [k,i] of [['width','W'],['height','H']])Object.defineProperty(c,k,{configurable:true,get:()=>r[i],set(v){crBack(r);c[k]=v;}});
+  for(const k of ['toDataURL','toBlob'])c[k]=function(...a){crBack(r);return HTMLCanvasElement.prototype[k].apply(this,a);};}
+function crBack(r){const {c,g}=r;if(CREL.map.get(c)!==r)return;CREL.map.delete(c);
+  for(const k of CREL.meth)delete g[k];for(const k of ['width','height','toDataURL','toBlob'])delete c[k];
+  const s=crState(g);CREL.setW.call(c,r.W);CREL.setH.call(c,r.H);CREL.dI.call(g,r.img,0,0);crApply(g,s);URL.revokeObjectURL(r.img.src);
+  CREL.n--;CREL.mb-=r.W*r.H*4/1048576;CREL.back++;const b=(CREL.bk.get(c)||0)+1;CREL.bk.set(c,b);if(b>=2)CREL.no.add(c);}
+function canvasRelease(){if(!LOWMEM||CREL.busy||!started||DCULL.clock-CREL.last<1)return;const now=CREL.last=DCULL.clock;
+  if(now-CREL.scan>=10){CREL.scan=now;const L=CREL.list,byC=new Map(),done=new Set();L.length=0;
+    scene.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms)for(const k in m){const v=m[k];if(!v||!v.isTexture||done.has(v)||v.isRenderTargetTexture||v.isVideoTexture)continue;done.add(v);const c=v.image;if(!c||c.tagName!=='CANVAS')continue;
+      const f=byC.get(c);if(!f)byC.set(c,v);else if(f!==v&&f.source!==v.source){v.source=f.source;if(renderer.properties.get(v).__webglTexture)v.dispose();CREL.merged++;}
+      if(CREL.map.has(c)||CREL.no.has(c)||c.isConnected)continue;
+      const s=CREL.seen.get(v);if(!s||s.v!==v.version){CREL.seen.set(v,{v:v.version,t:now});continue;}
+      if(now-s.t>=30&&c.width*c.height>=65536)L.push(v);}});}
+  let v;while((v=CREL.list.pop())){const c=v.image,s=CREL.seen.get(v);if(c&&c.tagName==='CANVAS'&&!CREL.map.has(c)&&s&&s.v===v.version)break;}
+  if(!v)return;const c=v.image,ver=v.version;CREL.busy=true;
+  const fail=()=>{CREL.busy=false;CREL.no.add(c);};
+  try{c.toBlob(b=>{if(!b)return fail();const img=new Image();img.onerror=()=>{URL.revokeObjectURL(img.src);fail();};
+    img.onload=()=>{CREL.busy=false;if(v.version!==ver||v.image!==c||CREL.map.has(c)||c.isConnected){URL.revokeObjectURL(img.src);return;}crRelease(c,img);};img.src=URL.createObjectURL(b);},'image/png');}catch(_){fail();}}
+function gpuEvict(){lowmemShrink();canvasRelease();if(!LOWMEM||DCULL.clock-EVICT.last<4)return;EVICT.last=DCULL.clock;if(DD.on||KF.on||!started)return;
   const now=DCULL.clock,old=[];for(const o of DCULL.list)if(o.layers.mask===2&&!o.userData.ev&&o.userData.ht&&now-o.userData.ht>25)old.push(o);if(!old.length)return;
   const use=new Set();scene.traverseVisible(o=>{if(!(o.layers.mask&1))return;if(o.geometry)use.add(o.geometry);const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms)for(const k in m){const v=m[k];if(v&&v.isTexture)use.add(v);}});
   for(const o of old){o.userData.ev=1;const g=o.geometry;if(g&&!use.has(g)&&!g.userData.keep){g.dispose();EVICT.geo++;}
     const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms)for(const k in m){const v=m[k];if(!v||!v.isTexture||use.has(v)||v.isRenderTargetTexture||v.isVideoTexture||!v.image)continue;const p=renderer.properties.get(v);if(p&&p.__webglTexture){v.dispose();EVICT.tex++;}}}}
-const sun=new THREE.DirectionalLight('#fff4e5',3);sun.castShadow=true;sun.shadow.camera.layers.enable(1);   /* 距離隱藏的東西照樣有影子（見 dcull） */
+const sun=new THREE.DirectionalLight('#fff4e5',3);sun.castShadow=!ULM.on;sun.shadow.camera.layers.enable(1);   /* 距離隱藏的東西照樣有影子（見 dcull） */
 sun.shadow.mapSize.set(LOWMEM?2048:4096,LOWMEM?2048:4096);const sc=sun.shadow.camera;sc.left=-75;sc.right=75;sc.top=75;sc.bottom=-75;sc.near=1;sc.far=500;sc.updateProjectionMatrix();
 sun.shadow.bias=-0.0003;sun.shadow.normalBias=0.04;
 scene.add(sun);scene.add(sun.target);
@@ -14959,6 +15142,7 @@ const SPOTS=[
   {name:'4F 露台',x:4.0,z:-1.5,yaw:0,y:FL[3]},
   {name:'頂樓',x:3.6,z:-6.5,yaw:Math.PI,y:FL[4]},
   {name:'城堡豪宅',x:298,z:97,yaw:0},   /* 2026-10-21.2 */
+  {name:'火箭試車場',x:321,z:151.6,yaw:Math.PI},   /* 2026-10-24.5（10-24.6 實測：原本離租車站 4.5 m，看不到「租」的按鈕 → 站在租車站前面、面向它） */
   {name:'雲霧山（山腳）',x:448,z:110.5,yaw:-Math.PI/2},{name:'雲霧山（山頂）',x:MOUNT.LOT.x,z:MOUNT.LOT.z,yaw:Math.PI,y:MOUNT.TOP},   /* 2026-10-21.9 */
   {name:'隔壁新家（擺傢俱）',x:3.0+UW,z:-4.0,yaw:0},   /* 2026-10-20.11 往東第 1 戶 */
   {name:'後陽台',x:3.6,z:-13.0,yaw:-Math.PI/2},
@@ -15187,6 +15371,7 @@ function updatePlace(){
   const room=mode==='walk'&&!BALLOON.riding?roomAt(x,z,player.y):null;
   if(BALLOON.riding)t=['熱氣球',`高度 ${Math.max(0,Math.round(BALLOON.alt))} m`];
   else if(MOUNT&&x>MOUNT.x0&&x<MOUNT.x1&&z>MOUNT.z0&&z<MOUNT.z1&&player.y>0.6){const n=MOUNT.near(x,z),top=Math.hypot(x-MOUNT.LOT.x,z-MOUNT.LOT.z)<MOUNT.LOT.r+4;const dk=MOUNT.DK,deck=x>dk.x0-0.5&&x<dk.x1&&z>dk.z0-0.5&&z<dk.z1+0.5;t=['雲霧山',deck?'觀景台':top?'山頂停車場':n&&n.d<MOUNT.W?`山路 ${Math.round(player.y)} m`:'山坡'];}   /* 2026-10-21.9 */
+  else if(inR(x,z,RKP_R)&&!room)t=['火箭試車場',RIDE.on&&RIDE.k==='rocket'?(RIDE.fly?'飛行中':'彈射、噴射跳躍、倒吊彎道、飛越挑戰'):'入口租火箭跑車（80 元）'];   /* 2026-10-24.5 */
   else if(room)t=[room.house===2?`城堡豪宅 ${room.fl}`:room.house?`鄰居（往東第 1 戶）${room.f+1}F`:`我家 ${room.f+1}F`,room.name];
   else if(mode==='walk'&&player.y>=FL[4]-0.3&&x>HX0&&x<XN&&z<Z_4F&&z>Z_4B)t=['我家','屋頂（水塔）'];
   else if(mode==='walk'&&player.y>=FL[3]-0.3&&x>=XN&&x<ROW_X1&&z<0.1&&z>Z_BACK){const n=Math.floor((x-X0)/UW);t=[`鄰居（往東第 ${n} 戶）`,player.y>=FL[4]-0.3?'屋頂':z>Z_4F?'4F 露台':'4F 後陽台'];}
@@ -17067,6 +17252,14 @@ const GAME=(()=>{
 /* ---------------- 省電模式 ---------------- */
 {const cb=document.getElementById('eco');cb.checked=POWER.save;
  cb.onchange=()=>{POWER.save=cb.checked;try{localStorage.setItem('home-eco',POWER.save?'1':'0');}catch(_){}renderer.setPixelRatio(pixelRatio());fitView(true);toast(POWER.save?'省電模式：解析度降低、每秒 30 張':'一般畫質');};}
+/* 超省記憶體：馬上套用。影子關＝釋放陰影圖；貼圖上限改了以後，超過 512 的貼圖釋放掉，下一格 three.js 照新的上限重新上傳 */
+{const cb=document.getElementById('ulm');cb.checked=ULM.on;
+ cb.onchange=()=>{ULM.on=cb.checked;try{localStorage.setItem('home-ulm',ULM.on?'1':'0');}catch(_){}
+  sun.castShadow=!ULM.on;if(ULM.on&&sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}renderer.shadowMap.needsUpdate=true;
+  renderer.capabilities.maxTextureSize=ULM.on?Math.min(ULM.max0,512):LOWMEM?Math.min(ULM.max0,1024):ULM.max0;
+  const done=new Set();scene.traverse(o=>{const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];for(const m of ms)for(const k in m){const v=m[k];if(!v||!v.isTexture||done.has(v)||v.isRenderTargetTexture||v.isVideoTexture||!v.image)continue;done.add(v);
+   if(Math.max(v.image.width||0,v.image.height||0)>512&&renderer.properties.get(v).__webglTexture)v.dispose();}});
+  toast(ULM.on?'超省記憶體：沒有影子、圖片糊一點':'超省記憶體關掉：影子、清楚的圖片回來了');};}
 
 /* ---------------- 全螢幕、上一頁 ---------------- */
 // 全螢幕：手機橫向時把網址列藏起來（iPhone Safari 不支援，請用「加入主畫面」從主畫面打開）
@@ -17309,7 +17502,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     {const H=BB.port&&BB.port();if(H)s.hp=[r3(H.x),r3(H.z),H.dir];}   /* 隨身籃框（變出來之後一直留在原地） */
     {const M=BB.mate&&BB.mate();if(M&&M.root.visible){const o=M.root;s.mt=[r3(o.position.x),r3(o.position.y),r3(o.position.z),r3(o.rotation.y),r3(M.body.position.y),...[M.armL,M.armR,M.legL,M.legR].flatMap(g=>[r3(g.rotation.x),r3(g.rotation.y),r3(g.rotation.z)])];}}   /* 隊友 23 號 */
     if(EMOTE.on)s.em=EMOTE.on.k;
-    {const g=PAX.on?PAX.tag():RS.tag()?RS.tag():TN.on?(TN.net?'🎾 網球對打':'🎾 打網球'):RACE.on?(RACE.net?'🏎️ 一起賽車':RACE.sk8?'🛼 直排輪比賽':'🏎️ 賽車'):RIDE.on?`${RIDE.T[RIDE.k].e} ${RIDE.k==='car'?'開':'騎'}${RIDE.T[RIDE.k].n}`:SB.on?(SB.net?'⛹️ 一起鬥牛':'⛹️ 街頭鬥牛'):CU.on?(CU.coop?'🎓 合作打怪':'🎓 校園大逃亡'):DD.on?(N.vs&&N.vs.go?'💃 一起跳舞':'💃 跳舞機'):KF.on?(KF.net?'🥋 一起快打':'🥋 武道快打'):FISH.on?'🐟 撈魚機':PUSH.on?'🪙 推幣機':MU.on?'🎵 音樂教室':GAME.on?'🧟 打殭屍':NM.on?'🎯 夜市套圈':RB.on?'🤖 機器人擂台':BB.ft?'🏀 罰球大賽':'';if(g)s.g=g;}   /* 在玩什麼遊戲（別人頭上看得到、也不會被惡作劇打擾） */   /* 動作（月球漫步的帽子、Bye Bye Bye 的忍者裝） */
+    {const g=PAX.on?PAX.tag():RS.tag()?RS.tag():TN.on?(TN.net?'🎾 網球對打':'🎾 打網球'):RACE.on?(RACE.net?'🏎️ 一起賽車':RACE.sk8?'🛼 直排輪比賽':'🏎️ 賽車'):RIDE.on?`${RIDE.T[RIDE.k].e} ${RIDE.k==='car'||RIDE.k==='rocket'?'開':'騎'}${RIDE.T[RIDE.k].n}`:SB.on?(SB.net?'⛹️ 一起鬥牛':'⛹️ 街頭鬥牛'):CU.on?(CU.coop?'🎓 合作打怪':'🎓 校園大逃亡'):DD.on?(N.vs&&N.vs.go?'💃 一起跳舞':'💃 跳舞機'):KF.on?(KF.net?'🥋 一起快打':'🥋 武道快打'):FISH.on?'🐟 撈魚機':PUSH.on?'🪙 推幣機':MU.on?'🎵 音樂教室':GAME.on?'🧟 打殭屍':NM.on?'🎯 夜市套圈':RB.on?'🤖 機器人擂台':BB.ft?'🏀 罰球大賽':'';if(g)s.g=g;}   /* 在玩什麼遊戲（別人頭上看得到、也不會被惡作劇打擾） */   /* 動作（月球漫步的帽子、Bye Bye Bye 的忍者裝） */
     return s;}   /* 第一人稱時自己的人物是藏起來的，對方照樣要看得到 */
   const tv=new V3(),lastP={x:0,z:0,t:0},lastB={x:0,y:0,z:0,t:0,ok:false};
   const HN=['relax','relax'];{const h0=avatar.hand;avatar.hand=(side,name)=>{HN[side>0?1:0]=name;h0(side,name);};}   /* 記住手勢（比讚、比 YA…）傳給對方 */
@@ -17324,7 +17517,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     for(const H of [A.handL,A.handR]){const g=H&&H.g;if(g)g.rotation.set(LA(g.rotation.x,a[i]),LA(g.rotation.y,a[i+1]),LA(g.rotation.z,a[i+2]));i+=3;}
     const h=s.h||[];if(h[0]!==R.h0){R.h0=h[0];A.hand(-1,h[0]||'relax');}if(h[1]!==R.h1){R.h1=h[1];A.hand(1,h[1]||'relax');}
     if(s.rd){const [k,x,y,z,h,ln,pt,v,mi]=s.rd,key=k+(mi>=0?'#'+mi:'');if(!R.rd||R.rd.k!==key){if(R.rd)scene.remove(R.rd.o);const m=mi>=0&&NB_CARS[mi]?mkCar(NB_CARS[mi]):RIDE.modelOf(k);m.rotation.order='YXZ';m.traverse(c=>{c.userData.noCull=true;});scene.add(m);R.rd={k:key,o:m,wh:m.userData.wh||[]};}   /* 別人騎的車（開鄰居的車：mi＝第幾款，畫一樣的車） */
-      const m=R.rd.o;m.position.set(L(m.position.x,x+vx*age),L(m.position.y,y+0.03),L(m.position.z,z+vz*age));m.rotation.set(LA(m.rotation.x,ln),LA(m.rotation.y,h+Math.PI/2),LA(m.rotation.z,pt));for(const w of R.rd.wh)w.rotation.z-=v*dt/(k==='bike'?0.33:k==='twist'?0.06:0.3);m.visible=o.visible;}
+      const m=R.rd.o;m.position.set(L(m.position.x,x+vx*age),L(m.position.y,y+0.03),L(m.position.z,z+vz*age));m.rotation.set(LA(m.rotation.x,ln),LA(m.rotation.y,h+Math.PI/2),LA(m.rotation.z,pt));for(const w of R.rd.wh)w.rotation.z-=v*dt/(k==='bike'?0.33:k==='twist'?0.06:0.3);m.visible=o.visible;if(k==='rocket'){const fl=s.rd[9]|0;rocketFlame(m,Math.floor(fl/10)/9,(fl%10)/9);}}   /* 朋友的火箭跑車也看得到噴火 */
     else if(R.rd){scene.remove(R.rd.o);R.rd=null;}
     const dk=!!s.dk;if(dk!==R.dk){R.dk=dk;A.setMorph(dk);if(q.cfg)A.dress(q.cfg);A.root.traverse(x=>{x.userData.noCull=true;});R.h0=R.h1=null;}   /* 變身死亡騎士 */
     // 熱氣球：第一次用到才複製一份（不要標籤）
@@ -17800,7 +17993,7 @@ var PAX=(()=>{
   // ---- 座位（車子本地座標：車頭 +x、右邊 +z；y＝坐的高度，跟 RIDE 的 seat 一樣；st＝站著、str＝跨坐） ----
   const F4=s=>[{x:-0.25,z:0.4,y:s,front:1,n:'副駕'},{x:-1.0,z:-0.42,y:s+0.04,n:'後座左'},{x:-1.0,z:0.42,y:s+0.04,n:'後座右'}];
   function seatsOf(k,mi){if(k==='bike')return [{x:-0.62,z:0,y:0.72,str:1,n:'後座'}];if(k==='scooter')return [{x:-0.62,z:0,y:0.9,str:1,n:'後座'}];
-    if(k==='twist')return [{x:-0.4,z:0,y:0.42,str:1,n:'後面'}];if(k!=='car')return [];   /* 2026-10-24.1 使用者選「連線座位變多」：扭扭車也能載 1 人、租的車和路邊的車坐 4 人 */
+    if(k==='twist')return [{x:-0.4,z:0,y:0.42,str:1,n:'後面'}];if(k==='rocket')return [{x:-0.35,z:0.38,y:0.36,front:1,n:'副駕'}];if(k!=='car')return [];   /* 2026-10-24.5 火箭跑車：雙座 */   /* 2026-10-24.1 使用者選「連線座位變多」：扭扭車也能載 1 人、租的車和路邊的車坐 4 人 */
     const S=mi>=0&&NB_CARS[mi];if(!S)return F4(0.5);const s=(S.tune&&S.tune.seat)||0.4;
     if(mi===4||mi===5)return [{x:-0.25,z:0.4,y:s,front:1,n:'副駕'}];   /* 跑車：只有副駕 */
     if(mi===7)return [{x:-0.25,z:0.42,y:s,front:1,n:'副駕'},{x:-1.55,z:-0.45,y:1.24,st:1,n:'貨斗左'},{x:-1.55,z:0.45,y:1.24,st:1,n:'貨斗右'}];   /* 皮卡：站在貨斗 */
@@ -18150,7 +18343,7 @@ NM.applyPrizes();
 function warmNow(){const hid=[],lay=[];scene.traverse(o=>{if(!o.visible&&!o.isLight){hid.push(o);o.visible=true;}if(o.isMesh&&o.layers.mask===2){lay.push(o);o.layers.set(0);}});
   try{renderer.compile(scene,camera);}catch(_){}for(const o of hid)o.visible=false;for(const o of lay)o.layers.set(1);}
 for(const [obj,fn] of [[NM,'start'],[NM,'startArmy'],[SB,'start'],[KF,'start'],[RB,'start'],[RACE,'pick'],[GAME,'start'],[TN,'start'],[BB,'start'],[MU,'start']]){const f=obj[fn];if(typeof f!=='function')continue;obj[fn]=(...a)=>{const r=f(...a);try{warmNow();}catch(_){}return r;};}
-window.__dbg={PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+window.__dbg={CREL,EVICT,ULM,sun,PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
