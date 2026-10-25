@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-25.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-25.4"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14197,13 +14197,18 @@ const sky=new Sky();sky.scale.setScalar(2500);scene.add(sky);
 const su=sky.material.uniforms;su.turbidity.value=5.5;su.rayleigh.value=1.4;su.mieCoefficient.value=0.005;su.mieDirectionalG.value=0.8;
 // 效能（使用者問：其他遊戲效能）：依距離不畫小東西。每 0.25 秒看一次，物件越小、離鏡頭越遠就移到圖層 1（鏡頭只看圖層 0；不動 visible，遊戲自己的顯示／隱藏照舊）
 // 0.3 m 的小東西約 70 m 外、1 m 約 100 m、3 m 約 190 m、8 m 約 415 m 外才不畫；霧很濃（300 m 外大多看不到），看起來差不多。物件可以設 userData.noCull 不參加
-const DCULL={t:0,list:[],rt:0,v:new THREE.Vector3(),on:true};
+const DCULL={t:0,list:[],rt:0,v:new THREE.Vector3(),on:true,hbMax:LOWMEM?1:2};   /* hbMax：飛高時最多推遠幾倍（手機 2 倍、電腦 3 倍） */
 function dcull(dt){if(!DCULL.on)return;DCULL.clock=(DCULL.clock||0)+dt;DCULL.t-=dt;DCULL.rt-=dt;if(DCULL.t>0)return;DCULL.t=0.25;
   if(DCULL.rt<=0){DCULL.rt=2;DCULL.list.length=0;scene.traverse(o=>{if(o.isMesh&&!o.isInstancedMesh&&!o.isSkinnedMesh&&o.geometry&&!o.userData.noCull)DCULL.list.push(o);});}
-  const cp=camera.position,v=DCULL.v,far=(mode==='aerial'?1.8:1)*(LOWMEM?0.75:1);   /* 2026-10-23.2 手機、平板：遠處小東西早一點不畫 */
+  // 2026-10-25.3 使用者：「飛天車飛在天空的時候，地面都會一閃一閃」→ 量到飛在 45 m 高、5 秒內有 454 次「畫面上看得到、大於 3 像素」的東西突然出現／消失：
+  // 走路時切換點在遠處、一秒才碰到幾個；飛在半空又快（160 km/h）又從上往下看一大片地面，切換點就落在看得很清楚的地上（霧 FogExp2 0.004，75 m 只淡 9%）。
+  // 改：鏡頭離地越高，不畫的距離推越遠（離地 12 m 以上開始；電腦 32 m 兩倍、52 m 以上三倍；手機、平板最多兩倍，不然繪製次數最多會變兩倍、容易燙），東西出現時小很多、又被霧淡掉；
+  // 量（手機設定、45 m 高飛過住家一帶 5 秒）：看得到的跳動 160 → 2 倍 70 → 3 倍 36 次；平均繪製 228 → 270 → 311、最多 418 → 611 → 864。
+  // 另外出現、消失的距離差 10%（看得到的要到 1.1 倍才藏），在切換點附近飛不會一開一關。
+  const cp=camera.position,v=DCULL.v,hb=mode==='aerial'?0:Math.max(0,Math.min(DCULL.hbMax,(cp.y-heightAt(cp.x,cp.z,cp.y)-12)/20)),far=(mode==='aerial'?1.8:1+hb)*(LOWMEM?0.75:1);DCULL.hb=hb;   /* 2026-10-23.2 手機、平板：遠處小東西早一點不畫 */
   for(const o of DCULL.list){const g=o.geometry;if(!g.boundingSphere){g.computeBoundingSphere();if(!g.boundingSphere)continue;}
     const R=g.boundingSphere.radius*o.matrixWorld.getMaxScaleOnAxis();if(!(R<12)){if(o.layers.mask!==1)o.layers.set(0);continue;}
-    v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld);const lim=(55+R*45)*far,show=v.distanceTo(cp)-R<lim;
+    v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld);const lim=(55+R*45)*far*(o.layers.mask===1?1.1:1),show=v.distanceTo(cp)-R<lim;
     if(show){if(o.layers.mask!==1)o.layers.set(0);o.userData.ht=0;o.userData.ev=0;}else{if(o.layers.mask!==2)o.layers.set(1);if(!o.userData.ht)o.userData.ht=DCULL.clock;}}
   gpuEvict();}
 // 2026-10-24.3 使用者：「手機經過服裝店，然後就記憶體不足」→ 量到不是服裝店本身（站在那裡只多 25 MB、來回走不會一直長），是「走過的地方用過的貼圖、模型都留在顯示記憶體」：
@@ -17376,7 +17381,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     <div class="live" hidden><div class="roomc" hidden>房間代號 <b class="code2"></b>　還可以再加 <b class="left"></b> 個人<button data-n="copy" class="sm">複製</button></div>
       <div class="ppl"></div>
       <div class="tgt"></div>
-      <div class="row games"><button data-n="tennis">🎾 打網球</button><button data-n="race">🏎️ 賽車</button><button data-n="sb">⛹️ 鬥牛</button><button data-n="kf">🥋 快打</button><button data-n="cu">🎓 校園大逃亡</button><button data-n="cg">🏰 城堡鬼抓人／躲貓貓</button></div>
+      <div class="row games"><button data-n="tennis">🎾 打網球</button><button data-n="race">🏎️ 賽車</button><button data-n="sb">⛹️ 鬥牛</button><button data-n="kf">🥋 快打</button><button data-n="cu">🎓 校園大逃亡</button><button data-n="cg">🏰 城堡遊戲</button></div>
       <label class="row"><input type="checkbox" id="netDD" checked> 跳舞機對戰（選歌時邀請上面選的人一起跳）</label></div>
     <p class="st"></p>
     <div class="row"><button data-n="off" class="off" hidden>中斷連線</button><button data-n="close" class="close">關閉</button></div>`;
@@ -18193,77 +18198,123 @@ var PAX=(()=>{
 
 /* ---------------- 主迴圈 ---------------- */
 const clock=new THREE.Clock();
-/* ---------------- 城堡鬼抓人／冰鬼／躲貓貓（2026-10-25 使用者：「連線模式 鬼抓人、躲貓貓…都做在城堡裡面，只能在城堡裡面玩這兩個」） ----------------
-   連線中 2～4 個人才能玩；開房間的人當裁判（誰碰到誰、時間、輸贏都由他算，再送給大家）。只能在城堡裡（B1～屋頂、四座塔），跑出去會被拉回 1F 大廳。
-   🏃 鬼抓人：鬼碰到人就換他當鬼（新的鬼原地數 2 秒、不能馬上抓回剛剛那個人），3 分鐘後當鬼最久的輸。
-   🧊 冰鬼：鬼碰到人＝冰住不能動；還沒被冰的人去碰他就解凍；全部冰住鬼贏，3 分鐘還有人沒被冰住就逃跑的人贏。
-   🙈 躲貓貓：鬼先蒙眼數 30 秒（畫面全黑、不能動），大家去躲；4 分鐘內鬼走到人旁邊（1.6 m）就找到，被找到的人變成鬼的幫手一起找。
-   公平：遊戲中大家看的都是開房間的人的城堡擺設（DECO 參觀）；城堡的門關上／打開會同步給大家；躲貓貓時躲的人頭上的名字、小地圖的點、連線名單的距離都藏起來。
-   訊息：cgReq（要開始）cgOk／cgNo（回覆邀請）cgQ（退出、取消）→ 開房間的人；cgInv（邀請）cgLob（誰答應了）cgGo（開始）cgS（狀態）cgE（結束）cgX（取消）→ 大家；cgDr（門）大家互傳。 */
-const CG=(()=>{const G={on:false,m:null,ids:[]};
-  const MODES={tag:{n:'鬼抓人',e:'🏃',dur:180,how:'鬼碰到你就換你當鬼！3 分鐘後當鬼最久的輸'},ice:{n:'冰鬼',e:'🧊',dur:180,how:'被鬼碰到會冰住，隊友碰你就解凍；全部冰住鬼贏'},hide:{n:'躲貓貓',e:'🙈',dur:240,how:'鬼蒙眼數 30 秒，大家快去躲！被找到的人變成鬼的幫手'}};
-  const R_TAG=1.3,R_FIND=1.6,DY=1.5,HIDE_CNT=30,TAG_CNT=4,INV_T=15;
+/* ---------------- 城堡遊戲（2026-10-25 使用者：「連線模式 鬼抓人、躲貓貓…都做在城堡裡面，只能在城堡裡面玩這兩個」→「還有沒有城堡可以玩的遊戲，比鬼抓人好玩的」→「都做」） ----------------
+   只能在城堡裡（B1～屋頂、四座塔），跑出去會被拉回 1F 大廳。開房間的人當裁判（誰碰到誰、時間、輸贏都由他算，再送給大家）；沒連線＝自己當裁判（一個人也能玩的才可以）。
+   要 2 人以上（連線）：
+   🏃 鬼抓人（3 分）：鬼碰到人就換他當鬼（新的鬼原地數 2 秒、不能馬上抓回剛剛那個人），當鬼最久的輸。
+   🧊 冰鬼（3 分）：鬼碰到＝冰住不能動；沒被冰的人去碰他就解凍；全部冰住鬼贏，時間到還有人沒被冰住就逃跑的人贏。
+   🙈 躲貓貓（4 分）：鬼蒙眼數 30 秒（全黑、不能動），大家去躲；鬼走到人旁邊（1.6 m、同一層）就找到，被找到的人變成鬼的幫手。
+   💣 燙手炸彈（最多 5 分）：炸彈在誰手上，碰到別人就傳過去（不能馬上傳回給剛傳給你的人）；引信燒完拿著的人出局，下一輪換新炸彈；留到最後的贏。
+   一個人也能玩（連線時大家一起比）：
+   🧍 一二三木頭人：電腦守衛站在大樓梯前，背對大家喊「一、二、三、木頭人」時可以走，轉過來看時動到（0.3 m）的人送回起點；先碰到守衛的贏。
+   🔥 地板是岩漿：6 輪，每輪先有 5 秒準備，岩漿淹上來（一輪比一輪高：6 cm → 1.2 m），要站在傢俱、樓梯上；踩到岩漿扣一顆心（3 顆），沒心出局。
+   💎 城堡尋寶（3 分）：各層藏 20 顆寶石（1 分）、6 枚金幣（3 分）、3 把鑰匙；四座塔裡有 3 個寶箱（10 分，要鑰匙才打得開）。
+   👻 幽靈城堡（5 分）：晚上燈全關、手電筒；4 隻幽靈在 B1～3F 飄（穿牆，看到人會追，跑步甩得掉），被碰到嚇回大廳；大家一起找齊 5 根蠟燭，大門打開，全部人逃出去就贏。
+   公平：連線時大家看的都是開房間的人的城堡擺設（DECO 參觀）；城堡的門關上／打開會同步給大家；躲貓貓時躲的人頭上的名字、小地圖的點、連線名單的距離都藏起來。
+   訊息：cgReq（要開始）cgOk／cgNo（回覆邀請）cgQ（退出、取消）→ 開房間的人；cgInv cgLob cgGo cgS（狀態）cgE（結束）cgX（取消）cgG（幽靈位置）→ 大家；cgDr（門）大家互傳。 */
+const CG=(()=>{const G={on:false,m:null,ids:[],net:false};
+  const MODES={
+    tag:{n:'鬼抓人',e:'🏃',dur:180,min:2,cnt:4,how:'鬼碰到你就換你當鬼！3 分鐘後當鬼最久的輸'},
+    ice:{n:'冰鬼',e:'🧊',dur:180,min:2,cnt:4,how:'被鬼碰到會冰住，隊友碰你就解凍；全部冰住鬼贏'},
+    hide:{n:'躲貓貓',e:'🙈',dur:240,min:2,cnt:30,how:'鬼蒙眼數 30 秒，大家快去躲！被找到的人變成鬼的幫手'},
+    bomb:{n:'燙手炸彈',e:'💣',dur:300,min:2,cnt:4,how:'炸彈在你手上就快去碰別人傳出去！爆炸時拿著的人出局，留到最後的贏'},
+    statue:{n:'一二三木頭人',e:'🧍',dur:180,min:1,cnt:4,how:'守衛背對大家喊口令時往前走，他轉過來就不能動！先碰到守衛的贏'},
+    lava:{n:'地板是岩漿',e:'🔥',dur:0,min:1,cnt:3,how:'岩漿來了就跳到傢俱、樓梯上！踩到扣一顆心，岩漿一輪比一輪高'},
+    treasure:{n:'城堡尋寶',e:'💎',dur:180,min:1,cnt:4,how:'寶石、金幣藏在各層，鑰匙打開塔裡的寶箱；3 分鐘撿最多分'},
+    ghost:{n:'幽靈城堡',e:'👻',dur:300,min:1,cnt:5,how:'燈全關了！躲開幽靈、找齊 5 根蠟燭，大家一起逃出大門'}};
+  const R_TAG=1.3,R_FIND=1.6,R_PICK=1.1,DY=1.5,INV_T=15;
   const SPAWN=[[298,84],[295.6,86.6],[300.4,86.6],[298,88.4]];   /* 1F 大廳（大門進來那段） */
+  const GUARD={x:298,z:69.8},LINE_Z=88.2,LAVA_LV=[0.06,0.3,0.5,0.75,0.95,1.2],EXIT={x0:293.2,x1:302.8,z0:87.4,z1:90.4};
   const inArea=(x,z)=>x>CASTLE.x0-3.8&&x<CASTLE.x1+3.8&&z>CASTLE.z0-3.8&&z<CASTLE.z1+3.8;   /* 含四角圓塔 */
-  const me=()=>NET.myId(),dn=id=>id===me()?'你':(NET.pn(id)||'朋友'),$c=id=>document.getElementById(id);
+  const fBase=y=>{let b=CASTLE.FY[0];for(const f of CASTLE.FY)if(f<=y+0.05)b=f;return b;};   /* 腳下那層的地板高度（走在樓梯上半段也算下面那層） */
+  const me=()=>NET.on?NET.myId():'0',dn=id=>id===me()?'你':(NET.pn(id)||'朋友'),$c=id=>document.getElementById(id);
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const mmss=s=>{s=Math.max(0,Math.ceil(s));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;};
+  const rnd=(a,b)=>a+Math.random()*(b-a),ttl=M=>M.n.includes('城堡')?M.n:'城堡'+M.n;   /* 「城堡尋寶」「幽靈城堡」前面不再加「城堡」 */
   const busy=()=>RACE.on||TN.on||SB.on||KF.on||CU.on||DD.on||RB.on||NM.on||GAME.on||MU.on||PUSH.on||FISH.on||RS.on;   /* 正在玩別的遊戲 */
+  let BEST={};try{BEST=JSON.parse(localStorage.getItem('home-cgbest')||'{}')||{};}catch(_){}
+  const saveBest=()=>{try{localStorage.setItem('home-cgbest',JSON.stringify(BEST));}catch(_){}};
   // ---- 介面 ----
-  const css=document.createElement('style');css.textContent=`#bCG[hidden],#cgP[hidden],#cgPop[hidden],#cgHud[hidden],#cgBlind[hidden],#cgIce[hidden],#cgR[hidden]{display:none!important}
+  const css=document.createElement('style');css.textContent=`#bCG[hidden],#cgP[hidden],#cgPop[hidden],#cgHud[hidden],#cgBlind[hidden],#cgIce[hidden],#cgR[hidden],#cgBig[hidden],#cgDark[hidden]{display:none!important}
     #bCG{position:fixed;right:12px;top:170px;z-index:30;background:#ff7a59;color:#2a0d00;font-weight:800;font-size:14px;border:2px solid #fff;border-radius:18px;padding:6px 12px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-    #cgP,#cgR{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow:auto;z-index:60}
-    #cgP .md{display:block;width:100%;text-align:left;margin:8px 0;padding:10px 12px;font-size:17px;font-weight:800}#cgP .md small{display:block;font-weight:500;font-size:13px;opacity:.85;margin-top:2px}
+    #cgP,#cgR{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow:auto;z-index:60}
+    #cgP .md{display:block;width:100%;text-align:left;margin:6px 0;padding:8px 12px;font-size:16px;font-weight:800}#cgP .md small{display:block;font-weight:500;font-size:12.5px;opacity:.85;margin-top:2px}#cgP .md[disabled]{opacity:.45}
+    #cgP h4{margin:10px 0 2px;font-size:14px;opacity:.85}
     #cgPop{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 60px);transform:translateX(-50%);width:min(400px,calc(100vw - 32px));z-index:61;text-align:center}#cgPop .bt{margin-top:8px;display:flex;gap:8px;justify-content:center}#cgPop .bt button{min-width:96px;font-weight:800}
     #cgPop .ls{margin-top:6px;font-size:14px;line-height:1.7}
     #cgP button,#cgPop button,#cgR button{color:#fff;background:#3a4258;border:1px solid #5a6582;border-radius:10px;padding:8px 12px;font-size:15px;cursor:pointer}#cgP button.main,#cgPop button.main,#cgR button.main{background:#ffcf4a;color:#2a1a00;border-color:#ffcf4a}#cgP .md{background:#2c3446}
-    #cgHud{position:fixed;left:8px;top:calc(env(safe-area-inset-top,0px) + 56px);z-index:40;background:rgba(15,18,28,.82);color:#fff;border-radius:10px;padding:6px 10px;font-size:14px;line-height:1.45;max-width:min(330px,calc(100vw - 24px));pointer-events:auto}
+    #cgHud{position:fixed;left:8px;top:calc(env(safe-area-inset-top,0px) + 56px);z-index:12;background:rgba(15,18,28,.82);color:#fff;border-radius:10px;padding:6px 10px;font-size:14px;line-height:1.45;max-width:min(330px,calc(100vw - 24px));pointer-events:auto}
     #cgHud b{color:#ffd76a}#cgHud .it{color:#ff8a7a;font-weight:800}#cgHud button{margin-left:6px;font-size:12px;padding:2px 8px;background:#ff5a4f;color:#fff;border:0;border-radius:6px;font-weight:800}
-    #cgBlind{position:fixed;inset:0;background:#000;z-index:39;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;pointer-events:none}#cgBlind b{font-size:64px;margin:8px 0}#cgBlind div{font-size:20px;padding:0 16px}
-    #cgIce{position:fixed;inset:0;z-index:38;pointer-events:none;box-shadow:inset 0 0 120px 40px rgba(120,210,255,.75);background:rgba(160,225,255,.12)}
+    #cgBlind{position:fixed;inset:0;background:#000;z-index:11;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;pointer-events:none}#cgBlind b{font-size:64px;margin:8px 0}#cgBlind div{font-size:20px;padding:0 16px}
+    #cgIce{position:fixed;inset:0;z-index:9;pointer-events:none;box-shadow:inset 0 0 120px 40px rgba(120,210,255,.75);background:rgba(160,225,255,.12)}
+    #cgDark{position:fixed;inset:0;z-index:9;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,rgba(0,0,0,0) 22%,rgba(0,0,8,.55) 60%,rgba(0,0,10,.88) 100%)}
+    #cgBig{position:fixed;left:50%;top:32%;transform:translate(-50%,-50%);z-index:12;pointer-events:none;color:#fff;font-weight:900;font-size:clamp(26px,8vw,46px);text-align:center;text-shadow:0 3px 10px rgba(0,0,0,.7),0 0 2px #000;white-space:nowrap}#cgBig.red{color:#ff6b5a}#cgBig.ok{color:#7dffa0}
     #cgR h3{margin:0 0 8px}#cgR .w{font-size:19px;font-weight:800;margin:6px 0 10px}#cgR .l{font-size:15px;line-height:1.75}#cgR .bt{display:flex;gap:8px;margin-top:12px}#cgR .bt button{flex:1;font-weight:800}`;
   document.head.appendChild(css);
   const mk=(id,cls,html)=>{const e=document.createElement('div');e.id=id;if(cls)e.className=cls;e.hidden=true;e.innerHTML=html||'';document.body.appendChild(e);return e;};
-  const PANEL=mk('cgP','panel',`<h3>🏰 城堡遊戲（連線，只能在城堡裡面玩）</h3>
-    ${Object.entries(MODES).map(([k,M])=>`<button class="md" data-m="${k}">${M.e} ${M.n}<small>${M.how}</small></button>`).join('')}
-    <p class="note">按了會邀請房間裡所有人，答應的人一起傳送到城堡 1F 大廳開始。開房間的人當裁判。</p><p class="note st"></p>
-    <div class="row"><button class="close" data-x="1">關閉</button></div>`);
-  const POP=mk('cgPop','panel'),HUD=mk('cgHud'),BLIND=mk('cgBlind','','<div>👀 你是鬼！蒙著眼睛數到 30…</div><b>30</b><div>大家正在躲起來，數完就去找</div>'),ICE=mk('cgIce'),RES=mk('cgR','panel');
+  const PANEL=mk('cgP','panel'),POP=mk('cgPop','panel'),HUD=mk('cgHud'),BLIND=mk('cgBlind','','<div>👀 你是鬼！蒙著眼睛數到 30…</div><b>30</b><div>大家正在躲起來，數完就去找</div>'),ICE=mk('cgIce'),RES=mk('cgR','panel'),BIG=mk('cgBig'),DARK=mk('cgDark');
   for(const el of [PANEL,POP,HUD,RES])for(const ev of ['keydown','keyup','pointerdown','touchstart','wheel'])el.addEventListener(ev,e=>e.stopPropagation());   /* 點面板不要轉鏡頭、走路 */
   const BTN=document.createElement('button');BTN.id='bCG';BTN.hidden=true;BTN.textContent='🏃 城堡遊戲';document.body.appendChild(BTN);   /* 放在右邊「💬 聊天」下面（上面那排按鈕手機上會被連線標籤蓋住） */
   for(const ev of ['pointerdown','touchstart'])BTN.addEventListener(ev,e=>e.stopPropagation());
-  G.open=()=>{if(!NET.on){toast('要先「👥 連線」跟朋友連在一起才能玩');return;}if(G.on){toast('遊戲已經在玩了');return;}PANEL.querySelector('.st').textContent=NET.P.size?`房間裡現在 ${NET.P.size+1} 個人`:'房間裡還沒有別人，等朋友加入再按';PANEL.hidden=false;RES.hidden=true;};
+  const bestTxt=k=>{const b=BEST[k];if(b==null)return '';return k==='statue'||k==='ghost'?`（最快 ${mmss(b)}）`:k==='lava'?`（最好剩 ${b} 顆心）`:k==='treasure'?`（最高 ${b} 分）`:'';};
+  function panelDraw(){const many=NET.on&&NET.P.size>0,row=(k)=>{const M=MODES[k],dis=M.min>1&&!many;return `<button class="md" data-m="${k}"${dis?' disabled':''}>${M.e} ${M.n}${M.min===1?` <span style="font-weight:500;font-size:12px">${bestTxt(k)}</span>`:''}<small>${M.how}</small></button>`;};
+    PANEL.innerHTML=`<h3>🏰 城堡遊戲（只能在城堡裡面玩）</h3><h4>一個人也能玩${many?'（會邀請房間裡大家一起比）':''}</h4>${['statue','lava','treasure','ghost'].map(row).join('')}
+      <h4>連線 2 人以上${many?'':'（先「👥 連線」跟朋友連在一起）'}</h4>${['tag','ice','hide','bomb'].map(row).join('')}
+      <p class="note">${many?`房間裡現在 ${NET.P.size+1} 個人，答應的人一起傳送到城堡 1F 大廳開始；開房間的人當裁判。`:'一個人玩：按了就傳送到城堡 1F 大廳開始。'}</p><div class="row"><button class="close" data-x="1">關閉</button></div>`;}
+  G.open=()=>{if(G.on){toast('遊戲已經在玩了');return;}panelDraw();PANEL.hidden=false;RES.hidden=true;};
   BTN.addEventListener('click',e=>{e.stopPropagation();G.open();});
-  PANEL.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.x){PANEL.hidden=true;return;}const m=b.dataset.m;if(!m)return;
-    if(!NET.on||!NET.P.size){toast('房間裡還沒有別人');return;}if(busy()){toast('先結束現在的遊戲');return;}PANEL.hidden=true;toHost({t:'cgReq',m});});
-  // ---- 傳送 ----
-  function toHost(m){if(NET.host)hostRx(m,me());else NET.out('0',m);}
-  function toAll(m){NET.out('*',m);cliRx(m,'0');}   /* 只有開房間的人用：大家＋自己 */
+  PANEL.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.x){PANEL.hidden=true;return;}const m=b.dataset.m;if(!m)return;
+    if(busy()){toast('先結束現在的遊戲');return;}PANEL.hidden=true;toHost({t:'cgReq',m});});
+  // ---- 傳送（沒連線＝自己當裁判） ----
+  const local=()=>!NET.on||NET.host;
+  function toHost(m){if(local())hostRx(m,me());else NET.out('0',m);}
+  function toAll(m){if(NET.on)NET.out('*',m);cliRx(m,'0');}   /* 只有裁判用：大家＋自己 */
   const reply=(f,m)=>{if(f===me())cliRx(m,'0');else NET.out(f,m);};
   G.netRx=(d,f)=>{f=String(f);if(d.t==='cgDr'){doorApply(d);return;}if(d.t==='cgReq'||d.t==='cgOk'||d.t==='cgNo'||d.t==='cgQ'){if(NET.host)hostRx(d,f);return;}if(f==='0')cliRx(d,f);};
-  // ================= 裁判（開房間的人） =================
+  // ================= 裁判 =================
   let L=null,H=null,lastSeek=null;   /* L＝邀請中、H＝進行中 */
-  const allIds=()=>[me(),...NET.P.keys()];
+  const allIds=()=>[me(),...(NET.on?NET.P.keys():[])];
   function lobSend(){toAll({t:'cgLob',org:L.org,m:L.m,st:[...L.st]});}
+  const dnH=id=>id===me()?(NET.myName?NET.myName():'開房間的人'):(NET.pn(id)||'朋友');   /* 裁判那邊寫給大家看的名字 */
   function hostRx(d,f){const now=performance.now();switch(d.t){
-    case 'cgReq':if(H){reply(f,{t:'cgX',why:'大家正在玩，等這一局結束再邀請'});break;}if(L){reply(f,{t:'cgX',why:`${f===L.org?'':dnH(L.org)+' '}已經在邀請了`});break;}if(!MODES[d.m])break;
-      L={m:d.m,org:f,st:new Map(allIds().map(id=>[id,id===f?'ok':'wait'])),end:now+(INV_T+1)*1000};toAll({t:'cgInv',m:d.m,org:f,ttl:INV_T});lobSend();break;
+    case 'cgReq':{if(H){reply(f,{t:'cgX',why:'大家正在玩，等這一局結束再邀請'});break;}if(L){reply(f,{t:'cgX',why:`${f===L.org?'':dnH(L.org)+' '}已經在邀請了`});break;}const M=MODES[d.m];if(!M)break;
+      const ids=allIds();if(ids.length<2){if(M.min<=1)start(d.m,[f]);else reply(f,{t:'cgX',why:'這個要 2 個人以上連線才能玩'});break;}   /* 一個人：直接開始 */
+      L={m:d.m,org:f,st:new Map(ids.map(id=>[id,id===f?'ok':'wait'])),end:now+(INV_T+1)*1000};toAll({t:'cgInv',m:d.m,org:f,ttl:INV_T});lobSend();break;}
     case 'cgOk':case 'cgNo':if(L&&L.st.get(f)==='wait'){L.st.set(f,d.t==='cgOk'?'ok':'no');lobSend();}break;
     case 'cgQ':if(L&&f===L.org){L=null;toAll({t:'cgX',why:`${dnH(f)} 取消了城堡遊戲`});}else if(L&&L.st.has(f)){L.st.set(f,'no');lobSend();}if(H)leave(f);break;}}
-  const dnH=id=>id===me()?(NET.myName?NET.myName():'開房間的人'):(NET.pn(id)||'朋友');   /* 開房間的人那邊寫給大家看的名字 */
-  function start(m,ids){const now=performance.now();let pool=ids.filter(id=>id!==lastSeek);if(!pool.length)pool=ids;const s0=pool[Math.floor(Math.random()*pool.length)];lastSeek=s0;
-    H={m,ids:ids.slice(),s0,it:new Set([s0]),fr:new Set(),fd:[],imm:{},hold:{},ph:'count',t0:now,end:now+(m==='hide'?HIDE_CNT:TAG_CNT)*1000,lsT:now,sc:{}};
-    for(const id of ids){H.sc[id]={it:0,fz:0,res:0,n:0};if(m!=='hide'||id===s0)H.hold[id]=H.end;}   /* 鬼抓人、冰鬼：大家一起倒數；躲貓貓：只有鬼不能動 */
-    toAll({t:'cgGo',m,ids,it:[s0],cnt:(H.end-now)/1000});sendS();}
-  function sendS(ev){const now=performance.now();H.lsT=now;const m={t:'cgS',ph:H.ph,left:Math.round(Math.max(0,H.end-now)/100)/10,ids:H.ids,it:[...H.it],fr:[...H.fr],fd:H.fd,hold:H.ids.filter(id=>H.hold[id]>now)};if(ev)m.ev=ev;toAll(m);}
+  // 藏東西的位置：某一層的房間（或塔）裡隨便一點，避開樓梯；有傢俱就放在傢俱上（1 m 以內，跳得上去）
+  function rndSpot(f,tower,avoid){const rs=CASTLE.rooms.filter(r=>r.f===f&&r.name!=='樓梯'&&(tower==null||!!r.tower===tower));for(let k=0;k<40&&rs.length;k++){const r=rs[Math.floor(Math.random()*rs.length)];let x,z;
+      if(r.tower){const cx=(r.x0+r.x1)/2,cz=(r.z0+r.z1)/2,a=Math.random()*6.283,dd=Math.random()*(CASTLE.RI-0.8);x=cx+Math.cos(a)*dd;z=cz+Math.sin(a)*dd;}else{x=rnd(r.x0+0.7,r.x1-0.7);z=rnd(r.z0+0.7,r.z1-0.7);}
+      if(CASTLE.zones.some(q=>q.f===f&&x>q.x0&&x<q.x1&&z>q.z0&&z<q.z1))continue;const fy=CASTLE.FY[f],y=heightAt(x,z,fy+0.6);if(y>fy+1.0||y<fy-0.2)continue;if(avoid&&avoid.some(p=>Math.hypot(p[1]-x,p[3]-z)<2.2&&Math.abs(p[2]-y)<2))continue;return [x,y,z];}return null;}
+  function start(m,ids){const now=performance.now(),M=MODES[m];let pool=ids.filter(id=>id!==lastSeek);if(!pool.length)pool=ids;const s0=pool[Math.floor(Math.random()*pool.length)];if(M.min>1)lastSeek=s0;
+    H={m,ids:ids.slice(),s0,it:new Set(M.min>1&&m!=='bomb'?[s0]:[]),fr:new Set(),fd:[],out:new Set(),imm:{},hold:{},ph:'count',t0:now,end:now+M.cnt*1000,lsT:now,sc:{},items:null,tk:[],ext:{}};
+    for(const id of ids){H.sc[id]={it:0,fz:0,res:0,n:0,pts:0,keys:0,hp:3,t:0};if(m!=='hide'||id===s0)H.hold[id]=H.end;}   /* 大家一起倒數；躲貓貓：只有鬼不能動 */
+    if(m==='treasure'){const it=[];for(let f=0;f<4;f++){for(let k=0;k<5;k++){const p=rndSpot(f,false,it);if(p)it.push(['gem',...p]);}}for(let k=0;k<6;k++){const p=rndSpot(k%4,false,it);if(p)it.push(['coin',...p]);}
+      for(let k=0;k<3;k++){const p=rndSpot((k+1)%4,false,it);if(p)it.push(['key',...p]);}for(let k=0;k<3;k++){const p=rndSpot(1+k,true,it)||rndSpot(k,true,it);if(p)it.push(['chest',...p]);}H.items=it.map(p=>[p[0],+p[1].toFixed(2),+p[2].toFixed(2),+p[3].toFixed(2)]);}
+    if(m==='ghost'){const it=[];for(let f=0;f<4;f++){const p=rndSpot(f,false,it);if(p)it.push(['candle',...p]);}{const p=rndSpot(2,true,it)||rndSpot(1,false,it);if(p)it.push(['candle',...p]);}H.items=it.map(p=>[p[0],+p[1].toFixed(2),+p[2].toFixed(2),+p[3].toFixed(2)]);
+      H.gh=[0,1,2,3].map(f=>{const p=rndSpot(f,false)||[298,CASTLE.FY[f],76];return {f,x:p[0],z:p[2],tx:p[0],tz:p[2],y:CASTLE.FY[f]+0.25,ch:null};});H.esc=new Set();H.gT=0;}
+    if(m==='statue'){H.gs='chant';H.gEnd=H.end+rnd(2500,4500);H.lp={};}
+    if(m==='lava'){H.rd=0;H.lp='safe';H.lv=0;}
+    toAll({t:'cgGo',m,ids,it:[...H.it],cnt:M.cnt,items:H.items,best:BEST[m]});sendS();}
+  function sendS(ev){const now=performance.now();H.lsT=now;const m={t:'cgS',ph:H.ph,left:Math.round(Math.max(0,H.end-now)/100)/10,ids:H.ids,it:[...H.it],fr:[...H.fr],fd:H.fd,out:[...H.out],hold:H.ids.filter(id=>H.hold[id]>now)};
+    if(H.m==='bomb'){m.fz=H.fuse?((H.fuse-now)/1000>10?3:(H.fuse-now)/1000>5?2:1):0;m.pause=H.pause>now?1:0;}
+    if(H.m==='statue'){m.gs=H.gs;m.gl=Math.round(Math.max(0,H.gEnd-now)/100)/10;}
+    if(H.m==='lava'){m.rd=H.rd;m.lp=H.lp;m.lv=H.lv;m.ll=H.lpEnd?Math.round(Math.max(0,H.lpEnd-now)/100)/10:0;m.hp={};for(const id of H.ids)m.hp[id]=H.sc[id].hp;}
+    if(H.m==='treasure'||H.m==='ghost'){m.tk=H.tk;m.pts={};for(const id of H.ids)m.pts[id]=[H.sc[id].pts,H.sc[id].keys];}
+    if(H.m==='ghost'){m.esc=[...H.esc];m.open=H.tk.length>=H.items.length?1:0;}
+    if(ev)m.ev=ev;toAll(m);}
   function posOf(id){if(id===me())return {x:player.pos.x,y:player.y,z:player.pos.y};const q=NET.P.get(id);if(!q||!q.s)return null;const a=q.s.a,v=q.s.v,ag=Math.min(0.25,(performance.now()-(q.sAt||0))/1000);return {x:a[0]+(v?v[0]*ag:0),y:a[1],z:a[2]+(v?v[1]*ag:0)};}
-  const near=(a,b,r)=>!!(a&&b)&&Math.hypot(a.x-b.x,a.z-b.z)<r&&Math.abs(a.y-b.y)<DY;
+  const near=(a,b,r,dy)=>!!(a&&b)&&Math.hypot(a.x-b.x,a.z-b.z)<r&&Math.abs(a.y-b.y)<(dy||DY);
   function hostTick(dt){const now=performance.now();
     if(L){for(const id of [...L.st.keys()])if(id!==me()&&!NET.P.has(id))L.st.delete(id);
       if(!L.st.has(L.org)){L=null;toAll({t:'cgX',why:'邀請的人離開了'});}
-      else if([...L.st.values()].every(v=>v!=='wait')||now>L.end){const ok=[...L.st].filter(([,v])=>v==='ok').map(([k])=>k),m=L.m;L=null;if(ok.length>=2)start(m,ok);else toAll({t:'cgX',why:'沒有人答應，城堡遊戲取消了'});}}
-    if(!H)return;const held=id=>H.hold[id]>now;
-    if(H.ph==='count'){if(now>=H.end){H.ph='play';H.end=now+MODES[H.m].dur*1000;if(H.m!=='hide')for(const id of H.it)H.hold[id]=now+2500;sendS({k:'go'});}else if(now-H.lsT>1000)sendS();return;}   /* 開始：鬼抓人、冰鬼的鬼再等 2.5 秒，大家先跑 */
+      else if([...L.st.values()].every(v=>v!=='wait')||now>L.end){const ok=[...L.st].filter(([,v])=>v==='ok').map(([k])=>k),m=L.m;L=null;if(ok.length>=MODES[m].min)start(m,ok);else toAll({t:'cgX',why:'沒有人答應，城堡遊戲取消了'});}}
+    if(!H)return;const held=id=>H.hold[id]>now,alive=()=>H.ids.filter(id=>!H.out.has(id));
+    if(H.ph==='count'){if(now>=H.end){H.ph='play';H.end=MODES[H.m].dur?now+MODES[H.m].dur*1000:now+600000;
+        if(H.m==='tag'||H.m==='ice')for(const id of H.it)H.hold[id]=now+2500;   /* 鬼再等 2.5 秒，大家先跑 */
+        if(H.m==='bomb')bombRound(now,true);if(H.m==='lava'){H.rd=1;H.lp='safe';H.lpEnd=now+5000;}
+        sendS({k:'go'});}else if(now-H.lsT>1000)sendS();return;}
+    if(H.ph!=='play')return;
     const P={};for(const id of H.ids)P[id]=posOf(id);
     if(H.m==='tag'){const it=[...H.it][0];H.sc[it].it+=dt;
       if(!held(it))for(const id of H.ids){if(id===it||H.imm[id]>now||!near(P[it],P[id],R_TAG))continue;H.it=new Set([id]);H.imm[it]=now+3000;H.hold[id]=now+2000;H.sc[it].n++;sendS({k:'tag',a:it,b:id});break;}}   /* 新的鬼原地數 2 秒；剛剛的鬼 3 秒內抓不到 */
@@ -18271,25 +18322,59 @@ const CG=(()=>{const G={on:false,m:null,ids:[]};
       if(!held(it))for(const id of H.ids){if(id===it||H.fr.has(id)||H.imm[id]>now||!near(P[it],P[id],R_TAG))continue;H.fr.add(id);H.sc[it].n++;sendS({k:'frz',a:it,b:id});}
       for(const f of [...H.fr])for(const id of H.ids){if(id===it||H.fr.has(id)||!near(P[f],P[id],R_TAG))continue;H.fr.delete(f);H.imm[f]=now+2500;H.sc[id].res++;sendS({k:'res',a:id,b:f});break;}   /* 解凍後 2.5 秒不會馬上又被冰 */
       if(H.ids.every(id=>id===it||H.fr.has(id)))return end('all');}
-    else{for(const s of [...H.it]){if(held(s))continue;for(const id of H.ids){if(H.it.has(id)||!near(P[s],P[id],R_FIND))continue;H.it.add(id);H.fd.push(id);H.sc[s].n++;H.hold[id]=now+1500;sendS({k:'fnd',a:s,b:id});}}
+    else if(H.m==='hide'){for(const s of [...H.it]){if(held(s))continue;for(const id of H.ids){if(H.it.has(id)||!near(P[s],P[id],R_FIND))continue;H.it.add(id);H.fd.push(id);H.sc[s].n++;H.hold[id]=now+1500;sendS({k:'fnd',a:s,b:id});}}
       if(H.ids.every(id=>H.it.has(id)))return end('all');}
+    else if(H.m==='bomb'){if(H.pause>now){}else if(H.pause){H.pause=0;bombRound(now,false);}
+      else{const it=[...H.it][0];if(it&&!held(it))for(const id of alive()){if(id===it||H.imm[id]>now||!near(P[it],P[id],R_TAG))continue;H.it=new Set([id]);H.imm[it]=now+1500;H.sc[it].n++;sendS({k:'pass',a:it,b:id});break;}   /* 剛傳出去的人 1.5 秒內收不到（不能馬上傳回來） */
+        const fz=(H.fuse-now)/1000,lv=fz>10?3:fz>5?2:1;if(lv!==H.fzL){H.fzL=lv;sendS();}
+        if(now>=H.fuse){const b=[...H.it][0];H.out.add(b);H.it=new Set();H.fuse=0;const al=alive();sendS({k:'boom',a:b});if(al.length<=1)return end('all');H.pause=now+3000;sendS();}}}
+    else if(H.m==='statue'){const ph=H.gs;
+      if(now>=H.gEnd){if(ph==='chant'){H.gs='look';H.gEnd=now+rnd(2000,3500);H.lp={};H.lpAt=now+450;}else{H.gs='chant';H.gEnd=now+rnd(2300,5000);}sendS({k:H.gs});}   /* 轉過來後 0.45 秒才開始看（網路慢一點也公平） */
+      if(H.gs==='look'&&now>=H.lpAt){for(const id of alive()){if(H.fd.includes(id)||held(id)||!P[id])continue;const p=H.lp[id];if(!p){H.lp[id]={x:P[id].x,z:P[id].z};continue;}
+          if(Math.hypot(P[id].x-p.x,P[id].z-p.z)>0.3){H.hold[id]=now+1200;H.lp[id]=null;H.sc[id].n++;sendS({k:'caught',b:id});}}}
+      for(const id of alive()){if(H.fd.includes(id)||!P[id])continue;if(Math.hypot(P[id].x-GUARD.x,P[id].z-GUARD.z)<1.8&&Math.abs(P[id].y)<1.2){H.fd.push(id);H.sc[id].t=(now-H.t0)/1000-MODES.statue.cnt;sendS({k:'reach',b:id});}}
+      if(H.fd.length)return end('all');}   /* 第一個碰到守衛就結束 */
+    else if(H.m==='lava'){
+      if(now>=H.lpEnd){if(H.lp==='safe'){H.lp='lava';H.lv=LAVA_LV[H.rd-1];H.lpEnd=now+(7+H.rd)*1000;H.riseAt=now+700;sendS({k:'lava'});}
+        else{if(H.rd>=LAVA_LV.length)return end('all');H.rd++;H.lp='safe';H.lv=0;H.lpEnd=now+5000;sendS({k:'safe'});}}
+      if(H.lp==='lava'&&now>=H.riseAt)for(const id of alive()){const p=P[id];if(!p||H.imm[id]>now||!inArea(p.x,p.z))continue;if(p.y-fBase(p.y)<H.lv+0.02){const s=H.sc[id];s.hp--;H.imm[id]=now+3500;if(s.hp<=0){H.out.add(id);sendS({k:'lout',b:id});}else sendS({k:'burn',b:id});}}
+      const al=alive();if(al.length===0||(H.ids.length>1&&al.length<=1))return end('all');}
+    else if(H.m==='treasure'||H.m==='ghost'){
+      H.items.forEach((q,i)=>{if(H.tk.includes(i))return;const p={x:q[1],y:q[2],z:q[3]};for(const id of alive()){if(!near(P[id],p,R_PICK,1.3))continue;const s=H.sc[id];
+        if(q[0]==='chest'){if(s.keys<=0){if(!(H.imm['c'+id+i]>now)){H.imm['c'+id+i]=now+4000;sendS({k:'lock',b:id});}continue;}s.keys--;s.pts+=10;}else if(q[0]==='key')s.keys++;else if(q[0]==='coin')s.pts+=3;else s.pts+=1;
+        H.tk.push(i);sendS({k:'pick',a:id,b:i});break;}});
+      if(H.m==='treasure'&&H.tk.length>=H.items.length)return end('all');
+      if(H.m==='ghost'){ghostTick(dt,now,P);const open=H.tk.length>=H.items.length;
+        if(open)for(const id of H.ids){if(H.esc.has(id)||!P[id])continue;const p=P[id];if(p.x>EXIT.x0&&p.x<EXIT.x1&&p.z>EXIT.z0&&p.z<EXIT.z1&&Math.abs(p.y)<1.5){H.esc.add(id);sendS({k:'esc',b:id});}}
+        if(H.esc.size>=H.ids.length)return end('all');}}
     if(now>=H.end)return end('time');
     if(now-H.lsT>1000)sendS();}
-  function end(why){const now=performance.now(),h=H;H=null;toAll({t:'cgE',m:h.m,why,ids:h.ids,s0:h.s0,it:[...h.it],fr:[...h.fr],fd:h.fd,sc:h.sc,pt:Math.round((now-h.t0)/1000-(h.m==='hide'?HIDE_CNT:TAG_CNT))});}   /* pt＝玩了幾秒（t 是訊息種類） */
-  function leave(id){if(!H||!H.ids.includes(id))return;H.ids=H.ids.filter(x=>x!==id);H.it.delete(id);H.fr.delete(id);H.fd=H.fd.filter(x=>x!==id);
-    if(H.ids.length<2)return end('few');
-    if(!H.it.size){const n=H.ids[Math.floor(Math.random()*H.ids.length)];H.it.add(n);H.fr.delete(n);H.s0=H.m==='hide'?n:H.s0;H.hold[n]=performance.now()+2000;}
+  function bombRound(now,first){const al=H.ids.filter(id=>!H.out.has(id)),b=al[Math.floor(Math.random()*al.length)];H.it=new Set([b]);H.fuse=now+(first?rnd(16,26):rnd(11,20))*1000;H.fzL=0;H.hold[b]=now+800;H.imm={};sendS({k:'bomb',b});}
+  // 幽靈：各自在自己那一層飄（穿牆），隨便選房間裡的點走；同一層 7 m 內有人就追（2.8 m/s，比走路快、比跑步慢），碰到嚇回大廳
+  function ghostTick(dt,now,P){for(const g of H.gh){const fy=CASTLE.FY[g.f];let tgt=null,bd=7;for(const id of H.ids){const p=P[id];if(!p||H.esc.has(id)||H.hold[id]>now)continue;if(Math.abs(fBase(p.y)-fy)>0.5)continue;const d=Math.hypot(p.x-g.x,p.z-g.z);if(d<bd){bd=d;tgt=p;g.ch=id;}}
+      if(!tgt){g.ch=null;if(Math.hypot(g.tx-g.x,g.tz-g.z)<0.6){const q=rndSpot(g.f,null);if(q){g.tx=q[0];g.tz=q[2];}}}else{g.tx=tgt.x;g.tz=tgt.z;}
+      const sp=tgt?2.8:1.4,dx=g.tx-g.x,dz=g.tz-g.z,L=Math.hypot(dx,dz)||1,st=Math.min(L,sp*dt);g.x+=dx/L*st;g.z+=dz/L*st;
+      if(tgt&&bd<1.0){const id=g.ch;H.hold[id]=now+2500;H.sc[id].n++;g.ch=null;const q=rndSpot(g.f,null);if(q){g.x=q[0];g.z=q[2];g.tx=q[0];g.tz=q[2];}sendS({k:'scare',b:id});}}
+    H.gT-=dt;if(H.gT<=0){H.gT=0.1;toAll({t:'cgG',g:H.gh.map(g=>[+g.x.toFixed(2),+(CASTLE.FY[g.f]+0.25).toFixed(2),+g.z.toFixed(2),g.ch?1:0])});}}
+  function end(why){const now=performance.now(),h=H;H=null;const sc={};for(const id of h.ids)sc[id]=h.sc[id];
+    toAll({t:'cgE',m:h.m,why,ids:h.ids,s0:h.s0,it:[...h.it],fr:[...h.fr],fd:h.fd,out:[...h.out],sc,rd:h.rd,tk:h.tk.length,ni:h.items?h.items.length:0,esc:h.esc?[...h.esc]:[],pt:Math.round((now-h.t0)/1000-MODES[h.m].cnt)});}   /* pt＝玩了幾秒（t 是訊息種類） */
+  function leave(id){if(!H||!H.ids.includes(id))return;H.ids=H.ids.filter(x=>x!==id);H.it.delete(id);H.fr.delete(id);H.out.delete(id);H.fd=H.fd.filter(x=>x!==id);if(H.esc)H.esc.delete(id);
+    if(H.ids.length<MODES[H.m].min||!H.ids.length)return end('few');
+    if(MODES[H.m].min>1&&!H.it.size&&!(H.m==='bomb'&&H.pause)){const al=H.ids.filter(x=>!H.out.has(x)),n=al[Math.floor(Math.random()*al.length)];if(H.m==='bomb'){if(al.length<=1)return end('all');bombRound(performance.now(),false);}else{H.it.add(n);H.fr.delete(n);H.s0=H.m==='hide'?n:H.s0;H.hold[n]=performance.now()+2000;}}
+    if(H.m==='bomb'&&H.ids.filter(x=>!H.out.has(x)).length<=1)return end('all');
     sendS({k:'left',a:id});}
   G.peerGone=id=>{if(NET.host&&id!=='*'){if(L&&L.st.has(id)){L.st.delete(id);if(L.org===id){L=null;toAll({t:'cgX',why:'邀請的人離開了'});}}leave(id);return;}
-    if(id==='*'||id==='0'){L=null;H=null;POP.hidden=true;if(G.on)cleanup('連線中斷，城堡遊戲結束了');}};
+    if(id==='*'||id==='0'){if(G.net){L=null;H=null;POP.hidden=true;if(G.on)cleanup('連線中斷，城堡遊戲結束了');}}};
   // ================= 每個人自己這邊 =================
-  let S=null,endAt=0,popT=0,hudT=0,vis=false;
+  let S=null,endAt=0,popT=0,hudT=0,vis=false,bigT=0,tickT=0;
+  function big(t,cls,sec){BIG.textContent=t;BIG.className=cls||'';BIG.hidden=false;bigT=sec||1.6;}
   function cliRx(d){switch(d.t){
     case 'cgInv':RES.hidden=true;if(d.org===me()){popLobby(d);break;}if(G.on)break;if(busy()){toHost({t:'cgNo'});break;}popInvite(d);break;
     case 'cgLob':if(d.org===me()||POP.dataset.k==='wait')popList(d);break;
     case 'cgX':POP.hidden=true;if(G.on)cleanup(d.why);else if(d.why)toast('🏰 '+d.why);break;
     case 'cgGo':POP.hidden=true;if(d.ids.includes(me()))begin(d);break;
     case 'cgS':if(G.on)applyS(d);break;
+    case 'cgG':if(G.on)GH.net=d.g;break;
     case 'cgE':if(G.on)finish(d);break;}}
   function popInvite(d){const M=MODES[d.m];POP.dataset.k='inv';POP.innerHTML=`🏰 <b>${esc(dn(d.org))}</b> 邀請大家在城堡玩 <b>${M.e} ${M.n}</b><div class="note" style="font-size:13px">${M.how}（答應會傳送到城堡）</div><div class="bt"><button data-a="ok" class="main">好！</button><button data-a="no">不玩</button></div><div class="ls"></div>`;
     POP.hidden=false;AUDIO.sfx('chime');clearTimeout(popT);popT=setTimeout(()=>{if(POP.dataset.k==='inv'){POP.hidden=true;toHost({t:'cgNo'});}},INV_T*1000);}
@@ -18298,70 +18383,149 @@ const CG=(()=>{const G={on:false,m:null,ids:[]};
   POP.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;clearTimeout(popT);
     if(a==='ok'){toHost({t:'cgOk'});POP.dataset.k='wait';b.parentNode.innerHTML='<span class="note">答應了，等大家回覆…</span>';}
     else if(a==='no'){POP.hidden=true;toHost({t:'cgNo'});}else if(a==='cancel'){POP.hidden=true;toHost({t:'cgQ'});}});
-  function begin(d){G.on=true;G.m=d.m;G.ids=d.ids;S={ph:'count',ids:d.ids,it:d.it,fr:[],fd:[],hold:d.m==='hide'?d.it:d.ids};endAt=performance.now()+d.cnt*1000;
+  function spawnOf(m,ids){const i=Math.max(0,ids.indexOf(me()));if(m==='statue')return [294.2+i*2.5,LINE_Z];return SPAWN[i%SPAWN.length];}
+  function begin(d){G.on=true;G.m=d.m;G.ids=d.ids;G.net=NET.on&&d.ids.length>1;G.items=d.items;G.best=d.best;S={ph:'count',ids:d.ids,it:d.it,fr:[],fd:[],out:[],hold:d.m==='hide'?d.it:d.ids,tk:[],pts:{},hp:{},esc:[]};endAt=performance.now()+d.cnt*1000;
     PANEL.hidden=RES.hidden=true;const np=$c('netPanel');if(np)np.hidden=true;if(DECO.sit)DECO.stand(true);
-    if(mode==='aerial')toggleAerial();const sp=SPAWN[Math.max(0,d.ids.indexOf(me()))%SPAWN.length];teleport(sp[0],sp[1],0,0);
-    vis=false;if(!NET.host){if(!(DECO.view&&DECO.view.f==='0')){vis=true;setTimeout(()=>{if(G.on)DECO.visit('0');},60);}}else if(DECO.view)DECO.backHome('🏰 城堡遊戲：大家看你的城堡擺設');   /* 大家看開房間的人的城堡 */
+    if(mode==='aerial')toggleAerial();if(RIDE.on)RIDE.stop(true);const sp=spawnOf(d.m,d.ids);teleport(sp[0],sp[1],0,0);
+    vis=false;if(G.net&&!NET.host){if(!(DECO.view&&DECO.view.f==='0')){vis=true;setTimeout(()=>{if(G.on)DECO.visit('0');},60);}}else if(DECO.view)DECO.backHome('🏰 城堡遊戲：用你自己的城堡擺設');   /* 大家看開房間的人的城堡 */
     const M=MODES[d.m],seek=d.it.includes(me());AUDIO.sfx('go');
-    setTimeout(()=>{if(G.on&&G.m===d.m)toast(`${M.e} ${M.n}：${seek?(d.m==='hide'?'你是鬼！先蒙眼數 30 秒':'你是鬼！倒數完去抓人'):M.how}`);},700);hud(true);}
-  function applyS(d){const was=S;S=d;endAt=performance.now()+d.left*1000;const e=d.ev,i=me();
-    if(was&&was.ph==='count'&&d.ph==='play'||e&&e.k==='go'){toast(G.m==='hide'?(d.it.includes(i)?'👀 數完了！去找大家':'👀 鬼開始找了！別出聲'):'🏁 開始！');AUDIO.sfx('go');}
+    if(d.m==='statue')guardOn();if(d.m==='lava')lavaOn();if(d.m==='treasure'||d.m==='ghost')itemsOn(d.items);if(d.m==='ghost')ghostOn();
+    setTimeout(()=>{if(G.on&&G.m===d.m)toast(`${M.e} ${M.n}：${seek&&M.min>1?(d.m==='hide'?'你是鬼！先蒙眼數 30 秒':d.m==='bomb'?'炸彈在你手上！快去碰別人':'你是鬼！倒數完去抓人'):M.how}`);},700);hud(true);}
+  function applyS(d){const was=S;S=Object.assign({},S,d);endAt=performance.now()+d.left*1000;if(d.ll!=null)S.llAt=performance.now()+d.ll*1000;const e=d.ev,i=me();
+    if(was&&was.ph==='count'&&d.ph==='play'||e&&e.k==='go'){if(G.m==='hide')toast(d.it.includes(i)?'👀 數完了！去找大家':'👀 鬼開始找了！別出聲');else if(G.m!=='lava'&&G.m!=='statue')big('🏁 開始！','ok');AUDIO.sfx('go');}
     if(e){const A=dn(e.a),B=dn(e.b);
       if(e.k==='tag'){if(e.b===i){toast('👹 被抓到了！換你當鬼（原地數 2 秒）');AUDIO.sfx('over');}else if(e.a===i){toast(`抓到 ${B} 了！快跑！`);AUDIO.sfx('cheer');}else toast(`${A} 抓到 ${B}，${B} 當鬼！`);}
       else if(e.k==='frz'){if(e.b===i){toast('🧊 被冰住了！等隊友來碰你解凍');AUDIO.sfx('shatter');}else if(e.a===i){toast(`冰住 ${B} 了！`);AUDIO.sfx('cheer');}else toast(`🧊 ${B} 被冰住了${d.it.includes(i)?'':'，快去救！'}`);}
       else if(e.k==='res'){if(e.b===i){toast(`${A} 救了你！快跑！`);AUDIO.sfx('chime');}else if(e.a===i){toast(`救了 ${B}！`);AUDIO.sfx('chime');}else toast(`${A} 救了 ${B}`);}
       else if(e.k==='fnd'){if(e.b===i){toast('🔍 被找到了！現在你是鬼的幫手，一起找');AUDIO.sfx('over');}else if(e.a===i){toast(`找到 ${B} 了！`);AUDIO.sfx('cheer');}else toast(`🔍 ${B} 被找到了（還剩 ${d.ids.filter(x=>!d.it.includes(x)).length} 個人）`);}
+      else if(e.k==='bomb'){if(e.b===i){big('💣 炸彈在你手上！','red');AUDIO.sfx('beep');}else toast(`💣 新炸彈在 ${B} 手上！`);}
+      else if(e.k==='pass'){if(e.b===i){big('💣 傳給你了！快傳出去','red',1.2);AUDIO.sfx('whoosh');}else if(e.a===i){toast(`傳給 ${B} 了！快跑`);AUDIO.sfx('whoosh');}}
+      else if(e.k==='boom'){big(e.a===i?'💥 你爆炸了！出局':`💥 ${A} 爆炸出局！`,'red',2.2);AUDIO.sfx('bigboom');boomFx(e.a);}
+      else if(e.k==='chant'){big('一、二、三…','',1.4);}
+      else if(e.k==='look'){big('木頭人！👀 不要動','red',1.2);AUDIO.sfx('beep');}
+      else if(e.k==='caught'){if(e.b===i){big('動到了！回起點','red',1.6);AUDIO.sfx('over');const sp=spawnOf('statue',G.ids);teleport(sp[0],sp[1],0,0);}else toast(`${B} 動到了，回起點！`);}
+      else if(e.k==='reach'){if(e.b===i){big(`🎉 碰到守衛！第 ${d.fd.length} 名`,'ok',2.2);AUDIO.sfx('bigcheer');}else toast(`🎉 ${B} 碰到守衛了（第 ${d.fd.length} 名）`);}
+      else if(e.k==='lava'){big(`🔥 岩漿來了！（第 ${d.rd} 輪）`,'red',1.6);AUDIO.sfx('whoosh');}
+      else if(e.k==='safe'){big(`✅ 岩漿退了！第 ${d.rd} 輪會更高`,'ok',1.6);AUDIO.sfx('chime');}
+      else if(e.k==='burn'){if(e.b===i){big(`🔥 好燙！剩 ${d.hp[i]} 顆心，快站高！`,'red',1.6);AUDIO.sfx('over');if(mode==='walk'&&player.vy<=0.1)player.vy=4.5;}else toast(`🔥 ${B} 踩到岩漿了`);}
+      else if(e.k==='lout'){if(e.b===i){big('🔥 沒有心了，出局','red',2);AUDIO.sfx('over');}else toast(`🔥 ${B} 出局了`);}
+      else if(e.k==='pick'){const q=G.items[e.b],nm={gem:'寶石 +1',coin:'金幣 +3',key:'🔑 鑰匙',chest:'寶箱 +10',candle:'🕯 蠟燭'}[q[0]];if(e.a===i){toast(`撿到${nm}！`);AUDIO.sfx(q[0]==='chest'?'bigcheer':q[0]==='candle'?'chime':'gem');}else if(q[0]==='chest'||q[0]==='candle')toast(`${A} 撿到${nm}`);
+        if(G.m==='ghost'&&d.open&&!(was&&was.open)){big('🚪 蠟燭找齊了！大門打開，快逃出去','ok',2.4);AUDIO.sfx('bigcheer');}}
+      else if(e.k==='lock'){if(e.b===i)toast('🔒 寶箱鎖著，要先找到鑰匙');}
+      else if(e.k==='scare'){if(e.b===i){big('👻 哇！被嚇回大廳','red',1.8);AUDIO.sfx('over');const sp=SPAWN[Math.floor(Math.random()*3)];   /* 不要剛好傳到大門口（出口） */teleport(sp[0],sp[1],0,0);}else toast(`👻 ${B} 被幽靈嚇回大廳了`);}
+      else if(e.k==='esc'){if(e.b===i){big('🚪 逃出去了！等大家','ok',2);AUDIO.sfx('cheer');}else toast(`🚪 ${B} 逃出去了`);}
       else if(e.k==='left')toast(`${A} 離開了城堡遊戲`);}
     hud(true);}
-  function finish(d){const i=me(),M=MODES[d.m],sc=d.sc||{},nm=id=>esc(dn(id));let w='',ls=[];
+  function finish(d){const i=me(),M=MODES[d.m],sc=d.sc||{},nm=id=>esc(dn(id)),one=d.ids.length===1;let w='',ls=[],win=false,rec='';
     if(d.why==='few')w='人數不夠，遊戲結束';
-    else if(d.m==='tag'){const o=d.ids.slice().sort((a,b)=>(sc[a]?sc[a].it:0)-(sc[b]?sc[b].it:0));w=`🏆 ${nm(o[0])} 最少當鬼！`;ls=o.map((id,k)=>`${k+1}. ${nm(id)}：當鬼 ${mmss(sc[id]?sc[id].it:0)}、抓到 ${sc[id]?sc[id].n:0} 次`);if(o.length>1)ls.push(`👹 當鬼最久：${nm(o[o.length-1])}`);}
+    else if(d.m==='tag'){const o=d.ids.slice().sort((a,b)=>(sc[a]?sc[a].it:0)-(sc[b]?sc[b].it:0));w=`🏆 ${nm(o[0])} 最少當鬼！`;ls=o.map((id,k)=>`${k+1}. ${nm(id)}：當鬼 ${mmss(sc[id]?sc[id].it:0)}、抓到 ${sc[id]?sc[id].n:0} 次`);if(o.length>1)ls.push(`👹 當鬼最久：${nm(o[o.length-1])}`);win=o[0]===i;}
     else if(d.m==='ice'){const it=d.it[0];w=d.why==='all'?`👹 鬼（${nm(it)}）贏了！全部冰住，用了 ${mmss(d.pt)}`:`🎉 逃跑的人贏了！還有 ${d.ids.filter(x=>x!==it&&!d.fr.includes(x)).length} 個人沒被冰住`;
-      ls=d.ids.map(id=>id===it?`👹 ${nm(id)}（鬼）：冰住 ${sc[id]?sc[id].n:0} 次`:`${nm(id)}：救人 ${sc[id]?sc[id].res:0} 次、被冰 ${mmss(sc[id]?sc[id].fz:0)}`);}
-    else{const s0=d.s0,left=d.ids.filter(x=>!d.it.includes(x));w=d.why==='all'?`👹 鬼（${nm(s0)}）全部找到了！用了 ${mmss(d.pt)}`:`🎉 沒被找到的人贏了：${left.map(nm).join('、')}`;
-      ls=d.fd.map((id,k)=>`第 ${k+1} 個被找到：${nm(id)}`);if(d.why==='all'&&d.fd.length>1)ls.push(`🏆 最會躲：${nm(d.fd[d.fd.length-1])}（最後才被找到）`);}
-    const win=d.why==='all'?(d.m==='hide'?d.s0===i:d.m==='ice'&&d.it[0]===i):d.m==='tag'?false:(d.m==='hide'?!d.it.includes(i):d.m==='ice'&&d.it[0]!==i&&!d.fr.includes(i));
+      ls=d.ids.map(id=>id===it?`👹 ${nm(id)}（鬼）：冰住 ${sc[id]?sc[id].n:0} 次`:`${nm(id)}：救人 ${sc[id]?sc[id].res:0} 次、被冰 ${mmss(sc[id]?sc[id].fz:0)}`);win=d.why==='all'?it===i:it!==i&&!d.fr.includes(i);}
+    else if(d.m==='hide'){const s0=d.s0,left=d.ids.filter(x=>!d.it.includes(x));w=d.why==='all'?`👹 鬼（${nm(s0)}）全部找到了！用了 ${mmss(d.pt)}`:`🎉 沒被找到的人贏了：${left.map(nm).join('、')}`;
+      ls=d.fd.map((id,k)=>`第 ${k+1} 個被找到：${nm(id)}`);if(d.why==='all'&&d.fd.length>1)ls.push(`🏆 最會躲：${nm(d.fd[d.fd.length-1])}（最後才被找到）`);win=d.why==='all'?s0===i:!d.it.includes(i);}
+    else if(d.m==='bomb'){const al=d.ids.filter(x=>!d.out.includes(x));w=al.length===1?`🏆 ${nm(al[0])} 撐到最後！`:`⏱ 時間到！還沒爆炸：${al.map(nm).join('、')}`;ls=d.out.map((id,k)=>`💥 第 ${k+1} 個爆炸：${nm(id)}`);ls.push(...d.ids.map(id=>`${nm(id)}：傳出去 ${sc[id]?sc[id].n:0} 次`));win=al.includes(i);}
+    else if(d.m==='statue'){if(!d.fd.length)w='⏱ 時間到！沒有人碰到守衛';else w=one?`🎉 碰到守衛了！用了 ${mmss(sc[i].t)}`:`🏆 ${nm(d.fd[0])} 第一個碰到守衛！`;
+      ls=d.fd.map((id,k)=>`${k+1}. ${nm(id)}：${mmss(sc[id].t)}（被抓回 ${sc[id].n} 次）`);for(const id of d.ids)if(!d.fd.includes(id))ls.push(`${nm(id)}：沒碰到（被抓回 ${sc[id].n} 次）`);win=d.fd[0]===i;
+      if(one&&d.fd.includes(i)&&(BEST.statue==null||sc[i].t<BEST.statue)){BEST.statue=Math.round(sc[i].t);rec='🎊 新紀錄！';}}
+    else if(d.m==='lava'){const al=d.ids.filter(x=>!d.out.includes(x)),o=d.ids.slice().sort((a,b)=>(sc[b].hp-sc[a].hp));
+      w=one?(al.length?`🎉 撐過 6 輪岩漿！剩 ${sc[i].hp} 顆心`:`🔥 撐到第 ${d.rd} 輪`):al.length===1?`🏆 ${nm(al[0])} 撐到最後！`:al.length?`🎉 撐過 6 輪：${al.map(nm).join('、')}`:`🔥 全部被岩漿燙到出局了`;
+      ls=o.map(id=>`${nm(id)}：${'❤️'.repeat(Math.max(0,sc[id].hp))||'出局'}`);win=al.includes(i)&&(one||al.length===1||sc[i].hp>=Math.max(...al.map(x=>sc[x].hp)));
+      if(one&&al.length&&(BEST.lava==null||sc[i].hp>BEST.lava)){BEST.lava=sc[i].hp;rec='🎊 新紀錄！';}}
+    else if(d.m==='treasure'){const o=d.ids.slice().sort((a,b)=>sc[b].pts-sc[a].pts);w=one?`💎 拿到 ${sc[i].pts} 分${d.tk>=d.ni?`，全部找到了（${mmss(d.pt)}）`:''}`:`🏆 ${nm(o[0])} 最多分！`;ls=o.map((id,k)=>`${k+1}. ${nm(id)}：${sc[id].pts} 分`);ls.push(`找到 ${d.tk}／${d.ni} 個`);win=o[0]===i;
+      if(one&&(BEST.treasure==null||sc[i].pts>BEST.treasure)){BEST.treasure=sc[i].pts;rec='🎊 新紀錄！';}}
+    else if(d.m==='ghost'){const ok=d.why==='all';w=ok?`🎉 大家逃出幽靈城堡了！用了 ${mmss(d.pt)}`:`👻 時間到…還沒逃出去（蠟燭 ${d.tk}／${d.ni}）`;ls=d.ids.map(id=>`${nm(id)}：撿到 ${sc[id].pts} 根蠟燭、被嚇 ${sc[id].n} 次${d.esc.includes(id)?'、逃出去了':''}`);win=ok;
+      if(ok&&one&&(BEST.ghost==null||d.pt<BEST.ghost)){BEST.ghost=d.pt;rec='🎊 新紀錄！';}}
+    if(rec)saveBest();
     cleanup('');AUDIO.sfx(win?'bigcheer':'cheer');
-    RES.innerHTML=`<h3>${M.e} 城堡${M.n}：結束</h3><div class="w">${w}</div><div class="l">${ls.join('<br>')}</div><div class="bt"><button data-r="again" class="main">🔁 再玩一次</button><button data-r="x">關閉</button></div>`;RES.dataset.m=d.m;RES.hidden=false;}
-  RES.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;RES.hidden=true;if(b.dataset.r==='again'&&NET.on)toHost({t:'cgReq',m:RES.dataset.m});});
-  function cleanup(why){G.on=false;S=null;HUD.hidden=BLIND.hidden=ICE.hidden=true;marksOff();
+    RES.innerHTML=`<h3>${M.e} ${ttl(M)}：結束</h3><div class="w">${w}${rec?`<br>${rec}`:''}</div><div class="l">${ls.join('<br>')}</div><div class="bt"><button data-r="again" class="main">🔁 再玩一次</button><button data-r="x">關閉</button></div>`;RES.dataset.m=d.m;RES.hidden=false;}
+  RES.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;RES.hidden=true;if(b.dataset.r==='again')toHost({t:'cgReq',m:RES.dataset.m});});
+  function cleanup(why){const m=G.m;G.on=false;S=null;HUD.hidden=BLIND.hidden=ICE.hidden=BIG.hidden=DARK.hidden=true;marksOff();guardOff();lavaOff();itemsOff();ghostOff();
     for(const q of NET.P.values()){const R=q.rem;if(!R)continue;R.tag.visible=true;if(R.gt)R.gt.visible=!!R.gs;}
     if(vis&&DECO.view&&DECO.view.f==='0')DECO.backHome('🏰 城堡遊戲結束，回到你自己的城堡擺設');vis=false;if(why)toast('🏰 '+why);}
-  // ---- 頭上的「👹 鬼」、腳下紅圈、冰塊 ----
+  // ---- 頭上的「👹 鬼」「💣」、腳下紅圈、冰塊 ----
   const ringG=new THREE.RingGeometry(0.45,0.62,32).rotateX(-Math.PI/2),ringM=new THREE.MeshBasicMaterial({color:'#ff3b30',transparent:true,opacity:0.85,depthWrite:false,toneMapped:false});
   const iceG=new THREE.BoxGeometry(0.95,2.0,0.95).translate(0,1.0,0),iceM=new THREE.MeshBasicMaterial({color:'#9fe4ff',transparent:true,opacity:0.38,depthWrite:false,toneMapped:false});
-  const sprM=(()=>{const [c,g]=cvs(256,96);g.fillStyle='rgba(200,20,20,0.92)';g.beginPath();g.roundRect(30,8,196,80,30);g.fill();g.lineWidth=4;g.strokeStyle='#fff';g.stroke();g.font=`900 50px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillStyle='#fff';g.fillText('👹 鬼',128,50);
-    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false,toneMapped:false});})();
+  const sprMat=(t,bg)=>{const [c,g]=cvs(256,96);g.fillStyle=bg;g.beginPath();g.roundRect(30,8,196,80,30);g.fill();g.lineWidth=4;g.strokeStyle='#fff';g.stroke();g.font=`900 50px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillStyle='#fff';g.fillText(t,128,50);
+    const x=new THREE.CanvasTexture(c);x.colorSpace=THREE.SRGBColorSpace;return new THREE.SpriteMaterial({map:x,transparent:true,depthWrite:false,toneMapped:false});};
+  const sprM=sprMat('👹 鬼','rgba(200,20,20,0.92)');let bombM=null;
   const MK=new Map();
   function markOf(id){let k=MK.get(id);if(!k){const ring=new THREE.Mesh(ringG,ringM),ice=new THREE.Mesh(iceG,iceM),spr=new THREE.Sprite(sprM);ring.position.y=0.04;spr.scale.set(0.95,0.36,1);spr.position.y=2.55;spr.renderOrder=8;
       for(const o of [ring,ice,spr]){o.userData.noCull=true;o.castShadow=false;o.visible=false;}k={ring,ice,spr};MK.set(id,k);}return k;}
   function marksOff(){for(const k of MK.values())for(const o of [k.ring,k.ice,k.spr]){o.visible=false;if(o.parent)o.parent.remove(o);}}
   function rootOf(id){if(id===me())return avatar.root;const q=NET.P.get(id);return q&&q.rem?q.rem.A.root:null;}
+  function boomFx(id){const p=posOf(id);if(!p)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({color:'#ffb347',transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false}));s.position.set(p.x,p.y+1.2,p.z);scene.add(s);let t=0;
+    const f=()=>{t+=0.033;s.scale.setScalar(1+t*9);s.material.opacity=Math.max(0,1-t*2.2);if(t<0.45)setTimeout(f,33);else{scene.remove(s);s.material.dispose();}};f();}
+  // ---- 一二三木頭人：電腦守衛（第一次玩才做，之後藏起來重用） ----
+  let GD=null;
+  function guardOn(){if(!GD){const A=mkAvatar();A.root.traverse(o=>{o.userData.noCull=true;});const t=new THREE.Sprite(sprMat('🛡 守衛','rgba(40,60,140,0.92)'));t.scale.set(1.1,0.42,1);t.position.y=2.35;A.root.add(t);GD={A,yaw:0};}
+    GD.A.root.visible=true;if(GD.A.root.parent!==scene)scene.add(GD.A.root);GD.A.root.position.set(GUARD.x,0,GUARD.z);GD.yaw=0;GD.A.root.rotation.set(0,0,0);}
+  function guardOff(){if(GD)GD.A.root.visible=false;}
+  // ---- 地板是岩漿：每層（含四座塔）一片，合併成一個網格，整片照高度上下移 ----
+  let LV=null;
+  function lavaOn(){if(!LV){const C=CASTLE,gs=[];for(let f=0;f<5;f++){const g=new THREE.PlaneGeometry(C.x1-C.x0+0.2,C.z1-C.z0+0.2).rotateX(-Math.PI/2).translate((C.x0+C.x1)/2,C.FY[f],(C.z0+C.z1)/2);gs.push(g);for(const [cx,cz] of C.towers)gs.push(new THREE.CircleGeometry(C.TR,24).rotateX(-Math.PI/2).translate(cx,C.FY[f],cz));}
+      const [c,g]=cvs(128,128);g.fillStyle='#e8400c';g.fillRect(0,0,128,128);for(let k=0;k<34;k++){const x=Math.random()*128,y=Math.random()*128,r=5+Math.random()*16;g.fillStyle=k<12?'rgba(160,20,0,0.55)':`rgba(255,${150+Math.random()*100|0},20,0.7)`;for(const ox of [-128,0,128])for(const oy of [-128,0,128]){g.beginPath();g.arc(x+ox,y+oy,r,0,7);g.fill();}}   /* 圓點在邊緣繞回另一邊畫：拼起來沒有接縫 */
+      const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;const geo=mergeGeometries(gs.map(x=>x.toNonIndexed()));const uv=geo.attributes.uv,pos=geo.attributes.position;for(let k=0;k<uv.count;k++)uv.setXY(k,pos.getX(k)/3,pos.getZ(k)/3);   /* 每 3 m 一格 */
+      const mt=new THREE.MeshBasicMaterial({map:t,transparent:true,opacity:0.88,depthWrite:false,toneMapped:false,side:THREE.DoubleSide});LV={m:new THREE.Mesh(geo,mt),y:-0.4,t};LV.m.userData.noCull=true;LV.m.renderOrder=2;LV.m.frustumCulled=false;}
+    if(LV.m.parent!==scene)scene.add(LV.m);LV.m.visible=false;LV.y=-0.4;}
+  function lavaOff(){if(LV){LV.m.visible=false;if(LV.m.parent)scene.remove(LV.m);}}
+  // ---- 尋寶的寶石、金幣、鑰匙、寶箱；幽靈城堡的蠟燭 ----
+  let IT=null;const ITG={};
+  function itemMesh(k){if(!ITG.gem){ITG.gem=[new THREE.OctahedronGeometry(0.2),new THREE.MeshStandardMaterial({color:'#5fe3ff',emissive:'#1ab8ff',emissiveIntensity:0.9,roughness:0.2,metalness:0.3})];
+      ITG.coin=[new THREE.CylinderGeometry(0.24,0.24,0.06,20).rotateX(Math.PI/2),new THREE.MeshStandardMaterial({color:'#ffd23a',emissive:'#c98a00',emissiveIntensity:0.8,roughness:0.3,metalness:0.8})];
+      ITG.key=[mergeGeometries([new THREE.TorusGeometry(0.1,0.035,8,16).toNonIndexed(),new THREE.BoxGeometry(0.05,0.3,0.05).translate(0,-0.24,0).toNonIndexed(),new THREE.BoxGeometry(0.1,0.05,0.05).translate(0.06,-0.34,0).toNonIndexed()]),ITG.coin[1]];
+      ITG.chest=[new THREE.BoxGeometry(0.75,0.5,0.5).translate(0,0.25,0),new THREE.MeshStandardMaterial({color:'#8b5a2b',emissive:'#3a1c00',emissiveIntensity:0.6,roughness:0.7})];
+      ITG.candle=[new THREE.CylinderGeometry(0.06,0.07,0.32,10).translate(0,0.16,0),new THREE.MeshStandardMaterial({color:'#fff4dc',emissive:'#ffcf7a',emissiveIntensity:0.7})];
+      ITG.flame=new THREE.SpriteMaterial({color:'#ffb347',transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false});}
+    const [g,m]=ITG[k],o=new THREE.Mesh(g,m);o.userData.noCull=true;o.castShadow=false;if(k==='candle'){const f=new THREE.Sprite(ITG.flame);f.scale.set(0.22,0.32,1);f.position.y=0.42;o.add(f);}if(k==='chest'){const b=new THREE.Mesh(new THREE.BoxGeometry(0.78,0.08,0.53),ITG.coin[1]);b.position.y=0.36;o.add(b);}return o;}
+  function itemsOn(list){itemsOff();IT=(list||[]).map(q=>{const o=itemMesh(q[0]);o.position.set(q[1],q[2]+(q[0]==='chest'||q[0]==='candle'?0:0.45),q[3]);scene.add(o);return {o,k:q[0],y0:o.position.y};});}
+  function itemsOff(){if(IT)for(const q of IT){scene.remove(q.o);for(const c of q.o.children)if(c.isMesh)c.geometry.dispose();}IT=null;}
+  // ---- 幽靈城堡：幽靈、黑夜、手電筒 ----
+  const GH={list:null,net:null,spot:null,time:null};
+  function ghostOn(){if(!GH.list){const bodyG=mergeGeometries([new THREE.SphereGeometry(0.42,16,12,0,Math.PI*2,0,Math.PI/2).translate(0,1.25,0).toNonIndexed(),new THREE.CylinderGeometry(0.42,0.55,0.95,16,1,true).translate(0,0.78,0).toNonIndexed()]),
+        bm=new THREE.MeshBasicMaterial({color:'#e8f4ff',transparent:true,opacity:0.72,depthWrite:false,toneMapped:false,side:THREE.DoubleSide}),eg=new THREE.SphereGeometry(0.07,8,6),em=new THREE.MeshBasicMaterial({color:'#101018'});
+      GH.list=[0,1,2,3].map(()=>{const g=new THREE.Group(),b=new THREE.Mesh(bodyG,bm);g.add(b);for(const s of [-1,1]){const e=new THREE.Mesh(eg,em);e.position.set(s*0.15,1.3,0.38);g.add(e);}g.traverse(o=>{o.userData.noCull=true;o.castShadow=false;});return {g,x:0,y:-50,z:0};});}
+    for(const q of GH.list){q.g.visible=false;scene.add(q.g);}GH.net=null;
+    GH.time=+(($c('time')||{}).value||15);setTime(21.5);   /* 晚上 */
+    if(!GH.spot){GH.spot=new THREE.SpotLight('#fff6dd',40,22,0.55,0.55,1.4);GH.spot.castShadow=false;GH.tg=new THREE.Object3D();GH.spot.target=GH.tg;}scene.add(GH.spot,GH.tg);DARK.hidden=false;}
+  function ghostOff(){if(!GH.list||GH.time==null)return;for(const q of GH.list){q.g.visible=false;scene.remove(q.g);}if(GH.spot){scene.remove(GH.spot,GH.tg);}setTime(GH.time);GH.time=null;DARK.hidden=true;}
   G.lock=()=>!!(G.on&&S&&(S.hold.includes(me())||S.fr.includes(me())));
   G.mmHide=id=>!!(G.on&&G.m==='hide'&&S&&!S.it.includes(id));
   G.hideDist=()=>G.on&&G.m==='hide';
-  G.door=(grp,v)=>{if(!G.on||!NET.on)return;NET.out('*',{t:'cgDr',ix:grp.map(d=>DOORS.indexOf(d)).filter(i=>i>=0),v:v?1:0});};
+  G.door=(grp,v)=>{if(!G.on||!G.net)return;NET.out('*',{t:'cgDr',ix:grp.map(d=>DOORS.indexOf(d)).filter(i=>i>=0),v:v?1:0});};
   function doorApply(d){if(!G.on||!Array.isArray(d.ix))return;for(const i of d.ix){const x=DOORS[i|0];if(x&&(x.cs!==undefined||x.gate))x.man=d.v?1:0;}syncActBtn();}   /* 不存檔（只是這一局） */
-  function hud(force){hudT-=force?99:0;if(hudT>0)return;hudT=0.2;const M=MODES[G.m],i=me(),seek=S.it.includes(i),left=Math.max(0,(endAt-performance.now())/1000);let t;
+  function hud(force){if(force)hudT=0;if(hudT>0)return;hudT=0.2;const M=MODES[G.m],i=me(),seek=S.it.includes(i),left=Math.max(0,(endAt-performance.now())/1000),out=S.out&&S.out.includes(i);let t;
     if(S.ph==='count')t=G.m==='hide'?(seek?'蒙眼數數中…':`快去躲！鬼還在數（${Math.ceil(left)}）`):`準備…${Math.ceil(left)}`;
     else if(G.m==='tag')t=seek?'<span class="it">👹 你是鬼！去抓人</span>':`鬼：<span class="it">${esc(dn(S.it[0]))}</span>　快跑！`;
     else if(G.m==='ice')t=seek?'<span class="it">👹 你是鬼！把大家冰住</span>':S.fr.includes(i)?'🧊 被冰住了，等隊友來碰你':`鬼：<span class="it">${esc(dn(S.it[0]))}</span>　冰住 ${S.fr.length} 人`;
-    else t=seek?`<span class="it">👀 去找！</span>還有 ${S.ids.filter(x=>!S.it.includes(x)).length} 人沒找到`:'🤫 躲好別被找到';
+    else if(G.m==='hide')t=seek?`<span class="it">👀 去找！</span>還有 ${S.ids.filter(x=>!S.it.includes(x)).length} 人沒找到`:'🤫 躲好別被找到';
+    else if(G.m==='bomb')t=out?'💥 你出局了，看大家玩':S.pause?'下一顆炸彈準備中…':seek?`<span class="it">💣 炸彈在你手上！${'🔥'.repeat(S.fz||1)}</span>`:`💣 在 <span class="it">${esc(dn(S.it[0]||''))}</span> 手上 ${'🔥'.repeat(S.fz||1)}　還剩 ${S.ids.length-S.out.length} 人`;
+    else if(G.m==='statue')t=S.fd.includes(i)?'🎉 你碰到守衛了，等大家':S.gs==='look'?'<span class="it">👀 守衛在看！不要動</span>':'🧍 守衛背對你，快往前走！';
+    else if(G.m==='lava'){const hp=S.hp&&S.hp[i]!=null?S.hp[i]:3;const ll=Math.max(0,Math.ceil(((S.llAt||0)-performance.now())/1000));t=`${'❤️'.repeat(Math.max(0,hp))||'出局'}　第 ${S.rd||1}／6 輪<br>${S.ph!=='play'?'準備…':S.lp==='lava'?`<span class="it">🔥 岩漿中！再撐 ${ll} 秒</span>`:`${ll} 秒後岩漿來！高 ${Math.round(LAVA_LV[Math.min(5,(S.rd||1)-1)]*100)} cm，快站高`}`;}
+    else if(G.m==='treasure'){const p=S.pts&&S.pts[i]||[0,0],rem=(G.items||[]).map((q,k)=>S.tk.includes(k)?null:q).filter(Boolean),fl=[0,0,0,0,0];for(const q of rem)fl[Math.max(0,CASTLE.FY.indexOf(fBase(q[2]+0.1)))]++;t=`💎 ${p[0]} 分　🔑 ${p[1]}　還有：${['B1','1F','2F','3F','頂'].map((n,k)=>fl[k]?`${n} ${fl[k]}`:'').filter(Boolean).join('、')||'沒了'}`;}
+    else if(G.m==='ghost'){const got=S.tk.length,n=(G.items||[]).length;t=S.open?'<span class="it">🚪 大門開了！快到大門口</span>':`🕯 蠟燭 ${got}／${n}　${S.esc.includes(i)?'已經逃出去了':'小心幽靈！'}`;}
     {const pl=$c('place'),b=pl&&!pl.hidden?pl.getBoundingClientRect():null;HUD.style.top=(b?Math.round(b.bottom+6):56)+'px';}   /* 排在左上角位置面板下面 */
-    HUD.innerHTML=`<b>${M.e} 城堡${M.n}</b>　⏱ ${mmss(S.ph==='count'?left:left)}<br>${t}<button data-q="1">退出</button>`;HUD.hidden=false;}
-  HUD.addEventListener('click',e=>{if(e.target.closest('[data-q]')){toHost({t:'cgQ'});cleanup('你退出了城堡遊戲');}});
-  G.tick=dt=>{if(NET.host&&(L||H))hostTick(dt);
-    {const sh=NET.on&&NET.P.size>0&&!G.on&&mode==='walk'&&inArea(player.pos.x,player.pos.y);if(BTN.hidden===sh)BTN.hidden=!sh;if(sh){G.bT=(G.bT||0)-dt;if(G.bT<=0){G.bT=0.5;const c=$c('netChatB'),b=c&&!c.hidden?c.getBoundingClientRect():null;BTN.style.top=(b?Math.round(b.bottom+8):170)+'px';}}}
-    if(!G.on)return;if(!NET.on){cleanup('連線中斷，城堡遊戲結束了');return;}
+    HUD.innerHTML=`<b>${M.e} ${ttl(M)}</b>${G.m==='lava'&&S.ph==='play'?'':`　⏱ ${mmss(left)}`}<br>${t}<button data-q="1">退出</button>`;HUD.hidden=false;}
+  HUD.addEventListener('click',e=>{if(G.on&&e.target.closest('[data-q]')){toHost({t:'cgQ'});cleanup('你退出了城堡遊戲');}});
+  G.tick=dt=>{if(local()&&(L||H))hostTick(dt);
+    {const sh=!G.on&&mode==='walk'&&started&&inArea(player.pos.x,player.pos.y);if(BTN.hidden===sh)BTN.hidden=!sh;if(sh){G.bT=(G.bT||0)-dt;if(G.bT<=0){G.bT=0.5;const c=$c('netChatB'),b=c&&!c.hidden?c.getBoundingClientRect():null;BTN.style.top=(b?Math.round(b.bottom+8):(isTouch?132:170))+'px';}}}
+    if(!G.on)return;if(G.net&&!NET.on){cleanup('連線中斷，城堡遊戲結束了');return;}
     if(RIDE.on)RIDE.stop(true);if(mode==='aerial')toggleAerial();
-    if(mode==='walk'&&!inArea(player.pos.x,player.pos.y)){G.outT=(G.outT||0)+dt;if(G.outT>0.4){G.outT=0;const sp=SPAWN[Math.floor(Math.random()*SPAWN.length)];teleport(sp[0],sp[1],0,0);toast('🏰 只能在城堡裡面玩');}}else G.outT=0;   /* 跑出城堡（或按了「前往」）＝拉回大廳 */
-    hudT-=dt;hud(false);const i=me(),left=(endAt-performance.now())/1000;
+    if(mode==='walk'&&!inArea(player.pos.x,player.pos.y)&&!(G.m==='ghost'&&S.esc.includes(me()))){G.outT=(G.outT||0)+dt;if(G.outT>0.4){G.outT=0;const sp=SPAWN[Math.floor(Math.random()*SPAWN.length)];teleport(sp[0],sp[1],0,0);toast('🏰 只能在城堡裡面玩');}}else G.outT=0;   /* 跑出城堡（或按了「前往」）＝拉回大廳 */
+    hudT-=dt;hud(false);const i=me(),now=performance.now(),left=(endAt-now)/1000,T=now/1000;
+    if(bigT>0){bigT-=dt;if(bigT<=0)BIG.hidden=true;}
     const blind=G.m==='hide'&&S.ph==='count'&&S.it.includes(i);if(BLIND.hidden===blind)BLIND.hidden=!blind;if(blind)BLIND.querySelector('b').textContent=Math.max(0,Math.ceil(left));
     const fz=S.fr.includes(i);if(ICE.hidden===fz)ICE.hidden=!fz;
-    for(const id of S.ids){const r=rootOf(id),k=markOf(id),it=S.it.includes(id),f=S.fr.includes(id);
-      for(const o of [k.ring,k.ice,k.spr])if(r&&o.parent!==r)r.add(o);k.ring.visible=!!r&&it;k.spr.visible=!!r&&it&&id!==i;k.ice.visible=!!r&&f;}   /* 自己頭上的「鬼」不畫（第三人稱會擋畫面，左上角已經寫了） */
-    for(const q of NET.P.values()){const R=q.rem;if(!R)continue;const show=!(G.m==='hide'&&!S.it.includes(q.id));if(R.tag.visible!==show)R.tag.visible=show;if(R.gt&&R.gt.visible)R.gt.visible=false;}};   /* 躲貓貓：躲的人頭上的名字藏起來（名字隔著牆也看得到）；在玩什麼的小標籤遊戲中都藏起來 */
-  Object.defineProperty(G,'S',{get:()=>S});G.dbg=()=>({L,H,S,MK,start,end,hostTick,cliRx,finish,cleanup});   /* 測試用 */
+    if(!bombM&&G.m==='bomb')bombM=sprMat('💣','rgba(30,30,30,0.92)');
+    for(const id of S.ids){const r=rootOf(id),k=markOf(id),it=S.it.includes(id)&&!(S.out&&S.out.includes(id)),f=S.fr.includes(id);k.spr.material=G.m==='bomb'?bombM:sprM;
+      for(const o of [k.ring,k.ice,k.spr])if(r&&o.parent!==r)r.add(o);k.ring.visible=!!r&&it;k.spr.visible=!!r&&it&&(id!==i||G.m==='bomb');k.ice.visible=!!r&&f;if(G.m==='bomb'&&it)k.spr.position.y=2.55+0.08*Math.sin(T*(S.fz===1?24:S.fz===2?14:8));}   /* 自己頭上的「鬼」不畫（第三人稱會擋畫面，左上角已經寫了）；炸彈會抖，越快越危險 */
+    for(const q of NET.P.values()){const R=q.rem;if(!R)continue;const show=!(G.m==='hide'&&!S.it.includes(q.id));if(R.tag.visible!==show)R.tag.visible=show;if(R.gt&&R.gt.visible)R.gt.visible=false;}   /* 躲貓貓：躲的人頭上的名字藏起來（名字隔著牆也看得到）；在玩什麼的小標籤遊戲中都藏起來 */
+    if(G.m==='bomb'&&S.ph==='play'&&!S.pause&&S.it[0]){tickT-=dt;if(tickT<=0){tickT=S.fz===1?0.25:S.fz===2?0.5:1;if(S.it[0]===i||!CALM.on)AUDIO.sfx('beep');}}   /* 滴答：越快越危險 */
+    if(GD&&GD.A.root.visible){const want=S.gs==='look'?Math.PI:0;GD.yaw+=(want-GD.yaw)*Math.min(1,dt*10);GD.A.root.rotation.y=GD.yaw;}
+    if(LV&&G.m==='lava'){const on=S.ph==='play'&&S.lp==='lava',ty=on?S.lv:-0.4;LV.y+=(ty-LV.y)*Math.min(1,dt*(on?2.5:1.5));LV.m.position.y=LV.y;LV.m.visible=LV.y>-0.35;LV.t.offset.set(Math.sin(T*0.3)*0.5,T*0.05);}
+    if(IT){IT.forEach((q,k)=>{const tk=S.tk.includes(k);q.o.visible=!tk;if(!tk&&q.k!=='chest'&&q.k!=='candle'){q.o.rotation.y=T*2+k;q.o.position.y=q.y0+0.08*Math.sin(T*3+k);}});}
+    if(GH.list&&G.m==='ghost'){const g=GH.net;GH.list.forEach((q,k)=>{const v=g&&g[k];if(!v){q.g.visible=false;return;}q.g.visible=true;const kk=Math.min(1,dt*8);q.x+=(v[0]-q.x)*kk;q.z+=(v[2]-q.z)*kk;q.g.position.set(q.x,v[1]+0.12*Math.sin(T*2+k),q.z);q.g.rotation.y=Math.atan2(player.pos.x-q.x,player.pos.y-q.z);});
+      const s=GH.spot;s.position.copy(camera.position);camera.getWorldDirection(GH.v||(GH.v=new THREE.Vector3()));GH.tg.position.copy(camera.position).addScaledVector(GH.v,6);}};
+  Object.defineProperty(G,'S',{get:()=>S});G.dbg=()=>({L,H,S,MK,start,end,hostTick,cliRx,finish,cleanup,BEST,GD,LV,IT,GH});   /* 測試用 */
   return G;})();
 function step(dt){
   if(mode==='walk'){
