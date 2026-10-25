@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-25.10"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-25.12"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -10051,7 +10051,7 @@ for(const b of root.querySelectorAll('[data-n]'))b.onclick=e=>{e.stopPropagation
 
 /* ---------------- 動作（使用者要求：月球漫步、最近很紅的 Bye Bye Bye，順便放一些常見的動作） ----------------
    上方「動作」按鈕（電腦 N 鍵）打開清單，點一個就開始做（會切到第三人稱，人物轉過來面對鏡頭）。
-   跳舞類（Bye Bye Bye、牙線舞、騎馬舞、機器人舞、月球漫步、坐下）會一直做，推搖桿／按方向鍵、跳、再點一次就停；其他做完自己停。
+   跳舞類（Bye Bye Bye、牙線舞、機器人舞、月球漫步、坐下；騎馬舞 2026-10-25.12 使用者說移除）會一直做，推搖桿／按方向鍵、跳、再點一次就停；其他做完自己停。
    跳舞時有節奏鼓聲（自己合成的鼓＋貝斯，不是原曲）。月球漫步會戴上黑色紳士帽、自己往後滑。 */
 const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
   const panel=document.getElementById('emotePanel'),btn=document.getElementById('bEmote');
@@ -10060,7 +10060,7 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
   const LIST=[
     {k:'gingang',name:'🍄 靈感菇',loop:true,bpm:100,meme:1,big:'🍄 靈感菇～',song:{id:'e-gingang',n:'靈感菇',bpm:100,k:67,bar:4,rep:2,ib:1,lead:'sq',s:"1/0.5 3/0.5 5/0.5 5/0.5 5/0.5 6/0.5 5/0.5 3/0.5 | 1/0.5 3/0.5 2 1/0.5 2/0.5 3 | 1/0.5 3/0.5 5/0.5 5/0.5 5/0.5 6/0.5 5/0.5 3/0.5 | 1/0.5 3/0.5 2 1/0.5 ,7/0.5 1"}},   /* 2026-10-25.8 使用者：「迷因錯了，靈感菇沒有經典音樂」→ 原本照童子軍歌的譜（1 3 5 5 5…1 3 2，7 2 1）不是迷因唱的那段；
        改成量 YouTube 單手鋼琴教學（8Vj4UwQzs_E）的音高：G B D D D E D B｜G B A－G A B－｜G B D D D E D B｜G B A－G F# G－（G 大調、約 100 bpm、八分音符）＝「靈感菇哩菇哩菇哩哇擦，靈感菇，靈感菇」；不用錄音，自己的編曲 */
-    {k:'sixseven',name:'6️⃣7️⃣ 67',loop:true,bpm:140,meme:1,big:'6️⃣ 7️⃣',song:{id:'e-67',n:'67 節奏',bpm:140,k:60,bar:4,rep:2,ib:1,minor:true,sty:'drift',lead:'saw',s:"6/0.5 0/0.5 6/0.5 6/0.5 0/0.5 1'/0.5 7/0.5 6/0.5 | 5/0.5 0/0.5 5/0.5 5/0.5 0 3 | 6/0.5 0/0.5 6/0.5 6/0.5 0/0.5 1'/0.5 7/0.5 6/0.5 | 3'/0.5 2'/0.5 1'/0.5 7/0.5 6/2"}},   /* 自己寫的嘻哈小段（不是原曲） */
+    {k:'sixseven',name:'6️⃣7️⃣ 67',dur:2.2,bpm:150,meme:1,big:'6️⃣ 7️⃣',shout:1},   /* 2026-10-25.11 使用者：「67 不就單純地跳出 67 文字然後喊出英文的 six seven」→ 不放音樂、不一直跳：畫面跳出「6️⃣ 7️⃣」、用英文朗讀喊「Six seven!」、手比一下（掌心朝上一上一下）2.2 秒就停 */
     {k:'cancan',name:'🦵 康康舞',loop:true,bpm:150,meme:1,big:'🦵 康康舞！',song:{id:'e-cancan',n:'康康舞曲',bpm:150,k:72,bar:4,rep:2,ib:1,lead:'sq',s:"1/2 2/0.5 4/0.5 3/0.5 2/0.5 | 5 5 5/0.5 6/0.5 3/0.5 4/0.5 | 2 2 2/0.5 4/0.5 3/0.5 2/0.5 | 1/0.5 1'/0.5 7/0.5 6/0.5 5/0.5 4/0.5 3/0.5 2/0.5 | 1/2 2/0.5 4/0.5 3/0.5 2/0.5 | 5 5 5/0.5 6/0.5 3/0.5 4/0.5 | 2 2 2/0.5 4/0.5 3/0.5 2/0.5 | 1/0.5 5/0.5 2/0.5 3/0.5 1 0"}},
     {k:'sneak',name:'🤫 偷偷摸摸',loop:true,bpm:132,meme:1,big:'🤫 噓…',song:{id:'e-sneak',n:'山大王的大廳',bpm:132,k:69,bar:4,rep:2,ib:1,minor:true,lead:'saw',s:"1/0.5 2/0.5 b3/0.5 4/0.5 5/0.5 b3/0.5 5 | #4/0.5 2/0.5 #4 4/0.5 b2/0.5 4 | 1/0.5 2/0.5 b3/0.5 4/0.5 5/0.5 b3/0.5 5/0.5 1'/0.5 | b7/0.5 5/0.5 b3/0.5 5/0.5 b7/2"}},
     {k:'vibe',name:'😎 搖頭晃腦',loop:true,bpm:92,meme:1,big:'😎 好聽',song:{id:'e-vibe',n:'放鬆小調',bpm:92,k:65,bar:4,rep:2,ib:1,s:"3 5 6/0.5 5/0.5 3 | 2/2 0/2 | 3 5 6/0.5 1'/0.5 6 | 5/3 0"}},   /* 自己寫的 */
@@ -10068,7 +10068,6 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
     {k:'moon',name:'月球漫步',loop:true,bpm:112,face:Math.PI/2},
     {k:'bye',name:'Bye Bye Bye（忍者裝）',loop:true,bpm:172},
     {k:'floss',name:'牙線舞',loop:true,bpm:128},
-    {k:'horse',name:'騎馬舞',loop:true,bpm:132},
     {k:'robot',name:'機器人舞',loop:true,bpm:110},
     {k:'wave',name:'揮手',dur:2.4},
     {k:'clap',name:'拍手',dur:2.6},
@@ -10087,7 +10086,7 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
   // 清單
   {const st=document.createElement('style');st.textContent='#emotePanel .emh{grid-column:1/-1;font-weight:800;font-size:13px;opacity:.85;margin:2px 0 -2px}#emotePanel button.meme{background:#3a2a55;border-color:#8a63d2}';document.head.appendChild(st);}
   let hdM=false,hdO=false;const hd=t=>{const h=document.createElement('div');h.className='emh';h.textContent=t;panel.appendChild(h);};
-  for(const it of LIST){if(it.meme&&!hdM){hdM=true;hd('🔥 迷因舞（有音樂）');}if(!it.meme&&hdM&&!hdO){hdO=true;hd('其他動作');}const b=document.createElement('button');b.textContent=it.name;if(it.meme)b.className='meme';b.onclick=e=>{e.stopPropagation();panel.hidden=true;btn.classList.remove('on');E.start(it.k);};panel.appendChild(b);}
+  for(const it of LIST){if(it.meme&&!hdM){hdM=true;hd('🔥 迷因舞');}if(!it.meme&&hdM&&!hdO){hdO=true;hd('其他動作');}const b=document.createElement('button');b.textContent=it.name;if(it.meme)b.className='meme';b.onclick=e=>{e.stopPropagation();panel.hidden=true;btn.classList.remove('on');E.start(it.k);};panel.appendChild(b);}
   E.toggle=()=>{panel.hidden=!panel.hidden;btn.classList.toggle('on',!panel.hidden);if(!panel.hidden){menu.hidden=true;bMenu.classList.remove('on');}};
   btn.onclick=e=>{e.stopPropagation();if(E.on){E.stop();return;}E.toggle();};
   E.can=()=>started&&mode==='walk'&&!GAME.on&&!BALLOON.riding&&!player.climb&&!RACE.on&&!NM.on&&!RB.on&&!SB.on&&!CU.on&&!MU.on&&!DD.on&&!KF.on&&!PUSH.on&&!FISH.on&&!RS.on;
@@ -10097,7 +10096,7 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
     avatar.yaw=player.yaw+Math.PI+(it.face||0);   // 轉過來面對鏡頭（月球漫步：側面）
     if(it.k==='moon')E.addHat();
     E.prev=null;if(it.k==='bye')E.suit(true);   /* 換上忍者裝 */
-    if(it.song&&musStart(it.song)){}else if(it.bpm){AUDIO.beat(it.bpm);E.beat=true;}   /* 迷因舞：配自己的歌；其他：鼓聲 */
+    if(it.shout)E.say67();else if(it.song&&musStart(it.song)){}else if(it.bpm){AUDIO.beat(it.bpm);E.beat=true;}   /* 迷因舞：配自己的歌；67：喊一聲；其他：鼓聲 */
     btn.textContent='停止';btn.classList.add('on');
     const el=document.getElementById('gBig');if(el){el.textContent=it.big||(it.k==='bye'?'Bye Bye Bye ⚔':it.k==='moon'?'月球漫步 🌙':it.name);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
   // 迷因舞的音樂：跳舞機合成器做好整首的事件表，一直循環播（每 40 ms 排 0.25 秒內要響的音）
@@ -10108,6 +10107,10 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
     for(let n=0;n<200;n++){if(m.i>=m.ev.length){m.i=0;m.t0+=m.len;}const e=m.ev[m.i],at=m.t0+e.t;if(at>hz)break;m.i++;if(at<now-0.03)continue;try{e.fn(Math.max(at,now),m.out);}catch(_){}}}
   function musStop(fade=0.15){const m=MZ;if(!m)return;MZ=null;clearInterval(m.timer);const c=AUDIO.A.ctx,g=m.out.gain,now=c.currentTime;g.cancelScheduledValues(now);g.setValueAtTime(g.value,now);g.linearRampToValueAtTime(0,now+fade);setTimeout(()=>{try{m.out.disconnect();}catch(_){}},fade*1000+400);}
   E.mz=()=>MZ;   /* 測試用 */
+  // 67：用手機的英文朗讀喊「Six seven!」（vol＝連線時朋友離多遠；沒有朗讀功能就只有字）
+  E.say67=(vol=1)=>{if(!window.speechSynthesis||!window.SpeechSynthesisUtterance)return false;try{const u=new SpeechSynthesisUtterance('Six seven!');u.lang='en-US';u.rate=1.05;u.pitch=1.15;u.volume=Math.max(0,Math.min(1,vol));
+    const vs=speechSynthesis.getVoices(),v=vs.find(x=>/^en[-_]US/i.test(x.lang)&&x.localService)||vs.find(x=>/^en[-_]US/i.test(x.lang))||vs.find(x=>/^en/i.test(x.lang));if(v)u.voice=v;
+    if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();speechSynthesis.speak(u);E.said67=(E.said67||0)+1;return true;}catch(_){return false;}};
   E.stop=quiet=>{if(!E.on)return;const it=E.on;E.on=null;if(E.beat){AUDIO.beat(0);E.beat=false;}musStop();E.removeHat();E.suit(false);{const A=avatar;for(const ar of [A.armL,A.armR])if(ar.parent===A.chest)ar.position.y=1.47-A.J.WAIST;}btn.textContent='動作';btn.classList.remove('on');
     const A=avatar;A.body.rotation.set(0,0,0);A.body.position.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);A.zeroJoints();
     if(it.k==='moon'&&!quiet){const el=document.getElementById('gBig');if(el){el.textContent='Hee-hee!';el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}}};
@@ -10215,11 +10218,6 @@ const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
       case 'floss':{const side=Math.sin(Math.PI*b),fb=Math.cos(Math.PI*b);   // 兩手打直甩到同一邊、一前一後交換；屁股往另一邊
         aR.rotation.set(-0.4*fb,0,0.45*side+0.1);aL.rotation.set(0.4*fb,0,0.45*side-0.1);fR.rotation.x=fL.rotation.x=-0.1;
         hand(1,'fist');hand(-1,'fist');a.body.position.x=-0.08*side;C.rotation.z=0.18*side;H.rotation.z=-0.12*side;sL.rotation.x=0.3*Math.max(0,side);sR.rotation.x=0.3*Math.max(0,-side);break;}
-      case 'horse':{const s=Math.sin(Math.PI*b);a.body.position.y=0.06*Math.abs(s)-0.06;sL.rotation.x=sR.rotation.x=0.35;
-        lL.rotation.x=-0.5*Math.max(0,s);sL.rotation.x+=0.7*Math.max(0,s);lR.rotation.x=-0.5*Math.max(0,-s);sR.rotation.x+=0.7*Math.max(0,-s);
-        if(Math.floor(b/8)%2===1&&b%8>=6){const w=b*Math.PI*2;aR.rotation.set(-2.7,0,0.4);fR.rotation.set(-0.6+0.4*Math.sin(w),0,0.4*Math.cos(w));aL.rotation.set(-0.9,0,0.2);fL.rotation.set(-0.9,0,0.9);C.rotation.x=-0.08;}   // 甩套繩
-        else{aR.rotation.set(-1.0,0,-0.2);fR.rotation.set(-0.9,0,-0.9);aL.rotation.set(-1.0,0,0.2);fL.rotation.set(-0.9,0,0.9);C.rotation.x=0.1;}   // 兩手交叉在胸前（拉韁繩）
-        hand(1,'fist');hand(-1,'fist');H.rotation.x=0.08*s;break;}
       case 'robot':{const P=[   // [右上臂, 右前臂, 左上臂, 左前臂, 腰轉, 頭轉, 蹲]
           [[0,0,1.57],[0,0,1.57],[0,0,-1.57],[0,0,-1.57],0,0,0],
           [[-1.57,0,0],[-1.57,0,0],[-1.57,0,0],[-1.57,0,0],0,0.4,0],
@@ -17586,6 +17584,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       const m=R.mate,t=s.mt;if(m.root.parent!==scene)scene.add(m.root);m.root.visible=true;m.root.position.set(t[0],t[1],t[2]);m.root.rotation.y=t[3];m.body.position.y=t[4];m.parts.forEach((g,i)=>{if(g)g.rotation.set(t[5+i*3],t[6+i*3],t[7+i*3]);});}   /* 別人的隊友 23 號 */
     else if(R.mate&&R.mate.root.parent)scene.remove(R.mate.root);
     {const em=s.em||'';if(em!==R.em){R.em=em;if(R.hat){A.body.remove(R.hat);R.hat=null;}if(em==='moon'){R.hat=EMOTE.mkHat();A.body.add(R.hat);}   /* 月球漫步的帽子 */
+        if(em==='sixseven'){bubble(q.id,'6️⃣7️⃣',true,2.2);const d=Math.hypot(a[0]-camera.position.x,a[2]-camera.position.z);if(d<30)EMOTE.say67(1/(1+Math.max(0,d-3)/8));}   /* 朋友比 67：頭上跳出 67、喊一聲（越遠越小聲） */
       const suit=em==='bye'&&!R.dk;if(suit!==!!R.suit&&q.cfg){R.suit=suit;A.dress(suit?{...q.cfg,O:EMOTE.DP}:q.cfg);A.root.traverse(x=>{x.userData.noCull=true;});R.h0=R.h1=null;}}}   /* Bye Bye Bye 的忍者裝 */
     {const g=s.g||'';if(g!==R.gs){R.gs=g;if(!R.gt){R.gt=mkSprite(null,1.25,0.31);R.gt.position.y=2.47;A.root.add(R.gt);}if(R.gt.material.map)R.gt.material.map.dispose();R.gt.material.map=g?tagTex(g,'rgba(30,30,40,0.88)'):null;R.gt.material.needsUpdate=true;R.gt.visible=!!g;}}   /* 名字上面：在玩什麼 */
     {const hw=s.hw||'';if(hw!==R.hwK){R.hwK=hw;if(R.hw&&R.hw.parent)R.hw.parent.remove(R.hw);R.hw=hw?PUSH.mkWear(hw):null;}if(R.hw&&R.hw.parent!==A.body)A.body.add(R.hw);}   /* 頭上戴的皇冠、兔耳朵 */
