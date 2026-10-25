@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-25.7"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-25.9"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -917,7 +917,7 @@
   <input id="fov" type="range" min="45" max="80" step="1" value="60">
   <label style="margin-top:10px"><span>防暈模式（關掉畫面震動、灌籃運鏡、閃光；移動、轉頭時畫面四周變暗）</span><input id="calm" type="checkbox"></label>
   <label style="margin-top:10px"><span>省電模式（降低解析度、每秒 30 張，手機比較不燙）</span><input id="eco" type="checkbox"></label>
-  <label style="margin-top:10px"><span>超省記憶體（沒有影子、牆壁地板花紋糊一點，字不受影響；手機、平板一直「網頁重新整理」時打開）</span><input id="ulm" type="checkbox"></label>
+  <label style="margin-top:10px"><span>超省記憶體（沒有影子、牆壁地板花紋糊一點，字不受影響；手機、平板預設打開）</span><input id="ulm" type="checkbox"></label>
   <label style="margin-top:10px"><span>小孩視角（身高約 130 cm）</span><input id="kid" type="checkbox"></label>
   <label style="margin-top:10px"><span>第三人稱鏡頭距離</span><span id="camdVal">4.2 m</span></label>
   <input id="camd" type="range" min="1.5" max="12" step="0.1" value="4.2">
@@ -1340,7 +1340,8 @@ renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const LOWMEM=isTouch;if(LOWMEM)renderer.capabilities.maxTextureSize=Math.min(renderer.capabilities.maxTextureSize,1024);
 /* 2026-10-24.7 超省記憶體（選單開關，記在 home-ulm）：影子整個關（不建陰影圖）、貼圖上限 512
    2026-10-25.6 試過手機、平板預設開 → 使用者：「不能預設超省記憶體，每個遊玩的地方提示字都被移除了」→ 改回大家都預設關 */
-const ULM={on:false,max0:renderer.capabilities.maxTextureSize};try{ULM.on=localStorage.getItem('home-ulm')==='1';}catch(_){}
+/* 2026-10-25.8 字不再糊了 → 使用者：「有了超省記憶體，那些文字都看得到了，那手機平板預設打開」→ 手機、平板沒切換過就預設開（手動關掉會記住）、電腦照舊關 */
+const ULM={on:false,max0:renderer.capabilities.maxTextureSize};try{const v=localStorage.getItem('home-ulm');ULM.on=v===null?LOWMEM:v==='1';}catch(_){ULM.on=LOWMEM;}
 /* 2026-10-25.6 不再把所有貼圖壓到 512（看板、招牌、說明的字會糊到看不出來）→ 改成手機、平板重複花紋的材質圖（牆、地板）再縮一半（lowmemShrink），有字的圖不動 */
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=0.9;
 document.getElementById('app').appendChild(renderer.domElement);
@@ -10055,9 +10056,10 @@ for(const b of root.querySelectorAll('[data-n]'))b.onclick=e=>{e.stopPropagation
 const EMOTE=(()=>{const E={on:null,t:0,hat:null,beat:false};
   const panel=document.getElementById('emotePanel'),btn=document.getElementById('bEmote');
   // 2026-10-25.7 使用者：「遊戲增加靈感菇的動作音樂、動作多一堆迷因 音樂跟動作、還有什麼 67 的迷因」→ 迷因舞（meme）：動作都是自己編的；
-  // 音樂用跳舞機的合成器（DD.music）：沒有版權的老曲子（靈感菇＝童子軍歌 Ging Gang Goolie 1905、康康舞＝奧芬巴哈 1858、山大王的大廳＝葛利格 1875）或自己寫的旋律（67 的原曲有版權，不用）
+  // 音樂用跳舞機的合成器（DD.music）：沒有版權的老曲子（靈感菇＝童子軍歌 Ging Gang Goolie 的迷因唱法（10-25.9 改）、康康舞＝奧芬巴哈 1858、山大王的大廳＝葛利格 1875）或自己寫的旋律（67 的原曲有版權，不用）
   const LIST=[
-    {k:'gingang',name:'🍄 靈感菇',loop:true,bpm:126,meme:1,big:'🍄 靈感菇～',song:{id:'e-gingang',n:'靈感菇',bpm:126,k:72,bar:4,rep:2,ib:1,lead:'sq',s:"1 3 5/0.5 5/0.5 5/0.5 5/0.5 | 5/0.5 5/0.5 5/0.5 5/0.5 5 3 | 1 3 2/2 | ,7 2 1/2 | 1 3 5/0.5 5/0.5 5/0.5 5/0.5 | 5/0.5 5/0.5 5/0.5 5/0.5 5 3 | 1 3 2/2 | ,7 2 1/2 | 6 4 6/0.5 6/0.5 5/0.5 3/0.5 | 5/0.5 5/0.5 4/0.5 3/0.5 4 2 | 3/2 5/2 | 6 4 6/0.5 6/0.5 5/0.5 3/0.5 | 5/0.5 5/0.5 4/0.5 3/0.5 4 2 | 1/4"}},   /* 簡譜照 kalimbatabs 的 Ging Gang Goolie，節奏自己排 */
+    {k:'gingang',name:'🍄 靈感菇',loop:true,bpm:100,meme:1,big:'🍄 靈感菇～',song:{id:'e-gingang',n:'靈感菇',bpm:100,k:67,bar:4,rep:2,ib:1,lead:'sq',s:"1/0.5 3/0.5 5/0.5 5/0.5 5/0.5 6/0.5 5/0.5 3/0.5 | 1/0.5 3/0.5 2 1/0.5 2/0.5 3 | 1/0.5 3/0.5 5/0.5 5/0.5 5/0.5 6/0.5 5/0.5 3/0.5 | 1/0.5 3/0.5 2 1/0.5 ,7/0.5 1"}},   /* 2026-10-25.8 使用者：「迷因錯了，靈感菇沒有經典音樂」→ 原本照童子軍歌的譜（1 3 5 5 5…1 3 2，7 2 1）不是迷因唱的那段；
+       改成量 YouTube 單手鋼琴教學（8Vj4UwQzs_E）的音高：G B D D D E D B｜G B A－G A B－｜G B D D D E D B｜G B A－G F# G－（G 大調、約 100 bpm、八分音符）＝「靈感菇哩菇哩菇哩哇擦，靈感菇，靈感菇」；不用錄音，自己的編曲 */
     {k:'sixseven',name:'6️⃣7️⃣ 67',loop:true,bpm:140,meme:1,big:'6️⃣ 7️⃣',song:{id:'e-67',n:'67 節奏',bpm:140,k:60,bar:4,rep:2,ib:1,minor:true,sty:'drift',lead:'saw',s:"6/0.5 0/0.5 6/0.5 6/0.5 0/0.5 1'/0.5 7/0.5 6/0.5 | 5/0.5 0/0.5 5/0.5 5/0.5 0 3 | 6/0.5 0/0.5 6/0.5 6/0.5 0/0.5 1'/0.5 7/0.5 6/0.5 | 3'/0.5 2'/0.5 1'/0.5 7/0.5 6/2"}},   /* 自己寫的嘻哈小段（不是原曲） */
     {k:'cancan',name:'🦵 康康舞',loop:true,bpm:150,meme:1,big:'🦵 康康舞！',song:{id:'e-cancan',n:'康康舞曲',bpm:150,k:72,bar:4,rep:2,ib:1,lead:'sq',s:"1/2 2/0.5 4/0.5 3/0.5 2/0.5 | 5 5 5/0.5 6/0.5 3/0.5 4/0.5 | 2 2 2/0.5 4/0.5 3/0.5 2/0.5 | 1/0.5 1'/0.5 7/0.5 6/0.5 5/0.5 4/0.5 3/0.5 2/0.5 | 1/2 2/0.5 4/0.5 3/0.5 2/0.5 | 5 5 5/0.5 6/0.5 3/0.5 4/0.5 | 2 2 2/0.5 4/0.5 3/0.5 2/0.5 | 1/0.5 5/0.5 2/0.5 3/0.5 1 0"}},
     {k:'sneak',name:'🤫 偷偷摸摸',loop:true,bpm:132,meme:1,big:'🤫 噓…',song:{id:'e-sneak',n:'山大王的大廳',bpm:132,k:69,bar:4,rep:2,ib:1,minor:true,lead:'saw',s:"1/0.5 2/0.5 b3/0.5 4/0.5 5/0.5 b3/0.5 5 | #4/0.5 2/0.5 #4 4/0.5 b2/0.5 4 | 1/0.5 2/0.5 b3/0.5 4/0.5 5/0.5 b3/0.5 5/0.5 1'/0.5 | b7/0.5 5/0.5 b3/0.5 5/0.5 b7/2"}},
@@ -15804,9 +15806,10 @@ const AUDIO=(()=>{
    測試：AMUS.render('home',20) 離線算出音樂的峰值／RMS；AMUS.dbg() 看現在狀態。 */
 const AMUS=(()=>{
   const A=AUDIO.A,rnd=(a,b)=>a+Math.random()*(b-a),midi=n=>440*Math.pow(2,(n-69)/12);
-  const S={mode:'off',vol:0.6,voice:'sim',step:true,no:{}};   /* 2026-10-20.9 使用者：「預設背景音樂關閉，目前太難聽了」 */
+  const S={mode:'off',vol:0.6,voice:'tts',step:true,no:{}};   /* 2026-10-20.9 使用者：「預設背景音樂關閉，目前太難聽了」 */
   try{Object.assign(S,JSON.parse(localStorage.getItem('home-bgm')||'{}'));}catch(_){}
   if(!S.def0){S.def0=1;S.mode='off';try{localStorage.setItem('home-bgm',JSON.stringify(S));}catch(_){}}   /* 之前存過「自動」的人也先關一次；之後自己打開會記住 */
+  if(!S.tts1){S.tts1=1;if(S.voice==='sim')S.voice='tts';try{localStorage.setItem('home-bgm',JSON.stringify(S));}catch(_){}}   /* 2026-10-25.8 使用者：「說話聲想預設用朗讀文字」→ 之前存的「咿咿呀呀」也換一次；之後自己改回會記住 */
   const save=()=>{try{localStorage.setItem('home-bgm',JSON.stringify(S));}catch(_){}};
   if(!S.no||typeof S.no!=='object')S.no={};
   let boxDraw=null;
