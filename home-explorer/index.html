@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-27.32"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-27.33"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -5393,7 +5393,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
       if(R.s>=Ln.L-0.02){R.s=Ln.L;R.ph='open';R.pt=0;R.v=0;R.acc=0;AUDIO.sfx('chime');}}
     else if(R.ph==='open'){R.pt+=dt;door(myCab,Math.min(1,R.pt/0.8));if(R.pt>=1.1){rideArrive();return;}}
     if(!S.ride)return;
-    {const w2=9.8/CABH,t=performance.now()/1000+R.wp,wind=0.05*Math.sin(t*0.7)+0.03*Math.sin(t*1.9),mx=R.game&&R.game.k==='sh'?0.42:0.18;R.axv+=(-w2*R.ax+(R.acc||0)/CABH*0.9-0.7*R.axv*(R.game&&R.game.k==='sh'?0.25:1))*dt;R.azv+=(-w2*R.az+wind-0.7*R.azv)*dt;R.ax=cl(R.ax+R.axv*dt,-mx,mx);R.az=cl(R.az+R.azv*dt,-0.12,0.12);R.shake=Math.max(0,R.shake-dt);}   /* 車廂像鐘擺一樣晃（搖車廂比賽時阻力小、晃得大） */
+    {const w2=9.8/CABH,t=performance.now()/1000+R.wp,wind=0.05*Math.sin(t*0.7)+0.03*Math.sin(t*1.9),mx=R.game&&R.game.k==='sh'?1.1:0.18;R.axv+=(-w2*R.ax+(R.acc||0)/CABH*0.9-0.7*R.axv*(R.game&&R.game.k==='sh'?0.25:1))*dt;R.azv+=(-w2*R.az+wind-0.7*R.azv)*dt;R.ax=cl(R.ax+R.axv*dt,-mx,mx);R.az=cl(R.az+R.azv*dt,-0.12,0.12);R.shake=Math.max(0,R.shake-dt);}   /* 車廂像鐘擺一樣晃（搖車廂比賽時阻力小、晃得大） */
     R.t=R.rev?1-R.s/Ln.L:R.s/Ln.L;linePos(Ln,R.t,RV);if(R.rev)RV.h+=Math.PI;lane(RV);myCab.position.copy(RV);myCab.rotation.y=RV.h;myCab.userData.pivot.rotation.set(R.ax,0,R.az);myCab.updateMatrixWorld(true);
     const st=SEATS[R.seat]||SEATS[0];CV.set(st[0],-0.95,st[1]);myCab.userData.body.localToWorld(CV);player.pos.set(CV.x,CV.z);player.y=CV.y;player.vel.set(0,0);player.vy=0;player.ground=true;player.climb=false;
     funTick(dt);};
@@ -5435,7 +5435,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     h+=`<div class="rw">${R.ph==='wait'&&!R.host?'<button data-go="1" class="on">🚡 出發</button>':''}<button data-c="fw" class="${R.sub==='fw'?'on':''}">🎆 煙火</button><button data-c="ph">📸 合照</button><button data-c="em" class="${R.sub==='em'?'on':''}">😀 表情</button><button data-c="gm" class="${R.sub==='gm'?'on':''}">🎮 小遊戲</button><button data-cam="1">${R.cam==='in'?'🎥 外面看':'🪟 裡面看'}</button></div>`;
     const G=R.game;
     if(G&&G.k==='tw')h+=`<div class="rw"><button data-now="1" class="big">⏱ 現在！</button></div><div class="lb">下一根支柱經過車廂的時候按「現在！」</div>`;
-    else if(G&&G.k==='sh')h+=`<div class="rw"><button data-now="1" class="big">🎢 搖！（${Math.ceil(G.t)}）</button></div><div class="lb">一直按，跟著車廂晃的節奏按晃得最大：現在 ${Math.round(Math.abs(R.ax)*57.3)}°、最大 ${Math.round(G.max*57.3)}°</div>`;
+    else if(G&&G.k==='sh')h+=`<div class="rw"><button data-now="1" class="big">🎢 搖！（${Math.ceil(G.t)}）</button></div><div class="lb">車廂晃到中間（最低點）的時候按一下最有效，亂按會晃不起來：現在 ${Math.round(Math.abs(R.ax)*57.3)}°、最大 ${Math.round(G.max*57.3)}°</div>`;
     else if(R.sub==='fw')h+=`<div class="rw">${FWK.map(([k,n])=>`<button data-fw="${k}">${n}</button>`).join('')}</div>${tNight()?'':'<div class="lb">晚上放比較好看（尖山頂選「🌙 晚上」再坐）</div>'}`;
     else if(R.sub==='em')h+=`<div class="rw">${EMS.map(e=>`<button data-em="${e}">${e}</button>`).join('')}<button data-wv="1">👋 揮手</button></div><div class="lb">對旁邊經過的纜車揮手，裡面的人會跟你揮手</div>`;
     else if(R.sub==='gm')h+=`<div class="rw"><button data-gm="tw" ${R.ti>=R.tws.length||R.ph!=='go'?'disabled':''}>⏱ 支柱猜猜看</button><button data-gm="sh" ${R.ph!=='go'?'disabled':''}>🎢 搖車廂比賽</button></div>${resLine()}`;
@@ -5479,7 +5479,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   const REM=new Map();   // 別人：比 YA、揮手到什麼時候
   // ---- 拍合照（倒數 3 秒，大家比 YA；從車廂外面斜前方拍） ----
   function photoStart(send){const R=S.ride;if(!R||R.photoT>0)return;R.photoT=3.4;R.ya=4.2;if(send&&R.gid&&NET.on)for(const id of Object.keys(R.mem||{}))if(id!==me())NET.out(id,{t:'caP',gid:R.gid});for(const id of Object.keys(R.mem||{}))if(id!==me()){const m=REM.get(id)||{};m.ya=performance.now()+4200;REM.set(id,m);}}
-  function photoSnap(){const R=S.ride;if(!R||!myCab)return;myCab.updateMatrixWorld(true);const cam=new THREE.PerspectiveCamera(50,1.5,0.1,3000),b=myCab.userData.body;CV.set(3.0,0.7,3.7);b.localToWorld(CV);cam.position.copy(CV);const tg=new V3(0,-0.35,0);b.localToWorld(tg);cam.lookAt(tg);
+  function photoSnap(){const R=S.ride;if(!R||!myCab)return;myCab.updateMatrixWorld(true);const cam=new THREE.PerspectiveCamera(50,1.5,0.1,3000),b=myCab.userData.body;CV.set(2.1,0.55,2.7);b.localToWorld(CV);cam.position.copy(CV);const tg=new V3(0,-0.35,0);b.localToWorld(tg);cam.lookAt(tg);
     const vis=avatar.root.visible;avatar.root.visible=true;updateAvatarSeat();const cv=renderer.domElement,W=cv.width,H=cv.height;cam.aspect=W/H;cam.updateProjectionMatrix();renderer.render(scene,cam);let url='';try{url=cv.toDataURL('image/jpeg',0.9);}catch(_){}avatar.root.visible=vis;
     if(!url)return;AUDIO.sfx('click');const flash=document.createElement('div');flash.style.cssText='position:fixed;inset:0;background:#fff;z-index:90;opacity:.9;transition:opacity .5s;pointer-events:none';document.body.appendChild(flash);setTimeout(()=>{flash.style.opacity='0';},30);setTimeout(()=>flash.remove(),600);
     const d=new Date(),nmf=`纜車合照-${d.getMonth()+1}-${d.getDate()}-${d.getHours()}${String(d.getMinutes()).padStart(2,'0')}.jpg`;
@@ -5487,10 +5487,10 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   function updateAvatarSeat(){if(S.ride)seatPose(avatar);}
   // ---- 小遊戲 ----
   function gameStart(k){const R=S.ride;if(!R||R.game)return;if(k==='tw'){if(R.ti>=R.tws.length||R.ph!=='go'){toast('前面沒有支柱了');return;}R.game={k,ti:R.ti,pressed:false,passT:0};toast('⏱ 下一根支柱經過車廂的時候按「現在！」');}
-    else{R.game={k:'sh',t:8,max:0};toast('🎢 8 秒內一直按「搖！」，跟著晃的節奏按，晃得最大的贏！');}R.sub='';AUDIO.sfx('go');rhT=0;}
+    else{R.game={k:'sh',t:8,max:0};toast('🎢 8 秒內按「搖！」：車廂晃到中間的時候按最有效、亂按會晃不起來，晃得最大的贏！');}R.sub='';AUDIO.sfx('go');rhT=0;}
   function gameTower(){const R=S.ride,G=R&&R.game;if(G&&G.k==='tw'&&R.ti-1===G.ti&&!G.pressed)G.passT=performance.now();}
   function gamePress(){const R=S.ride,G=R&&R.game;if(!G)return;
-    if(G.k==='sh'){const dir=Math.sign(R.axv)||1;R.axv+=dir*0.5;AUDIO.sfx('pock');return;}
+    if(G.k==='sh'){const now=performance.now(),gap=now-(G.lp||0);G.lp=now;AUDIO.sfx('pock');const c=1-Math.min(1,Math.abs(R.ax)/Math.max(0.06,G.amp||0.06));if(gap<450||c<0.45){R.axv*=0.7;G.bad=(G.bad|0)+1;return;}R.axv+=(Math.sign(R.axv)||1)*(0.15+0.6*c*c);return;}   /* 2026-10-27.33 連線實測兩個人都頂到 24° 打平 → 要抓節奏：晃到中間（最低點）順著推最有效，按太快（0.45 秒內）或晃到旁邊才按會把車廂拉住（晃得更小）；上限放寬到 63°（成績才拉得開） */
     if(G.pressed)return;G.pressed=true;let err;if(G.passT)err=-(performance.now()-G.passT)/1000;else err=(R.tws[G.ti]-R.s)/Math.max(R.v,0.5);gameEnd('tw',err);}
   function gameEnd(k,v){const R=S.ride;if(!R)return;R.game=null;rhT=0;let msg;
     if(k==='tw'){const a=Math.abs(v);msg=a<0.3?`🎯 完美！只差 ${a.toFixed(2)} 秒`:a<1?`👍 很準！差 ${a.toFixed(1)} 秒`:a<2.5?`🙂 還不錯，差 ${a.toFixed(1)} 秒`:`😅 差太多了（${a.toFixed(1)} 秒）`;msg+=v>0.05?'（太早按）':v<-0.05?'（太晚按）':'';}
@@ -5499,7 +5499,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   function resLine(){const R=S.ride,out=[];for(const [k,n,u,best] of [['tw','⏱ 支柱猜猜看','秒',(a,b)=>a-b],['sh','🎢 搖車廂','°',(a,b)=>b-a]]){const r=R.res[k];if(!r)continue;const L=Object.entries(r).sort((a,b)=>best(a[1],b[1]));out.push(`${n}：${L.map(([id,v],i)=>`${['🥇','🥈','🥉'][i]||''}${esc(nm(id))} ${k==='tw'?v.toFixed(2):Math.round(v)}${u}`).join('　')}`);}return out.length?`<div class="lb">${out.join('<br>')}</div>`:'';}
   function funTick(dt){const R=S.ride;if(!R)return;R.ya=Math.max(0,R.ya-dt);R.wave=Math.max(0,R.wave-dt);
     if(R.photoT>0){const c0=Math.ceil(R.photoT);R.photoT-=dt;const c1=Math.ceil(R.photoT);if(c1!==c0&&c1>0){big(`📸 ${c1}`);AUDIO.sfx('beep');}if(R.photoT<=0){R.photoT=0;photoSnap();}}
-    const G=R.game;if(G&&G.k==='sh'){G.t-=dt;G.max=Math.max(G.max,Math.abs(R.ax));if(G.t<=0)gameEnd('sh',G.max*57.3);}
+    const G=R.game;if(G&&G.k==='sh'){G.t-=dt;G.max=Math.max(G.max,Math.abs(R.ax));G.amp=Math.max(Math.abs(R.ax),(G.amp||0)*Math.exp(-dt*0.3));if(G.t<=0)gameEnd('sh',G.max*57.3);}
     if(G&&G.k==='tw'&&!G.pressed&&G.passT&&performance.now()-G.passT>3000){G.pressed=true;gameEnd('tw',-3);}}
   // 一起坐的邀請、煙火、表情、合照、成績
   S.crx=(d,f)=>{f=String(f);switch(d.t){
@@ -5521,7 +5521,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   function land(){const left=S.spinT-S.spin,n=Math.round(S.spinT/(Math.PI*2));if(left>Math.PI){fall('摔倒了！');S.air=0;return;}
     if(n>0){big(`空中轉體 ${n*360}°！`);AUDIO.sfx('combo');}else if(S.air>0.6){big('飛起來了！');AUDIO.sfx('land');}S.spin=S.spinT=0;S.air=0;}
   S.jump=()=>{if(S.ride||!S.on||S.lock>0||S.fallT>0)return;if(S.ground){S.ground=false;S.vy=4.4;S.air=0;AUDIO.sfx('whoosh');}else{S.spinT+=Math.PI*2;AUDIO.sfx('whoosh');}};
-  S.step=(dt,f,s,running)=>{if(S.lock>0){S.lock-=dt;f=0;s=0;const c=Math.ceil(S.lock);if(c!==S.lc&&S.lock>0){S.lc=c;big(String(c));AUDIO.sfx('beep');}if(S.lock<=0){if(S.lockK==='ball'){big('⛄ 推！');AUDIO.sfx('go');if(BR&&BR.st==='count'){BR.st='go';BR.t0=performance.now();}}else{big('GO！');AUDIO.sfx('go');S.run={t:0,gi:0,ok:0,miss:0,falls:0,minS:K.S0,race:true,k:S.rc?S.rc.r|0:0,ri:2};S.ls=null;}}}
+  S.step=(dt,f,s,running)=>{if(S.lock>0){S.lock-=dt;f=0;s=0;const c=Math.ceil(S.lock);if(c!==S.lc&&S.lock>0){S.lc=c;big(String(c));AUDIO.sfx('beep');}if(S.lock<=0){if(S.lockK==='ball'){big('⛄ 推！');AUDIO.sfx('go');if(BR&&BR.st==='count'){BR.st='go';BR.t0=performance.now();}}else{big('GO！');AUDIO.sfx('go');S.run={t:0,gi:0,ok:0,miss:0,falls:0,minS:K.S0,race:true,k:S.rc?S.rc.r|0:0,ri:2};S.ls=null;S.vel.set(-Math.sin(S.dir)*4,-Math.cos(S.dir)*4);}   /* 2026-10-27.33 出發推一把（4 m/s）：富士山雪道起點有小起伏，連線測試時有人停在小上坡動不了 */}}
     if(S.fallT>0){S.fallT-=dt;f=0;s=0;}
     S.brake=f<-0.25&&S.ground;S.tuck=(f>0.25||running)&&S.ground&&S.fallT<=0;S.lastS=s;
     const sp=S.vel.length();if(S.lock<=0)S.dir-=s*(S.ground?(sp<4?2.6:1.9):0.6)*dt;
@@ -5586,7 +5586,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   RES.addEventListener('click',e=>{if(e.target.closest('button'))RES.hidden=true;});
   HUD.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.a==='race')S.invite();else if(b.dataset.a==='home'){const T=ST.T;player.pos.set(T.x+3,T.z+3);player.y=gy(T.x+3,T.z+3);S.vel.set(0,0);S.v=0;toast('🏔️ 回到尖山頂了');}else if(b.dataset.a[0]==='g')S.goTrail(+b.dataset.a[1]);});
   S.rx=(d,f)=>{f=String(f);switch(d.t){
-    case 'siR':if(S.rc||BR||busyG()){NET.out(f,{t:'siN'});return;}POP.dataset.f=f;POP.dataset.k='';POP.innerHTML=`⛷️ <b>${esc(nm(f))}</b> 邀請大家比滑雪（${K.R[d.r|0]?K.R[d.r|0].name:''}）！<div class="note" style="font-size:13px;margin-top:4px">答應會傳送到尖山頂的起點、穿上滑雪板，3 秒倒數一起出發</div><div class="bt"><button data-a="no">不要</button><button data-a="ok" class="ok">好！</button></div>`;POP.hidden=false;AUDIO.sfx('chime');setTimeout(()=>{if(!POP.hidden&&POP.dataset.f===f){POP.hidden=true;NET.out(f,{t:'siN'});}},12000);break;
+    case 'siR':if(S.rc||BR||busyG()){NET.out(f,{t:'siN'});return;}POP.dataset.f=f;POP.dataset.k='';POP.innerHTML=`⛷️ <b>${esc(nm(f))}</b> 邀請大家比滑雪（${K.R[d.r|0]?K.R[d.r|0].name:''}）！<div class="note" style="font-size:13px;margin-top:4px">答應會傳送到${(d.r|0)===2?'富士山頂':'尖山頂'}的起點、穿上滑雪板，3 秒倒數一起出發</div><div class="bt"><button data-a="no">不要</button><button data-a="ok" class="ok">好！</button></div>`;POP.hidden=false;AUDIO.sfx('chime');setTimeout(()=>{if(!POP.hidden&&POP.dataset.f===f){POP.hidden=true;NET.out(f,{t:'siN'});}},12000);break;
     case 'siA':if(S.rc&&S.rc.org===me()&&S.rc.st==='wait'&&S.rc.wait.has(f)){S.rc.wait.delete(f);S.rc.ids.push(f);toast(`🏁 ${nm(f)} 要一起比`);}break;
     case 'siN':if(S.rc&&S.rc.org===me()&&S.rc.st==='wait')S.rc.wait.delete(f);break;
     case 'siG':{const ids=(d.ids||[]).map(String);if(!ids.includes(me()))return;POP.hidden=true;raceGo(ids,f,K.R[d.r|0]?d.r|0:0);break;}
@@ -5598,7 +5598,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   function resDraw(){const R=S.rc;if(!R)return;const ids=R.ids,done=ids.filter(id=>R.res[id]).sort((a,b)=>R.res[a].t-R.res[b].t),left=ids.filter(id=>!R.res[id]);
     const L=done.map((id,i)=>`${['🥇','🥈','🥉'][i]||(i+1)+'.'} ${esc(nm(id))}　${fmt(R.res[id].t)}${R.res[id].miss?`（漏 ${R.res[id].miss} 個旗門）`:''}`).concat(left.map(id=>`⏳ ${esc(nm(id))}　還在滑…`));
     RES.innerHTML=`<h3>⛷️ 滑雪比賽</h3><div class="l">${L.join('<br>')}</div><div class="bt"><button>關閉</button></div>`;RES.hidden=false;if(!left.length){R.st='done';const w=done[0];if(w===me()){AUDIO.sfx('bigcheer');EARN(100,'⛷️ 滑雪比賽第 1 名');}setTimeout(()=>{if(S.rc===R)S.rc=null;},500);}}
-  S.gone=id=>{id=String(id);S.ballGone(id);if(S.rc){S.rc.ids=S.rc.ids.filter(x=>x!==id);if(S.rc.wait)S.rc.wait.delete(id);if(S.rc.st==='go')resDraw();}};
+  S.gone=id=>{id=String(id);S.ballGone(id);if(S.ride&&S.ride.mem&&S.ride.mem[id]!=null){delete S.ride.mem[id];rhT=0;}   /* 2026-10-27.33 一起坐的人斷線：人數少一個 */if(S.rc){S.rc.ids=S.rc.ids.filter(x=>x!==id);if(S.rc.wait)S.rc.wait.delete(id);if(S.rc.st==='go')resDraw();}};
   // ---- 動作、裝備 ----
   const skiG=new THREE.BoxGeometry(0.1,0.035,1.7).translate(0,0,0.1),skiM=std({color:'#e5484d',roughness:0.4}),poleG=new THREE.CylinderGeometry(0.013,0.013,1.15,6).translate(0,-0.55,0),poleM=std({color:'#2a2d33',roughness:0.5,metalness:0.4});
   function gear(A,on){if(!A||!A.footL)return;if(!on){if(A.__ski)for(const o of A.__ski)if(o.parent)o.parent.remove(o);return;}
@@ -5805,7 +5805,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     if(BEST[k]!=null&&!S.rc)h+=`　最快 ${fmt(BEST[k])}`;const top=!R&&S.lock<=0&&dist(ST.T)<40;
     const topF=!R&&S.lock<=0&&dist(ST.F)<70,endF=!R&&n&&n.k===2&&n.s>K.R[2].SF-40;if(topF)h+=`<br><button data-a="g2" class="g${sel===2?' on':''}">🗻 富士山雪道（超長）</button>`;if(endF)h+=`<br>前面「🚡 富士山腳站」按 F 坐纜車回富士山頂　<button data-a="home">🚡 回尖山頂</button>`;
     if(top)h+=`<br><button data-a="g1" class="g${sel===1?' on':''}">🟢 初級道</button> <button data-a="g0" class="g${sel===0?' on':''}">⚫ 高級道</button>`;   /* 2026-10-27.20 選雪道：傳送到那條的起點前面 */
-    if(top&&NET.on&&!S.rc&&!BR&&others().length)h+=`<br><button data-a="race">🏁 邀請大家比賽（${K.R[sel].name}）</button>`;{const bl=ballLine();if(bl)h+='<br>'+bl;}   /* 2026-10-27.21 滾雪球那一行 */
+    if((top||topF&&sel===2)&&NET.on&&!S.rc&&!BR&&others().length)h+=`<br><button data-a="race">🏁 邀請大家比賽（${K.R[sel].name}）</button>`;   /* 2026-10-27.33 富士山頂選了富士山雪道也可以邀請 */{const bl=ballLine();if(bl)h+='<br>'+bl;}   /* 2026-10-27.21 滾雪球那一行 */
     h=S.hmin()?`<button data-a="min" class="mn">＋</button>⛷️ <b>${Math.round(Math.abs(S.v)*3.6)}</b> km/h${R?`　⏱ <b>${fmt(R.t)}</b>`:''}${top?'　（＋ 選雪道）':''}`:'<button data-a="min" class="mn">－</button>'+h;if(HUD.innerHTML!==h)HUD.innerHTML=h;};
   // ---- 連線：狀態、別人畫面 ----
   S.net=()=>{const o={};if(S.on)o.ski=1;if(S.ride)o.ca=[S.ride.li,Math.round(S.ride.t*1000)/1000,S.ride.rev?1:0,PHC[S.ride.ph]|0,S.ride.gid||'',S.ride.seat|0];{const b=S.ballNet();if(b)o.snb=b;}return (o.ski||o.ca||o.snb)?o:null;};
