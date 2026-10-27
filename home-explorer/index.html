@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-27.22"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-27.23"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -40,6 +40,7 @@
   #topbar{position:fixed;top:12px;left:12px;right:12px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between;z-index:10;pointer-events:none}
   #place{padding:8px 14px;font-size:15px;min-height:38px;pointer-events:none;max-width:60vw}
   #place .offc{display:inline-block;margin-left:8px;font-style:normal;font-size:11px;font-weight:800;background:#c0392b;color:#fff;border-radius:6px;padding:1px 6px;vertical-align:2px;white-space:nowrap}body.touch #place .offc{margin-left:0}   /* 2026-10-27.22 沒網路：📴 離線中 */
+  #offClr[hidden]{display:none!important}   /* 2026-10-27.23 平常藏起來（inline 的 display:block 會蓋過 hidden） */
   #place b{font-size:17px;margin-right:8px}
   #place span{color:var(--ink-2);font-size:13px}
   .btns{display:flex;gap:8px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end}
@@ -871,7 +872,7 @@
 <div id="menu" class="panel" hidden>
   <button id="fsBtn">全螢幕（隱藏網址列）</button>
   <button id="netBtn">👥 連線：和別人一起玩</button>
-  <div id="offBox" style="margin:8px 0 4px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:1.5"><div id="offInfo">📦 離線版本：檢查中…</div><button id="offClr" style="margin-top:6px;width:auto;min-height:0;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px">只清離線資料</button></div>
+  <div id="offBox" style="margin:8px 0 4px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:1.5;cursor:pointer"><div id="offInfo">📦 離線版本：檢查中…</div><button id="offClr" hidden style="display:block;margin:6px 0 0 auto;width:auto;min-height:0;background:none;border:0;color:var(--ink-2);text-decoration:underline;padding:2px 0;font-size:12px">只清離線資料</button></div><!-- 2026-10-27.23 使用者：「清資料的按鈕不要放在那麼明顯，沒事不會清」→ 平常藏起來，點這格才出現（小灰字） -->
   <h3>前往</h3>
   <div class="grid" id="goto"></div>
   <h3>環境</h3>
@@ -17849,13 +17850,14 @@ const OFFL=(()=>{const O={ok:false},C='home-app-v1',base=new URL('./',location.h
   async function size(name){let t=0;try{if(!(await caches.has(name)))return 0;const c=await caches.open(name);for(const k of await c.keys()){const r=await c.match(k);if(!r)continue;const l=+r.headers.get('Content-Length');t+=l>0?l:(await r.clone().blob()).size;}}catch(_){}return t;}
   O.check=async()=>{if(!can)return O.ok=false;try{if(!(await caches.has(C)))return O.ok=false;const c=await caches.open(C);
     for(const u of [base,'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js',new URL('models/dk.glb',base).href])if(!(await c.match(u,{ignoreVary:true})))return O.ok=false;return O.ok=true;}catch(_){return O.ok=false;}};   /* 網頁、3D 引擎、模型都在＝存好了 */
-  let sure=0;
+  let sure=0,more=false;   /* more：點了離線那格，才露出「只清離線資料」 */
   O.draw=async()=>{if(!info)return;if(!can){info.textContent='📦 離線版本：這樣打開不能存（要用網址打開；電腦直接開檔案、無痕模式不行）';clr.hidden=true;return;}
-    await O.check();const a=await size(C),g=await size('home-gm-v1');clr.hidden=!a;if(!sure)clr.textContent='只清離線資料';
+    await O.check();const a=await size(C),g=await size('home-gm-v1');clr.hidden=!a||!more;if(!sure)clr.textContent='只清離線資料';
     info.textContent=(O.ok?`📦 離線版本：已存好，沒網路也能玩（遊戲 ${mb(a)} MB${g?`、音色 ${mb(g)} MB`:''}）`:'📦 離線版本：還沒存好（有網路的時候打開一次就會存好）')+(O.off()?'　📴 現在離線中':'');};
+  {const box=document.getElementById('offBox');if(box)box.addEventListener('click',e=>{if(e.target===clr)return;more=!more;if(!more)sure=0;O.draw();});}
   if(clr)clr.addEventListener('click',async()=>{if(!sure){sure=1;clr.textContent='再按一次：確定清除';setTimeout(()=>{sure=0;O.draw();},4000);return;}sure=0;
     try{await caches.delete(C);}catch(_){}try{localStorage.removeItem('home-offline-ok');}catch(_){}O.ok=false;info.textContent='已清除離線資料（錢包、設定都沒動）；下次有網路打開會再存';clr.hidden=true;});
-  {const bm=document.getElementById('bMenu');if(bm)bm.addEventListener('click',()=>setTimeout(O.draw,60));}
+  {const bm=document.getElementById('bMenu');if(bm)bm.addEventListener('click',()=>{more=false;sure=0;setTimeout(O.draw,60);});}
   if(can){navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).then(async()=>{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});   /* 跟瀏覽器申請：空間不夠時不要先清掉這個網站 */
       if(!(await O.check())&&navigator.serviceWorker.controller)navigator.serviceWorker.controller.postMessage('warm');   /* 沒存齊：請 sw.js 再存一次 */
       for(let i=0;i<40&&!(await O.check());i++)await new Promise(r=>setTimeout(r,1500));
