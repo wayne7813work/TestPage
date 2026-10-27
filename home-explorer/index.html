@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-27.33"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-27.36"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -5373,7 +5373,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   const RV=new V3(),CV=new V3();
   function rideArrive(){const R0=S.ride;S.ride=null;myCab.visible=false;RH.hidden=true;CIP.hidden=true;const L0=R0&&LINES[R0.li],dest=R0&&(R0.rev?L0.a:L0.b);
     if(dest==='F'||dest==='H'){const F=ST[dest],dx=FJ.cx-F.x,dz=FJ.cz-F.z,l=Math.hypot(dx,dz)||1,sd=(R0.seat|0)*1.2;player.pos.set(F.x+dx/l*4+sd,F.z+dz/l*4);player.y=gy(player.pos.x,player.pos.y);player.yaw=Math.atan2(-dx,-dz);S.dir=player.yaw;player.pitch=-0.05;
-      toast('🗻 到富士山頂了！觀景台有望遠鏡、山頂小屋可以蓋紀念章和許願，雪地可以丟雪球、推雪球；穿上滑雪板可以從「🗻 富士山雪道」滑下山');AUDIO.sfx('bigcheer');syncActBtn();if(typeof FJW!=='undefined')FJW.arrive();return;}
+      toast('🗻 到富士山頂了！觀景台有望遠鏡、山頂小屋可以蓋紀念章和許願，雪地可以丟雪球、推雪球（推進「⛄ 大雪人工地」一起疊雪人）；穿上滑雪板可以從「🗻 富士山雪道」滑下山');AUDIO.sfx('bigcheer');syncActBtn();if(typeof FJW!=='undefined')FJW.arrive();return;}
     if(R0&&R0.rev&&dest!=='T'){const Ln=LINES[R0.li],E=ST[Ln.a],q=Ln.P[3],dx=E.x-q.x,dz=E.z-q.z,l=Math.hypot(dx,dz)||1;player.pos.set(E.x+dx/l*3.5,E.z+dz/l*3.5);player.y=gy(player.pos.x,player.pos.y);player.yaw=Math.atan2(-dx,-dz);S.dir=player.yaw;player.pitch=-0.1;toast(`🚡 到${E.n}了！${Ln.a==='A'?'這裡是山頂停車場，可以開車下山':Ln.a==='G'?'這裡是富士山雪道的終點；旁邊有集章台，按 F 可以再坐纜車回富士山頂':'旁邊按 F 可以再坐纜車回尖山頂'}`);AUDIO.sfx('chime');syncActBtn();return;}const T=ST.T,q=ptS(2,0);const dx=q.x-T.x,dz=q.z-T.z,l=Math.hypot(dx,dz)||1,sd=(R0&&R0.seat|0)*1.2;player.pos.set(T.x+dx/l*3+sd,T.z+dz/l*3);player.y=gy(player.pos.x,player.pos.y);player.yaw=Math.atan2(-dx,-dz);S.dir=player.yaw;player.pitch=-0.1;
     toast(S.on?'🏔️ 到尖山頂了！看路標選「🟢 初級道」或「⚫ 高級道」（上面也可以按），往前滑過起點開始計時；山頂可以丟雪球打雪人':'🏔️ 到尖山頂了！旁邊「⛷️ 滑雪站」按 F 穿滑雪板；山頂可以丟雪球打雪人（❄️）');AUDIO.sfx('chime');syncActBtn();}
   const PHC={wait:0,close:1,go:2,open:3},PHN=['wait','close','go','open'];
@@ -5582,7 +5582,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   const others=()=>NET.on?[...NET.P.keys()].map(String):[];
   S.invite=()=>{if(!NET.on||!others().length){toast('先「👥 連線」跟朋友連在一起');return;}if(S.rc||BR){toast('比賽已經在進行了');return;}
     S.rc={org:me(),ids:[me()],wait:new Set(others()),st:'wait',end:performance.now()+13000,res:{},r:S.sel|0};NET.out('*',{t:'siR',r:S.rc.r});toast(`🏁 邀請大家比滑雪（${K.R[S.rc.r].name}），等大家回覆…（13 秒）`);AUDIO.sfx('click');};
-  POP.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const f=POP.dataset.f,sn=POP.dataset.k==='sn';POP.hidden=true;if(!f)return;if(b.dataset.a==='ok'&&!busyG()){NET.out(f,{t:sn?'snA':'siA'});toast(sn?'答應了！等大家準備好就傳送到尖山頂':'答應了！等大家準備好就傳送到起點');}else NET.out(f,{t:sn?'snN':'siN'});});   /* dataset.k＝sn：滾雪球比賽的邀請 */
+  POP.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const f=POP.dataset.f,sn=POP.dataset.k==='sn',bw=POP.dataset.k==='bw';POP.hidden=true;if(!f)return;if(b.dataset.a==='ok'&&!busyG()){NET.out(f,{t:bw?'bwA':sn?'snA':'siA'});toast(bw?'答應了！等大家準備好就傳送到富士山頂':sn?'答應了！等大家準備好就傳送到尖山頂':'答應了！等大家準備好就傳送到起點');}else NET.out(f,{t:bw?'bwN':sn?'snN':'siN'});});   /* dataset.k＝sn：滾雪球比賽的邀請 */
   RES.addEventListener('click',e=>{if(e.target.closest('button'))RES.hidden=true;});
   HUD.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.a==='race')S.invite();else if(b.dataset.a==='home'){const T=ST.T;player.pos.set(T.x+3,T.z+3);player.y=gy(T.x+3,T.z+3);S.vel.set(0,0);S.v=0;toast('🏔️ 回到尖山頂了');}else if(b.dataset.a[0]==='g')S.goTrail(+b.dataset.a[1]);});
   S.rx=(d,f)=>{f=String(f);switch(d.t){
@@ -5591,14 +5591,14 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     case 'siN':if(S.rc&&S.rc.org===me()&&S.rc.st==='wait')S.rc.wait.delete(f);break;
     case 'siG':{const ids=(d.ids||[]).map(String);if(!ids.includes(me()))return;POP.hidden=true;raceGo(ids,f,K.R[d.r|0]?d.r|0:0);break;}
     case 'siF':if(S.rc&&S.rc.ids.includes(f)){S.rc.res[f]={t:+d.tt||0,miss:d.miss|0};resDraw();}break;}};
-  function raceGo(ids,org,r){const k=ids.indexOf(me()),T=K.R[r|0],q=ptS(T.S0-5,(k-(ids.length-1)/2)*3.2,T);if(S.ride){S.ride=null;if(myCab)myCab.visible=false;}if(!S.on)S.start(true);
+  function raceGo(ids,org,r){podHide();const k=ids.indexOf(me()),T=K.R[r|0],q=ptS(T.S0-5,(k-(ids.length-1)/2)*3.2,T);if(S.ride){S.ride=null;if(myCab)myCab.visible=false;}if(!S.on)S.start(true);
     player.pos.set(q.x,q.z);player.y=gy(q.x,q.z);S.dir=player.yaw=Math.atan2(-q.tx,-q.tz);S.vel.set(0,0);S.lock=3.2;S.lc=0;S.lockK='ski';S.run=null;S.rc={org:String(org),ids,res:{},st:'go',t0:performance.now(),r:r|0};S.sel=r|0;RES.hidden=true;
     toast(`🏁 滑雪比賽（${T.name}）：${ids.map(nm).join('、')}，倒數完一起出發！`);}
   function raceLeave(){if(!S.rc)return;S.rc=null;}
   function resDraw(){const R=S.rc;if(!R)return;const ids=R.ids,done=ids.filter(id=>R.res[id]).sort((a,b)=>R.res[a].t-R.res[b].t),left=ids.filter(id=>!R.res[id]);
     const L=done.map((id,i)=>`${['🥇','🥈','🥉'][i]||(i+1)+'.'} ${esc(nm(id))}　${fmt(R.res[id].t)}${R.res[id].miss?`（漏 ${R.res[id].miss} 個旗門）`:''}`).concat(left.map(id=>`⏳ ${esc(nm(id))}　還在滑…`));
-    RES.innerHTML=`<h3>⛷️ 滑雪比賽</h3><div class="l">${L.join('<br>')}</div><div class="bt"><button>關閉</button></div>`;RES.hidden=false;if(!left.length){R.st='done';const w=done[0];if(w===me()){AUDIO.sfx('bigcheer');EARN(100,'⛷️ 滑雪比賽第 1 名');}setTimeout(()=>{if(S.rc===R)S.rc=null;},500);}}
-  S.gone=id=>{id=String(id);S.ballGone(id);if(S.ride&&S.ride.mem&&S.ride.mem[id]!=null){delete S.ride.mem[id];rhT=0;}   /* 2026-10-27.33 一起坐的人斷線：人數少一個 */if(S.rc){S.rc.ids=S.rc.ids.filter(x=>x!==id);if(S.rc.wait)S.rc.wait.delete(id);if(S.rc.st==='go')resDraw();}};
+    RES.innerHTML=`<h3>⛷️ 滑雪比賽</h3><div class="l">${L.join('<br>')}</div><div class="bt"><button>關閉</button></div>`;RES.hidden=false;if(!left.length){R.st='done';{const T=K.R[R.r|0],P=T.P,e=P[P.length-1];setTimeout(()=>podShow(e.x+e.tx*6+e.rx*8,e.z+e.tz*6+e.rz*8,done,'滑雪比賽・'+T.name.replace(/^\S+\s/,'')),1500);}   /* 2026-10-27.34 終點旁邊的頒獎台 */const w=done[0];if(w===me()){AUDIO.sfx('bigcheer');EARN(100,'⛷️ 滑雪比賽第 1 名');}setTimeout(()=>{if(S.rc===R)S.rc=null;},500);}}
+  S.gone=id=>{id=String(id);S.ballGone(id);if(BW){BW.ids=BW.ids.filter(x=>x!==id);if(BW.wait)BW.wait.delete(id);}if(S.ride&&S.ride.mem&&S.ride.mem[id]!=null){delete S.ride.mem[id];rhT=0;}   /* 2026-10-27.33 一起坐的人斷線：人數少一個 */if(S.rc){S.rc.ids=S.rc.ids.filter(x=>x!==id);if(S.rc.wait)S.rc.wait.delete(id);if(S.rc.st==='go')resDraw();}};
   // ---- 動作、裝備 ----
   const skiG=new THREE.BoxGeometry(0.1,0.035,1.7).translate(0,0,0.1),skiM=std({color:'#e5484d',roughness:0.4}),poleG=new THREE.CylinderGeometry(0.013,0.013,1.15,6).translate(0,-0.55,0),poleM=std({color:'#2a2d33',roughness:0.5,metalness:0.4});
   function gear(A,on){if(!A||!A.footL)return;if(!on){if(A.__ski)for(const o of A.__ski)if(o.parent)o.parent.remove(o);return;}
@@ -5671,7 +5671,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   S.pushOK=()=>started&&mode==='walk'&&!busyG()&&!S.ride&&S.fallT<=0&&S.hitT<=0&&S.lock<=0&&(snowAt(player.pos.x,player.pos.y)||nearMine());
   const nearMine=()=>MB&&!MB.dead&&Math.hypot(MB.x-player.pos.x,MB.z-player.pos.y)<MB.r+3;
   S.push=()=>{if(!S.pushOK())return;const now=performance.now();if(now<pushCd)return;pushCd=now+400;const yaw=S.on?S.dir:player.yaw,fx=-Math.sin(yaw),fz=-Math.cos(yaw);
-    if(MB&&MB.hold){release();return;}
+    if(MB&&MB.hold){if(gsNear()){gsPlace();return;}release();return;}
     if(nearMine()){const b=MB,sp=Math.hypot(b.vx,b.vz),nvx=b.vx+fx*4,nvz=b.vz+fz*4,ns=Math.hypot(nvx,nvz),k=ns>30?30/ns:1;b.vx=nvx*k;b.vz=nvz*k;b.pushA=b.age;b.still=0;big('💨 再推一下！');AUDIO.sfx('whoosh');if(sp<0.5)b.age=Math.min(b.age,80);return;}   /* 追上了：再推一下 */
     if(BR&&BR.ids.includes(me())&&BR.st!=='go'){toast('倒數完才能推');return;}if(BR&&BR.st==='go'&&BR.res[me()])return;
     const x=player.pos.x+fx*1.4,z=player.pos.y+fz*1.4;if(!snowAt(x,z)){toast('⛄ 要在雪地上才能推雪球');return;}
@@ -5709,10 +5709,10 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   for(const ev of ['pointerdown','touchstart','keydown','wheel'])SH.addEventListener(ev,e=>e.stopPropagation());
   SBN.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();S.push();});SBN.addEventListener('touchstart',e=>e.stopPropagation());
   addEventListener('keydown',e=>{if(e.repeat||RIDE.on)return;if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;if(e.code==='KeyG'){if(S.pushOK())S.push();}else if(e.code==='KeyH'&&MB&&!MB.dead&&!MB.hold&&!S.on){camOn=!camOn;camT=0;}});
-  const bHudClick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.a==='min'){S.hmin(!S.hmin());bHudT=0;hudT=0;return;}if(b.dataset.a==='cam'){camOn=!camOn;camT=0;bHudT=0;hudT=0;}else if(b.dataset.a==='bR')S.bInvite();};SH.addEventListener('click',bHudClick);HUD.addEventListener('click',bHudClick);
-  const ballLine=()=>{let h='';if(MB&&MB.hold)h=`⛄ 推著走、越滾越大：直徑 <b>${(MB.r*2).toFixed(1)}</b> m${MB.r>=1.29?'（最大了）':''}　再按「💨」推出去`;else if(MB&&!MB.dead)h=`⛄ <b>${Math.round(Math.hypot(MB.vx,MB.vz)*3.6)}</b> km/h　滾了 <b>${Math.round(MB.d)}</b> m　直徑 ${(MB.r*2).toFixed(1)} m${S.on?'':`　<button data-a="cam" class="sn">🎥 ${camOn?'看自己':'看雪球'}</button>`}`;
+  const bHudClick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.a==='min'){S.hmin(!S.hmin());bHudT=0;hudT=0;return;}if(b.dataset.a==='cam'){camOn=!camOn;camT=0;bHudT=0;hudT=0;}else if(b.dataset.a==='bR')S.bInvite();else if(b.dataset.a==='bW')S.wInvite();};SH.addEventListener('click',bHudClick);HUD.addEventListener('click',bHudClick);
+  const ballLine=()=>{let h='';if(MB&&MB.hold&&gsNear())h=`⛄ 直徑 <b>${(MB.r*2).toFixed(1)}</b> m　按「⛄」放上大雪人（第 ${GS.l.length+1}／3 顆）${MB.r<0.45?'<br>還太小：直徑要 0.9 m 以上':''}`;else if(MB&&MB.hold)h=`⛄ 推著走、越滾越大：直徑 <b>${(MB.r*2).toFixed(1)}</b> m${MB.r>=1.29?'（最大了）':''}　再按「💨」推出去${GS.built&&FJ.r(player.pos.x,player.pos.y)<FJ.SR+10?'；推進「⛄ 大雪人工地」的圈圈可以疊雪人':''}`;else if(MB&&!MB.dead)h=`⛄ <b>${Math.round(Math.hypot(MB.vx,MB.vz)*3.6)}</b> km/h　滾了 <b>${Math.round(MB.d)}</b> m　直徑 ${(MB.r*2).toFixed(1)} m${S.on?'':`　<button data-a="cam" class="sn">🎥 ${camOn?'看自己':'看雪球'}</button>`}`;
     else if(BR&&BR.st==='go'&&BR.ids.includes(me())&&!BR.res[me()])h='⛄ 按「⛄」把雪球推下去，滾最遠的贏！';
-    if(!BR&&!S.rc&&NET.on&&others().length&&snowAt(player.pos.x,player.pos.y)&&!(MB&&!MB.dead))h+=(h?'<br>':'')+'<button data-a="bR" class="sn">⛄ 邀請大家比滾雪球</button>';
+    if(!BR&&!S.rc&&!BW&&NET.on&&others().length&&snowAt(player.pos.x,player.pos.y)&&!(MB&&!MB.dead))h+=(h?'<br>':'')+'<button data-a="bR" class="sn">⛄ 邀請大家比滾雪球</button> <button data-a="bW" class="sn">❄️ 邀請大家打雪仗</button>';
     if(h&&BBEST>0&&!BR)h+=`　最遠 ${BBEST} m`;return h;};
   function ballTick(dt){const now=performance.now();if(MB){if(MB.hold)holdStep(MB,dt);else if(!MB.dead)bStep(MB,dt);else{camT+=dt;MB.mT-=dt;if(MB.mT<=0){MB.m.visible=false;MB=null;camOn=false;}}}
     if(camOn&&MB&&Math.hypot(MB.x-player.pos.x,MB.z-player.pos.y)>400)camOn=false;
@@ -5742,12 +5742,12 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     #sbtBtn b{font-size:24px}#sbtBtn span{font-size:11px}body:not(.touch) #sbtBtn{right:30px;bottom:302px}`;document.head.appendChild(st);}
   const TBN=document.createElement('button');TBN.id='sbtBtn';TBN.hidden=true;TBN.innerHTML=`<b>❄️</b><span>丟雪球${isTouch?'':'（Y）'}</span>`;document.body.appendChild(TBN);
   TBN.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();S.throw();});TBN.addEventListener('touchstart',e=>e.stopPropagation());
-  S.throwOK=()=>started&&mode==='walk'&&!busyG()&&!S.ride&&!S.on&&S.hitT<=0&&!(MB&&MB.hold)&&snowAt(player.pos.x,player.pos.y);
-  function spawnThrow(o){let q=THR.find(t=>!t.m.visible);if(!q){if(THR.length>=14)q=THR[0];else{q={m:new THREE.Mesh(SBG,SBM),tr:[]};q.m.castShadow=true;q.m.userData.noCull=true;scene.add(q.m);for(let i=0;i<5;i++){const sp=new THREE.Sprite(TRM);sp.visible=false;sp.userData.noCull=true;scene.add(sp);q.tr.push(sp);}THR.push(q);}}Object.assign(q,o,{t:0,h:[]});q.m.visible=true;q.m.position.set(o.x,o.y,o.z);}
+  S.throwOK=()=>started&&mode==='walk'&&!busyG()&&!S.ride&&!S.on&&S.hitT<=0&&!(MB&&MB.hold)&&snowAt(player.pos.x,player.pos.y)&&!(BW&&BW.st==='count'&&BW.ids.includes(me()));
+  function spawnThrow(o){let q=THR.find(t=>!t.m.visible);if(!q){if(THR.length>=14)q=THR[0];else{q={m:new THREE.Mesh(SBG,SBM),tr:[]};q.m.castShadow=true;q.m.userData.noCull=true;scene.add(q.m);for(let i=0;i<5;i++){const sp=new THREE.Sprite(TRM);sp.visible=false;sp.userData.noCull=true;scene.add(sp);q.tr.push(sp);}THR.push(q);}}Object.assign(q,o,{t:0,h:[],gold:!!o.gold});q.m.material=o.gold?GBM:SBM;q.m.scale.setScalar(o.gold?2:1);q.m.visible=true;q.m.position.set(o.x,o.y,o.z);}   /* 金雪球：大一倍、金色 */
   S.throw=()=>{if(!S.throwOK())return;const now=performance.now();if(now<thrCd)return;thrCd=now+380;
     const yaw=player.yaw,hx=-Math.sin(yaw),hz=-Math.cos(yaw),el=cl(0.08+player.pitch*0.9,-0.2,0.9),v=15,sc=bodyH().scale;
-    const x=player.pos.x+hx*0.35+Math.cos(yaw)*0.2,z=player.pos.y+hz*0.35-Math.sin(yaw)*0.2,y=player.y+1.5*sc,o={x,y,z,vx:hx*Math.cos(el)*v+player.vel.x*0.5,vy:Math.sin(el)*v+0.6,vz:hz*Math.cos(el)*v+player.vel.y*0.5,own:true,from:me()};
-    spawnThrow(o);thrPose=0.35;avatar.yaw=Math.atan2(-hx,-hz);AUDIO.sfx('whiff');if(NET.on)NET.out('*',{t:'sbW',p:[o.x,o.y,o.z,o.vx,o.vy,o.vz].map(v=>+v.toFixed(2))});};
+    const x=player.pos.x+hx*0.35+Math.cos(yaw)*0.2,z=player.pos.y+hz*0.35-Math.sin(yaw)*0.2,y=player.y+1.5*sc,o={x,y,z,vx:hx*Math.cos(el)*v+player.vel.x*0.5,vy:Math.sin(el)*v+0.6,vz:hz*Math.cos(el)*v+player.vel.y*0.5,own:true,from:me(),gold:!!(BW&&BW.st==='go'&&BW.my3>0)};if(o.gold){BW.my3--;bwHudT=0;}
+    spawnThrow(o);thrPose=0.35;avatar.yaw=Math.atan2(-hx,-hz);AUDIO.sfx('whiff');if(NET.on)NET.out('*',{t:'sbW',p:[o.x,o.y,o.z,o.vx,o.vy,o.vz].map(v=>+v.toFixed(2)).concat(o.gold?[1]:[])});};
   S.throwPose=(a,dt)=>{if(thrPose<=0)return;thrPose-=dt;const u=1-Math.max(0,thrPose)/0.35;a.armR.rotation.set(-2.7+2.3*u,0,0.25);a.foreR.rotation.x=-0.5+0.4*u;a.hand(1,'fist');};   /* 右手從後面往前甩 */
   function splash(x,y,z,n){puff(x,y,z,n||6,1.6);}
   function throwTick(dt){const px=player.pos.x,pz=player.pos.y,py=player.y;
@@ -5755,8 +5755,10 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
       q.h.unshift(q.x,q.y,q.z);if(q.h.length>30)q.h.length=30;q.tr.forEach((sp,i)=>{const j=(i+1)*6-3;if(q.h.length>j+2){sp.visible=true;sp.position.set(q.h[j],q.h[j+1],q.h[j+2]);sp.scale.setScalar(0.3-i*0.045);}else sp.visible=false;});let hit=false;
       for(const m of SMEN){if(m.down>0)continue;const d=Math.hypot(q.x-m.x,q.z-m.z);if(d<0.62&&q.y<m.y+2.0&&q.y>m.y-0.1){hit=true;m.down=5;m.ht=0;splash(q.x,q.y,q.z,10);AUDIO.sfx('pop');
         if(q.own){snHits++;big(snHits%10===0?`⛄ 打中 ${snHits} 個雪人！`:'⛄ 打中雪人！');if(snHits%10===0)EARN(10,'❄️ 丟雪球打雪人');}break;}}
-      if(!hit&&!q.own&&Math.hypot(q.x-px,q.z-pz)<0.5&&q.y>py+0.2&&q.y<py+1.9*bodyH().scale&&mode==='walk'){hit=true;splash(q.x,q.y,q.z,10);SPL.classList.add('on');setTimeout(()=>SPL.classList.remove('on'),60);big('❄️ 被雪球打到了！');AUDIO.sfx('thud');if(q.from)NET.out(q.from,{t:'sbH'});}
-      if(!hit&&q.own&&NET.on){for(const [id,rq] of NET.P){const A=rq.rem&&rq.rem.A;if(!A||!A.root.visible)continue;const r=A.root.position;if(Math.hypot(q.x-r.x,q.z-r.z)<0.5&&q.y>r.y+0.2&&q.y<r.y+1.9){hit=true;splash(q.x,q.y,q.z,10);break;}}}
+      if(!hit&&!q.own&&Math.hypot(q.x-px,q.z-pz)<(q.gold?0.85:0.5)&&q.y>py+0.2&&q.y<py+1.9*bodyH().scale&&mode==='walk'){hit=true;splash(q.x,q.y,q.z,q.gold?16:10);SPL.classList.add('on');setTimeout(()=>SPL.classList.remove('on'),60);big(q.gold?'🌟 被金雪球打到了！':'❄️ 被雪球打到了！');AUDIO.sfx('thud');if(q.from)NET.out(q.from,{t:'sbH'});
+        if(BW&&BW.st==='go'&&q.from&&BW.inv<=0&&bwTeam(q.from)>=0&&bwTeam(me())>=0&&bwTeam(q.from)!==bwTeam(me())){BW.inv=1.3;S.hitT=0.7;kv.set(q.vx*0.12,q.vz*0.12);NET.out('*',{t:'bwH',by:q.from,g:q.gold?1:0});bwHit(me(),q.from,!!q.gold);}}   /* 2026-10-27.34 雪球大戰：被對方打中 → 定住 0.7 秒、大家加分 */
+      if(!hit&&q.own&&NET.on){for(const [id,rq] of NET.P){const A=rq.rem&&rq.rem.A;if(!A||!A.root.visible)continue;const r=A.root.position;if(Math.hypot(q.x-r.x,q.z-r.z)<(q.gold?0.85:0.5)&&q.y>r.y+0.2&&q.y<r.y+1.9){hit=true;splash(q.x,q.y,q.z,q.gold?16:10);break;}}}
+      if(!hit&&WALLS.on){for(const w of WALLS.list)if(q.x>w.x0-0.1&&q.x<w.x1+0.1&&q.z>w.z0&&q.z<w.z1&&q.y<w.top+0.1){hit=true;splash(q.x,q.y,q.z,8);break;}}   /* 雪牆擋雪球 */
       if(!hit&&K.treeAt(q.x,q.z,0.12)&&q.y<gy(q.x,q.z)+6){hit=true;splash(q.x,q.y,q.z,6);}
       if(!hit&&q.y<=gy(q.x,q.z)+0.02){hit=true;splash(q.x,gy(q.x,q.z)+0.1,q.z,5);}
       if(hit||q.t>5)q.m.visible=false;}
@@ -5764,7 +5766,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
       if(m.down>0.6){const u=Math.min(1,m.ht/0.55);h.position.set(0.5*u,1.68-1.4*u*u,0.2*u);h.rotation.set(0,0,-u*2.2);h.scale.setScalar(1);}
       else{h.position.set(0,1.68,0);h.rotation.set(0,0,0);h.scale.setScalar(Math.max(0.01,1-Math.max(0,m.down)/0.6));}}
     const sh=S.throwOK()&&MENU.hidden;TBN.hidden=!sh;}
-  S.thrRx=(d,f)=>{if(d.t==='sbW'&&Array.isArray(d.p)&&d.p.length===6){const [x,y,z,vx,vy,vz]=d.p.map(Number);if(Math.hypot(x-player.pos.x,z-player.pos.y)<120)spawnThrow({x,y,z,vx,vy,vz,own:false,from:f});}else if(d.t==='sbH'){toast(`❄️ 打中 ${nm(f)} 了！`);AUDIO.sfx('combo');}};
+  S.thrRx=(d,f)=>{if(d.t==='sbW'&&Array.isArray(d.p)&&d.p.length>=6){const [x,y,z,vx,vy,vz,g]=d.p.map(Number);if(Math.hypot(x-player.pos.x,z-player.pos.y)<120)spawnThrow({x,y,z,vx,vy,vz,own:false,from:f,gold:g===1});}else if(d.t==='sbH'){toast(`❄️ 打中 ${nm(f)} 了！`);AUDIO.sfx('combo');}};
   addEventListener('keydown',e=>{if(e.repeat||e.code!=='KeyY')return;if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;S.throw();});
   // ---- 滾雪球比賽 ----
   S.bInvite=()=>{if(!NET.on||!others().length){toast('先「👥 連線」跟朋友連在一起');return;}if(BR||S.rc){toast('比賽已經在進行了');return;}
@@ -5790,18 +5792,164 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   S.ballGone=id=>{const b=RB.get(String(id));if(b){scene.remove(b.m);RB.delete(String(id));}if(BR){BR.ids=BR.ids.filter(x=>x!==String(id));if(BR.wait)BR.wait.delete(String(id));if(BR.st==='go')bRes();}};
   S.ballNet=()=>MB&&!MB.dead?[MB.x,MB.yb,MB.z,MB.r,MB.vx,MB.vz].map(v=>+v.toFixed(2)):null;
   S.dbgBall=()=>({MB,RB,BR,camOn});
+  // ==== 2026-10-27.34 雪山一起玩（使用者：多人實測後評估「回憶相簿不用，其他都可以做」＝ A 雪球大戰、C 一起做大雪人、D 比賽臨場感）====
+  const fjAt=(a,r)=>{const dx=ST.T.x-FJ.cx,dz=ST.T.z-FJ.cz,l=Math.hypot(dx,dz),ux=dx/l,uz=dz/l,c=Math.cos(a),s2=Math.sin(a);return {x:FJ.cx+(ux*c-uz*s2)*r,z:FJ.cz+(ux*s2+uz*c)*r};};   /* 富士山頂：從山頂中心往尖山的方向轉 a、距離 r（跟 FJW 的 at 一樣） */
+  const ymd=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+  const pName=id=>String(id)===me()?((NET.myName&&NET.myName())||'我'):(NET.pn(String(id))||'朋友');   /* 刻在牌子上的名字（自己不是「你」） */
+  const sprFree=s=>{if(!s)return;if(s.parent)s.parent.remove(s);if(s.material.map)s.material.map.dispose();s.material.dispose();};
+  // ---- D. 頒獎台：比賽結束前三名站上去（其他人站前面）、做動作、煙火、「📸 拍頒獎照」 ----
+  const PDM={g:null,on:false,t:0,x:0,y:0,z:0,ids:[],surf:[],lab:null,title:''},PDX=[0,-1.7,1.7],PDY=[1.2,0.8,0.5];
+  function podBuild(){if(PDM.g)return;const g=new THREE.Group(),PM=['#f2c94c','#c9ced6','#d08a4a'].map(c=>std({color:c,roughness:0.35,metalness:0.35}));
+    const base=new THREE.Mesh(new THREE.BoxGeometry(5.8,1.2,2.1),std({color:'#f4f8fb',roughness:0.8}));base.position.y=-0.6;base.receiveShadow=true;g.add(base);   /* 底下的雪台：地不平也不會浮起來 */
+    for(let k=0;k<3;k++){const m=new THREE.Mesh(new THREE.BoxGeometry(1.7,PDY[k],1.5),PM[k]);m.position.set(PDX[k],PDY[k]/2,0);m.castShadow=m.receiveShadow=true;g.add(m);
+      const [c,x]=cvs(128,128);x.fillStyle='#ffffff';x.font=`900 100px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText(String(k+1),64,72);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+      const p=new THREE.Mesh(new THREE.PlaneGeometry(0.62,0.62),new THREE.MeshBasicMaterial({map:t,transparent:true,toneMapped:false}));p.position.set(PDX[k],PDY[k]*0.5,0.755);g.add(p);
+      const sf={x0:0,x1:0,z0:0,z1:0,y:0,off:true,pod:1};surfaces.push(sf);PDM.surf.push(sf);}   /* 站得上去 */
+    g.visible=false;g.traverse(o=>{o.userData.noCull=true;});scene.add(g);PDM.g=g;}
+  const PDH=document.createElement('div');PDH.id='podHud';PDH.className='panel';PDH.hidden=true;document.body.appendChild(PDH);
+  {const st=document.createElement('style');st.textContent=`#podHud[hidden],#bwHud[hidden]{display:none!important}#podHud{position:fixed;left:12px;top:calc(64px + var(--sat,0px));z-index:13;padding:8px 10px;font-size:14px;display:flex;flex-direction:column;gap:6px;max-width:200px}
+    #podHud button{font-size:15px;font-weight:800;padding:8px 10px;border-radius:10px;border:0;background:#ffcf4a;color:#2a1a00}#podHud button.x{background:#3a4258;color:#fff}
+    #bwHud{position:fixed;left:12px;top:calc(64px + var(--sat,0px));z-index:12;padding:8px 12px;font-size:14px;line-height:1.5;min-width:150px;max-width:230px}#bwHud b{font-size:17px}#bwHud .sc{font-size:24px;font-weight:900;letter-spacing:.02em}
+    @media (orientation:portrait){body.touch #podHud,body.touch #bwHud{top:calc(110px + var(--sat,0px))}}@media (orientation:landscape) and (max-height:520px){body.touch #podHud,body.touch #bwHud{top:calc(62px + var(--sat,0px));font-size:13px}body.touch #bwHud .sc{font-size:19px}}`;document.head.appendChild(st);}
+  for(const ev of ['pointerdown','touchstart','keydown','wheel'])PDH.addEventListener(ev,e=>e.stopPropagation());
+  function podShow(x,z,ids,title){podBuild();const y=gy(x,z);Object.assign(PDM,{on:true,t:0,x,y,z,ids:ids.slice(),title});PDM.g.position.set(x,y,z);PDM.g.visible=true;
+    PDM.surf.forEach((s,k)=>{Object.assign(s,{x0:x+PDX[k]-0.85,x1:x+PDX[k]+0.85,z0:z-0.75,z1:z+0.75,y:y+PDY[k],off:false});});
+    sprFree(PDM.lab);PDM.lab=labelSprite('🏆 '+title,ids.slice(0,3).map((id,i)=>['🥇','🥈','🥉'][i]+' '+pName(id)).join('　'),'rgba(200,140,20,0.92)');PDM.lab.position.set(0,4.7,0);PDM.lab.scale.multiplyScalar(0.5);PDM.g.add(PDM.lab);
+    const k=ids.indexOf(me());if(S.on)S.stop();podHud();AUDIO.sfx('bigcheer');if(k<0||S.ride)return;
+    if(k<3){player.pos.set(x+PDX[k],z);player.y=y+PDY[k];}else{player.pos.set(x+(k-3-(ids.length-4)/2)*1.3,z+2.6);player.y=gy(player.pos.x,player.pos.y);}   /* 第 4 名以後站在前面；人物面向前面（拍照的方向），自己的鏡頭也在前面（做動作時人物會轉向鏡頭） */
+    player.yaw=0;avatar.yaw=Math.PI;player.pitch=-0.1;player.vel.set(0,0);player.vy=0;setTimeout(()=>{if(PDM.on&&EMOTE.can())EMOTE.start(k===0?'wow':'clap');},700);}
+  function podHud(){PDH.innerHTML=`<b>🏆 ${esc(PDM.title)}</b><button data-a="ph">📸 拍頒獎照</button><button data-a="fw">🎆 放煙火</button><button data-a="x" class="x">✕ 離開頒獎台</button>`;PDH.hidden=false;}
+  PDH.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=b.dataset.a;if(a==='ph')podPhoto();else if(a==='fw')podFw(3,true);else podHide();});
+  function podHide(){if(!PDM.on)return;PDM.on=false;PDM.g.visible=false;for(const s of PDM.surf)s.off=true;PDH.hidden=true;}
+  function podFw(n,send){for(let i=0;i<n;i++)setTimeout(()=>{if(!PDM.on)return;const {x,y,z}=PDM,ci=Math.floor(Math.random()*FPAL.length),seed=Math.floor(Math.random()*1e6),k=['ball','heart','star','willow','ring'][Math.floor(Math.random()*5)],px=x+(Math.random()-0.5)*18,pz=z-8-Math.random()*10;
+      fwLaunch(px,y,pz,k,ci,seed);if(send&&NET.on)NET.out('*',{t:'caF',p:[px,y,pz].map(v=>+v.toFixed(1)),k,c:ci,s:seed});},i*450);}   /* 頒獎台後面放（大家都看得到） */
+  function podPhoto(){if(!PDM.on)return;const {x,y,z}=PDM,cam=new THREE.PerspectiveCamera(50,1.5,0.1,3000);cam.position.set(x,y+2.1,z+7.2);cam.lookAt(x,y+2,z);
+    const vis=avatar.root.visible;avatar.root.visible=true;const cv=renderer.domElement;cam.aspect=cv.width/cv.height;cam.updateProjectionMatrix();renderer.render(scene,cam);let url='';try{url=cv.toDataURL('image/jpeg',0.9);}catch(_){}avatar.root.visible=vis;if(!url)return;AUDIO.sfx('click');
+    const d=new Date(),fn=`頒獎照-${d.getMonth()+1}-${d.getDate()}-${d.getHours()}${String(d.getMinutes()).padStart(2,'0')}.jpg`;PHO.innerHTML=`<img src="${url}" alt="頒獎照"><div class="bt"><a href="${url}" download="${fn}">💾 存到手機</a><button>關閉</button></div>`;PHO.hidden=false;PHO.querySelector('button').onclick=()=>{PHO.hidden=true;PHO.innerHTML='';};}
+  function podTick(dt){if(!PDM.on)return;PDM.t+=dt;if(PDM.t-dt<1.2&&PDM.t>=1.2)podFw(4,false);if(PDM.t>150||Math.hypot(player.pos.x-PDM.x,player.pos.y-PDM.z)>70)podHide();}   /* 一開始自動放 4 發（各自放：不用傳） */
+  // ---- D. 比賽即時名次：每個人沿著雪道到哪（s）每 0.25 秒記一筆 → 第幾名、跟前面／後面的人差幾秒（在同一個位置經過的時間差） ----
+  const LIVE={t:0,m:{}};
+  function liveTick(dt){const R=S.rc;if(!R||R.st!=='go'){LIVE.m={};return;}LIVE.t-=dt;if(LIVE.t>0)return;LIVE.t=0.25;const T=K.R[R.r|0],now=performance.now()/1000;
+    for(const id of R.ids){let x,z;if(id===me()){if(S.lock>0||!S.run)continue;x=player.pos.x;z=player.pos.y;}else{const q=NET.P.get(id),a=q&&q.s&&q.s.a;if(!a)continue;x=a[0];z=a[2];}
+      const L=LIVE.m[id]||(LIVE.m[id]={i:0,smp:[],s:0});const n=L.i?T.nearI(x,z,L.i):T.near(x,z);if(!n||n.d>T.W+25)continue;L.i=n.i;L.s=Math.max(L.s,n.s);const last=L.smp[L.smp.length-1];if(!last||L.s>last[0]+0.5)L.smp.push([L.s,now]);}}
+  const tAt=(L,s)=>{const a=L.smp;if(!a.length||s>a[a.length-1][0]||s<a[0][0])return null;let i=0;while(i<a.length-2&&a[i+1][0]<s)i++;const p=a[i],q=a[i+1]||p;return q[0]>p[0]?p[1]+(q[1]-p[1])*(s-p[0])/(q[0]-p[0]):p[1];};
+  function liveLine(){const R=S.rc;if(!R||R.st!=='go')return '';const now=performance.now()/1000,mine=LIVE.m[me()];if(!mine)return '';
+    const ord=R.ids.filter(id=>LIVE.m[id]||R.res[id]).sort((a,b)=>{const ra=R.res[a],rb=R.res[b];if(ra&&rb)return ra.t-rb.t;if(ra)return -1;if(rb)return 1;return LIVE.m[b].s-LIVE.m[a].s;});
+    const k=ord.indexOf(me());if(k<0)return '';let h=`<br>🏁 第 <b>${k+1}</b>／${R.ids.length} 名`;const A=ord[k-1],B=ord[k+1];
+    if(A){const t=LIVE.m[A]&&tAt(LIVE.m[A],mine.s);h+=`　⬆️ ${esc(nm(A))} ${t!=null?`快 <b>${Math.max(0,now-t).toFixed(1)}</b> 秒`:R.res[A]?'已經到了':'在前面'}`;}else h+='　👑 領先！';
+    if(B){const t=LIVE.m[B]&&tAt(mine,LIVE.m[B].s);if(t!=null)h+=`　⬇️ ${esc(nm(B))} 慢 ${Math.max(0,now-t).toFixed(1)} 秒`;}return h;}
+  // ---- A. 雪球大戰（富士山頂正中間）：紅藍兩隊（照答應的順序輪流分）、倒數 3 秒、打 90 秒；打中對方 +1、金雪球 +3；9 道雪牆擋雪球、擋人；被打中定住 0.7 秒、1.3 秒內不會再被打 ----
+  //   邀請 bwR、回覆 bwA／bwN、開始 bwS；被打中的人自己判斷 → bwH（by＝誰丟的、g＝金雪球）大家一起加分；
+  //   金雪球：主持（邀請的人）每 20 秒放一顆在中間 bwG，走過去的人 bwC 搶 → 主持 bwK 公告；拿到的人接下來 3 顆是金雪球（大、亮、一顆 3 分）；最後頒獎＋稱號（神射手、閃避王、雪人體質、金雪球王）
+  const WALLS={on:false,list:[],flags:[],built:false};
+  function wallsBuild(){if(WALLS.built)return;WALLS.built=true;const g=new THREE.BoxGeometry(0.7,1.15,2.8),m=std({color:'#eef5fb',roughness:0.85}),top=FJ.TOP;
+    for(const [dx,dz] of [[-6,-3.6],[-6,3.6],[6,-3.6],[6,3.6],[0,0],[0,-7.5],[0,7.5],[-10.5,0],[10.5,0]]){const x=FJ.cx+dx,z=FJ.cz+dz,o=new THREE.Mesh(g,m);o.position.set(x,top+0.55,z);o.castShadow=o.receiveShadow=true;o.visible=false;o.userData.noCull=true;scene.add(o);
+      const c=addBox(x-0.35,x+0.35,z-1.4,z+1.4,top+1.15,top-0.5);c.off=true;WALLS.list.push({o,c,x0:x-0.35,x1:x+0.35,z0:z-1.4,z1:z+1.4,top:top+1.15});}
+    const pg=new THREE.CylinderGeometry(0.05,0.05,2.6,6).translate(0,1.3,0),fg=new THREE.PlaneGeometry(0.9,0.6).translate(0.47,2.25,0);
+    for(const [sd,col] of [[-1,'#e5484d'],[1,'#2f7fd1']])for(const dz of [-6,6]){const f=new THREE.Group(),fm=new THREE.MeshStandardMaterial({color:col,roughness:0.7,side:THREE.DoubleSide});f.add(new THREE.Mesh(pg,std({color:'#8a8f98',roughness:0.5})),new THREE.Mesh(fg,fm));f.position.set(FJ.cx+sd*16,top,FJ.cz+dz);f.visible=false;f.userData.noCull=true;scene.add(f);WALLS.flags.push(f);}}   /* 兩隊的旗子 */
+  function wallsOn(v){wallsBuild();WALLS.on=v;for(const w of WALLS.list){w.o.visible=v;w.c.off=!v;}for(const f of WALLS.flags)f.visible=v;}
+  let BW=null,bwHudT=0,goldM=null;const GBM=std({color:'#ffd23a',roughness:0.3,metalness:0.2,emissive:'#b87800',emissiveIntensity:0.8});
+  const bwTeam=id=>BW&&BW.team&&BW.team[id]!=null?BW.team[id]:-1;
+  S.wInvite=()=>{if(!NET.on||!others().length){toast('先「👥 連線」跟朋友連在一起');return;}if(BW||BR||S.rc){toast('比賽已經在進行了');return;}
+    BW={org:me(),ids:[me()],wait:new Set(others()),st:'wait',end:performance.now()+13000};NET.out('*',{t:'bwR'});toast('❄️ 邀請大家打雪仗，等大家回覆…（13 秒）');AUDIO.sfx('click');};
+  function bwGo(ids,org){podHide();BW={org:String(org),ids:ids.slice(),team:{},st:'count',t0:performance.now(),dur:90,sc:[0,0],hit:{},got:{},gold:{},inv:0,my3:0,g:null,gT:12,gid:0,lc:0};
+    ids.forEach((id,i)=>{BW.team[id]=i%2;BW.hit[id]=0;BW.got[id]=0;BW.gold[id]=0;});
+    if(S.ride){S.ride=null;if(myCab)myCab.visible=false;RH.hidden=true;}if(S.on)S.stop();if(MB&&!MB.dead)bEnd(MB);
+    const tm=BW.team[me()],mates=ids.filter(id=>BW.team[id]===tm),j=mates.indexOf(me()),sd=tm?1:-1;player.pos.set(FJ.cx+sd*13,FJ.cz+(j-(mates.length-1)/2)*2.6);player.y=FJ.TOP;player.vy=0;player.yaw=avatar.yaw=sd<0?-Math.PI/2:Math.PI/2;player.pitch=0;player.vel.set(0,0);
+    wallsOn(true);RES.hidden=true;POP.hidden=true;AUDIO.sfx('go');bwHudT=0;
+    toast(`❄️ 雪球大戰！你是${tm?'🔵 藍隊':'🔴 紅隊'}（${mates.map(nm).join('、')}）：90 秒，打中對方 +1、金雪球 +3；躲在雪牆後面！`);}
+  function bwGold(id,x,z){if(!BW)return;BW.g={id,x,z};if(!goldM){goldM=new THREE.Mesh(SBG,GBM);goldM.scale.setScalar(2.2);goldM.castShadow=true;goldM.userData.noCull=true;scene.add(goldM);}goldM.position.set(x,FJ.TOP+0.6,z);goldM.visible=true;big('🌟 金雪球出現在中間了！');AUDIO.sfx('chime');}
+  function bwClaim(id,by){if(BW&&BW.g&&BW.g.id===id&&!BW.g.by){BW.g.by=by;if(NET.on)NET.out('*',{t:'bwK',id,by});bwGot(id,by);}}   /* 主持：先到先得 */
+  function bwGot(id,by){if(!BW)return;if(BW.g&&BW.g.id===id){BW.g=null;if(goldM)goldM.visible=false;}if(by===me()){BW.my3=3;big('🌟 拿到金雪球！接下來 3 顆一顆 3 分');AUDIO.sfx('combo');}else toast(`🌟 ${nm(by)} 拿到金雪球了！小心`);bwHudT=0;}
+  function bwHit(victim,by,gold){if(!BW||BW.st!=='go')return;const tv=bwTeam(victim),tb=bwTeam(by);if(tv<0||tb<0||tv===tb)return;BW.sc[tb]+=gold?3:1;BW.hit[by]++;BW.got[victim]++;if(gold)BW.gold[by]++;
+    if(by===me()){big(gold?'🌟 金雪球命中！+3':'🎯 打中了！+1');AUDIO.sfx('combo');}bwHudT=0;}
+  function bwEnd(){const B=BW;B.st='done';wallsOn(false);if(goldM)goldM.visible=false;BWH.hidden=true;
+    const ids=B.ids,win=B.sc[0]===B.sc[1]?-1:(B.sc[0]>B.sc[1]?0:1),rk=ids.slice().sort((a,b)=>(win<0?0:(B.team[b]===win)-(B.team[a]===win))||(B.hit[b]-B.hit[a])||(B.got[a]-B.got[b]))   /* 贏的隊站上面，再比打中數 */,ttl={},add=(id,t)=>{(ttl[id]||(ttl[id]=[])).push(t);};
+    const top=f=>{let b=null;for(const id of ids)if(b==null||f(id)>f(b))b=id;return b;},sharp=top(id=>B.hit[id]),dodge=top(id=>-B.got[id]),cold=top(id=>B.got[id]),gold=top(id=>B.gold[id]);   /* 一樣多：照順序第一個（大家算出來一樣） */
+    if(B.hit[sharp]>0)add(sharp,'🎯 神射手');add(dodge,'🛡️ 閃避王');if(B.got[cold]>0&&cold!==dodge)add(cold,'🥶 雪人體質');if(B.gold[gold]>0)add(gold,'🌟 金雪球王');
+    const L=[`<div style="font-size:21px;font-weight:900;margin:2px 0 6px">🔴 ${B.sc[0]} ： ${B.sc[1]} 🔵　${win<0?'平手！':win?'🔵 藍隊贏了！':'🔴 紅隊贏了！'}</div>`].concat(rk.map(id=>`${B.team[id]?'🔵':'🔴'} ${esc(nm(id))}　打中 ${B.hit[id]}・被打 ${B.got[id]}${ttl[id]?'　'+ttl[id].join(' '):''}`));
+    RES.innerHTML=`<h3>❄️ 雪球大戰</h3><div class="l">${L.join('<br>')}</div><div class="bt"><button>關閉</button></div>`;RES.hidden=false;
+    if(win===B.team[me()]){AUDIO.sfx('bigcheer');EARN(60,'❄️ 雪球大戰贏了');}else AUDIO.sfx(win<0?'cheer':'combo');if(sharp===me()&&B.hit[me()]>0)EARN(20,'🎯 雪球大戰神射手');
+    setTimeout(()=>{if(BW===B)BW=null;podShow(FJ.cx,FJ.cz,rk,'雪球大戰'+(win<0?'（平手）':win?'・藍隊贏':'・紅隊贏'));},1800);}
+  const BWH=document.createElement('div');BWH.id='bwHud';BWH.className='panel';BWH.hidden=true;document.body.appendChild(BWH);
+  function bwHud(){if(!BW||BW.st==='wait'||BW.st==='done'||!BW.ids.includes(me())){BWH.hidden=true;return;}const now=performance.now();if(now<bwHudT)return;bwHudT=now+200;
+    const left=Math.max(0,Math.ceil(3+BW.dur-(now-BW.t0)/1000)),tm=BW.team[me()];
+    const h=`❄️ 雪球大戰　⏱ <b>${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}</b><div class="sc">🔴 ${BW.sc[0]} ： ${BW.sc[1]} 🔵</div>你是${tm?'🔵 藍隊':'🔴 紅隊'}　打中 ${BW.hit[me()]}・被打 ${BW.got[me()]}${BW.my3?`<br>🌟 金雪球還有 <b>${BW.my3}</b> 顆`:''}${BW.g?'<br>🌟 中間有金雪球！快去搶':''}`;
+    if(BWH.innerHTML!==h)BWH.innerHTML=h;BWH.hidden=false;}
+  function bwTick(dt){if(!BW){if(!BWH.hidden)BWH.hidden=true;return;}const now=performance.now();
+    if(BW.st==='wait'){if(BW.org===me()&&(now>BW.end||!BW.wait.size)){if(BW.ids.length>=2){for(const id of BW.ids)if(id!==me())NET.out(id,{t:'bwS',ids:BW.ids});bwGo(BW.ids,me());}else{BW=null;toast('沒有人答應，雪仗取消了');}}return;}
+    if(BW.st==='done')return;const el=(now-BW.t0)/1000;
+    if(BW.st==='count'){const c=Math.ceil(3-el);if(c!==BW.lc&&c>0){BW.lc=c;big(String(c));AUDIO.sfx('beep');}if(el>=3){BW.st='go';big('❄️ 開打！');AUDIO.sfx('go');}}
+    else{BW.inv=Math.max(0,BW.inv-dt);
+      if(BW.org===me()&&!BW.g){BW.gT-=dt;if(BW.gT<=0){BW.gT=20;const id=++BW.gid,x=FJ.cx+(Math.random()<0.5?-3:3),z=FJ.cz+(Math.random()-0.5)*12;bwGold(id,x,z);if(NET.on)NET.out('*',{t:'bwG',id,x:+x.toFixed(1),z:+z.toFixed(1)});}}
+      if(BW.g&&!BW.g.asked&&mode==='walk'&&S.hitT<=0&&Math.hypot(player.pos.x-BW.g.x,player.pos.y-BW.g.z)<1.4){BW.g.asked=true;if(BW.org===me())bwClaim(BW.g.id,me());else NET.out(BW.org,{t:'bwC',id:BW.g.id});}
+      if(goldM&&goldM.visible){goldM.rotation.y+=dt*2;goldM.position.y=FJ.TOP+0.6+Math.sin(now/300)*0.12;}
+      if(el>=3+BW.dur)bwEnd();}
+    bwHud();}
+  S.bwRx=(d,f)=>{f=String(f);switch(d.t){
+    case 'bwR':if(BW||BR||S.rc||busyG()){NET.out(f,{t:'bwN'});return;}POP.dataset.f=f;POP.dataset.k='bw';POP.innerHTML=`❄️ <b>${esc(nm(f))}</b> 邀請大家打雪仗！<div class="note" style="font-size:13px;margin-top:4px">答應會傳送到富士山頂，分紅藍兩隊打 90 秒；搶到金雪球一顆 3 分</div><div class="bt"><button data-a="no">不要</button><button data-a="ok" class="ok">好！</button></div>`;POP.hidden=false;AUDIO.sfx('chime');
+      setTimeout(()=>{if(!POP.hidden&&POP.dataset.f===f&&POP.dataset.k==='bw'){POP.hidden=true;NET.out(f,{t:'bwN'});}},12000);break;
+    case 'bwA':if(BW&&BW.org===me()&&BW.st==='wait'&&BW.wait.has(f)){BW.wait.delete(f);BW.ids.push(f);toast(`❄️ ${nm(f)} 要一起打`);}break;
+    case 'bwN':if(BW&&BW.org===me()&&BW.st==='wait')BW.wait.delete(f);break;
+    case 'bwS':{const ids=(d.ids||[]).map(String);if(!ids.includes(me()))return;POP.hidden=true;bwGo(ids,f);break;}
+    case 'bwH':if(BW&&BW.ids.includes(f))bwHit(f,String(d.by),!!d.g);break;
+    case 'bwG':if(BW&&BW.st!=='done'&&f===BW.org)bwGold(d.id|0,+d.x,+d.z);break;
+    case 'bwC':if(BW&&BW.org===me())bwClaim(d.id|0,f);break;
+    case 'bwK':if(BW&&f===BW.org)bwGot(d.id|0,String(d.by));break;}};
+  // ---- C. 一起做大雪人（富士山頂「⛄ 大雪人工地」）：推著雪球走過去（直徑 0.9 m 以上）按「⛄」放上去；三顆＝完成（自動照大小疊、加眼睛鼻子圍巾帽子手），
+  //   名字刻在牌子上 → 6 秒後搬到旁邊的「⛄ 雪人公園」（最多 8 個，存 home-gsnow，下次來還在）；連線時開房間的人（'0'）管順序：gsQ（我放了一顆）→ gsS（現在的樣子）
+  const GSC=fjAt(1.55,36),GSP=[...Array(8)].map((_,i)=>fjAt(1.05+i*0.14,50));
+  let GSV=[];try{const a=JSON.parse(localStorage.getItem('home-gsnow')||'[]');if(Array.isArray(a))GSV=a.filter(o=>o&&Array.isArray(o.l)&&o.l.length===3).slice(-8);}catch(_){GSV=[];}
+  const GS={l:[],g:null,lab:null,park:[],built:false,fin:0};
+  const GSM={blk:std({color:'#1d1f24',roughness:0.6}),nose:std({color:'#ff8a1a',roughness:0.6}),stick:std({color:'#6b4a2f',roughness:0.9}),hat:std({color:'#24262c',roughness:0.5}),
+    scarf:['#e5484d','#2f7fd1','#2e9a4e','#f2c94c','#9b5cf6'].map(c=>std({color:c,roughness:0.8})),eye:new THREE.SphereGeometry(1,8,6),cone:new THREE.ConeGeometry(1,1,10).rotateX(Math.PI/2).translate(0,0,0.5),
+    tor:new THREE.TorusGeometry(1,0.22,8,20).rotateX(Math.PI/2),cyl:new THREE.CylinderGeometry(1,1,1,16),arm:new THREE.CylinderGeometry(0.03,0.04,1,5).translate(0,0.5,0)};
+  function mkBigSnowman(l,done,ci){const g=new THREE.Group(),L=l.slice().sort((a,b)=>b[0]-a[0]);let y=0;const ys=[];
+    for(const [r] of L){const m=new THREE.Mesh(BG,BM);m.scale.setScalar(r);m.position.y=y+r*0.94;m.castShadow=m.receiveShadow=true;g.add(m);ys.push([y+r*0.94,r]);y+=r*1.72;}
+    if(done&&ys.length===3){const [hy,hr]=ys[2],[by,br]=ys[1],add=(geo,mat,x,yy,z,s,ry)=>{const o=new THREE.Mesh(geo,mat);o.position.set(x,yy,z);if(Array.isArray(s))o.scale.set(...s);else o.scale.setScalar(s);if(ry)o.rotation.z=ry;g.add(o);return o;};
+      for(const sd of [-1,1])add(GSM.eye,GSM.blk,sd*hr*0.32,hy+hr*0.22,hr*0.86,hr*0.09);add(GSM.cone,GSM.nose,0,hy,hr*0.9,[hr*0.13,hr*0.13,hr*0.75]);
+      for(let k=0;k<5;k++){const a=(k-2)*0.28;add(GSM.eye,GSM.blk,Math.sin(a)*hr*0.62,hy-hr*0.5+Math.abs(k-2)*hr*0.07,Math.cos(a)*hr*0.8,hr*0.05);}   /* 嘴巴：一排小石頭 */
+      add(GSM.tor,GSM.scarf[ci%5],0,hy-hr*0.88,0,[hr*0.95,hr*0.9,hr*0.95]);add(GSM.cyl,GSM.hat,0,hy+hr*0.92,0,[hr*0.95,hr*0.08,hr*0.95]);add(GSM.cyl,GSM.hat,0,hy+hr*1.3,0,[hr*0.62,hr*0.75,hr*0.62]);
+      for(let k=0;k<3;k++)add(GSM.eye,GSM.blk,0,by+br*(0.45-k*0.4),br*0.95,br*0.07);
+      for(const sd of [-1,1]){const a=add(GSM.arm,GSM.stick,sd*br*0.85,by+br*0.3,0,[1,br*1.4,1],-sd*1.05);a.rotation.z=-sd*1.05;}}
+    g.traverse(o=>{if(o.isMesh)o.castShadow=true;});return {g,h:y};}
+  const gsNames=l=>[...new Set(l.map(a=>a[2]))];
+  function gsBuild(){if(GS.built)return;GS.built=true;const y=FJ.TOP;
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(2.6,0.09,6,40).rotateX(Math.PI/2),std({color:'#5aa8ff',roughness:0.5,emissive:'#123a6a',emissiveIntensity:0.4}));ring.position.set(GSC.x,y+0.05,GSC.z);ring.userData.noCull=true;scene.add(ring);
+    const s=labelSprite('⛄ 大雪人工地','推著雪球走進圈圈、按「⛄」放上去（3 顆＝1 個雪人）','rgba(47,111,208,0.9)');s.position.set(GSC.x,y+6.2,GSC.z);s.scale.multiplyScalar(0.6);scene.add(s);
+    const p=labelSprite('⛄ 雪人公園','大家一起做的雪人都在這裡','rgba(47,111,208,0.85)');const pc=fjAt(1.55,50);p.position.set(pc.x,y+7.4,pc.z);p.scale.multiplyScalar(0.55);scene.add(p);
+    gsDraw();parkDraw();}
+  function gsDraw(){if(!GS.built)return;if(GS.g){scene.remove(GS.g);GS.g=null;}sprFree(GS.lab);GS.lab=null;if(!GS.l.length)return;const done=GS.l.length>=3,ci=Math.round(GS.l.reduce((a,b)=>a+b[0],0)*100)%5;
+    const o=mkBigSnowman(GS.l,done,ci);o.g.position.set(GSC.x,FJ.TOP,GSC.z);o.g.rotation.y=Math.atan2(FJ.cx-GSC.x,FJ.cz-GSC.z);o.g.traverse(q=>{q.userData.noCull=true;});scene.add(o.g);GS.g=o.g;
+    GS.lab=labelSprite(done?'⛄ 大雪人完成！':`⛄ 大雪人 ${GS.l.length}／3`,gsNames(GS.l).join('・'),done?'rgba(46,154,78,0.92)':'rgba(47,111,208,0.9)');GS.lab.position.set(GSC.x,FJ.TOP+o.h+1.4,GSC.z);GS.lab.scale.multiplyScalar(0.55);GS.lab.userData.noCull=true;scene.add(GS.lab);}
+  function parkDraw(){if(!GS.built)return;for(const o of GS.park){scene.remove(o.g);sprFree(o.lab);}GS.park=[];
+    GSV.forEach((r,i)=>{const p=GSP[i];if(!p)return;const o=mkBigSnowman(r.l,true,r.c|0);o.g.position.set(p.x,FJ.TOP,p.z);o.g.rotation.y=Math.atan2(GSC.x-p.x,GSC.z-p.z);o.g.traverse(q=>{q.userData.noCull=true;});scene.add(o.g);
+      const lab=labelSprite('⛄ '+gsNames(r.l).join('・'),String(r.d||'').replace(/-/g,'.')+' 一起做的','rgba(60,60,80,0.82)');lab.position.set(p.x,FJ.TOP+o.h+1.2,p.z);lab.scale.multiplyScalar(0.42);lab.userData.noCull=true;scene.add(lab);GS.park.push({g:o.g,lab});});}
+  const gsNear=()=>GS.built&&MB&&MB.hold&&!GS.fin&&Math.hypot(MB.x-GSC.x,MB.z-GSC.z)<MB.r+2.7;
+  function gsPlace(){const b=MB;if(!b||!b.hold)return;if(b.r<0.45){toast('⛄ 雪球太小了：推著走再滾大一點（直徑 0.9 m 以上）');AUDIO.sfx('beep');return;}if(GS.l.length>=3){toast('⛄ 等一下，剛做好的雪人正在搬去雪人公園');return;}
+    const r=+b.r.toFixed(2);b.hold=false;b.dead=true;b.m.visible=false;MB=null;AUDIO.sfx('pop');if(!NET.on||me()==='0')gsAdd(r,me());else NET.out('0',{t:'gsQ',r});}
+  function gsAdd(r,id){if(GS.l.length>=3||GS.fin)return;GS.l.push([Math.max(0.45,Math.min(1.3,+r||0.5)),String(id),pName(id).slice(0,12)]);const done=GS.l.length>=3;if(NET.on)NET.out('*',{t:'gsS',l:GS.l,done:done?1:0});gsApply(GS.l,done);}   /* 管順序的人 */
+  function gsApply(l,done){GS.l=l.slice(0,3).map(a=>[+a[0]||0.5,String(a[1]),String(a[2]||'').slice(0,12)]);if(!GS.built&&FJ.r(player.pos.x,player.pos.y)<FJ.SR+200)gsBuild();gsDraw();
+    if(!GS.l.length)return;const last=GS.l[GS.l.length-1],near=FJ.r(player.pos.x,player.pos.y)<FJ.SR+60;
+    if(!done){if(near){big(`⛄ ${last[2]} 放上第 ${GS.l.length} 顆！（${GS.l.length}／3）`);AUDIO.sfx('pop');}return;}
+    const ci=Math.round(GS.l.reduce((a,b)=>a+b[0],0)*100)%5;GSV.push({l:GS.l,d:ymd(),c:ci});GSV=GSV.slice(-8);try{localStorage.setItem('home-gsnow',JSON.stringify(GSV));}catch(_){}GS.fin=6;
+    if(GS.l.some(a=>a[1]===me()))EARN(30,'⛄ 一起做大雪人');if(near){big('⛄ 大雪人完成了！');AUDIO.sfx('bigcheer');for(let i=0;i<3;i++)setTimeout(()=>fwLaunch(GSC.x+(Math.random()-0.5)*14,FJ.TOP,GSC.z+(Math.random()-0.5)*14,['heart','star','ball'][i],Math.floor(Math.random()*FPAL.length),Math.floor(Math.random()*1e6)),i*500);}
+    toast(`⛄ 大雪人完成！名字刻在牌子上：${gsNames(GS.l).join('、')}（等一下搬到旁邊的「雪人公園」，下次來還在）`);}
+  function gsTick(dt){if(!GS.built&&player.y>600&&FJ.r(player.pos.x,player.pos.y)<FJ.SR+200)gsBuild();if(GS.fin>0){GS.fin-=dt;if(GS.fin<=0){GS.fin=0;GS.l=[];gsDraw();parkDraw();}}}
+  S.gsRx=(d,f)=>{f=String(f);if(d.t==='gsQ'){if(me()==='0')gsAdd(+d.r,f);}else if(d.t==='gsS'&&f==='0'&&Array.isArray(d.l))gsApply(d.l,!!d.done);};
+  S.funDbg=()=>({PDM,LIVE,BW,WALLS,GS,GSV,GSC,GSP,podShow,podHide,bwGo,bwEnd,bwHit,gsAdd,gsPlace,liveLine});
   // ---- 每格 ----
   let hudT=0;const VX=new V3();
   S.goTrail=k=>{if(!S.on||S.run||S.lock>0||S.ride||!K.R[k])return;const T=K.R[k],q=ptS(T.S0-4,0,T);player.pos.set(q.x,q.z);player.y=gy(q.x,q.z);S.dir=player.yaw=Math.atan2(-q.tx,-q.tz);S.vel.set(0,0);S.v=0;S.ls=null;S.sel=k;hudT=0;
     toast(k===2?'🗻 富士山雪道：繞著富士山滑到山腳，超長！（大約 5 分鐘）有 4 段旗門區、5 個大跳台；往前滑過起點開始計時':k?'🟢 初級道：比較緩、雪道上沒有樹、最快 32 km/h；往前滑過起點開始計時':'⚫ 高級道：比較陡、要閃樹、有跳台；往前滑過起點開始計時');AUDIO.sfx('click');};
-  S.tick=dt=>{const now=performance.now();snowTick(dt);ballTick(dt);throwTick(dt);
+  S.tick=dt=>{const now=performance.now();snowTick(dt);ballTick(dt);throwTick(dt);bwTick(dt);gsTick(dt);podTick(dt);liveTick(dt);   /* 2026-10-27.34 雪球大戰、大雪人、頒獎台、比賽即時名次 */
     LINES.forEach((Ln,i)=>{for(let k=0;k<2;k++){const ph=((now/1000)/Ln.dur+k)%2,u=ph<1?ph:2-ph,t=0.5-0.5*Math.cos(Math.PI*u);linePos(Ln,t,VX);if(ph>=1)VX.h+=Math.PI;lane(VX);const c=AMB[i][k];c.position.copy(VX);c.visible=!(S.ride&&myCab&&c.position.distanceTo(myCab.position)<7);c.rotation.y=VX.h;c.userData.pivot.rotation.set(0.035*Math.sin(now/900+i+k*2),0,0.03*Math.sin(now/1300+k));if(c.userData.npc){const u=c.userData;u.waveT=Math.max(0,u.waveT-dt);for(const p of u.npc)p.arm.rotation.z=u.waveT>0?2.6+Math.sin(now/80)*0.4:0.1;}}});   /* 一直來回的纜車（兩頭慢、會晃） */
     rideHud();S.fwTick(dt);bubTick(dt);FJ.ride=!!(S.ride&&LINES[S.ride.li].b==='F');
     if(S.on&&(busyG()||mode!=='walk'))S.stop();if(S.ride&&(busyG()||mode!=='walk')){S.ride=null;if(myCab)myCab.visible=false;RH.hidden=true;}
     if(S.rc&&S.rc.org===me()&&S.rc.st==='wait'&&(now>S.rc.end||!S.rc.wait.size)){const R=S.rc;if(R.ids.length>=2){R.st='go';for(const id of R.ids)if(id!==me())NET.out(id,{t:'siG',ids:R.ids,r:R.r});raceGo(R.ids,me(),R.r);}else{S.rc=null;toast('沒有人答應，比賽取消了');}}
     if(S.rc&&S.rc.st==='go'&&S.rc.myDone&&now-S.rc.myDone>60000){S.rc=null;}   /* 等太久就不等了 */
     if(!S.on){return;}if(now<hudT)return;hudT=now+200;
-    const n=S.nr,R=S.run,k=R?R.k:n&&n.d<K.R[n.k].W+10?n.k:S.sel|0,T=K.R[k],sel=S.sel|0;let h=`${T.name}　⛷️ <b>${Math.round(Math.abs(S.v)*3.6)}</b> km/h`;if(R)h+=`　⏱ <b>${fmt(R.t)}</b>　🚩 ${R.ok}／${T.gates.length}${R.miss?`　漏 ${R.miss}`:''}`;else if(S.lock>0)h+='　準備…';else if(n&&n.d<40&&n.s<n.R.S0+2)h+='　往下滑過起點開始計時';
+    const n=S.nr,R=S.run,k=R?R.k:n&&n.d<K.R[n.k].W+10?n.k:S.sel|0,T=K.R[k],sel=S.sel|0;let h=`${T.name}　⛷️ <b>${Math.round(Math.abs(S.v)*3.6)}</b> km/h`;if(R)h+=`　⏱ <b>${fmt(R.t)}</b>　🚩 ${R.ok}／${T.gates.length}${R.miss?`　漏 ${R.miss}`:''}`+(R.race?liveLine():'');else if(S.lock>0)h+='　準備…';else if(n&&n.d<40&&n.s<n.R.S0+2)h+='　往下滑過起點開始計時';
     if(BEST[k]!=null&&!S.rc)h+=`　最快 ${fmt(BEST[k])}`;const top=!R&&S.lock<=0&&dist(ST.T)<40;
     const topF=!R&&S.lock<=0&&dist(ST.F)<70,endF=!R&&n&&n.k===2&&n.s>K.R[2].SF-40;if(topF)h+=`<br><button data-a="g2" class="g${sel===2?' on':''}">🗻 富士山雪道（超長）</button>`;if(endF)h+=`<br>前面「🚡 富士山腳站」按 F 坐纜車回富士山頂　<button data-a="home">🚡 回尖山頂</button>`;
     if(top)h+=`<br><button data-a="g1" class="g${sel===1?' on':''}">🟢 初級道</button> <button data-a="g0" class="g${sel===0?' on':''}">⚫ 高級道</button>`;   /* 2026-10-27.20 選雪道：傳送到那條的起點前面 */
@@ -5813,7 +5961,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     if(s.ca&&LINES[s.ca[0]]){const rs=S.remSeat(q,A,s);if(rs===true){if(R.cab)R.cab.visible=false;return;}   /* 跟我坐同一台：坐在我這台的位子上 */
       if(!R.cab){R.cab=mkCab(8,false);scene.add(R.cab);}const Ln=LINES[s.ca[0]];linePos(Ln,+s.ca[1]||0,VX);if(s.ca[2])VX.h+=Math.PI;lane(VX);R.cab.visible=true;R.cab.position.copy(VX);R.cab.rotation.y=VX.h;R.cab.updateMatrixWorld(true);seatPoseAt(A,R.cab,s.ca[5]|0,rs.ya,rs.wv);}
     else if(R.cab)R.cab.visible=false;};
-  S.tag=()=>S.rc&&S.rc.st==='go'?'⛷️ 滑雪比賽':'';S.LINES=LINES;
+  S.tag=()=>BW&&BW.team&&BW.team[me()]!=null&&BW.st!=='done'?(BW.team[me()]?'🔵 藍隊':'🔴 紅隊'):S.rc&&S.rc.st==='go'?'⛷️ 滑雪比賽':'';S.LINES=LINES;
   S.dbg=()=>({S,K,ST,LINES,ptS,BEST:()=>BEST,rideStart,finish});
   return S;})();
 
@@ -19004,7 +19152,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       case 'px':PAX.rx(d,f);break;   /* 坐朋友的車 */
       case 'lkR':case 'lkA':case 'lkN':case 'lkS':case 'lkQ':case 'lkF':LINK.rx(d,f);break;   /* 2026-10-27.7 牽手、背、抱 */
       case 'duR':case 'duA':case 'duN':case 'duG':case 'duE':case 'duQ':DUO.rx(d,f);break;
-      case 'siR':case 'siA':case 'siN':case 'siG':case 'siF':SKI.rx(d,f);break;case 'snR':case 'snA':case 'snN':case 'snG':case 'snF':case 'snH':SKI.brx(d,f);break;case 'sbW':case 'sbH':SKI.thrRx(d,f);break;case 'caI':case 'caA':case 'caN':case 'caS':case 'caF':case 'caE':case 'caP':case 'caG':SKI.crx(d,f);break;   /* 2026-10-27.31 一起坐纜車 */   /* 2026-10-27.28 丟雪球 */   /* 2026-10-27.21 滾雪球 */   /* 2026-10-27.18 滑雪比賽 */   /* 2026-10-27.11 兩人小遊戲 */
+      case 'siR':case 'siA':case 'siN':case 'siG':case 'siF':SKI.rx(d,f);break;case 'snR':case 'snA':case 'snN':case 'snG':case 'snF':case 'snH':SKI.brx(d,f);break;case 'sbW':case 'sbH':SKI.thrRx(d,f);break;case 'bwR':case 'bwA':case 'bwN':case 'bwS':case 'bwH':case 'bwG':case 'bwC':case 'bwK':SKI.bwRx(d,f);break;case 'gsQ':case 'gsS':SKI.gsRx(d,f);break;   /* 2026-10-27.34 雪球大戰、大雪人 */case 'caI':case 'caA':case 'caN':case 'caS':case 'caF':case 'caE':case 'caP':case 'caG':SKI.crx(d,f);break;   /* 2026-10-27.31 一起坐纜車 */   /* 2026-10-27.28 丟雪球 */   /* 2026-10-27.21 滾雪球 */   /* 2026-10-27.18 滑雪比賽 */   /* 2026-10-27.11 兩人小遊戲 */
       case 'puEv':PUSH.netBig(q.name||'有人',d);break;
       case 'fiS':case 'fiA':case 'fiQ':case 'fiN':case 'fiR':case 'fiB':case 'fiE':case 'fiT':FISH.netRx(d,f);break;
       case 'rsS':case 'rsC':case 'rsO':case 'rsE':RS.netRx(d,f);break;
