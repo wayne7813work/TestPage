@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-27.28"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-27.32"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -904,6 +904,7 @@
   <button id="netBtn">👥 連線：和別人一起玩</button>
   <h3>前往</h3>
   <div id="goto"></div>
+  <button id="hkBtn" style="margin-top:8px">📒 景點集章本（12 個景點蓋章）</button><!-- 2026-10-27.32 -->
   <h3>環境</h3>
   <label><span>時間</span><span id="tval">15:00</span></label>
   <input id="time" type="range" min="6" max="19" step="0.25" value="15">
@@ -1122,6 +1123,21 @@ const GRASS = {x0:-11, x1:26, z0:11.4, z1:34};
 // 便利商店：巷子對面的空地上，門口正對我家大門（門 x 4.1～5.9）
 const STORE = {x0:-1, x1:11, z0:12.6, z1:20.6, h:4.2, dx0:4.1, dx1:5.9};
 const BOUND = {x0:-730, x1:1010, z0:-60, z1:960};   /* 2026-10-21.9 往東擴大：雲霧山 */   /* 2026-10-12 往西擴大：大學校園 */   /* 2026-10-10 往南擴大：賽車場 */   // 擴大地圖：往西、東、南都可以走／溜（大圓環、新道路；2026-10-09 圓環那邊再擴大＋籃球場）
+// 2026-10-27.30 富士山走得上去（使用者：「纜車想搭一個長途的，搭到富士山如何？但是要有風景」）：賽車場南邊遠景那座富士山（網格跟賽車場那段 FUJI 一樣）照網格算高度；
+//   山頂 74 m 內是平台（806.3 m）；在富士山範圍裡可以走出地圖邊界（FJ.keep）
+const FJ=(()=>{const F={H:820,RB:1500,RT:70,cx:-300,cz:2450,SEG:180,RG:40,TOP:806.3,SR:74,ride:false};
+  const node=(j,i)=>{const u=j/F.RG,a=i/F.SEG*Math.PI*2,gul=Math.sin(a*36)*Math.sin(a*11+0.7);let y=F.H*Math.pow(1-u,1.55)*(1-0.035*gul*(1-u)*Math.min(1,u*4));if(j===0)y-=14;return y;};
+  const W=F.SEG+1,NG=new Float32Array((F.RG+1)*W);for(let j=0;j<=F.RG;j++)for(let i=0;i<=F.SEG;i++)NG[j*W+i]=node(j,i);
+  F.r=(x,z)=>Math.hypot(x-F.cx,z-F.cz);
+  F.inside=(x,z)=>{const dx=x-F.cx,dz=z-F.cz;return dx*dx+dz*dz<F.RB*F.RB;};
+  F.h=(x,z)=>{const dx=x-F.cx,dz=z-F.cz,r=Math.hypot(dx,dz);if(r>=F.RB)return 0;if(r<=F.SR)return F.TOP;let a=Math.atan2(dz,dx);if(a<0)a+=Math.PI*2;
+    const fj=(r-F.RT)/(F.RB-F.RT)*F.RG,fi=a/(Math.PI*2)*F.SEG,j=Math.max(0,Math.min(F.RG-1,Math.floor(fj))),i=Math.min(F.SEG-1,Math.floor(fi)),u=fj-j,v=fi-i;
+    const y=(NG[j*W+i]*(1-v)+NG[j*W+i+1]*v)*(1-u)+(NG[(j+1)*W+i]*(1-v)+NG[(j+1)*W+i+1]*v)*u;return Math.max(0,y+0.3)+(F.bump?F.bump(x,z):0);};   /* 網格內插（高 0.3 m：腳不會陷進山裡）；F.bump＝富士山雪道的跳台（SKI 那段設定） */
+  F.snow=(x,z)=>F.inside(x,z)&&F.h(x,z)>470;   /* 雪線以上：可以推雪球、丟雪球 */
+  F.keep=p=>{if(p.x>=BOUND.x0&&p.x<=BOUND.x1&&p.y>=BOUND.z0&&p.y<=BOUND.z1)return;const dx=p.x-F.cx,dz=p.y-F.cz,r=Math.hypot(dx,dz);if(r<F.RB-2)return;
+    if(p.y>BOUND.z1-5&&r<F.RB+400){const k=(F.RB-2)/r;const nx=F.cx+dx*k,nz=F.cz+dz*k;if(nz>BOUND.z1-5){p.x=nx;p.y=nz;return;}}
+    p.x=Math.max(BOUND.x0,Math.min(BOUND.x1,p.x));p.y=Math.max(BOUND.z0,Math.min(BOUND.z1,p.y));};   /* 地圖範圍或富士山上才可以走 */
+  return F;})();
 const BOUND_CORE = {x0:-48, x1:96, z0:-60, z1:68};   // 原本的範圍：水泥地面只鋪到這附近，外面是綠地
 const RING = {cx:-16, cz:110, r0:15, r1:26};   // 大圓環：中心、安全島半徑、外緣半徑
 // 運動場（使用者要求：想溜直排輪）：巷子對面空地再往南，田徑場跑道中心 (14, 49)
@@ -2307,7 +2323,7 @@ const WC_DOOR={a:ST.zB+0.1,b:ST.zm0-0.08};
 const PITS=WC.rects.map(r=>({...r,y:WCF}));   // 地面比 0 低的區域
 const surfaces=[];                         // 可以站的面：樓板、樓梯斜面（地面 y=0 不必列）
 function surfY(s,x,z){if(!s.ramp)return s.y;const v=s.axis==='x'?x:z;const t=Math.max(0,Math.min(1,(v-s.za)/(s.zb-s.za)));return s.ya+(s.yb-s.ya)*t;}
-function heightAt(x,z,y){let best=0;for(const p of PITS)if(x>=p.x0&&x<=p.x1&&z>=p.z0&&z<=p.z1){best=p.y;break;}for(const s of surfaces){if(s.off)continue;if(x<s.x0||x>s.x1||z<s.z0||z>s.z1)continue;const h=surfY(s,x,z);if(h<=y+0.45&&h>best)best=h;}if(MOUNT&&x>MOUNT.x0&&x<MOUNT.x1&&z>MOUNT.z0&&z<MOUNT.z1){const h=MOUNT.h(x,z);if(h>best)best=h;}return best;}   /* 2026-10-27.17 使用者：「這整座山是不是透明的？有時候會闖進透明山裡」→ 山的地形以前也照「最多高 0.45 m 才踩得上去」：開快車、手機卡一下（一格走比較遠）碰到陡坡，坡比 0.45 高就當作沒有 → 鑽進山裡、出不來（從裡面看山是透明的）。山是一整片地形（沒有洞），在範圍裡一律照地形高度 */
+function heightAt(x,z,y){let best=0;for(const p of PITS)if(x>=p.x0&&x<=p.x1&&z>=p.z0&&z<=p.z1){best=p.y;break;}for(const s of surfaces){if(s.off)continue;if(x<s.x0||x>s.x1||z<s.z0||z>s.z1)continue;const h=surfY(s,x,z);if(h<=y+0.45&&h>best)best=h;}if(MOUNT&&x>MOUNT.x0&&x<MOUNT.x1&&z>MOUNT.z0&&z<MOUNT.z1){const h=MOUNT.h(x,z);if(h>best)best=h;}if(FJ.inside(x,z)){const h=FJ.h(x,z);if(h>best)best=h;}return best;}   /* 2026-10-27.17 使用者：「這整座山是不是透明的？有時候會闖進透明山裡」→ 山的地形以前也照「最多高 0.45 m 才踩得上去」：開快車、手機卡一下（一格走比較遠）碰到陡坡，坡比 0.45 高就當作沒有 → 鑽進山裡、出不來（從裡面看山是透明的）。山是一整片地形（沒有洞），在範圍裡一律照地形高度 */
 // 從一組長方形扣掉另一組（不相交的原樣保留）
 function rectSub(rs,holes){for(const h of holes)rs=rs.flatMap(r=>h.x1<=r.x0||h.x0>=r.x1||h.z1<=r.z0||h.z0>=r.z1?[r]:rectMinus(r,{x0:Math.max(r.x0,h.x0),x1:Math.min(r.x1,h.x1),z0:Math.max(r.z0,h.z0),z1:Math.min(r.z1,h.z1)}));return rs;}
 function rectMinus(r,h){if(!h)return [r];const out=[];if(h.z1<r.z1)out.push({...r,z0:Math.max(r.z0,h.z1)});if(h.z0>r.z0)out.push({...r,z1:Math.min(r.z1,h.z0)});const za=Math.max(r.z0,h.z0),zb=Math.min(r.z1,h.z1);if(zb>za){if(h.x0>r.x0)out.push({x0:r.x0,x1:h.x0,z0:za,z1:zb});if(h.x1<r.x1)out.push({x0:h.x1,x1:r.x1,z0:za,z1:zb});}return out;}
@@ -3123,6 +3139,7 @@ var MOUNT=(()=>{
   {const W=[[8,-27],[-6,-46],[15,-56],[40,-65],[54,-77],[44,-93],[12,-106],[-20,-123],[-26,-143],[8,-159],[50,-169],[72,-185],[79,-203]].map(([a,b])=>[PEAK.x+a,PEAK.z+b]),raw=[];
     for(let i=0;i<W.length-1;i++){const p0=W[Math.max(0,i-1)],p1=W[i],p2=W[i+1],p3=W[Math.min(W.length-1,i+2)];for(let k=0;k<20;k++){const t=k/20,t2=t*t,t3=t2*t,f=(a,b,c,d)=>0.5*(2*b+(-a+c)*t+(2*a-5*b+4*c-d)*t2+(-a+3*b-3*c+d)*t3);raw.push([f(p0[0],p1[0],p2[0],p3[0]),f(p0[1],p1[1],p2[1],p3[1])]);}}   /* Catmull-Rom 圓滑 */
     raw.push(W[W.length-1]);SK.R.push(mkRun(raw,10,'🟢 初級道'));}
+  SK.mkRun=mkRun;   /* 2026-10-27.30 富士山雪道也用這個 */
   {const R0=SK.R[0];SK.P=R0.P;SK.L=R0.L;SK.S0=R0.S0;SK.SF=R0.SF;}
   SK.near=(x,z)=>{let b=null;for(const R of SK.R){const n=R.near(x,z);if(n&&(!b||n.d<b.d))b=n;}if(b)b.k=SK.R.indexOf(b.R);return b;};   /* 最近的那條雪道（n.k＝第幾條） */
   SK.edge=(x,z)=>{let e=1e9;for(const R of SK.R){const n=R.near(x,z);if(n)e=Math.min(e,Math.abs(n.lat)-R.W);}return e;};   /* 離雪道邊多遠（負的＝在雪道上） */
@@ -3310,11 +3327,11 @@ var MOUNT=(()=>{
     if(on){clT+=dt;const br=0.3+0.7*dayK;for(const s of CLOUDS){const u=s.userData;s.position.x=u.x0+Math.sin(clT*0.03+u.ph)*18;const d=cp.distanceTo(s.position);s.material.opacity=u.a*sm(u.w*0.3,u.w*0.85,d);s.material.color.setScalar(br);}
       if(!keeper&&Math.hypot(cp.x-KX,cp.z-KZ)<150){keeper=mkAvatar();keeper.root.traverse(o=>{o.userData.noCull=true;});try{keeper.skates=false;keeper.dress({g:'f',o:2%CHAR_OUTFITS.f.length,h:1});}catch(_){}keeper.root.position.set(KX+0.2,C.TOP,KZ);keeper.root.rotation.set(0,-Math.PI/2,0);}}};
   return C;})();
-function currentAct(){if(CU.on||MU.on||DD.on||KF.on||PUSH.on||FISH.on||RS.on||CVS.on)return null;{const rd=RIDE.label();if(rd)return {rd};}{const de=DECO.label();if(!de||de.k==='open'){const dr=nearCsDoor(),cc=nearCurtain();if(cc&&cc.cu.cs&&(!dr||cc.d<Math.hypot(dr.d.center.x-player.pos.x,dr.d.center.y-player.pos.y)))return {cur:cc.cu};if(dr)return {dr};}if(de)return {de};}   /* 城堡的門、圓塔簾子比「擺傢俱」優先（在城堡裡 DECO 一直有「擺傢俱」） */{const rs=RS.label();if(rs)return {rs};}{const dd=DD.label();if(dd)return {dd};}{const kf=KF.label();if(kf)return {kf};}{const cv=CVS.label();if(cv)return {cv};}{const fi=FISH.label();if(fi)return {fi};}{const pu=PUSH.label();if(pu)return {pu};}{const mu=MU.label();if(mu)return {mu};}{const cu=CU.label();if(cu)return {cu};}{const rc=RACE.label();if(rc)return {rc};}{const nm=NM.label();if(nm)return {nm};}{const sb=SB.label();if(sb)return {sb};}{const rb=RB.label();if(rb)return {rb};}{const si=SKI.label();if(si)return {si};}if(TN.on){const k=TN.label();return k?{tn:k}:null;}if(BB.on){const k=BB.label();return k?{bb:k}:null;}const tn=TN.label();if(tn)return {tn};if(SKATE.on){const k=SKATE.act();return k?{sk:k}:null;}const bb=BB.label();if(bb)return {bb};const mq=SHOP.near&&SHOP.near();if(mq)return {mq};const sk=SKATE.act();if(sk)return {sk};const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};if(cu)return {cur:cu.cu};{const e=CVS.eatLabel();return e?{cv:e}:null;}}   /* 2026-10-27.27 手上拿著吃的：沒別的事可以按就是「吃掉」 */
+function currentAct(){if(FJW.scope)return {fj:{k:'exit',t:'🔭 離開望遠鏡'}};if(CU.on||MU.on||DD.on||KF.on||PUSH.on||FISH.on||RS.on||CVS.on)return null;{const rd=RIDE.label();if(rd)return {rd};}{const de=DECO.label();if(!de||de.k==='open'){const dr=nearCsDoor(),cc=nearCurtain();if(cc&&cc.cu.cs&&(!dr||cc.d<Math.hypot(dr.d.center.x-player.pos.x,dr.d.center.y-player.pos.y)))return {cur:cc.cu};if(dr)return {dr};}if(de)return {de};}   /* 城堡的門、圓塔簾子比「擺傢俱」優先（在城堡裡 DECO 一直有「擺傢俱」） */{const rs=RS.label();if(rs)return {rs};}{const dd=DD.label();if(dd)return {dd};}{const kf=KF.label();if(kf)return {kf};}{const cv=CVS.label();if(cv)return {cv};}{const fj=FJW.label();if(fj)return {fj};}{const fi=FISH.label();if(fi)return {fi};}{const pu=PUSH.label();if(pu)return {pu};}{const mu=MU.label();if(mu)return {mu};}{const cu=CU.label();if(cu)return {cu};}{const rc=RACE.label();if(rc)return {rc};}{const nm=NM.label();if(nm)return {nm};}{const sb=SB.label();if(sb)return {sb};}{const rb=RB.label();if(rb)return {rb};}{const si=SKI.label();if(si)return {si};}if(TN.on){const k=TN.label();return k?{tn:k}:null;}if(BB.on){const k=BB.label();return k?{bb:k}:null;}const tn=TN.label();if(tn)return {tn};if(SKATE.on){const k=SKATE.act();return k?{sk:k}:null;}const bb=BB.label();if(bb)return {bb};const mq=SHOP.near&&SHOP.near();if(mq)return {mq};const sk=SKATE.act();if(sk)return {sk};const bl=BALLOON.act();if(bl)return {bal:bl};const lb=LIE.act();if(lb)return {bed:lb};const cb=nearCab(),cu=nearCurtain();if(cb&&(!cu||cb.d<=cu.d))return {cab:cb.u};if(cu)return {cur:cu.cu};{const e=CVS.eatLabel();return e?{cv:e}:null;}}   /* 2026-10-27.27 手上拿著吃的：沒別的事可以按就是「吃掉」 */
 function syncActBtn(){const a=currentAct();actCur=a;
-  const html=!a?'':a.cv?`<kbd>F</kbd>${a.cv.t}`:a.rd?`<kbd>F</kbd>${a.rd}`:a.si?`<kbd>F</kbd>${a.si}`:a.dr?`<kbd>F</kbd>🚪 ${csDoorOpen(a.dr.d)?'關上':'打開'}${a.dr.d.gate?'大門':'門'}`:a.de?(a.de.k==='place'?'':`<kbd>F</kbd>${a.de.t}`):a.dd?`<kbd>F</kbd>${a.dd}`:a.kf?`<kbd>F</kbd>${a.kf}`:a.fi?`<kbd>F</kbd>${a.fi.t}`:a.pu?`<kbd>F</kbd>${a.pu.t}`:a.rs?`<kbd>F</kbd>${a.rs}`:a.mu?`<kbd>F</kbd>${a.mu}`:a.cu?`<kbd>F</kbd>${a.cu}`:a.rc?`<kbd>F</kbd>${a.rc}`:a.nm?`<kbd>F</kbd>${a.nm}`:a.rb?`<kbd>F</kbd>${a.rb}`:a.sb?`<kbd>F</kbd>${a.sb}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${outfitCount('f')+outfitCount('m')} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
+  const html=!a?'':a.fj?`<kbd>F</kbd>${a.fj.t}`:a.cv?`<kbd>F</kbd>${a.cv.t}`:a.rd?`<kbd>F</kbd>${a.rd}`:a.si?`<kbd>F</kbd>${a.si}`:a.dr?`<kbd>F</kbd>🚪 ${csDoorOpen(a.dr.d)?'關上':'打開'}${a.dr.d.gate?'大門':'門'}`:a.de?(a.de.k==='place'?'':`<kbd>F</kbd>${a.de.t}`):a.dd?`<kbd>F</kbd>${a.dd}`:a.kf?`<kbd>F</kbd>${a.kf}`:a.fi?`<kbd>F</kbd>${a.fi.t}`:a.pu?`<kbd>F</kbd>${a.pu.t}`:a.rs?`<kbd>F</kbd>${a.rs}`:a.mu?`<kbd>F</kbd>${a.mu}`:a.cu?`<kbd>F</kbd>${a.cu}`:a.rc?`<kbd>F</kbd>${a.rc}`:a.nm?`<kbd>F</kbd>${a.nm}`:a.rb?`<kbd>F</kbd>${a.rb}`:a.sb?`<kbd>F</kbd>${a.sb}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${outfitCount('f')+outfitCount('m')} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
   if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
-function toggleAct(){const a=currentAct();if(a&&a.cv){CVS.act(a.cv);syncActBtn();return;}if(a&&a.rd){RIDE.act();syncActBtn();return;}if(a&&a.si){SKI.act();syncActBtn();return;}if(a&&a.dr){const v=csDoorOpen(a.dr.d)?0:1;for(const d of a.dr.grp)d.man=v;csDoorSave();if(typeof CG!=='undefined')CG.door(a.dr.grp,v);AUDIO.sfx('door');syncActBtn();return;}if(a&&a.de){DECO.act(a.de);syncActBtn();return;}if(a&&a.dd){DD.toggle();syncActBtn();return;}if(a&&a.kf){KF.toggle();syncActBtn();return;}if(a&&a.fi){FISH.act(a.fi);syncActBtn();return;}if(a&&a.pu){PUSH.act(a.pu);syncActBtn();return;}if(a&&a.rs){RS.act();syncActBtn();return;}if(a&&a.mu){MU.toggle();syncActBtn();return;}if(a&&a.cu){CU.toggle();syncActBtn();return;}if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.sb){SB.toggle();syncActBtn();return;}if(a&&a.rb){RB.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
+function toggleAct(){const a=currentAct();if(a&&a.fj){FJW.act(a.fj);syncActBtn();return;}if(a&&a.cv){CVS.act(a.cv);syncActBtn();return;}if(a&&a.rd){RIDE.act();syncActBtn();return;}if(a&&a.si){SKI.act();syncActBtn();return;}if(a&&a.dr){const v=csDoorOpen(a.dr.d)?0:1;for(const d of a.dr.grp)d.man=v;csDoorSave();if(typeof CG!=='undefined')CG.door(a.dr.grp,v);AUDIO.sfx('door');syncActBtn();return;}if(a&&a.de){DECO.act(a.de);syncActBtn();return;}if(a&&a.dd){DD.toggle();syncActBtn();return;}if(a&&a.kf){KF.toggle();syncActBtn();return;}if(a&&a.fi){FISH.act(a.fi);syncActBtn();return;}if(a&&a.pu){PUSH.act(a.pu);syncActBtn();return;}if(a&&a.rs){RS.act();syncActBtn();return;}if(a&&a.mu){MU.toggle();syncActBtn();return;}if(a&&a.cu){CU.toggle();syncActBtn();return;}if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.sb){SB.toggle();syncActBtn();return;}if(a&&a.rb){RB.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
 actBtn.addEventListener('click',e=>{e.stopPropagation();toggleAct();});
 actBtn.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleAct();},{passive:false});
 document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)if(!c.cs)c.target=0;syncActBtn();AUDIO.sfx('swish');};   /* 設定裡的「全部拉開／拉上」只管我家（城堡圓塔的簾子各自開關） */
@@ -5117,7 +5134,7 @@ const SKATE=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,back:false,ground:tru
     const got=player.pos.clone().sub(old),want=mv.length();
     if(want>0.02&&got.length()<want*0.6){const sp=S.vel.length();if(S.jet&&got.length()>want*0.15){S.vel.copy(got).multiplyScalar(0.75/dt);AUDIO.sfx('thud');}   /* 推進器：擦牆滑過去、掉一點速度（不摔） */
       else if(sp>4){S.vel.multiplyScalar(-0.35);AUDIO.sfx('thud');if(S.jet)S.setJet(0);else if(sp>11)fall('撞到了！');}else S.vel.copy(got).multiplyScalar(1/dt);}
-    player.pos.x=Math.max(BOUND.x0,Math.min(BOUND.x1,player.pos.x));player.pos.y=Math.max(BOUND.z0,Math.min(BOUND.z1,player.pos.y));
+    FJ.keep(player.pos);   /* 2026-10-27.30 地圖範圍＋富士山 */
     // 上下：貼著地面（上斜坡會記住往上的速度，到跳台頂就飛出去）；空中重力、轉體
     const gy=heightAt(player.pos.x,player.pos.y,player.y+0.3);
     const tol=0.08+Math.abs(S.v)*dt*0.7;   /* 下坡（落地坡）貼著地面溜；往上衝到起跳口（地面不再變高）就飛出去 */
@@ -5190,7 +5207,15 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   const big=t=>{const el=document.getElementById('gBig');if(el){el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
   let BEST={};try{const b=JSON.parse(localStorage.getItem('home-ski-best')||'null');BEST=typeof b==='number'?{0:b}:(b&&typeof b==='object'?b:{});}catch(_){BEST={};}   /* 2026-10-27.20 每條雪道各自的最快（以前只存一個數字＝高級道） */
   const ptS=(s,lat,R=K.R[0])=>{const P=R.P,f=cl(s/(R.L/(P.length-1)),0,P.length-1.001),i=Math.floor(f),u=f-i,a=P[i],c=P[i+1],rx=a.rx+(c.rx-a.rx)*u,rz=a.rz+(c.rz-a.rz)*u;return {x:a.x+(c.x-a.x)*u+rx*lat,z:a.z+(c.z-a.z)*u+rz*lat,tx:a.tx,tz:a.tz,rx,rz};};
-  const gy=(x,z)=>M.h(x,z);
+  const gy=(x,z)=>{const h=M.h(x,z);return FJ.inside(x,z)?Math.max(h,FJ.h(x,z)):h;};   /* 2026-10-27.30 富士山上也算（纜車支柱、雪球、雪道） */
+  // ---- 2026-10-27.30 富士山雪道（使用者選「從山頂滑雪下來」）：從山頂平台繞著山轉下去（坡度大約 0.3：太陡就斜著滑），滑到北邊山腳（地圖南邊邊界外面一點） ----
+  {const F=FJ,slope=r=>{const u=Math.max(0,(r-F.RT)/(F.RB-F.RT));return F.H*1.55*Math.pow(1-u,0.55)/(F.RB-F.RT);};
+   const sim=a0=>{let a=a0,r=F.SR+6;const pts=[];while(r<F.RB-30&&pts.length<5000){pts.push([F.cx+Math.cos(a)*r,F.cz+Math.sin(a)*r]);const g=r>F.RB-260?0.15:0.3,sl=slope(r),dr=2*Math.min(1,g/Math.max(0.05,sl));r+=dr;a+=Math.sqrt(Math.max(0,4-dr*dr))/r;}return {pts,a};};
+   const t=sim(0),a0=-Math.PI/2-t.a,R=K.mkRun(sim(a0).pts,13,'🗻 富士山雪道');R.S0=12;R.SF=R.L-12;R.fuji=1;K.R.push(R);
+   // 2026-10-27.32 旗門、跳台（使用者：「先做富士山腳車站（坐回山頂）、雪道旗門跳台、多站集章」）：4 段旗門區（每段 6 個、隔 28 m、左右偏 3.5 m、寬 6 m）；5 個大跳台（10 m 長、2.2 m 高、中間 11 m 寬，旁邊可以閃過）
+   for(const f of [0.1,0.33,0.56,0.79])for(let k=0;k<6;k++)R.gates.push({s:R.L*f+k*28,lat:k%2?3.5:-3.5,hw:3});
+   R.jumps=[0.22,0.45,0.68,0.9,0.96].map(f=>{const s=R.L*f,i=Math.round(s/R.L*(R.P.length-1)),p=R.P[i];return {s,i,x:p.x,z:p.z,len:10,hw:5.5,h:2.2};});
+   FJ.bump=(x,z)=>{for(const J of R.jumps){if(Math.abs(x-J.x)>16||Math.abs(z-J.z)>16)continue;const n=R.nearI(x,z,J.i);if(!n||Math.abs(n.lat)>J.hw)continue;const ds=n.s-J.s;if(ds>-J.len&&ds<=0){const u=(ds+J.len)/J.len;return J.h*u*u*Math.min(1,(J.hw-Math.abs(n.lat))/1.2);}}return 0;};}   /* 跳台頂端還在往上（u²）：飛得比高級道遠 */
   // ---- 場景 ----
   const snowM=std({color:'#f4f8fb',roughness:0.75});
   {const tr=new THREE.CylinderGeometry(0.22,0.28,1.4,6).translate(0,0.7,0),f1=new THREE.ConeGeometry(1.7,3.2,8).translate(0,2.9,0).toNonIndexed(),f2=new THREE.ConeGeometry(1.25,2.6,8).translate(0,4.4,0).toNonIndexed(),sc=new THREE.ConeGeometry(0.75,1.2,8).translate(0,5.45,0);
@@ -5198,16 +5223,20 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     const mm=new THREE.Matrix4();K.trees.forEach((t,i)=>{const s=t.sc;mm.makeScale(s,s,s);mm.setPosition(t.x,gy(t.x,t.z)-0.1,t.z);for(const im of ims)im.setMatrixAt(i,mm);});S.treeIM=ims;}   /* 樹上有雪的松樹 */
   {const pg=new THREE.CylinderGeometry(0.045,0.045,1.7,8).translate(0,0.85,0),fg=new THREE.PlaneGeometry(0.6,0.42).translate(0.32,1.45,0),cols=['#2f7fd1','#e5484d'];
     const pm=cols.map(c=>std({color:c,roughness:0.6})),fm=cols.map(c=>new THREE.MeshStandardMaterial({color:c,roughness:0.7,side:THREE.DoubleSide}));
-    for(const R of K.R)R.gates.forEach((G,k)=>{for(const sd of [-1,1]){const q=ptS(G.s,G.lat+sd*(G.hw-0.2),R),y=gy(q.x,q.z),o=new THREE.Mesh(pg,pm[k%2]);o.position.set(q.x,y,q.z);scene.add(o);const f=new THREE.Mesh(fg,fm[k%2]);f.position.set(q.x,y,q.z);f.rotation.y=Math.atan2(q.tx,q.tz)+Math.PI/2;scene.add(f);}});}   /* 旗門：一對旗桿（藍紅輪流） */
-  {for(const J of K.jumps){const NLg=10,NW=6,pos=[],idx=[];for(let a=0;a<=NLg;a++)for(let w=0;w<=NW;w++){const q=ptS(J.s-7.5+a*8/NLg,-4.6+w*9.2/NW);pos.push(q.x,gy(q.x,q.z)+0.03,q.z);}
+    for(const R of K.R)R.gates.forEach((G,k)=>{for(const sd of [-1,1]){const q=ptS(G.s,G.lat+sd*(G.hw-0.2),R),y=gy(q.x,q.z),o=new THREE.Mesh(pg,pm[k%2]);o.position.set(q.x,y,q.z);scene.add(o);const f=new THREE.Mesh(fg,fm[k%2]);f.position.set(q.x,y,q.z);f.rotation.y=Math.atan2(q.tx,q.tz)+Math.PI/2;scene.add(f);if(R.fuji){o.scale.setScalar(1.6);f.scale.setScalar(1.6);}}});}   /* 旗門：一對旗桿（藍紅輪流）；富士山雪道的大 1.6 倍（滑得快、山很大，小的看不到） */
+  {for(const R of K.R)for(const J of R.jumps){const NLg=10,NW=6,pos=[],idx=[],ln=(J.len||7)+0.5,hw=(J.hw||4.5)+0.1;for(let a=0;a<=NLg;a++)for(let w=0;w<=NW;w++){const q=ptS(J.s-ln+a*(ln+0.5)/NLg,-hw+w*2*hw/NW,R);pos.push(q.x,gy(q.x,q.z)+0.03,q.z);}
       for(let a=0;a<NLg;a++)for(let w=0;w<NW;w++){const i=a*(NW+1)+w;idx.push(i,i+1,i+NW+1,i+1,i+NW+2,i+NW+1);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();
-      const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:'#ffffff',roughness:0.7,side:THREE.DoubleSide}));m.receiveShadow=true;scene.add(m);}}   /* 雪堆跳台 */
+      const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:'#ffffff',roughness:0.7,side:THREE.DoubleSide}));m.receiveShadow=true;scene.add(m);
+      if(R.fuji){const lp=[],li=[];for(let w=0;w<=NW;w++)for(const ds of [-0.45,-0.05]){const q=ptS(J.s+ds,-hw+w*2*hw/NW,R);lp.push(q.x,gy(q.x,q.z)+0.07,q.z);}for(let w=0;w<NW;w++){const a=w*2;li.push(a,a+1,a+2,a+1,a+3,a+2);}   /* 2026-10-27.32 富士山的跳台：頂端一條橘線（貼著雪地：雪道橫向有坡度）＋前面的牌子 */
+        const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(lp,3));lg.setIndex(li);lg.computeVertexNormals();scene.add(new THREE.Mesh(lg,new THREE.MeshBasicMaterial({color:'#ff8a1a',side:THREE.DoubleSide})));
+        const p=ptS(J.s-28,R.W+0.8,R),s=labelSprite('⚠️ 前面有跳台','中間跳、旁邊可以閃過','rgba(230,120,20,0.9)');s.position.set(p.x,gy(p.x,p.z)+2.6,p.z);s.scale.multiplyScalar(0.45);scene.add(s);}}}   /* 雪堆跳台 */
   const banner=(s,txt,sub,col,R=K.R[0])=>{const q=ptS(s,0,R),W=R.W+1,grp=new THREE.Group(),y=gy(q.x,q.z);grp.position.set(q.x,y,q.z);grp.rotation.y=Math.atan2(q.rx,q.rz)+Math.PI/2;scene.add(grp);const km=std({color:col,roughness:0.6});
     for(const sd of [-1,1]){const p=ptS(s,sd*W,R),dy=gy(p.x,p.z)-y,m=new THREE.Mesh(new THREE.BoxGeometry(0.4,7,0.4),km);m.position.set(sd*W,dy+2.5,0);grp.add(m);}
     const [c,g]=cvs(1024,160);g.fillStyle=col;g.fillRect(0,0,1024,160);g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.font=`900 72px ${FONT}`;g.fillText(txt,512,62);g.font=`40px ${FONT}`;g.fillText(sub,512,128);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
     const bm=new THREE.Mesh(new THREE.BoxGeometry(2*W+1,1.8,0.06),new THREE.MeshBasicMaterial({map:t,toneMapped:false}));bm.position.y=5.4;grp.add(bm);};
   {const [R0,R1]=K.R;banner(R0.S0,'⚫ 高級道 起點','比較陡、要閃樹・經過起點開始計時','#1f6fb8');banner(R0.SF,'🏁 高級道 終點','滑到這裡停錶・旁邊坐纜車回山頂','#c0392b');
-    banner(R1.S0,'🟢 初級道 起點','比較緩、沒有樹・經過起點開始計時','#2e9a4e',R1);banner(R1.SF,'🏁 初級道 終點','滑到這裡停錶・旁邊坐纜車回山頂','#c0392b',R1);}   /* 2026-10-27.20 兩條雪道 */
+    banner(R1.S0,'🟢 初級道 起點','比較緩、沒有樹・經過起點開始計時','#2e9a4e',R1);banner(R1.SF,'🏁 初級道 終點','滑到這裡停錶・旁邊坐纜車回山頂','#c0392b',R1);   /* 2026-10-27.20 兩條雪道 */
+    const R2=K.R[2];banner(R2.S0,'🗻 富士山雪道 起點','超長！繞著富士山滑到山腳・經過起點開始計時','#7a3fb8',R2);banner(R2.SF,'🏁 富士山雪道 終點','滑完了！前面的山腳站坐纜車回富士山頂','#c0392b',R2);}
   // ---- 2026-10-27.28 雪道看得出來（使用者：「滑雪有路線嗎，怎麼都看不到」：山頂一整片都是白的雪）：壓過的雪道（淡藍、一條條壓雪紋，比旁邊高一點）、兩邊邊界桿（初級道綠、高級道黑、頂端橘色）、山頂路標箭頭 ----
   {const [c,g]=cvs(64,128);g.fillStyle='#dce8f4';g.fillRect(0,0,64,128);g.fillStyle='#c6d7ea';for(let x=0;x<64;x+=8)g.fillRect(x,0,3,128);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=ANISO;
    const mat=std({map:t,roughness:0.8,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
@@ -5231,7 +5260,9 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   const ST={A:{x:M.LOT.x+17,z:M.LOT.z+6,n:'山頂停車場'},T:{x:PK.x-6,z:PK.z-2,n:'尖山頂'},B:null};
   {const e=K.P[K.P.length-1];ST.B={x:e.x+e.tx*14,z:e.z+e.tz*14,n:'高級道山腳'};}
   {const P=K.R[1].P,e=P[P.length-1];ST.C={x:e.x+e.tx*12,z:e.z+e.tz*12,n:'初級道山腳'};}   /* 2026-10-27.20 初級道終點旁邊的纜車站 */
-  for(const k of ['A','T','B','C'])ST[k].y=gy(ST[k].x,ST[k].z);S.ST=ST;
+  {const dx=ST.T.x-FJ.cx,dz=ST.T.z-FJ.cz,l=Math.hypot(dx,dz);ST.F={x:FJ.cx+dx/l*56,z:FJ.cz+dz/l*56,n:'富士山頂'};}   /* 2026-10-27.30 富士山頂車站（山頂平台北邊，朝尖山） */
+  {const P=K.R[2].P,e=P[P.length-1],a=Math.atan2(ST.T.z-FJ.cz,ST.T.x-FJ.cx)-1.15;ST.G={x:e.x+e.tx*14,z:e.z+e.tz*14,n:'富士山腳'};ST.H={x:FJ.cx+Math.cos(a)*56,z:FJ.cz+Math.sin(a)*56,n:'富士山頂'};}   /* 2026-10-27.32 富士山雪道終點旁邊的山腳站 → 山頂平台西北邊的第二個車站（跟長途纜車的站隔 40 m，纜繩不會疊在一起） */
+  for(const k of ['A','T','B','C','F','G','H'])ST[k].y=gy(ST[k].x,ST[k].z);S.ST=ST;
   // ---- 纜車（2026-10-27.28 使用者：「那個纜車搭起來很沒感覺耶，可以做高質感一點嗎？」）：山頂停車場 → 尖山頂（A→T）、兩條雪道山腳 → 尖山頂（B→T、C→T） ----
   //   以前：纜繩兩頭掛在 9～22 m 高的柱子上、四方塊車廂、等速直線、沒有支柱（山頂平台加大以後還會穿過山）。現在：
   //   - 車站：纜繩進站降到 3.4 m（車廂底離地 10 cm）、遮雨棚、轉向大輪；中間照地形自動加支柱（離地不夠 3 m 就加一根：鐵塔＋橫擔＋滑輪），每一段中間垂一點
@@ -5239,59 +5270,65 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   //   - 坐：關門 → 出站慢慢加速 → 最快 6 m/s → 進站慢慢停 → 開門；車廂會晃（起步、停車、經過支柱「咔噠」、有風）
   //   - 鏡頭：坐在車廂裡往前看（拖曳可以轉頭看風景），上面「🎥 外面看」換成從外面看；上面一行：到哪、還有幾秒、離地幾公尺
   const HS=3.4,CABH=2.35;   // 車站的纜繩高度、纜繩到車廂中心
-  const LINES=[['A','T'],['B','T'],['C','T']].map(([a,b])=>{const A0=ST[a],B0=ST[b],pts=[{x:A0.x,z:A0.z,y:A0.y+HS},{x:B0.x,z:B0.z,y:B0.y+HS}],full=Math.hypot(B0.x-A0.x,B0.z-A0.z);
+  const LINES=[['A','T'],['B','T'],['C','T'],['T','F',13],['G','H',12]].map(([a,b,vmax])=>{const A0=ST[a],B0=ST[b],pts=[{x:A0.x,z:A0.z,y:A0.y+HS},{x:B0.x,z:B0.z,y:B0.y+HS}],full=Math.hypot(B0.x-A0.x,B0.z-A0.z);
     const span=(p,q,u)=>{const L=Math.hypot(q.x-p.x,q.y-p.y,q.z-p.z);return {x:p.x+(q.x-p.x)*u,z:p.z+(q.z-p.z)*u,y:p.y+(q.y-p.y)*u-L*0.04*u*(1-u)};};
+    if(vmax){const n=Math.floor((full-120)/280);for(let k=1;k<=n;k++){const u=k*280/full,x=A0.x+(B0.x-A0.x)*u,z=A0.z+(B0.z-A0.z)*u,g=gy(x,z);pts.splice(pts.length-1,0,{x,z,y:g+(g>400?32:48)});}}   /* 長途：每 280 m 一根高塔（離地 30～50 m），纜車沿著地形先往下、再爬上富士山 */
     for(let it=0;it<16;it++){let worst=0,wi=-1,wp=null,acc=0;
       for(let i=0;i<pts.length-1;i++){const p=pts[i],q=pts[i+1],L=Math.hypot(q.x-p.x,q.z-p.z);
         for(let k=1;k<48;k++){const u=k/48,o=span(p,q,u),d=acc+L*u,dEnd=Math.min(d,full-d);if(dEnd<2.5)continue;const need=Math.min(3,dEnd*0.3-0.2),c=o.y-CABH-0.95-gy(o.x,o.z);if(need-c>worst){worst=need-c;wi=i;wp=o;wp.need=need;}}acc+=L;}
       if(wi<0)break;pts.splice(wi+1,0,{x:wp.x,z:wp.z,y:gy(wp.x,wp.z)+CABH+0.95+wp.need+1.6});}   /* 最不夠高的地方加一根支柱（車廂底離地夠高再多 1.6 m），再檢查一次 */
     const P=[];let L=0,prev=null;const tw=[];
     for(let i=0;i<pts.length-1;i++){const p=pts[i],q=pts[i+1],h=Math.atan2(q.x-p.x,q.z-p.z);for(let k=i?1:0;k<=30;k++){const o=span(p,q,k/30);if(prev)L+=Math.hypot(o.x-prev.x,o.y-prev.y,o.z-prev.z);o.s=L;o.h=h;P.push(o);prev=o;}if(i<pts.length-2)tw.push({s:L,x:q.x,z:q.z,y:q.y,h:Math.atan2(pts[i+2].x-p.x,pts[i+2].z-p.z)});}
-    return {a,b,pts,P,L,tw,len:L,dur:L/6+6,TA:pts[0],TB:pts[pts.length-1]};});
+    const vm=vmax||6;return {a,b,pts,P,L,tw,len:L,vmax:vm,dur:L/vm+6,TA:pts[0],TB:pts[pts.length-1]};});   /* 2026-10-27.30 尖山頂 → 富士山頂：長途（最快 13 m/s） */
   const linePos=(Ln,t,o)=>{const P=Ln.P,s=cl(t,0,1)*Ln.L;let i=Math.min(P.length-2,Math.floor(cl(t,0,1)*(P.length-1)));while(i>0&&P[i].s>s)i--;while(i<P.length-2&&P[i+1].s<s)i++;const a=P[i],c=P[i+1],u=cl((s-a.s)/Math.max(1e-6,c.s-a.s),0,1);
     o.x=a.x+(c.x-a.x)*u;o.y=a.y+(c.y-a.y)*u;o.z=a.z+(c.z-a.z)*u;o.h=a.h;return o;};
+  const LANE=1.3,lane=o=>{o.x+=Math.cos(o.h)*LANE;o.z-=Math.sin(o.h)*LANE;return o;};   /* 2026-10-27.29 上山、下山各走一條纜繩（往前看的右邊）：原本同一條，下山會跟上山的纜車疊在一起 */
   // 車廂（同一套形狀大家共用；靜態的部分照材質合併，一台 7～11 個網格）
   const CAB=(()=>{const rr=(w,d,r)=>{const s=new THREE.Shape(),x=w/2,z=d/2;s.moveTo(-x+r,-z);s.lineTo(x-r,-z);s.quadraticCurveTo(x,-z,x,-z+r);s.lineTo(x,z-r);s.quadraticCurveTo(x,z,x-r,z);s.lineTo(-x+r,z);s.quadraticCurveTo(-x,z,-x,z-r);s.lineTo(-x,-z+r);s.quadraticCurveTo(-x,-z,-x+r,-z);return s;};
     const band=(w,d,r,y0,y1)=>{const g=new THREE.ExtrudeGeometry(rr(w,d,r),{depth:y1-y0,bevelEnabled:false,curveSegments:6});g.rotateX(-Math.PI/2);g.translate(0,y0,0);return g;};
     const bx=(w,h,d,x,y,z)=>new THREE.BoxGeometry(w,h,d).translate(x,y,z);
+    const ring=(w,d,r,y0,y1,th)=>{const sh=rr(w,d,r);sh.holes.push(rr(w-2*th,d-2*th,Math.max(0.05,r-th)));const g=new THREE.ExtrudeGeometry(sh,{depth:y1-y0,bevelEnabled:false,curveSegments:6});g.rotateX(-Math.PI/2);g.translate(0,y0,0);return g;};   /* 中空的框（實心的話從裡面看是一整片天花板／地板） */
     const red=std({color:'#d6453d',roughness:0.45,metalness:0.15,side:THREE.DoubleSide}),wht=std({color:'#f4f5f7',roughness:0.4,side:THREE.DoubleSide}),drk=std({color:'#2a2d33',roughness:0.5,metalness:0.4}),
-      gls=new THREE.MeshStandardMaterial({color:'#9fd6ff',roughness:0.05,metalness:0.3,transparent:true,opacity:0.3,depthWrite:false,side:THREE.DoubleSide}),seat=std({color:'#2f6fb8',roughness:0.7}),stl=std({color:'#9aa0a8',roughness:0.35,metalness:0.7});
+      gls=new THREE.MeshStandardMaterial({color:'#bfe6ff',roughness:0.05,metalness:0.3,transparent:true,opacity:0.2,depthWrite:false,side:THREE.DoubleSide}),seat=std({color:'#2f6fb8',roughness:0.7}),stl=std({color:'#9aa0a8',roughness:0.35,metalness:0.7});
     const cap=new THREE.SphereGeometry(1,20,8,0,Math.PI*2,0,Math.PI/2);cap.scale(0.9,0.2,0.8);cap.translate(0,0.86,0);
-    const pil=[];for(const [x,z] of [[0.78,0.66],[-0.78,0.66],[0.78,-0.66],[-0.78,-0.66],[-0.89,0]])pil.push(bx(0.06,0.82,0.06,x,0.31,z));
+    const pil=[];for(const [x,z] of [[0.78,0.66],[-0.78,0.66],[0.78,-0.66],[-0.78,-0.66]])pil.push(bx(0.04,1.58,0.04,x,-0.07,z));
     const hang=new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new V3(0,0.9,0),new V3(0,1.35,0),new V3(0.2,1.85,0),new V3(0,CABH-0.08,0)]),16,0.045,6,false);
-    const parts={red:[band(1.8,1.6,0.38,-0.95,-0.1),bx(0.03,0.85,0.86,0.9,-0.52,0)],wht:[band(1.84,1.64,0.4,0.72,0.86),cap],drk:[band(1.72,1.52,0.34,-0.98,-0.92),...pil,bx(0.16,0.14,0.42,0,CABH-0.02,0),bx(1.84,0.05,1.64,0,-0.12,0)],
-      gls:[band(1.76,1.56,0.36,-0.1,0.72)],seat:[bx(1.3,0.1,0.36,0,-0.5,0.55),bx(1.3,0.1,0.36,0,-0.5,-0.55),bx(1.3,0.42,0.08,0,-0.25,0.74),bx(1.3,0.42,0.08,0,-0.25,-0.74)],
+    const parts={red:[ring(1.84,1.64,0.4,-1.0,-0.86,0.08)],wht:[ring(1.84,1.64,0.4,0.72,0.8,0.08)],drk:[...pil,bx(0.16,0.14,0.42,0,CABH-0.02,0),bx(0.04,0.04,1.3,0.86,-0.18,0),bx(0.04,0.04,1.3,-0.86,-0.18,0)],   /* 2026-10-27.29 透明車廂：只剩底框、車頂、細柱子、扶手 */
+      gls:[band(1.78,1.58,0.37,-0.86,0.72),band(1.7,1.5,0.34,-0.97,-0.95),cap],   /* 車頂也是玻璃：抬頭看得到天空、煙火 */seat:[bx(1.2,0.08,0.34,0,-0.5,0.56),bx(1.2,0.08,0.34,0,-0.5,-0.56),bx(1.2,0.2,0.05,0,-0.36,0.74),bx(1.2,0.2,0.05,0,-0.36,-0.74)],   /* 椅背矮一點：坐著往前看不會被對面的椅子擋住 */
       stl:[hang,...[-0.13,0.13].map(z=>new THREE.CylinderGeometry(0.07,0.07,0.05,14).rotateZ(Math.PI/2).translate(0,CABH+0.05,z))]};
     const MATS={red,wht,drk,gls,seat,stl},G={};for(const k in parts){const L=parts[k].map(g=>{const q=g.index?g.toNonIndexed():g;for(const a of Object.keys(q.attributes))if(!['position','normal','uv'].includes(a))q.deleteAttribute(a);if(!q.attributes.uv)q.setAttribute('uv',new THREE.BufferAttribute(new Float32Array(q.attributes.position.count*2),2));return q;});G[k]=mergeGeometries(L,false);}
-    const doorG=[bx(0.025,0.85,0.42,0,-0.52,0),bx(0.025,0.8,0.42,0,0.31,0)];
+    const doorG=[bx(0.025,0.14,0.42,0,-0.93,0),bx(0.025,1.58,0.42,0,-0.07,0)];
     return {G,MATS,doorG};})();
-  function mkCab(n,doors){const root=new THREE.Group(),pivot=new THREE.Group(),body=new THREE.Group();root.add(pivot);pivot.add(body);body.position.y=-CABH;
+  const NPG={b:new THREE.CylinderGeometry(0.15,0.19,0.5,8),h:new THREE.SphereGeometry(0.13,10,8),a:new THREE.BoxGeometry(0.07,0.36,0.07)},NPCOL=['#e0262c','#1f6fe0','#2e9a4e','#ffcf2f','#9b5cf6','#ff7ab0'].map(c=>std({color:c,roughness:0.7})),NPSK=std({color:'#f0c8a0',roughness:0.7});   /* 2026-10-27.31 一般纜車裡坐著的人 */
+  function mkCab(n,doors,npc){const root=new THREE.Group(),pivot=new THREE.Group(),body=new THREE.Group();root.add(pivot);pivot.add(body);body.position.y=-CABH;
     for(const k in CAB.G){const m=new THREE.Mesh(CAB.G[k],CAB.MATS[k]);m.castShadow=k!=='gls';body.add(m);}
     {const [c,g]=cvs(128,56);g.fillStyle='#ffffff';g.fillRect(0,0,128,56);g.fillStyle='#d6453d';g.font=`900 40px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText('🚡 '+n,64,30);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
      const pm=new THREE.MeshBasicMaterial({map:t,toneMapped:false});for(const s of [-1,1]){const p=new THREE.Mesh(new THREE.PlaneGeometry(0.46,0.2),pm);p.position.set(0,-0.42,s*0.805);if(s<0)p.rotation.y=Math.PI;body.add(p);}}
     const D=[];if(doors)for(const s of [-1,1]){const d=new THREE.Group();d.add(new THREE.Mesh(CAB.doorG[0],CAB.MATS.red),new THREE.Mesh(CAB.doorG[1],CAB.MATS.gls));d.position.set(0.915,0,s*0.21);d.userData.s=s;body.add(d);D.push(d);}
-    root.userData={pivot,body,doors:D};root.traverse(o=>{o.userData.noCull=true;});return root;}
+    const NP=[];if(npc)for(const [x,z,f] of [[-0.27,-0.5,0],[0.27,0.5,1]]){const g=new THREE.Group();g.position.set(x,-0.95,z);g.rotation.y=f?Math.PI:0;const col=NPCOL[(n*2+NP.length)%NPCOL.length];const bd=new THREE.Mesh(NPG.b,col);bd.position.y=0.72;g.add(bd);const hd=new THREE.Mesh(NPG.h,NPSK);hd.position.y=1.12;g.add(hd);
+      const arm=new THREE.Group();arm.position.set(0.17,0.92,0);const am=new THREE.Mesh(NPG.a,col);am.position.y=-0.18;arm.add(am);g.add(arm);body.add(g);NP.push({g,arm});}
+    root.userData={pivot,body,doors:D,npc:NP.length?NP:null,waveT:0};root.traverse(o=>{o.userData.noCull=true;});return root;}
   const door=(c,k)=>{for(const d of c.userData.doors)d.position.z=d.userData.s*(0.21+0.42*k);};   /* k＝1 全開 */
   // 纜繩、支柱、車站（遮雨棚、轉向大輪）
   {const MG=new Merger(false),stM=std({color:'#8a8f98',roughness:0.45,metalness:0.6}),rdM=std({color:'#b8322a',roughness:0.6}),cbM=std({color:'#2a2d33',roughness:0.6});
-   for(const Ln of LINES){const tg=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(Ln.P.map(p=>new V3(p.x,p.y,p.z))),Math.min(400,Ln.P.length*2),0.05,5,false);MG.add(tg,cbM);
+   for(const Ln of LINES){for(const sd of [-1,1]){const tg=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(Ln.P.map(p=>new V3(p.x+Math.cos(p.h)*LANE*sd,p.y,p.z-Math.sin(p.h)*LANE*sd))),Math.min(400,Ln.P.length*2),0.05,5,false);MG.add(tg,cbM);}
      for(const T of Ln.tw){const g0=gy(T.x,T.z),h=T.y-g0+0.25,o=new THREE.Object3D();o.position.set(T.x,g0,T.z);o.rotation.y=T.h;o.updateMatrix();
-       MG.add(new THREE.CylinderGeometry(0.3,0.85,h,4,1).rotateY(Math.PI/4).translate(0,h/2-0.2,0),stM,o.matrix);   /* 鐵塔（往上變細） */
-       MG.add(new THREE.BoxGeometry(2.6,0.24,0.3).translate(0,h-0.05,0),stM,o.matrix);MG.add(new THREE.BoxGeometry(0.34,0.3,1.4).translate(0,h+0.08,0),rdM,o.matrix);   /* 橫擔、滑輪架 */
-       for(const z of [-0.45,0.45])MG.add(new THREE.CylinderGeometry(0.16,0.16,0.08,14).rotateZ(Math.PI/2).translate(0,h+0.16,z),cbM,o.matrix);
+       MG.add(new THREE.CylinderGeometry(0.3+h*0.004,0.85+h*0.025,h,4,1).rotateY(Math.PI/4).translate(0,h/2-0.2,0),stM,o.matrix);   /* 鐵塔（往上變細；越高越粗） */
+       MG.add(new THREE.BoxGeometry(3.2,0.24,0.3).translate(0,h-0.05,0),stM,o.matrix);for(const x of [-LANE,LANE]){MG.add(new THREE.BoxGeometry(0.3,0.3,1.4).translate(x,h+0.08,0),rdM,o.matrix);   /* 橫擔、兩邊的滑輪架 */
+       for(const z of [-0.45,0.45])MG.add(new THREE.CylinderGeometry(0.16,0.16,0.08,14).rotateZ(Math.PI/2).translate(x,h+0.16,z),cbM,o.matrix);}
        for(let y=2;y<h-1;y+=2.2)MG.add(new THREE.BoxGeometry(0.85*(1-y/h)+0.45,0.07,0.07).translate(0,y,0.58*(1-y/h)+0.22),stM,o.matrix);   /* 爬梯 */
        addCircle(T.x,T.z,0.85,h);}}
-   for(const k of ['A','B','C','T']){const p=ST[k],L0=LINES.find(L=>L.a===k||L.b===k),h=L0.a===k?L0.P[0].h:L0.P[L0.P.length-1].h+Math.PI,o=new THREE.Object3D();o.position.set(p.x,p.y,p.z);o.rotation.y=h;o.updateMatrix();
+   for(const k of ['A','B','C','T','F','G','H']){const p=ST[k],L0=LINES.find(L=>L.a===k||L.b===k),h=L0.a===k?L0.P[0].h:L0.P[L0.P.length-1].h+Math.PI,o=new THREE.Object3D();o.position.set(p.x,p.y,p.z);o.rotation.y=h;o.updateMatrix();
      for(const [x,z] of [[-1.7,-2.6],[1.7,-2.6],[-1.7,2.6],[1.7,2.6]]){MG.add(new THREE.BoxGeometry(0.2,5,0.2).translate(x,2.5,z),stM,o.matrix);const q=new V3(x,0,z).applyMatrix4(o.matrix);addCircle(q.x,q.z,0.15,5);}
      MG.add(new THREE.BoxGeometry(4.2,0.22,6.2).translate(0,5.05,0),rdM,o.matrix);MG.add(new THREE.BoxGeometry(4.4,0.12,6.4).translate(0,5.22,0),snowM,o.matrix);
      for(const Ln of LINES.filter(L=>L.a===k||L.b===k).slice(0,k==='T'?1:9)){const e=Ln.a===k?Ln.P[0]:Ln.P[Ln.P.length-1],hh=Ln.a===k?Ln.P[0].h:Ln.P[Ln.P.length-1].h,bx=e.x-Math.sin(hh)*(Ln.a===k?1.3:-1.3),bz=e.z-Math.cos(hh)*(Ln.a===k?1.3:-1.3);
        const w=new THREE.TorusGeometry(1.3,0.07,8,28).rotateX(Math.PI/2).translate(bx,e.y,bz);MG.add(w,stM);MG.add(new THREE.CylinderGeometry(0.25,0.25,0.5,12).translate(bx,e.y,bz),rdM);
        for(let i=0;i<4;i++){const a=i*Math.PI/4;MG.add(new THREE.BoxGeometry(2.6,0.05,0.05).rotateY(a).translate(bx,e.y,bz),stM);}}   /* 轉向大輪 */
      const hut=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.6,2.6),std({color:'#7a5232',roughness:0.8}));hut.position.set(p.x+2.4,p.y+1.3,p.z+2.4);scene.add(hut);const rf=new THREE.Mesh(new THREE.BoxGeometry(3.6,0.25,3.0),snowM);rf.position.set(p.x+2.4,p.y+2.7,p.z+2.4);scene.add(rf);
-     const s=labelSprite(k==='T'?'⛷️ 滑雪站':'🚡 纜車站',k==='T'?'按 F 穿滑雪板':'按 F 坐纜車上尖山頂','rgba(31,111,184,0.88)');s.position.set(p.x,p.y+6.4,p.z);s.scale.multiplyScalar(0.7);scene.add(s);}
+     const s=labelSprite(k==='T'?'⛷️ 滑雪站・🚡 纜車':k==='F'?'🚡 富士山頂站（往尖山）':k==='G'?'🚡 富士山腳站':k==='H'?'🚡 富士山頂站（往山腳）':'🚡 纜車站',k==='T'?'按 F：穿滑雪板、坐纜車（下山、去富士山）':k==='F'?'按 F 坐長途纜車回尖山頂':k==='G'?'按 F 坐纜車上富士山頂（穿著滑雪板也可以坐）':k==='H'?'按 F 坐纜車下山到富士山腳':'按 F 坐纜車上尖山頂','rgba(31,111,184,0.88)');s.position.set(p.x,p.y+6.4,p.z);s.scale.multiplyScalar(0.7);scene.add(s);}
    const grp=new THREE.Group();MG.build(grp);grp.traverse(o=>{if(o.isMesh)o.userData.noCull=true;});scene.add(grp);}
-  {const z0=new THREE.Matrix4().makeScale(0,0,0);let n=0;K.trees.forEach((t,i)=>{for(const Ln of LINES){const P=Ln.P;for(let j=0;j<P.length;j+=2)if(Math.hypot(P[j].x-t.x,P[j].z-t.z)<4.2){t.r=-99;for(const im of S.treeIM)im.setMatrixAt(i,z0);n++;return;}}});for(const im of S.treeIM)im.instanceMatrix.needsUpdate=true;S.cutTrees=n;}   /* 纜車底下砍出一條通道（真的纜車也是這樣） */
-  const AMB=LINES.map((Ln,i)=>[mkCab(i*2+1,false),mkCab(i*2+2,false)]);AMB.forEach(a=>a.forEach(c=>scene.add(c)));
+  {const z0=new THREE.Matrix4().makeScale(0,0,0);let n=0;K.trees.forEach((t,i)=>{for(const Ln of LINES){const P=Ln.P;for(let j=0;j<P.length;j+=2)if(Math.hypot(P[j].x-t.x,P[j].z-t.z)<5.6){t.r=-99;for(const im of S.treeIM)im.setMatrixAt(i,z0);n++;return;}}});for(const im of S.treeIM)im.instanceMatrix.needsUpdate=true;S.cutTrees=n;}   /* 纜車底下砍出一條通道（真的纜車也是這樣） */
+  const AMB=LINES.map((Ln,i)=>[mkCab(i*2+1,false,true),mkCab(i*2+2,false,true)]);AMB.forEach(a=>a.forEach(c=>scene.add(c)));
   let myCab=null;
   // ---- 穿上、脫下 ----
   const busyG=()=>GAME.on||RACE.on||RIDE.on||PAX.on||NM.on||RB.on||SB.on||CU.on||MU.on||DD.on||KF.on||PUSH.on||FISH.on||RS.on||TN.on||BALLOON.riding||LIE.on||(typeof CG!=='undefined'&&CG.on)||(typeof DUO!=='undefined'&&DUO.on);
@@ -5301,39 +5338,184 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   S.stop=()=>{if(!S.on)return;S.on=false;S.run=null;S.fallT=0;HUD.hidden=true;player.vel.set(0,0);gear(avatar,false);if(S.rc&&S.rc.st!=='done')raceLeave();syncActBtn();};
   const dist=p=>Math.hypot(player.pos.x-p.x,player.pos.y-p.z);
   S.label=()=>{if(S.ride||mode!=='walk')return null;if(dist(ST.A)<5&&Math.abs(player.y-ST.A.y)<3)return '🚡 坐纜車上尖山頂（滑雪場）';if(['B','C'].some(k=>dist(ST[k])<6&&Math.abs(player.y-ST[k].y)<3))return '🚡 坐纜車回尖山頂';
-    if(S.on)return S.lock>0?null:'脫下滑雪板';if(dist(ST.T)<6&&Math.abs(player.y-ST.T.y)<3)return '⛷️ 穿上滑雪板';return null;};
-  S.act=()=>{const l=S.label();if(!l)return;if(l.startsWith('🚡'))rideStart(dist(ST.A)<6?0:dist(ST.B)<6?1:2);else if(S.on)S.stop();else S.start();};
+    if(dist(ST.F)<6&&Math.abs(player.y-ST.F.y)<3)return '🚡 坐長途纜車回尖山頂';if(dist(ST.G)<6&&Math.abs(player.y-ST.G.y)<3)return '🚡 坐纜車上富士山頂';if(dist(ST.H)<6&&Math.abs(player.y-ST.H.y)<3)return '🚡 坐纜車下山到富士山腳';
+    if(dist(ST.T)<6&&Math.abs(player.y-ST.T.y)<3&&S.lock<=0)return S.on?'🚡 坐纜車／脫下滑雪板':'⛷️ 穿滑雪板／🚡 坐纜車';if(S.on)return S.lock>0?null:'脫下滑雪板';return null;};
+  S.act=()=>{const l=S.label();if(!l)return;if(l.includes('／')){pickOpen();return;}if(l.startsWith('🚡')){const k=['A','B','C','F','G','H'].find(q=>dist(ST[q])<6.5)||'C',o={F:[3,true],G:[4,false],H:[4,true]}[k]||['ABC'.indexOf(k),false];rideStart(o[0],o[1]);}else if(S.on)S.stop();else S.start();};
+  // 2026-10-27.29 使用者：「纜車只能搭上去，不能搭下來」→ 尖山頂按 F 選：穿／脫滑雪板、坐纜車下山（三條）
+  const PICK=document.createElement('div');PICK.id='ridePick';PICK.className='panel';PICK.hidden=true;document.body.appendChild(PICK);
+  {const st=document.createElement('style');st.textContent=`#ridePick[hidden]{display:none!important}#ridePick{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(340px,calc(100vw - 32px));z-index:60;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+    #ridePick .hd{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:800}#ridePick .hd button{background:#444;color:#fff;border:0;border-radius:8px;padding:4px 10px}
+    #ridePick button.o{font-size:16px;font-weight:800;padding:11px 10px;border-radius:12px;border:0;background:linear-gradient(180deg,#5aa8ff,#2f6fd0);color:#fff;text-align:left}#ridePick button.o.sk{background:linear-gradient(180deg,#ffd66a,#e8a020);color:#3a2300}#ridePick button.o small{display:block;font-size:12px;font-weight:600;opacity:.85}#ridePick button.o.fj{background:linear-gradient(180deg,#b07ae8,#6a3fc0)}#ridePick .tm{display:flex;gap:4px;align-items:center;font-size:12px;flex-wrap:wrap;margin-top:-4px}#ridePick .tm button{padding:4px 8px;border-radius:8px;border:1px solid #888;background:#2a2f3a;color:#fff;font-size:12px}#ridePick .tm button.on{background:#ffcf4a;color:#2a1a00;border-color:#fff}`;document.head.appendChild(st);}
+  for(const ev of ['pointerdown','touchstart','keydown','wheel'])PICK.addEventListener(ev,e=>e.stopPropagation());
+  function pickOpen(){const L=LINES.map((Ln,i)=>({i,Ln})).filter(o=>o.Ln.b==='T');
+    PICK.innerHTML=`<div class="hd">🏔️ 尖山頂<button data-x="1">✕</button></div><button class="o sk" data-k="ski">${S.on?'🎿 脫下滑雪板':'⛷️ 穿上滑雪板'}<small>${S.on?'改用走的':'穿上就可以滑初級道、高級道'}</small></button>`+
+      `<button class="o fj" data-k="fj">🗻 長途纜車：富士山頂<small>大約 ${Math.round(LINES[3].dur/60)} 分鐘・湖、瀑布、雲海、溫泉小鎮、熱氣球</small></button><div class="tm">搭的時候：<button data-t="0" class="${PICKT===0?'on':''}">現在</button><button data-t="12" class="${PICKT===12?'on':''}">☀️ 白天</button><button data-t="17.6" class="${PICKT===17.6?'on':''}">🌇 夕陽</button><button data-t="19" class="${PICKT===19?'on':''}">🌙 晚上</button></div>`+
+      L.map(({i,Ln})=>`<button class="o" data-k="dn" data-i="${i}">🚡 坐纜車下山：${ST[Ln.a].n}<small>大約 ${Math.round(Ln.dur)} 秒${S.on?'（穿著滑雪板也可以坐）':''}</small></button>`).join('');PICK.hidden=false;}
+  let PICKT=0;
+  PICK.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.t!=null){PICKT=+b.dataset.t;pickOpen();return;}PICK.hidden=true;if(b.dataset.x)return;
+    if(b.dataset.k==='fj'){if(PICKT){const el=document.getElementById('time');if(el){el.value=PICKT;el.oninput({target:el});}}rideStart(3,false);return;}if(b.dataset.k==='ski'){if(S.on)S.stop();else S.start();}else if(b.dataset.k==='dn')rideStart(+b.dataset.i,true);});
+  S.pickOpen=pickOpen;
   // ---- 坐纜車 ----
-  function rideStart(li){if(busyG())return;if(EMOTE.on)EMOTE.stop(true);if(S.run){S.run=null;}const Ln=LINES[li];
-    S.ride={li,t:0,s:0,v:0,acc:0,ph:'close',pt:0,ax:0,axv:0,az:0,azv:0,ti:0,cam:'in',wp:Math.random()*9,shake:0};if(!myCab){myCab=mkCab(7,true);scene.add(myCab);}myCab.visible=true;door(myCab,1);S.vel.set(0,0);
-    const h=Ln.P[0].h;player.yaw=h+Math.PI;player.pitch=-0.06;RH.hidden=false;rhT=0;AUDIO.sfx('door');toast(`🚡 坐纜車到尖山頂（大約 ${Math.round(Ln.dur)} 秒）：拖曳可以轉頭看風景，上面「🎥」換外面看`);syncActBtn();}
+  // ---- 坐纜車（2026-10-27.31 使用者：「搭長途纜車要有一些互動的機制，四個人搭纜車要想一下可以做甚麼，我目前想到放煙火」→ 選了：放煙火、拍合照、表情和揮手、車廂小遊戲）----
+  //   一起坐：連線時在車站開始坐，旁邊 15 m 內的朋友會收到邀請（車門開著等 9 秒，可以按「出發」），最多 4 人、各坐一個位子；朋友那台跟著開車的人走（ca 傳位置、階段、哪一車、第幾個位子）
+  //   車廂裡：🎆 放煙火（5 種＋連發，大家都看得到：caF）、📸 拍合照（倒數 3 秒大家比 YA，從車廂外面拍：caP）、😀 表情／👋 揮手（頭上冒表情，旁邊經過的纜車裡的人會跟你揮手：caE）、
+  //   🎮 小遊戲：⏱ 支柱猜猜看（支柱經過的時候按「現在！」，差幾秒）、🎢 搖車廂比賽（一直按「搖！」看晃多大）；一起坐的人成績互相看得到（caG）
+  const SEATS=[[-0.27,-0.5,0],[0.27,-0.5,0],[-0.27,0.5,1],[0.27,0.5,1]];   // 座位：x、z、1＝面向後面
+  function rideStart(li,rev,opt){if(busyG())return;if(EMOTE.on)EMOTE.stop(true);if(S.run){S.run=null;}const Ln=LINES[li];opt=opt||{};
+    S.ride={li,rev:!!rev,tws:rev?Ln.tw.map(t=>Ln.L-t.s).reverse():Ln.tw.map(t=>t.s),t:rev?1:0,s:0,v:0,acc:0,ph:'close',pt:0,ax:0,axv:0,az:0,azv:0,ti:0,cam:'in',wp:Math.random()*9,shake:0,
+      seat:opt.seat|0,gid:opt.gid||'',host:opt.host||'',mem:opt.mem||{},inv:null,ya:0,wave:0,photoT:0,game:null,sub:'',res:{},lost:0};
+    if(!myCab){myCab=mkCab(7,true);scene.add(myCab);}myCab.visible=true;door(myCab,1);S.vel.set(0,0);
+    const R=S.ride,h=rev?Ln.P[Ln.P.length-1].h+Math.PI:Ln.P[0].h;player.yaw=h+Math.PI+(SEATS[R.seat][2]?Math.PI:0);player.pitch=rev?-0.25:-0.06;RH.hidden=false;rhT=0;AUDIO.sfx('door');
+    const dn=rev?ST[Ln.a].n:ST[Ln.b].n,du=Ln.dur>90?Math.round(Ln.dur/60)+' 分鐘':Math.round(Ln.dur)+' 秒';
+    if(!R.host&&NET.on){const near=others().filter(id=>{const q=NET.P.get(id),a=q&&q.s&&q.s.a;return a&&!q.s.ca&&Math.hypot(a[0]-player.pos.x,a[2]-player.pos.y)<15;}).slice(0,3);
+      if(near.length){R.gid=me()+'-'+Date.now().toString(36);R.ph='wait';R.mem={[me()]:0};R.inv=new Set(near);for(const id of near)NET.out(id,{t:'caI',li,rev:!!rev,gid:R.gid});toast(`🚡 邀請 ${near.map(nm).join('、')} 一起坐，車門開著等 9 秒（上面「出發」可以直接走）`);}}
+    if(R.host)toast(`🚡 跟大家一起坐到${dn}！上面可以放煙火、拍合照、做表情、玩小遊戲`);else if(R.ph!=='wait')toast(`🚡 坐纜車到${dn}（大約 ${du}）：拖曳可以轉頭看風景；上面可以放煙火🎆、拍合照📸、做表情😀、玩小遊戲🎮`);syncActBtn();}
   const RV=new V3(),CV=new V3();
-  function rideArrive(){S.ride=null;myCab.visible=false;RH.hidden=true;const T=ST.T,q=ptS(2,0);const dx=q.x-T.x,dz=q.z-T.z,l=Math.hypot(dx,dz)||1;player.pos.set(T.x+dx/l*3,T.z+dz/l*3);player.y=gy(player.pos.x,player.pos.y);player.yaw=Math.atan2(-dx,-dz);S.dir=player.yaw;player.pitch=-0.1;
+  function rideArrive(){const R0=S.ride;S.ride=null;myCab.visible=false;RH.hidden=true;CIP.hidden=true;const L0=R0&&LINES[R0.li],dest=R0&&(R0.rev?L0.a:L0.b);
+    if(dest==='F'||dest==='H'){const F=ST[dest],dx=FJ.cx-F.x,dz=FJ.cz-F.z,l=Math.hypot(dx,dz)||1,sd=(R0.seat|0)*1.2;player.pos.set(F.x+dx/l*4+sd,F.z+dz/l*4);player.y=gy(player.pos.x,player.pos.y);player.yaw=Math.atan2(-dx,-dz);S.dir=player.yaw;player.pitch=-0.05;
+      toast('🗻 到富士山頂了！觀景台有望遠鏡、山頂小屋可以蓋紀念章和許願，雪地可以丟雪球、推雪球；穿上滑雪板可以從「🗻 富士山雪道」滑下山');AUDIO.sfx('bigcheer');syncActBtn();if(typeof FJW!=='undefined')FJW.arrive();return;}
+    if(R0&&R0.rev&&dest!=='T'){const Ln=LINES[R0.li],E=ST[Ln.a],q=Ln.P[3],dx=E.x-q.x,dz=E.z-q.z,l=Math.hypot(dx,dz)||1;player.pos.set(E.x+dx/l*3.5,E.z+dz/l*3.5);player.y=gy(player.pos.x,player.pos.y);player.yaw=Math.atan2(-dx,-dz);S.dir=player.yaw;player.pitch=-0.1;toast(`🚡 到${E.n}了！${Ln.a==='A'?'這裡是山頂停車場，可以開車下山':Ln.a==='G'?'這裡是富士山雪道的終點；旁邊有集章台，按 F 可以再坐纜車回富士山頂':'旁邊按 F 可以再坐纜車回尖山頂'}`);AUDIO.sfx('chime');syncActBtn();return;}const T=ST.T,q=ptS(2,0);const dx=q.x-T.x,dz=q.z-T.z,l=Math.hypot(dx,dz)||1,sd=(R0&&R0.seat|0)*1.2;player.pos.set(T.x+dx/l*3+sd,T.z+dz/l*3);player.y=gy(player.pos.x,player.pos.y);player.yaw=Math.atan2(-dx,-dz);S.dir=player.yaw;player.pitch=-0.1;
     toast(S.on?'🏔️ 到尖山頂了！看路標選「🟢 初級道」或「⚫ 高級道」（上面也可以按），往前滑過起點開始計時；山頂可以丟雪球打雪人':'🏔️ 到尖山頂了！旁邊「⛷️ 滑雪站」按 F 穿滑雪板；山頂可以丟雪球打雪人（❄️）');AUDIO.sfx('chime');syncActBtn();}
+  const PHC={wait:0,close:1,go:2,open:3},PHN=['wait','close','go','open'];
+  function guestStep(R,Ln,dt){const q=NET.P.get(R.host),ca=q&&q.s&&q.s.ca,mine=ca&&ca[4]===R.gid;
+    if(!mine){R.lost+=dt;if(R.s>Ln.L-3&&R.lost>0.6){rideArrive();return;}if(R.lost>3){R.host='';R.ph='go';toast('🚡 跟朋友斷線了，自己繼續坐');}return;}R.lost=0;
+    const tt=+ca[1]||0,ss=R.rev?(1-tt)*Ln.L:tt*Ln.L,ps=R.s;R.s+=(ss-R.s)*Math.min(1,dt*5);R.v=Math.max(0,(R.s-ps)/Math.max(dt,1e-3));R.acc=0;
+    const ph=PHN[ca[3]|0]||'go';if(ph!==R.ph){if(ph==='close')AUDIO.sfx('door');if(ph==='open')AUDIO.sfx('chime');R.ph=ph;R.pt=0;}R.pt+=dt;
+    door(myCab,ph==='wait'?1:ph==='close'?1-Math.min(1,R.pt/0.9):ph==='open'?Math.min(1,R.pt/0.8):0);
+    while(R.ti<R.tws.length&&R.s>=R.tws[R.ti]){R.axv+=0.32;R.shake=0.28;AUDIO.sfx('click');R.ti++;gameTower();}
+    if(ph==='open'&&R.pt>1.1)rideArrive();}
   S.rideStep=dt=>{const R=S.ride,Ln=LINES[R.li];
-    if(R.ph==='close'){R.pt+=dt;door(myCab,1-Math.min(1,R.pt/0.9));if(R.pt>=1.2){R.ph='go';AUDIO.sfx('click');}}
-    else if(R.ph==='go'){const left=Ln.L-R.s,A=0.75,vt=Math.min(6,Math.sqrt(Math.max(0,2*A*left))+0.2),dv=cl(vt-R.v,-A*1.6*dt,A*dt);R.v+=dv;R.acc=dv/Math.max(dt,1e-3);R.s=Math.min(Ln.L,R.s+R.v*dt);   /* 出站慢慢加速、進站慢慢停 */
-      while(R.ti<Ln.tw.length&&R.s>=Ln.tw[R.ti].s){R.axv+=0.32;R.azv+=(Math.random()-0.5)*0.12;R.shake=0.28;AUDIO.sfx('click');R.ti++;}   /* 經過支柱：咔噠一下 */
+    if(R.host)guestStep(R,Ln,dt);
+    else if(R.ph==='wait'){R.pt+=dt;door(myCab,1);if(R.pt>=9||(R.inv&&!R.inv.size&&R.pt>1.2)){R.ph='close';R.pt=0;AUDIO.sfx('door');}}
+    else if(R.ph==='close'){R.pt+=dt;door(myCab,1-Math.min(1,R.pt/0.9));if(R.pt>=1.2){R.ph='go';AUDIO.sfx('click');}}
+    else if(R.ph==='go'){const left=Ln.L-R.s,A=0.75,vt=Math.min(Ln.vmax,Math.sqrt(Math.max(0,2*A*left))+0.2),dv=cl(vt-R.v,-A*1.6*dt,A*dt);R.v+=dv;R.acc=dv/Math.max(dt,1e-3);R.s=Math.min(Ln.L,R.s+R.v*dt);   /* 出站慢慢加速、進站慢慢停 */
+      while(R.ti<R.tws.length&&R.s>=R.tws[R.ti]){R.axv+=0.32;R.azv+=(Math.random()-0.5)*0.12;R.shake=0.28;AUDIO.sfx('click');R.ti++;gameTower();}   /* 經過支柱：咔噠一下 */
       if(R.s>=Ln.L-0.02){R.s=Ln.L;R.ph='open';R.pt=0;R.v=0;R.acc=0;AUDIO.sfx('chime');}}
     else if(R.ph==='open'){R.pt+=dt;door(myCab,Math.min(1,R.pt/0.8));if(R.pt>=1.1){rideArrive();return;}}
-    {const w2=9.8/CABH,t=performance.now()/1000+R.wp,wind=0.05*Math.sin(t*0.7)+0.03*Math.sin(t*1.9);R.axv+=(-w2*R.ax+(R.acc||0)/CABH*0.9-0.7*R.axv)*dt;R.azv+=(-w2*R.az+wind-0.7*R.azv)*dt;R.ax=cl(R.ax+R.axv*dt,-0.18,0.18);R.az=cl(R.az+R.azv*dt,-0.12,0.12);R.shake=Math.max(0,R.shake-dt);}   /* 車廂像鐘擺一樣晃 */
-    R.t=R.s/Ln.L;linePos(Ln,R.t,RV);myCab.position.copy(RV);myCab.rotation.y=RV.h;myCab.userData.pivot.rotation.set(R.ax,0,R.az);myCab.updateMatrixWorld(true);
-    CV.set(0,-0.95,-0.5);myCab.userData.body.localToWorld(CV);player.pos.set(CV.x,CV.z);player.y=CV.y;player.vel.set(0,0);player.vy=0;player.ground=true;player.climb=false;};
-  S.rideOut=()=>!!(S.ride&&S.ride.cam==='out');
-  S.rideCam=dt=>{const R=S.ride;if(!R||!myCab)return;const sk=R.shake>0?Math.sin(performance.now()/18)*0.012*R.shake/0.28:0;
-    if(R.cam==='in'){CV.set(0,0.27,-0.42);myCab.userData.body.localToWorld(CV);camera.position.copy(CV);camera.position.y+=sk;camera.rotation.set(player.pitch+R.ax*0.5,player.yaw,R.az*0.6,'YXZ');}   /* 坐在車廂裡往外看 */
+    if(!S.ride)return;
+    {const w2=9.8/CABH,t=performance.now()/1000+R.wp,wind=0.05*Math.sin(t*0.7)+0.03*Math.sin(t*1.9),mx=R.game&&R.game.k==='sh'?0.42:0.18;R.axv+=(-w2*R.ax+(R.acc||0)/CABH*0.9-0.7*R.axv*(R.game&&R.game.k==='sh'?0.25:1))*dt;R.azv+=(-w2*R.az+wind-0.7*R.azv)*dt;R.ax=cl(R.ax+R.axv*dt,-mx,mx);R.az=cl(R.az+R.azv*dt,-0.12,0.12);R.shake=Math.max(0,R.shake-dt);}   /* 車廂像鐘擺一樣晃（搖車廂比賽時阻力小、晃得大） */
+    R.t=R.rev?1-R.s/Ln.L:R.s/Ln.L;linePos(Ln,R.t,RV);if(R.rev)RV.h+=Math.PI;lane(RV);myCab.position.copy(RV);myCab.rotation.y=RV.h;myCab.userData.pivot.rotation.set(R.ax,0,R.az);myCab.updateMatrixWorld(true);
+    const st=SEATS[R.seat]||SEATS[0];CV.set(st[0],-0.95,st[1]);myCab.userData.body.localToWorld(CV);player.pos.set(CV.x,CV.z);player.y=CV.y;player.vel.set(0,0);player.vy=0;player.ground=true;player.climb=false;
+    funTick(dt);};
+  S.rideOut=()=>!!(S.ride&&S.ride.cam==='out');S.cab=()=>myCab;S.rideInfo=()=>S.ride?{li:S.ride.li,t:S.ride.t,s:S.ride.s,rev:S.ride.rev,ph:S.ride.ph,fuji:LINES[S.ride.li].b==='F',gid:S.ride.gid,seat:S.ride.seat}:null;
+  S.rideCam=dt=>{const R=S.ride;if(!R||!myCab)return;const sk=R.shake>0?Math.sin(performance.now()/18)*0.012*R.shake/0.28:0,st=SEATS[R.seat]||SEATS[0];
+    if(R.cam==='in'){CV.set(st[0],0.27,st[1]+(st[2]?0.08:-0.08));myCab.userData.body.localToWorld(CV);camera.position.copy(CV);camera.position.y+=sk;camera.rotation.set(player.pitch+R.ax*0.5,player.yaw,R.az*0.6,'YXZ');}   /* 坐在車廂裡往外看 */
     else{const d=8.5;myCab.getWorldPosition(CV);CV.y-=CABH*0.6;camera.position.set(CV.x+Math.sin(player.yaw)*d,CV.y+2.2-player.pitch*5,CV.z+Math.cos(player.yaw)*d);camera.position.y+=sk;camera.lookAt(CV);}};
-  function seatPose(a){const c=myCab;if(!c)return;a.zeroJoints();CV.set(0,-0.95,-0.5);c.userData.body.localToWorld(CV);a.root.position.copy(CV);a.yaw=c.rotation.y+Math.PI;a.root.rotation.set(0,c.rotation.y,0);
-    a.body.position.set(0,-0.42,0);a.legL.rotation.set(-1.45,0,-0.06);a.legR.rotation.set(-1.45,0,0.06);a.shinL.rotation.x=a.shinR.rotation.x=1.45;a.armL.rotation.set(-0.5,0,-0.12);a.armR.rotation.set(-0.5,0,0.12);a.foreL.rotation.x=a.foreR.rotation.x=-0.9;a.hand(1,'relax');a.hand(-1,'relax');}   /* 坐在椅子上 */
-  // 坐纜車時上面一行
+  // 坐在椅子上（自己、一起坐的朋友、別人那台）：比 YA、揮手
+  function seatPoseAt(a,c,k,ya,wave){if(!c)return;a.zeroJoints();const st=SEATS[k]||SEATS[0];CV.set(st[0],-0.95,st[1]);c.userData.body.localToWorld(CV);a.root.position.copy(CV);const ry=c.rotation.y+(st[2]?Math.PI:0);a.yaw=ry+Math.PI;a.root.rotation.set(0,ry,0);
+    a.body.position.set(0,-0.42,0);a.legL.rotation.set(-1.45,0,-0.06);a.legR.rotation.set(-1.45,0,0.06);a.shinL.rotation.x=a.shinR.rotation.x=1.45;a.armL.rotation.set(-0.5,0,-0.12);a.armR.rotation.set(-0.5,0,0.12);a.foreL.rotation.x=a.foreR.rotation.x=-0.9;a.hand(1,'relax');a.hand(-1,'relax');
+    const t=performance.now()/1000;
+    if(ya){a.armR.rotation.set(-2.5,0,0.25);a.foreR.rotation.x=-0.5;a.hand(1,'peace');a.armL.rotation.set(-2.5,0,-0.25);a.foreL.rotation.x=-0.5;a.hand(-1,'peace');}   /* 拍照：雙手比 YA */
+    else if(wave){a.armR.rotation.set(-2.7,0,0.35+Math.sin(t*12)*0.35);a.foreR.rotation.x=-0.3;a.hand(1,'open');}}   /* 揮手 */
+  function seatPose(a){const R=S.ride;if(!R)return;seatPoseAt(a,myCab,R.seat,R.ya>0,R.wave>0);}
+  // 坐纜車時上面一行＋按鈕
   const RH=document.createElement('div');RH.id='rideHud';RH.className='panel';RH.hidden=true;document.body.appendChild(RH);let rhT=0;
-  {const st=document.createElement('style');st.textContent=`#rideHud[hidden]{display:none!important}#rideHud{position:fixed;left:50%;top:calc(60px + var(--sat,0px));transform:translateX(-50%);padding:6px 12px;z-index:12;font-size:13px;text-align:center;width:max-content;max-width:calc(100vw - 24px)}#rideHud b{font-size:17px;margin:0 3px}#rideHud button{margin-left:6px;font-size:13px;padding:6px 10px;border-radius:8px;border:0;background:#dfe5ee;color:#14304d;font-weight:800}
-    @media (orientation:portrait){body.touch #rideHud{top:calc(74px + var(--sat,0px))}}`;document.head.appendChild(st);}
-  for(const ev of ['pointerdown','touchstart','keydown','wheel'])RH.addEventListener(ev,e=>e.stopPropagation());
-  RH.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!S.ride)return;S.ride.cam=S.ride.cam==='in'?'out':'in';rhT=0;AUDIO.sfx('click');});
-  function rideHud(){const R=S.ride;if(!R){RH.hidden=true;return;}const now=performance.now();if(now<rhT)return;rhT=now+250;const Ln=LINES[R.li];linePos(Ln,R.t,RV);const hg=Math.max(0,RV.y-CABH-0.95-gy(RV.x,RV.z)),left=Math.max(0,Math.ceil((Ln.L-R.s)/5.6+(R.v<3?2:0)+(R.ph==='close'?1:0)));
-    const st=R.ph==='close'?'關門中…':R.ph==='open'?'到站了！開門':R.ti<Ln.tw.length?`下一根支柱 ${R.ti+1}／${Ln.tw.length}`:'快到站了';
-    const h=`🚡 ${ST[Ln.a].n} → ${ST[Ln.b].n}　還有 <b>${left}</b> 秒　離地 <b>${Math.round(hg)}</b> m　${st}<button>${R.cam==='in'?'🎥 外面看':'🪟 坐裡面看'}</button>`;if(RH.innerHTML!==h)RH.innerHTML=h;RH.hidden=false;}
+  {const st=document.createElement('style');st.textContent=`#rideHud[hidden],#caPop[hidden],#caPhoto[hidden]{display:none!important}#rideHud{position:fixed;left:50%;top:calc(60px + var(--sat,0px));transform:translateX(-50%);padding:6px 10px;z-index:12;font-size:13px;text-align:center;width:max-content;max-width:calc(100vw - 24px)}#rideHud b{font-size:16px;margin:0 3px}
+    #rideHud button{font-size:13px;padding:6px 9px;border-radius:9px;border:0;background:#dfe5ee;color:#14304d;font-weight:800;margin:2px}#rideHud .rw{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;margin-top:4px}#rideHud button.on{background:#ffcf4a}#rideHud button.big{font-size:18px;padding:10px 22px;background:linear-gradient(180deg,#ffe08a,#e8a020);color:#3a2300}
+    #rideHud .lb{font-size:12px;opacity:.9;margin-top:3px;line-height:1.5}
+    @media (orientation:portrait){body.touch #rideHud{top:calc(112px + var(--sat,0px))}}@media (max-width:520px){#rideHud{top:calc(112px + var(--sat,0px))}}   /* 手機直拿：不要蓋到第二排的「選單」 */
+    #caPop{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 60px);transform:translateX(-50%);width:min(360px,calc(100vw - 32px));z-index:66;text-align:center;font-size:16px;padding:12px}#caPop .bt{display:flex;gap:8px;justify-content:center;margin-top:10px}#caPop button{min-width:100px;font-weight:800;color:#fff;background:#3a4258;border:1px solid #5a6582;border-radius:10px;padding:9px 12px;font-size:16px}#caPop button.ok{background:#ffcf4a;color:#2a1a00}
+    #caPhoto{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.72);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}#caPhoto img{max-width:min(92vw,720px);max-height:70vh;border:6px solid #fff;border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.5)}#caPhoto .bt{display:flex;gap:10px}#caPhoto a,#caPhoto button{font-size:16px;font-weight:800;padding:10px 16px;border-radius:12px;border:0;background:#ffcf4a;color:#2a1a00;text-decoration:none}#caPhoto button{background:#3a4258;color:#fff}`;document.head.appendChild(st);}
+  const CIP=document.createElement('div');CIP.id='caPop';CIP.className='panel';CIP.hidden=true;document.body.appendChild(CIP);
+  const PHO=document.createElement('div');PHO.id='caPhoto';PHO.hidden=true;document.body.appendChild(PHO);
+  for(const el of [RH,CIP,PHO])for(const ev of ['pointerdown','touchstart','keydown','wheel'])el.addEventListener(ev,e=>e.stopPropagation());
+  const FWK=[['ball','🎆 圓形'],['heart','💖 愛心'],['star','⭐ 星星'],['willow','🌟 金柳'],['ring','⭕ 圓環'],['multi','🎇 連發']],EMS=['😀','😂','😍','🤩','😱','👍','🎉','🥳'];
+  RH.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b||!S.ride)return;e.preventDefault();const R=S.ride,d=b.dataset;rhT=0;
+    if(d.cam!=null){R.cam=R.cam==='in'?'out':'in';AUDIO.sfx('click');}
+    else if(d.c){R.sub=R.sub===d.c?'':d.c;AUDIO.sfx('click');if(d.c==='ph'){R.sub='';photoStart(true);}}
+    else if(d.go!=null){if(R.ph==='wait'&&!R.host){R.inv=new Set();R.pt=99;}}
+    else if(d.fw){fireFrom(d.fw);}
+    else if(d.em){emote(d.em,false);}
+    else if(d.wv!=null){emote('👋',true);}
+    else if(d.gm){gameStart(d.gm);}
+    else if(d.now!=null){gamePress();}});
+  function rideHud(){const R=S.ride;if(!R){RH.hidden=true;return;}const now=performance.now();if(now<rhT)return;rhT=now+250;const Ln=LINES[R.li];linePos(Ln,R.t,RV);const hg=Math.max(0,RV.y-CABH-0.95-gy(RV.x,RV.z)),left=Math.max(0,Math.ceil((Ln.L-R.s)/(Ln.vmax*0.93)+(R.v<3?2:0)+(R.ph==='close'?1:0)+(R.ph==='wait'?9-R.pt:0))),lf=left>90?`${Math.floor(left/60)} 分 ${left%60}`:left;
+    const n1=Object.keys(R.mem||{}).length,st=R.ph==='wait'?`等朋友上車…（${n1} 人）`:R.ph==='close'?'關門中…':R.ph==='open'?'到站了！開門':R.ti<Ln.tw.length?`下一根支柱 ${R.ti+1}／${Ln.tw.length}`:'快到站了';
+    let h=`🚡 ${R.rev?ST[Ln.b].n+' → '+ST[Ln.a].n:ST[Ln.a].n+' → '+ST[Ln.b].n}　還有 <b>${lf}</b> 秒　離地 <b>${Math.round(hg)}</b> m　${st}${R.gid&&n1>1?`　👥 ${n1} 人`:''}`;
+    h+=`<div class="rw">${R.ph==='wait'&&!R.host?'<button data-go="1" class="on">🚡 出發</button>':''}<button data-c="fw" class="${R.sub==='fw'?'on':''}">🎆 煙火</button><button data-c="ph">📸 合照</button><button data-c="em" class="${R.sub==='em'?'on':''}">😀 表情</button><button data-c="gm" class="${R.sub==='gm'?'on':''}">🎮 小遊戲</button><button data-cam="1">${R.cam==='in'?'🎥 外面看':'🪟 裡面看'}</button></div>`;
+    const G=R.game;
+    if(G&&G.k==='tw')h+=`<div class="rw"><button data-now="1" class="big">⏱ 現在！</button></div><div class="lb">下一根支柱經過車廂的時候按「現在！」</div>`;
+    else if(G&&G.k==='sh')h+=`<div class="rw"><button data-now="1" class="big">🎢 搖！（${Math.ceil(G.t)}）</button></div><div class="lb">一直按，跟著車廂晃的節奏按晃得最大：現在 ${Math.round(Math.abs(R.ax)*57.3)}°、最大 ${Math.round(G.max*57.3)}°</div>`;
+    else if(R.sub==='fw')h+=`<div class="rw">${FWK.map(([k,n])=>`<button data-fw="${k}">${n}</button>`).join('')}</div>${tNight()?'':'<div class="lb">晚上放比較好看（尖山頂選「🌙 晚上」再坐）</div>'}`;
+    else if(R.sub==='em')h+=`<div class="rw">${EMS.map(e=>`<button data-em="${e}">${e}</button>`).join('')}<button data-wv="1">👋 揮手</button></div><div class="lb">對旁邊經過的纜車揮手，裡面的人會跟你揮手</div>`;
+    else if(R.sub==='gm')h+=`<div class="rw"><button data-gm="tw" ${R.ti>=R.tws.length||R.ph!=='go'?'disabled':''}>⏱ 支柱猜猜看</button><button data-gm="sh" ${R.ph!=='go'?'disabled':''}>🎢 搖車廂比賽</button></div>${resLine()}`;
+    if(RH.innerHTML!==h)RH.innerHTML=h;RH.hidden=false;}
+  const tNight=()=>{const el=document.getElementById('time');return el&&(+el.value>=18.5||+el.value<=6.2);};
+  // ---- 煙火（8 組粒子重複用；大家都看得到） ----
+  const FWN=160,FWP=[],FWR=[];const FPAL=[['#ff4f6a','#ffd23a'],['#3aa0ff','#ffffff'],['#7dff7a','#ffe14a'],['#ff7ab0','#c084ff'],['#ffb347','#ff6a3a'],['#5ffcff','#ff4fd8']];
+  function fwInit(){if(FWP.length)return;for(let i=0;i<8;i++){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(FWN*3),3));g.setAttribute('color',new THREE.BufferAttribute(new Float32Array(FWN*3),3));
+      const m=new THREE.PointsMaterial({size:2.4,vertexColors:true,transparent:true,opacity:1,depthWrite:false,blending:THREE.AdditiveBlending,fog:false,map:dotT,sizeAttenuation:true});const p=new THREE.Points(g,m);p.frustumCulled=false;p.visible=false;p.userData.noCull=true;scene.add(p);
+      const rk=new THREE.Sprite(new THREE.SpriteMaterial({map:dotT,color:'#fff2c0',transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));rk.scale.setScalar(1.6);rk.visible=false;rk.userData.noCull=true;scene.add(rk);
+      FWP.push({p,rk,v:new Float32Array(FWN*3),st:'idle',t:0});}}
+  function fwLaunch(x,y,z,k,ci,seed){fwInit();const f=FWP.find(q=>q.st==='idle')||FWP.reduce((a,b)=>a.t>b.t?a:b);const rr=mulberry(seed|0);
+    Object.assign(f,{st:'up',t:0,k,ci:ci%FPAL.length,rr,x,y,z,ty:y+32+rr()*16,vx:(rr()-0.5)*4,vz:(rr()-0.5)*4});f.p.visible=false;f.rk.visible=true;f.rk.position.set(x,y,z);if(camera.position.distanceTo(f.rk.position)<400)AUDIO.sfx('whoosh');}
+  const FC=new THREE.Color(),FC2=new THREE.Color(),FV=new V3();
+  function fwBurst(f){const P=f.p.geometry.attributes.position.array,Cc=f.p.geometry.attributes.color.array,v=f.v,rr=f.rr,pal=FPAL[f.ci];FC.set(pal[0]);FC2.set(pal[1]);
+    const dx=camera.position.x-f.x,dz=camera.position.z-f.z,l=Math.hypot(dx,dz)||1,rx=-dz/l,rz=dx/l;   /* 愛心、星星、圓環：朝著看的人 */
+    for(let i=0;i<FWN;i++){let vx,vy,vz;const u=i/FWN;
+      if(f.k==='heart'){const a=u*Math.PI*2,hx=16*Math.pow(Math.sin(a),3)/16,hy=(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))/16,sp=15;vx=rx*hx*sp;vz=rz*hx*sp;vy=hy*sp;}
+      else if(f.k==='star'){const a=u*Math.PI*2,sp=(Math.floor(u*10)%2?0.45:1)*15,b=Math.floor(u*10)*Math.PI/5+Math.PI/2,c=(u*10%1),a1=b,a2=b+Math.PI/5,r1=Math.floor(u*10)%2?0.42:1,r2=Math.floor(u*10)%2?1:0.42,px=Math.cos(a1)*r1*(1-c)+Math.cos(a2)*r2*c,py=Math.sin(a1)*r1*(1-c)+Math.sin(a2)*r2*c;vx=rx*px*15;vz=rz*px*15;vy=py*15;}
+      else if(f.k==='ring'){const a=u*Math.PI*2;vx=rx*Math.cos(a)*15;vz=rz*Math.cos(a)*15;vy=Math.sin(a)*15;}
+      else{const th=rr()*Math.PI*2,ph=Math.acos(2*rr()-1),sp=(f.k==='willow'?10:14)*(0.85+rr()*0.3);vx=Math.sin(ph)*Math.cos(th)*sp;vy=Math.cos(ph)*sp;vz=Math.sin(ph)*Math.sin(th)*sp;}
+      v[i*3]=vx;v[i*3+1]=vy;v[i*3+2]=vz;P[i*3]=f.x;P[i*3+1]=f.ty;P[i*3+2]=f.z;const c=f.k==='willow'?FC.set('#ffd86a'):(i%3?FC.set(pal[0]):FC2.set(pal[1]));Cc[i*3]=c.r*0.8;Cc[i*3+1]=c.g*0.8;Cc[i*3+2]=c.b*0.8;}   /* 暗一點：疊在一起才不會全白 */
+    f.p.geometry.attributes.position.needsUpdate=true;f.p.geometry.attributes.color.needsUpdate=true;f.p.material.opacity=1;f.p.material.size=f.k==='willow'?2.2:2.7;f.p.visible=true;f.rk.visible=false;f.st='burst';f.t=0;f.T=f.k==='willow'?4:2.6;
+    const d=camera.position.distanceTo(FV.set(f.x,f.ty,f.z));if(d<700)AUDIO.sfx(d<200?'bigboom':'boom');}
+  function fwTick(dt){for(const f of FWP){if(f.st==='up'){f.t+=dt;f.x+=f.vx*dt;f.z+=f.vz*dt;const y=f.y+(f.ty-f.y)*Math.min(1,f.t/1.1);f.rk.position.set(f.x,y,f.z);f.rk.material.opacity=0.6+0.4*Math.sin(f.t*40);if(f.t>=1.1){f.y=f.ty;fwBurst(f);}}
+      else if(f.st==='burst'){f.t+=dt;const P=f.p.geometry.attributes.position.array,v=f.v,g=f.k==='willow'?3.2:4.8,dr=Math.exp(-dt*(f.k==='willow'?1.2:1.6));for(let i=0;i<FWN;i++){v[i*3]*=dr;v[i*3+1]=v[i*3+1]*dr-g*dt;v[i*3+2]*=dr;P[i*3]+=v[i*3]*dt;P[i*3+1]+=v[i*3+1]*dt;P[i*3+2]+=v[i*3+2]*dt;}
+        f.p.geometry.attributes.position.needsUpdate=true;f.p.material.opacity=Math.max(0,1-Math.pow(f.t/f.T,1.6));if(f.t>=f.T){f.st='idle';f.p.visible=false;}}}}
+  let multiQ=[];
+  function fireFrom(k){const R=S.ride;if(!R||!myCab)return;if(k==='multi'){const ks=['ball','heart','star','ring','willow'];for(let i=0;i<5;i++)multiQ.push({t:i*0.45,k:ks[i]});return;}fireOne(k);}
+  function fireOne(k){if(!myCab)return;myCab.getWorldPosition(CV);const h=myCab.rotation.y,sd=Math.random()<0.5?-1:1,lat=12+Math.random()*18,fwd=40+Math.random()*30,x=CV.x+Math.cos(h)*lat*sd+Math.sin(h)*fwd,z=CV.z-Math.sin(h)*lat*sd+Math.cos(h)*fwd,y=CV.y-12,   /* 前面 40～70 m、旁邊 12～30 m：坐著往前看就看得到 */ci=Math.floor(Math.random()*FPAL.length),seed=Math.floor(Math.random()*1e6);
+    fwLaunch(x,y,z,k,ci,seed);if(NET.on)NET.out('*',{t:'caF',p:[x,y,z].map(v=>+v.toFixed(1)),k,c:ci,s:seed});}
+  S.fwTick=dt=>{fwTick(dt);if(multiQ.length){for(const q of multiQ)q.t-=dt;while(multiQ.length&&multiQ[0].t<=0)fireOne(multiQ.shift().k);}};
+  // ---- 表情、揮手（頭上冒表情；旁邊經過的纜車裡的人揮手回應） ----
+  const EMT=new Map(),EB=[];const emTex=e=>{let t=EMT.get(e);if(!t){const [c,g]=cvs(128,128);g.fillStyle='rgba(255,255,255,0.92)';g.beginPath();g.arc(64,58,52,0,Math.PI*2);g.fill();g.beginPath();g.moveTo(52,104);g.lineTo(64,124);g.lineTo(76,104);g.fill();g.font='64px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(e,64,62);t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;EMT.set(e,t);}return t;};
+  function bubbleOn(root,e){if(!root)return;let b=EB.find(q=>q.root===root)||EB.find(q=>q.t<=0);if(!b){if(EB.length>=10)b=EB[0];else{const s=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,depthWrite:false,depthTest:false}));s.renderOrder=9;s.scale.setScalar(0.7);s.userData.noCull=true;b={s,t:0,root:null};EB.push(b);}}
+    b.s.material.map=emTex(e);b.s.material.needsUpdate=true;b.root=root;b.t=2.6;if(b.s.parent!==scene)scene.add(b.s);b.s.visible=true;}
+  function bubTick(dt){for(const b of EB){if(b.t<=0)continue;b.t-=dt;if(!b.root){b.s.visible=false;continue;}b.root.getWorldPosition(CV);b.s.position.set(CV.x,CV.y+1.95,CV.z);b.s.material.opacity=Math.min(1,b.t*2);b.s.scale.setScalar(0.7*(1+0.15*Math.max(0,b.t-2.2)));if(b.t<=0)b.s.visible=false;}}
+  function emote(e,wave){const R=S.ride;if(!R)return;bubbleOn(avatar.root,e);if(wave)R.wave=2.4;AUDIO.sfx('pop');if(NET.on)NET.out('*',{t:'caE',e,w:wave?1:0});
+    if(wave){let n=0;myCab.getWorldPosition(CV);for(const a of AMB)for(const c of a){if(!c.visible||!c.userData.npc)continue;if(c.position.distanceTo(CV)<45){c.userData.waveT=2.6;for(const p of c.userData.npc)bubbleOn(p.g,'👋');n++;}}
+      if(n)setTimeout(()=>toast(`👋 旁邊纜車裡的人跟你揮手了！`),500);}}
+  const REM=new Map();   // 別人：比 YA、揮手到什麼時候
+  // ---- 拍合照（倒數 3 秒，大家比 YA；從車廂外面斜前方拍） ----
+  function photoStart(send){const R=S.ride;if(!R||R.photoT>0)return;R.photoT=3.4;R.ya=4.2;if(send&&R.gid&&NET.on)for(const id of Object.keys(R.mem||{}))if(id!==me())NET.out(id,{t:'caP',gid:R.gid});for(const id of Object.keys(R.mem||{}))if(id!==me()){const m=REM.get(id)||{};m.ya=performance.now()+4200;REM.set(id,m);}}
+  function photoSnap(){const R=S.ride;if(!R||!myCab)return;myCab.updateMatrixWorld(true);const cam=new THREE.PerspectiveCamera(50,1.5,0.1,3000),b=myCab.userData.body;CV.set(3.0,0.7,3.7);b.localToWorld(CV);cam.position.copy(CV);const tg=new V3(0,-0.35,0);b.localToWorld(tg);cam.lookAt(tg);
+    const vis=avatar.root.visible;avatar.root.visible=true;updateAvatarSeat();const cv=renderer.domElement,W=cv.width,H=cv.height;cam.aspect=W/H;cam.updateProjectionMatrix();renderer.render(scene,cam);let url='';try{url=cv.toDataURL('image/jpeg',0.9);}catch(_){}avatar.root.visible=vis;
+    if(!url)return;AUDIO.sfx('click');const flash=document.createElement('div');flash.style.cssText='position:fixed;inset:0;background:#fff;z-index:90;opacity:.9;transition:opacity .5s;pointer-events:none';document.body.appendChild(flash);setTimeout(()=>{flash.style.opacity='0';},30);setTimeout(()=>flash.remove(),600);
+    const d=new Date(),nmf=`纜車合照-${d.getMonth()+1}-${d.getDate()}-${d.getHours()}${String(d.getMinutes()).padStart(2,'0')}.jpg`;
+    PHO.innerHTML=`<img src="${url}" alt="纜車合照"><div class="bt"><a href="${url}" download="${nmf}">💾 存到手機</a><button>關閉</button></div>`;PHO.hidden=false;PHO.querySelector('button').onclick=()=>{PHO.hidden=true;PHO.innerHTML='';};}
+  function updateAvatarSeat(){if(S.ride)seatPose(avatar);}
+  // ---- 小遊戲 ----
+  function gameStart(k){const R=S.ride;if(!R||R.game)return;if(k==='tw'){if(R.ti>=R.tws.length||R.ph!=='go'){toast('前面沒有支柱了');return;}R.game={k,ti:R.ti,pressed:false,passT:0};toast('⏱ 下一根支柱經過車廂的時候按「現在！」');}
+    else{R.game={k:'sh',t:8,max:0};toast('🎢 8 秒內一直按「搖！」，跟著晃的節奏按，晃得最大的贏！');}R.sub='';AUDIO.sfx('go');rhT=0;}
+  function gameTower(){const R=S.ride,G=R&&R.game;if(G&&G.k==='tw'&&R.ti-1===G.ti&&!G.pressed)G.passT=performance.now();}
+  function gamePress(){const R=S.ride,G=R&&R.game;if(!G)return;
+    if(G.k==='sh'){const dir=Math.sign(R.axv)||1;R.axv+=dir*0.5;AUDIO.sfx('pock');return;}
+    if(G.pressed)return;G.pressed=true;let err;if(G.passT)err=-(performance.now()-G.passT)/1000;else err=(R.tws[G.ti]-R.s)/Math.max(R.v,0.5);gameEnd('tw',err);}
+  function gameEnd(k,v){const R=S.ride;if(!R)return;R.game=null;rhT=0;let msg;
+    if(k==='tw'){const a=Math.abs(v);msg=a<0.3?`🎯 完美！只差 ${a.toFixed(2)} 秒`:a<1?`👍 很準！差 ${a.toFixed(1)} 秒`:a<2.5?`🙂 還不錯，差 ${a.toFixed(1)} 秒`:`😅 差太多了（${a.toFixed(1)} 秒）`;msg+=v>0.05?'（太早按）':v<-0.05?'（太晚按）':'';}
+    else msg=`🎢 最大晃了 ${Math.round(v)}°！`;big(msg);AUDIO.sfx(k==='tw'&&Math.abs(v)<0.3||k==='sh'&&v>15?'cheer':'combo');
+    (R.res[k]||(R.res[k]={}))[me()]=k==='tw'?Math.abs(v):v;if(R.gid&&NET.on)for(const id of Object.keys(R.mem||{}))if(id!==me())NET.out(id,{t:'caG',gid:R.gid,k,v:+(+v).toFixed(2)});R.sub='gm';}
+  function resLine(){const R=S.ride,out=[];for(const [k,n,u,best] of [['tw','⏱ 支柱猜猜看','秒',(a,b)=>a-b],['sh','🎢 搖車廂','°',(a,b)=>b-a]]){const r=R.res[k];if(!r)continue;const L=Object.entries(r).sort((a,b)=>best(a[1],b[1]));out.push(`${n}：${L.map(([id,v],i)=>`${['🥇','🥈','🥉'][i]||''}${esc(nm(id))} ${k==='tw'?v.toFixed(2):Math.round(v)}${u}`).join('　')}`);}return out.length?`<div class="lb">${out.join('<br>')}</div>`:'';}
+  function funTick(dt){const R=S.ride;if(!R)return;R.ya=Math.max(0,R.ya-dt);R.wave=Math.max(0,R.wave-dt);
+    if(R.photoT>0){const c0=Math.ceil(R.photoT);R.photoT-=dt;const c1=Math.ceil(R.photoT);if(c1!==c0&&c1>0){big(`📸 ${c1}`);AUDIO.sfx('beep');}if(R.photoT<=0){R.photoT=0;photoSnap();}}
+    const G=R.game;if(G&&G.k==='sh'){G.t-=dt;G.max=Math.max(G.max,Math.abs(R.ax));if(G.t<=0)gameEnd('sh',G.max*57.3);}
+    if(G&&G.k==='tw'&&!G.pressed&&G.passT&&performance.now()-G.passT>3000){G.pressed=true;gameEnd('tw',-3);}}
+  // 一起坐的邀請、煙火、表情、合照、成績
+  S.crx=(d,f)=>{f=String(f);switch(d.t){
+    case 'caI':{if(S.ride||busyG()||mode!=='walk'){NET.out(f,{t:'caN',gid:d.gid});return;}const Ln=LINES[d.li|0];if(!Ln)return;const dn=d.rev?ST[Ln.a].n:ST[Ln.b].n;CIP.dataset.f=f;CIP.dataset.g=d.gid;CIP.dataset.li=d.li|0;CIP.dataset.rev=d.rev?1:0;
+      CIP.innerHTML=`🚡 <b>${esc(nm(f))}</b> 邀請你一起坐纜車到 <b>${dn}</b>！<div style="font-size:13px;opacity:.85;margin-top:4px">一起坐可以放煙火、拍合照、比小遊戲</div><div class="bt"><button data-a="no">不要</button><button data-a="ok" class="ok">一起坐！</button></div>`;CIP.hidden=false;AUDIO.sfx('chime');
+      setTimeout(()=>{if(!CIP.hidden&&CIP.dataset.g===d.gid){CIP.hidden=true;NET.out(f,{t:'caN',gid:d.gid});}},9000);break;}
+    case 'caA':{const R=S.ride;if(!R||R.gid!==d.gid||R.ph!=='wait'||R.host)return;const used=Object.values(R.mem);let k=1;while(used.includes(k))k++;if(k>3){NET.out(f,{t:'caN',gid:d.gid});return;}R.mem[f]=k;if(R.inv)R.inv.delete(f);
+      for(const id of Object.keys(R.mem))if(id!==me())NET.out(id,{t:'caS',gid:R.gid,li:R.li,rev:R.rev,mem:R.mem});toast(`🚡 ${nm(f)} 上車了！`);AUDIO.sfx('door');break;}
+    case 'caN':{const R=S.ride;if(R&&R.gid===d.gid&&R.inv)R.inv.delete(f);break;}
+    case 'caS':{const mem=d.mem||{};if(S.ride&&S.ride.gid===d.gid){S.ride.mem=mem;break;}if(S.ride||mem[me()]==null)break;if(S.on&&busyG())break;rideStart(d.li|0,!!d.rev,{gid:d.gid,host:f,seat:mem[me()],mem});break;}
+    case 'caF':{const p=d.p;if(Array.isArray(p)&&Math.hypot(p[0]-camera.position.x,p[2]-camera.position.z)<1600)fwLaunch(+p[0],+p[1],+p[2],String(d.k||'ball'),d.c|0,d.s|0);break;}
+    case 'caE':{const q=NET.P.get(f),A=q&&q.rem&&q.rem.A;if(A&&A.root.visible){bubbleOn(A.root,String(d.e||'😀').slice(0,4));if(d.w){const m=REM.get(f)||{};m.wave=performance.now()+2400;REM.set(f,m);}}break;}
+    case 'caP':{const R=S.ride;if(R&&R.gid===d.gid){photoStart(false);toast(`📸 ${nm(f)} 要拍合照！比 YA～`);}break;}
+    case 'caG':{const R=S.ride;if(!R||R.gid!==d.gid)return;const k=d.k==='sh'?'sh':'tw';(R.res[k]||(R.res[k]={}))[f]=k==='tw'?Math.abs(+d.v||0):+d.v||0;toast(`🎮 ${nm(f)}：${k==='tw'?`支柱猜猜看差 ${Math.abs(+d.v||0).toFixed(2)} 秒`:`搖車廂 ${Math.round(+d.v||0)}°`}`);rhT=0;break;}}};
+  CIP.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;CIP.hidden=true;const f=CIP.dataset.f,g=CIP.dataset.g;if(!f)return;if(b.dataset.a==='ok'&&!busyG()){NET.out(f,{t:'caA',gid:g});toast('🚡 好！等一下就上車');}else NET.out(f,{t:'caN',gid:g});});
+  S.remSeat=(q,A,s)=>{const R=S.ride,m=REM.get(String(q.id))||{},now=performance.now(),ya=(m.ya||0)>now,wv=(m.wave||0)>now;if(R&&s.ca&&s.ca[4]&&s.ca[4]===R.gid&&myCab){seatPoseAt(A,myCab,s.ca[5]|0,ya,wv);return true;}return {ya,wv};};
   // ---- 滑 ----
   function fall(msg){S.fallT=1.6;S.vel.multiplyScalar(0.15);S.spin=S.spinT=0;AUDIO.sfx('thud');big(msg);if(S.run)S.run.falls++;}
   function land(){const left=S.spinT-S.spin,n=Math.round(S.spinT/(Math.PI*2));if(left>Math.PI){fall('摔倒了！');S.air=0;return;}
@@ -5355,7 +5537,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     S.v=v;
     const mx=S.vel.x*dt,mz=S.vel.y*dt,n=Math.max(1,Math.ceil(Math.hypot(mx,mz)/0.2));for(let i=0;i<n;i++){player.pos.x+=mx/n;player.pos.y+=mz/n;resolve(player.pos,0.3,player.y);}
     {const t=K.treeAt(player.pos.x,player.pos.y,0.36);if(t){const dx=player.pos.x-t.x,dz=player.pos.y-t.z,d=Math.hypot(dx,dz)||1,need=t.r+0.37;player.pos.x=t.x+dx/d*need;player.pos.y=t.z+dz/d*need;if(sp>3.5&&S.fallT<=0&&S.ground)fall('🌲 撞到樹了！');else S.vel.multiplyScalar(0.5);}}   /* 撞樹 */
-    player.pos.x=cl(player.pos.x,BOUND.x0,BOUND.x1);player.pos.y=cl(player.pos.y,BOUND.z0,BOUND.z1);
+    FJ.keep(player.pos);
     const g=heightAt(player.pos.x,player.pos.y,player.y+0.5),tol=0.06+Math.abs(v)*dt*0.95;
     if(S.ground){if(g<player.y-tol){S.ground=false;S.vy=Math.max(-2,S.gv)+2.2;S.air=0;}else{const gvn=(g-player.y)/Math.max(dt,1e-3);S.gv=S.gv*0.5+gvn*0.5;player.y=g;}}   /* 跳台頂端（雪堆一下子沒了）＝飛出去 */
     if(!S.ground){S.vy-=14*dt;player.y+=S.vy*dt;S.air+=dt;if(S.spin<S.spinT)S.spin=Math.min(S.spinT,S.spin+18*dt);if(player.y<=g&&S.vy<=0){player.y=g;S.ground=true;S.gv=0;land();}}
@@ -5373,7 +5555,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     else if(!S.rc&&s!=null&&S.ls!=null&&S.lk===n.k&&S.ls<n.R.S0&&s>=n.R.S0&&S.v>0.5){S.run={t:0,gi:0,ok:0,miss:0,falls:0,minS:s,k:n.k,ri:n.i};S.sel=n.k;big(`⛷️ ${n.R.name} 計時開始！`);AUDIO.sfx('go');}
     S.ls=s;S.lk=n?n.k:-1;}
   function finish(){const R=S.run;S.run=null;const tot=R.t+3*R.miss,k=R.k|0,T=K.R[k],b=BEST[k];let rec='';
-    if(!R.race){if(b==null||tot<b){if(b!=null)rec='🎊 新紀錄！';BEST[k]=tot;try{localStorage.setItem('home-ski-best',JSON.stringify(BEST));}catch(_){}}EARN(Math.max(10,Math.round((k?95:80)-tot)+R.ok*5),`⛷️ 滑雪計時賽（${T.name}）`);}
+    if(!R.race){if(b==null||tot<b){if(b!=null)rec='🎊 新紀錄！';BEST[k]=tot;try{localStorage.setItem('home-ski-best',JSON.stringify(BEST));}catch(_){}}EARN(T.fuji?60+R.ok*2:Math.max(10,Math.round((k?95:80)-tot)+R.ok*5),`⛷️ 滑雪計時賽（${T.name}）`);}
     big(`🏁 ${fmt(tot)}${rec?' '+rec:''}`);AUDIO.sfx(rec?'bigcheer':'cheer');
     toast(`🏁 ${T.name}到終點了！${fmt(R.t)}${R.miss?`＋漏掉 ${R.miss} 個旗門 ${R.miss*3} 秒＝${fmt(tot)}`:''}　旗門 ${R.ok}／${T.gates.length}、摔倒 ${R.falls} 次${BEST[k]!=null&&!R.race?`　最快 ${fmt(BEST[k])}`:''}（旁邊坐纜車回山頂）`);
     if(R.race&&S.rc){S.rc.res[me()]={t:tot,miss:R.miss};for(const id of S.rc.ids)if(id!==me())NET.out(id,{t:'siF',tt:+tot.toFixed(2),miss:R.miss});S.rc.myDone=performance.now();resDraw();}}
@@ -5389,12 +5571,20 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     #skiR{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,calc(100vw - 32px));z-index:60;text-align:center}#skiR .l{font-size:15px;line-height:1.8;text-align:left;display:inline-block}
     @media (orientation:landscape) and (max-height:520px){#skiPop{top:50%;transform:translate(-50%,-50%)}}`;document.head.appendChild(st);}
   for(const el of [POP,RES,HUD])for(const ev of ['pointerdown','touchstart','keydown','wheel'])el.addEventListener(ev,e=>e.stopPropagation());
+  // 2026-10-27.29 使用者：「滑雪、推雪球中間那個文字說明好礙眼，可以放到旁邊嗎，或是隱藏」→ 放到左邊（地名下面）、字小一點、右上角「－」收成一行（記住）
+  let HMIN=false;try{HMIN=localStorage.getItem('home-ski-min')==='1';}catch(_){}
+  S.hmin=v=>{if(v!=null){HMIN=!!v;try{localStorage.setItem('home-ski-min',HMIN?'1':'0');}catch(_){}}return HMIN;};
+  {const st=document.createElement('style');st.textContent=`#skiHud,#snHud{left:calc(12px + var(--sal,0px))!important;transform:none!important;top:calc(64px + var(--sat,0px))!important;text-align:left!important;width:auto!important;max-width:min(260px,calc(100vw - 160px))!important;font-size:12px!important;padding:6px 28px 6px 10px!important;background:rgba(18,24,30,.52)!important;line-height:1.5}
+    #skiHud b,#snHud b{font-size:14px!important}#skiHud button,#snHud button{font-size:12px!important;padding:4px 8px!important}
+    #skiHud .mn,#snHud .mn{position:absolute;right:3px;top:3px;margin:0!important;padding:0 7px!important;font-size:14px!important;line-height:20px;background:rgba(255,255,255,.22)!important;color:#fff!important;border-radius:6px;box-shadow:none!important}
+    body.touch #skiHud,body.touch #snHud{top:calc(110px + var(--sat,0px))!important}body.touch.neton #skiHud,body.touch.neton #snHud{top:calc(172px + var(--sat,0px))!important}
+    @media (orientation:landscape) and (max-height:520px){body.touch #skiHud,body.touch #snHud{top:calc(62px + var(--sat,0px))!important;max-width:240px!important}body.touch.neton #skiHud,body.touch.neton #snHud{top:calc(96px + var(--sat,0px))!important}}`;document.head.appendChild(st);}
   const others=()=>NET.on?[...NET.P.keys()].map(String):[];
   S.invite=()=>{if(!NET.on||!others().length){toast('先「👥 連線」跟朋友連在一起');return;}if(S.rc||BR){toast('比賽已經在進行了');return;}
     S.rc={org:me(),ids:[me()],wait:new Set(others()),st:'wait',end:performance.now()+13000,res:{},r:S.sel|0};NET.out('*',{t:'siR',r:S.rc.r});toast(`🏁 邀請大家比滑雪（${K.R[S.rc.r].name}），等大家回覆…（13 秒）`);AUDIO.sfx('click');};
   POP.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const f=POP.dataset.f,sn=POP.dataset.k==='sn';POP.hidden=true;if(!f)return;if(b.dataset.a==='ok'&&!busyG()){NET.out(f,{t:sn?'snA':'siA'});toast(sn?'答應了！等大家準備好就傳送到尖山頂':'答應了！等大家準備好就傳送到起點');}else NET.out(f,{t:sn?'snN':'siN'});});   /* dataset.k＝sn：滾雪球比賽的邀請 */
   RES.addEventListener('click',e=>{if(e.target.closest('button'))RES.hidden=true;});
-  HUD.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.a==='race')S.invite();else if(b.dataset.a[0]==='g')S.goTrail(+b.dataset.a[1]);});
+  HUD.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.a==='race')S.invite();else if(b.dataset.a==='home'){const T=ST.T;player.pos.set(T.x+3,T.z+3);player.y=gy(T.x+3,T.z+3);S.vel.set(0,0);S.v=0;toast('🏔️ 回到尖山頂了');}else if(b.dataset.a[0]==='g')S.goTrail(+b.dataset.a[1]);});
   S.rx=(d,f)=>{f=String(f);switch(d.t){
     case 'siR':if(S.rc||BR||busyG()){NET.out(f,{t:'siN'});return;}POP.dataset.f=f;POP.dataset.k='';POP.innerHTML=`⛷️ <b>${esc(nm(f))}</b> 邀請大家比滑雪（${K.R[d.r|0]?K.R[d.r|0].name:''}）！<div class="note" style="font-size:13px;margin-top:4px">答應會傳送到尖山頂的起點、穿上滑雪板，3 秒倒數一起出發</div><div class="bt"><button data-a="no">不要</button><button data-a="ok" class="ok">好！</button></div>`;POP.hidden=false;AUDIO.sfx('chime');setTimeout(()=>{if(!POP.hidden&&POP.dataset.f===f){POP.hidden=true;NET.out(f,{t:'siN'});}},12000);break;
     case 'siA':if(S.rc&&S.rc.org===me()&&S.rc.st==='wait'&&S.rc.wait.has(f)){S.rc.wait.delete(f);S.rc.ids.push(f);toast(`🏁 ${nm(f)} 要一起比`);}break;
@@ -5448,7 +5638,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);const k=v.x.toFixed(3)+','+v.y.toFixed(3)+','+v.z.toFixed(3);let j=seen.get(k);if(!j){j=[0.9+rnd()*0.16,0.84+rnd()*0.16];seen.set(k,j);}v.multiplyScalar(j[0]);p.setXYZ(i,v.x,v.y,v.z);col[i*3]=j[1];col[i*3+1]=Math.min(1,j[1]*1.01);col[i*3+2]=Math.min(1,j[1]*1.05);}
     g.setAttribute('color',new THREE.BufferAttribute(col,3));g.computeVertexNormals();return g;})(),BM=std({color:'#ffffff',roughness:0.85,vertexColors:true,flatShading:true});   /* 凹凸不平的雪球（滾的時候看得出在轉） */
   const mkBall=()=>{const m=new THREE.Mesh(BG,BM);m.castShadow=true;m.userData.noCull=true;m.visible=false;scene.add(m);return m;};
-  const snowAt=(x,z)=>x>PK.x-45&&z>PK.z-240&&x<M.x1&&z<M.z1&&(K.edge(x,z)<3||gy(x,z)>122);   /* 雪道、山頂的雪地 */
+  const snowAt=(x,z)=>x>PK.x-45&&z>PK.z-240&&x<M.x1&&z<M.z1&&(K.edge(x,z)<3||gy(x,z)>122)||FJ.snow(x,z);   /* 雪道、山頂的雪地、富士山雪線以上 */
   let MB=null,myBm=null,camOn=false,camT=0,pushCd=0,BR=null,hitCd=0,kv=new V2(),bHudT=0;S.hitT=0;S.lockK='';
   const RB=new Map();   /* 別人的雪球：id → {m,x,yb,z,r,vx,vz,dead,mT} */
   let BBEST=0;try{BBEST=+localStorage.getItem('home-snow-best')||0;}catch(_){BBEST=0;}
@@ -5519,7 +5709,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   for(const ev of ['pointerdown','touchstart','keydown','wheel'])SH.addEventListener(ev,e=>e.stopPropagation());
   SBN.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();S.push();});SBN.addEventListener('touchstart',e=>e.stopPropagation());
   addEventListener('keydown',e=>{if(e.repeat||RIDE.on)return;if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;if(e.code==='KeyG'){if(S.pushOK())S.push();}else if(e.code==='KeyH'&&MB&&!MB.dead&&!MB.hold&&!S.on){camOn=!camOn;camT=0;}});
-  const bHudClick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.a==='cam'){camOn=!camOn;camT=0;bHudT=0;hudT=0;}else if(b.dataset.a==='bR')S.bInvite();};SH.addEventListener('click',bHudClick);HUD.addEventListener('click',bHudClick);
+  const bHudClick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.a==='min'){S.hmin(!S.hmin());bHudT=0;hudT=0;return;}if(b.dataset.a==='cam'){camOn=!camOn;camT=0;bHudT=0;hudT=0;}else if(b.dataset.a==='bR')S.bInvite();};SH.addEventListener('click',bHudClick);HUD.addEventListener('click',bHudClick);
   const ballLine=()=>{let h='';if(MB&&MB.hold)h=`⛄ 推著走、越滾越大：直徑 <b>${(MB.r*2).toFixed(1)}</b> m${MB.r>=1.29?'（最大了）':''}　再按「💨」推出去`;else if(MB&&!MB.dead)h=`⛄ <b>${Math.round(Math.hypot(MB.vx,MB.vz)*3.6)}</b> km/h　滾了 <b>${Math.round(MB.d)}</b> m　直徑 ${(MB.r*2).toFixed(1)} m${S.on?'':`　<button data-a="cam" class="sn">🎥 ${camOn?'看自己':'看雪球'}</button>`}`;
     else if(BR&&BR.st==='go'&&BR.ids.includes(me())&&!BR.res[me()])h='⛄ 按「⛄」把雪球推下去，滾最遠的贏！';
     if(!BR&&!S.rc&&NET.on&&others().length&&snowAt(player.pos.x,player.pos.y)&&!(MB&&!MB.dead))h+=(h?'<br>':'')+'<button data-a="bR" class="sn">⛄ 邀請大家比滾雪球</button>';
@@ -5532,18 +5722,19 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
       else if(BR.st==='go'&&!BR.res[me()]&&!BR.ball&&now-BR.t0>25000){BR.res[me()]={d:0,r:0};for(const id of BR.ids)if(id!==me())NET.out(id,{t:'snF',d:0,r:0});bRes();}
       else if(BR&&BR.myDone&&now-BR.myDone>60000)BR=null;}
     const sh=S.pushOK()&&!(BR&&BR.st==='go'&&BR.res[me()])&&MENU.hidden;SBN.hidden=!sh;if(sh){const t=MB&&MB.hold?'<b>💨</b><span>推出去</span>':nearMine()?'<b>💨</b><span>再推</span>':'<b>⛄</b><span>推雪球</span>';if(SBN.innerHTML!==t)SBN.innerHTML=t;}
-    if(now>bHudT){bHudT=now+200;const h=S.on?'':ballLine();SH.hidden=!h;if(h&&SH.innerHTML!==h)SH.innerHTML=h;}}
+    if(now>bHudT){bHudT=now+200;let h=S.on?'':ballLine();if(h)h=S.hmin()?`<button data-a="min" class="mn">＋</button>⛄ ${MB&&!MB.dead?`直徑 <b>${(MB.r*2).toFixed(1)}</b> m${MB.hold?'':` ${Math.round(Math.hypot(MB.vx,MB.vz)*3.6)} km/h`}`:'雪球'}`:'<button data-a="min" class="mn">－</button>'+h;SH.hidden=!h;if(h&&SH.innerHTML!==h)SH.innerHTML=h;}}
   // ---- 2026-10-27.28 丟雪球（使用者：「滑雪場怎麼上面這麼小，我還希望在上面丟雪球」）：雪地上走路時按「❄️」（電腦 Y）往前丟（鏡頭往上看就丟高一點）；
   //   山頂平台有 5 個雪人可以打（打中頭會掉下來、5 秒後長回來，每打中 10 個給 10 元零用錢）；連線時丟到朋友身上：朋友畫面一片白「被雪球打到了」，你這邊「打中了」（sbW 丟出去、sbH 打中）
-  const SBG=new THREE.SphereGeometry(0.11,10,8),SBM=std({color:'#ffffff',roughness:0.8}),THR=[];let thrCd=0,thrPose=0,snHits=0;
-  const SMEN=[[-10,12],[-2,17],[-16,6],[-14,-12],[-4,-16]].map(([dx,dz],k)=>{const x=PK.x+dx,z=PK.z+dz,y=gy(x,z),g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=Math.atan2(PK.x-x,PK.z-z);
+  const SBG=new THREE.SphereGeometry(0.17,12,10),SBM=std({color:'#ffffff',roughness:0.7,emissive:'#cfeaff',emissiveIntensity:0.55}),THR=[],TRM=new THREE.SpriteMaterial({map:dotT,color:'#e8f6ff',transparent:true,depthWrite:false,opacity:0.8});   /* 2026-10-27.29 使用者：「丟雪球都看不到丟出去的雪球」→ 大一點、微微發亮、拖尾巴 */let thrCd=0,thrPose=0,snHits=0;
+  function mkSM(x,z,k){const y=gy(x,z),g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=Math.atan2(PK.x-x,PK.z-z);
     const b1=new THREE.Mesh(new THREE.SphereGeometry(0.55,16,12),snowM);b1.position.y=0.45;const b2=new THREE.Mesh(new THREE.SphereGeometry(0.4,16,12),snowM);b2.position.y=1.15;
     const hd=new THREE.Group();hd.position.y=1.68;hd.add(new THREE.Mesh(new THREE.SphereGeometry(0.28,16,12),snowM));const nose=new THREE.Mesh(new THREE.ConeGeometry(0.05,0.22,8),std({color:'#ff7a1a',roughness:0.6}));nose.rotation.x=Math.PI/2;nose.position.set(0,0,0.32);hd.add(nose);
     for(const s of [-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(0.035,8,6),MAT.black);e.position.set(s*0.1,0.08,0.24);hd.add(e);}
     const hat=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.23,0.26,14),std({color:['#e0262c','#1f6fe0','#2e9a4e','#ffcf2f','#9b5cf6'][k],roughness:0.6}));hat.position.y=0.3;hd.add(hat);
     for(let i=0;i<3;i++){const bt=new THREE.Mesh(new THREE.SphereGeometry(0.035,8,6),MAT.black);bt.position.set(0,0.95+i*0.17,0.39-Math.abs(i-1)*0.02);g.add(bt);}
     for(const s of [-1,1]){const a=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.025,0.75,5),std({color:'#6b4a2f',roughness:0.9}));a.position.set(s*0.52,1.3,0);a.rotation.z=s*1.0;g.add(a);}
-    g.add(b1,b2,hd);g.traverse(o=>{if(o.isMesh)o.castShadow=true;});scene.add(g);addCircle(x,z,0.5,1.9);return {g,hd,x,z,y,down:0,ht:0};});
+    g.add(b1,b2,hd);g.traverse(o=>{if(o.isMesh)o.castShadow=true;});scene.add(g);addCircle(x,z,0.5,1.9);return {g,hd,x,z,y,down:0,ht:0};}
+  const SMEN=[[-10,12],[-2,17],[-16,6],[-14,-12],[-4,-16]].map(([dx,dz],k)=>mkSM(PK.x+dx,PK.z+dz,k));S.mkSnowman=(x,z,k)=>{const m=mkSM(x,z,k%5);m.g.rotation.y=Math.atan2(FJ.cx-x,FJ.cz-z);SMEN.push(m);};
   const SPL=document.createElement('div');SPL.id='snSplat';document.body.appendChild(SPL);
   {const st=document.createElement('style');st.textContent=`#snSplat{position:fixed;inset:0;z-index:11;pointer-events:none;opacity:0;transition:opacity .9s ease-out;background:radial-gradient(circle at 42% 46%,rgba(255,255,255,.96) 0 9%,rgba(255,255,255,.75) 14%,rgba(255,255,255,0) 26%),radial-gradient(circle at 58% 38%,rgba(255,255,255,.9) 0 5%,rgba(255,255,255,0) 13%),radial-gradient(circle at 50% 60%,rgba(255,255,255,.85) 0 4%,rgba(255,255,255,0) 11%)}
     #snSplat.on{opacity:1;transition:none}#sbtBtn[hidden]{display:none!important}
@@ -5552,7 +5743,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   const TBN=document.createElement('button');TBN.id='sbtBtn';TBN.hidden=true;TBN.innerHTML=`<b>❄️</b><span>丟雪球${isTouch?'':'（Y）'}</span>`;document.body.appendChild(TBN);
   TBN.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();S.throw();});TBN.addEventListener('touchstart',e=>e.stopPropagation());
   S.throwOK=()=>started&&mode==='walk'&&!busyG()&&!S.ride&&!S.on&&S.hitT<=0&&!(MB&&MB.hold)&&snowAt(player.pos.x,player.pos.y);
-  function spawnThrow(o){let q=THR.find(t=>!t.m.visible);if(!q){if(THR.length>=14)q=THR[0];else{q={m:new THREE.Mesh(SBG,SBM)};q.m.castShadow=true;q.m.userData.noCull=true;scene.add(q.m);THR.push(q);}}Object.assign(q,o,{t:0});q.m.visible=true;q.m.position.set(o.x,o.y,o.z);}
+  function spawnThrow(o){let q=THR.find(t=>!t.m.visible);if(!q){if(THR.length>=14)q=THR[0];else{q={m:new THREE.Mesh(SBG,SBM),tr:[]};q.m.castShadow=true;q.m.userData.noCull=true;scene.add(q.m);for(let i=0;i<5;i++){const sp=new THREE.Sprite(TRM);sp.visible=false;sp.userData.noCull=true;scene.add(sp);q.tr.push(sp);}THR.push(q);}}Object.assign(q,o,{t:0,h:[]});q.m.visible=true;q.m.position.set(o.x,o.y,o.z);}
   S.throw=()=>{if(!S.throwOK())return;const now=performance.now();if(now<thrCd)return;thrCd=now+380;
     const yaw=player.yaw,hx=-Math.sin(yaw),hz=-Math.cos(yaw),el=cl(0.08+player.pitch*0.9,-0.2,0.9),v=15,sc=bodyH().scale;
     const x=player.pos.x+hx*0.35+Math.cos(yaw)*0.2,z=player.pos.y+hz*0.35-Math.sin(yaw)*0.2,y=player.y+1.5*sc,o={x,y,z,vx:hx*Math.cos(el)*v+player.vel.x*0.5,vy:Math.sin(el)*v+0.6,vz:hz*Math.cos(el)*v+player.vel.y*0.5,own:true,from:me()};
@@ -5560,7 +5751,8 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   S.throwPose=(a,dt)=>{if(thrPose<=0)return;thrPose-=dt;const u=1-Math.max(0,thrPose)/0.35;a.armR.rotation.set(-2.7+2.3*u,0,0.25);a.foreR.rotation.x=-0.5+0.4*u;a.hand(1,'fist');};   /* 右手從後面往前甩 */
   function splash(x,y,z,n){puff(x,y,z,n||6,1.6);}
   function throwTick(dt){const px=player.pos.x,pz=player.pos.y,py=player.y;
-    for(const q of THR){if(!q.m.visible)continue;q.t+=dt;q.vy-=9.8*dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.z+=q.vz*dt;q.m.position.set(q.x,q.y,q.z);let hit=false;
+    for(const q of THR){if(!q.m.visible){for(const sp of q.tr)sp.visible=false;continue;}q.t+=dt;q.vy-=9.8*dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.z+=q.vz*dt;q.m.position.set(q.x,q.y,q.z);
+      q.h.unshift(q.x,q.y,q.z);if(q.h.length>30)q.h.length=30;q.tr.forEach((sp,i)=>{const j=(i+1)*6-3;if(q.h.length>j+2){sp.visible=true;sp.position.set(q.h[j],q.h[j+1],q.h[j+2]);sp.scale.setScalar(0.3-i*0.045);}else sp.visible=false;});let hit=false;
       for(const m of SMEN){if(m.down>0)continue;const d=Math.hypot(q.x-m.x,q.z-m.z);if(d<0.62&&q.y<m.y+2.0&&q.y>m.y-0.1){hit=true;m.down=5;m.ht=0;splash(q.x,q.y,q.z,10);AUDIO.sfx('pop');
         if(q.own){snHits++;big(snHits%10===0?`⛄ 打中 ${snHits} 個雪人！`:'⛄ 打中雪人！');if(snHits%10===0)EARN(10,'❄️ 丟雪球打雪人');}break;}}
       if(!hit&&!q.own&&Math.hypot(q.x-px,q.z-pz)<0.5&&q.y>py+0.2&&q.y<py+1.9*bodyH().scale&&mode==='walk'){hit=true;splash(q.x,q.y,q.z,10);SPL.classList.add('on');setTimeout(()=>SPL.classList.remove('on'),60);big('❄️ 被雪球打到了！');AUDIO.sfx('thud');if(q.from)NET.out(q.from,{t:'sbH'});}
@@ -5601,22 +5793,25 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   // ---- 每格 ----
   let hudT=0;const VX=new V3();
   S.goTrail=k=>{if(!S.on||S.run||S.lock>0||S.ride||!K.R[k])return;const T=K.R[k],q=ptS(T.S0-4,0,T);player.pos.set(q.x,q.z);player.y=gy(q.x,q.z);S.dir=player.yaw=Math.atan2(-q.tx,-q.tz);S.vel.set(0,0);S.v=0;S.ls=null;S.sel=k;hudT=0;
-    toast(k?'🟢 初級道：比較緩、雪道上沒有樹、最快 32 km/h；往前滑過起點開始計時':'⚫ 高級道：比較陡、要閃樹、有跳台；往前滑過起點開始計時');AUDIO.sfx('click');};
+    toast(k===2?'🗻 富士山雪道：繞著富士山滑到山腳，超長！（大約 5 分鐘）有 4 段旗門區、5 個大跳台；往前滑過起點開始計時':k?'🟢 初級道：比較緩、雪道上沒有樹、最快 32 km/h；往前滑過起點開始計時':'⚫ 高級道：比較陡、要閃樹、有跳台；往前滑過起點開始計時');AUDIO.sfx('click');};
   S.tick=dt=>{const now=performance.now();snowTick(dt);ballTick(dt);throwTick(dt);
-    LINES.forEach((Ln,i)=>{for(let k=0;k<2;k++){const ph=((now/1000)/Ln.dur+k)%2,u=ph<1?ph:2-ph,t=0.5-0.5*Math.cos(Math.PI*u);linePos(Ln,t,VX);const c=AMB[i][k];c.position.copy(VX);c.rotation.y=VX.h;c.userData.pivot.rotation.set(0.035*Math.sin(now/900+i+k*2),0,0.03*Math.sin(now/1300+k));}});   /* 一直來回的纜車（兩頭慢、會晃） */
-    rideHud();
+    LINES.forEach((Ln,i)=>{for(let k=0;k<2;k++){const ph=((now/1000)/Ln.dur+k)%2,u=ph<1?ph:2-ph,t=0.5-0.5*Math.cos(Math.PI*u);linePos(Ln,t,VX);if(ph>=1)VX.h+=Math.PI;lane(VX);const c=AMB[i][k];c.position.copy(VX);c.visible=!(S.ride&&myCab&&c.position.distanceTo(myCab.position)<7);c.rotation.y=VX.h;c.userData.pivot.rotation.set(0.035*Math.sin(now/900+i+k*2),0,0.03*Math.sin(now/1300+k));if(c.userData.npc){const u=c.userData;u.waveT=Math.max(0,u.waveT-dt);for(const p of u.npc)p.arm.rotation.z=u.waveT>0?2.6+Math.sin(now/80)*0.4:0.1;}}});   /* 一直來回的纜車（兩頭慢、會晃） */
+    rideHud();S.fwTick(dt);bubTick(dt);FJ.ride=!!(S.ride&&LINES[S.ride.li].b==='F');
     if(S.on&&(busyG()||mode!=='walk'))S.stop();if(S.ride&&(busyG()||mode!=='walk')){S.ride=null;if(myCab)myCab.visible=false;RH.hidden=true;}
     if(S.rc&&S.rc.org===me()&&S.rc.st==='wait'&&(now>S.rc.end||!S.rc.wait.size)){const R=S.rc;if(R.ids.length>=2){R.st='go';for(const id of R.ids)if(id!==me())NET.out(id,{t:'siG',ids:R.ids,r:R.r});raceGo(R.ids,me(),R.r);}else{S.rc=null;toast('沒有人答應，比賽取消了');}}
     if(S.rc&&S.rc.st==='go'&&S.rc.myDone&&now-S.rc.myDone>60000){S.rc=null;}   /* 等太久就不等了 */
     if(!S.on){return;}if(now<hudT)return;hudT=now+200;
     const n=S.nr,R=S.run,k=R?R.k:n&&n.d<K.R[n.k].W+10?n.k:S.sel|0,T=K.R[k],sel=S.sel|0;let h=`${T.name}　⛷️ <b>${Math.round(Math.abs(S.v)*3.6)}</b> km/h`;if(R)h+=`　⏱ <b>${fmt(R.t)}</b>　🚩 ${R.ok}／${T.gates.length}${R.miss?`　漏 ${R.miss}`:''}`;else if(S.lock>0)h+='　準備…';else if(n&&n.d<40&&n.s<n.R.S0+2)h+='　往下滑過起點開始計時';
     if(BEST[k]!=null&&!S.rc)h+=`　最快 ${fmt(BEST[k])}`;const top=!R&&S.lock<=0&&dist(ST.T)<40;
+    const topF=!R&&S.lock<=0&&dist(ST.F)<70,endF=!R&&n&&n.k===2&&n.s>K.R[2].SF-40;if(topF)h+=`<br><button data-a="g2" class="g${sel===2?' on':''}">🗻 富士山雪道（超長）</button>`;if(endF)h+=`<br>前面「🚡 富士山腳站」按 F 坐纜車回富士山頂　<button data-a="home">🚡 回尖山頂</button>`;
     if(top)h+=`<br><button data-a="g1" class="g${sel===1?' on':''}">🟢 初級道</button> <button data-a="g0" class="g${sel===0?' on':''}">⚫ 高級道</button>`;   /* 2026-10-27.20 選雪道：傳送到那條的起點前面 */
-    if(top&&NET.on&&!S.rc&&!BR&&others().length)h+=`<br><button data-a="race">🏁 邀請大家比賽（${K.R[sel].name}）</button>`;{const bl=ballLine();if(bl)h+='<br>'+bl;}   /* 2026-10-27.21 滾雪球那一行 */if(HUD.innerHTML!==h)HUD.innerHTML=h;};
+    if(top&&NET.on&&!S.rc&&!BR&&others().length)h+=`<br><button data-a="race">🏁 邀請大家比賽（${K.R[sel].name}）</button>`;{const bl=ballLine();if(bl)h+='<br>'+bl;}   /* 2026-10-27.21 滾雪球那一行 */
+    h=S.hmin()?`<button data-a="min" class="mn">＋</button>⛷️ <b>${Math.round(Math.abs(S.v)*3.6)}</b> km/h${R?`　⏱ <b>${fmt(R.t)}</b>`:''}${top?'　（＋ 選雪道）':''}`:'<button data-a="min" class="mn">－</button>'+h;if(HUD.innerHTML!==h)HUD.innerHTML=h;};
   // ---- 連線：狀態、別人畫面 ----
-  S.net=()=>{const o={};if(S.on)o.ski=1;if(S.ride)o.ca=[S.ride.li,Math.round(S.ride.t*1000)/1000];{const b=S.ballNet();if(b)o.snb=b;}return (o.ski||o.ca||o.snb)?o:null;};
+  S.net=()=>{const o={};if(S.on)o.ski=1;if(S.ride)o.ca=[S.ride.li,Math.round(S.ride.t*1000)/1000,S.ride.rev?1:0,PHC[S.ride.ph]|0,S.ride.gid||'',S.ride.seat|0];{const b=S.ballNet();if(b)o.snb=b;}return (o.ski||o.ca||o.snb)?o:null;};
   S.remote=(q,A,dt)=>{S.ballRemote(q,dt||1/30);const s=q.s;if(!s)return;gear(A,!!s.ski);const R=q.rem;if(!R)return;
-    if(s.ca&&LINES[s.ca[0]]){if(!R.cab){R.cab=mkCab(8,false);scene.add(R.cab);}const Ln=LINES[s.ca[0]];linePos(Ln,+s.ca[1]||0,VX);R.cab.visible=true;R.cab.position.copy(VX);R.cab.rotation.y=VX.h;R.cab.updateMatrixWorld(true);CV.set(0,-0.95,-0.5);R.cab.userData.body.localToWorld(CV);A.root.position.copy(CV);}
+    if(s.ca&&LINES[s.ca[0]]){const rs=S.remSeat(q,A,s);if(rs===true){if(R.cab)R.cab.visible=false;return;}   /* 跟我坐同一台：坐在我這台的位子上 */
+      if(!R.cab){R.cab=mkCab(8,false);scene.add(R.cab);}const Ln=LINES[s.ca[0]];linePos(Ln,+s.ca[1]||0,VX);if(s.ca[2])VX.h+=Math.PI;lane(VX);R.cab.visible=true;R.cab.position.copy(VX);R.cab.rotation.y=VX.h;R.cab.updateMatrixWorld(true);seatPoseAt(A,R.cab,s.ca[5]|0,rs.ya,rs.wv);}
     else if(R.cab)R.cab.visible=false;};
   S.tag=()=>S.rc&&S.rc.st==='go'?'⛷️ 滑雪比賽':'';S.LINES=LINES;
   S.dbg=()=>({S,K,ST,LINES,ptS,BEST:()=>BEST,rideStart,finish});
@@ -6778,7 +6973,7 @@ const RACE=(()=>{
   const FUJI=(()=>{const H=820,RB=1500,RT=70,cx=-300,cz=2450,SEG=180,RG=40,pos=[],col=[],idx=[];
     const nz=a=>Math.sin(a*7)*0.5+Math.sin(a*13+1.3)*0.3+Math.sin(a*29+2.1)*0.2;
     const L=new V3(0.55,0.6,-0.58).normalize(),c=new THREE.Color(),cSnow=new THREE.Color('#f3f6fb'),cRock=new THREE.Color('#5b6c84'),cBase=new THREE.Color('#3f5a52'),haze=new THREE.Color('#b9c8d6');
-    for(let j=0;j<=RG;j++){const u=j/RG,r=RT+(RB-RT)*u;for(let i=0;i<=SEG;i++){const a=i/SEG*Math.PI*2,gul=Math.sin(a*36)*Math.sin(a*11+0.7);let y=H*Math.pow(1-u,1.55)*(1-0.035*gul*(1-u));if(j===0)y-=14;
+    for(let j=0;j<=RG;j++){const u=j/RG,r=RT+(RB-RT)*u;for(let i=0;i<=SEG;i++){const a=i/SEG*Math.PI*2,gul=Math.sin(a*36)*Math.sin(a*11+0.7);let y=H*Math.pow(1-u,1.55)*(1-0.035*gul*(1-u)*Math.min(1,u*4));if(j===0)y-=14;
         pos.push(cx+Math.cos(a)*r,y,cz+Math.sin(a)*r);const snowLine=0.6+0.07*nz(a)+0.04*gul;const hh=y/H;
         if(hh>snowLine+0.05)c.copy(cSnow);else if(hh>snowLine-0.03)c.copy(cRock).lerp(cSnow,cl((hh-snowLine+0.03)/0.08,0,1)*(0.5+0.5*Math.max(0,gul)));else c.copy(cBase).lerp(cRock,cl(hh/0.45,0,1));
         col.push(c.r,c.g,c.b);}}
@@ -6786,7 +6981,7 @@ const RACE=(()=>{
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();
     const nr=g.attributes.normal,cc=new THREE.Float32BufferAttribute(col,3);for(let k=0;k<nr.count;k++){const sh=0.62+0.48*Math.max(0,nr.getX(k)*L.x+nr.getY(k)*L.y+nr.getZ(k)*L.z);c.setRGB(cc.getX(k)*sh,cc.getY(k)*sh,cc.getZ(k)*sh).lerp(haze,0.32);cc.setXYZ(k,c.r,c.g,c.b);}
     g.setAttribute('color',cc);const mat=new THREE.MeshBasicMaterial({vertexColors:true,fog:false});const m=new THREE.Mesh(g,mat);scene.add(m);
-    const hills=[];for(const [hx,hz,hr,hh,hc] of [[-1500,1900,900,210,'#7f93a8'],[900,2100,1000,260,'#8597ab'],[-900,1500,700,150,'#6f8a7e'],[500,1500,650,130,'#6c8676'],[1500,1300,700,180,'#8a9bb0'],[-1700,1100,600,140,'#7a8f9a']]){
+    const hills=[];for(const [hx,hz,hr,hh,hc] of [[-1500,1900,900,210,'#7f93a8'],[900,2100,1000,260,'#8597ab'],[-900,1500,700,150,'#6f8a7e'],[1250,1650,600,140,'#6c8676'],[1500,1300,700,180,'#8a9bb0'],[-1700,1100,600,140,'#7a8f9a']]){
       const hg=new THREE.ConeGeometry(hr,hh,48,4);hg.translate(hx,hh/2,hz);const hm=new THREE.Mesh(hg,new THREE.MeshBasicMaterial({color:hc,fog:false}));scene.add(hm);hills.push(hm);}
     return {m,mat,hills};})();
   // 地上的影子（陰影圖只照我家附近，所以賽車用一片模糊的影子）
@@ -7284,7 +7479,7 @@ const RACE=(()=>{
   // ================= 每格（主迴圈都會呼叫）：倒數、對手、導航、HUD =================
   const FOG0=0.004;
   R.tick=dt=>{fxTick(dt);
-    {const inArea=player.pos.y>270;let d=inArea?0.0011:FOG0;if(MOUNT)d=MOUNT.fog(d);   /* 雲霧山：半山腰霧比較濃 */if(Math.abs(scene.fog.density-d)>1e-5)scene.fog.density+=(d-scene.fog.density)*Math.min(1,dt*2);}   // 賽車場：霧淡一點（直線才看得遠、看得到富士山）
+    {const inArea=player.pos.y>270;let d=inArea?0.0011:FOG0;if(MOUNT)d=MOUNT.fog(d);if(player.y>220||FJ.ride||FJ.r(player.pos.x,player.pos.y)<FJ.RB+250)d=Math.min(d,FJW.scope?0.0002:0.00055);   /* 2026-10-27.30 富士山、坐長途纜車：霧淡很多（看得到風景） */   /* 雲霧山：半山腰霧比較濃 */if(Math.abs(scene.fog.density-d)>1e-5)scene.fog.density+=(d-scene.fog.density)*Math.min(1,dt*2);}   // 賽車場：霧淡一點（直線才看得遠、看得到富士山）
     {const k=cl(sun.intensity/3.2,0.08,1);FUJI.mat.color.setScalar(0.25+0.75*k);}   // 晚上富士山變暗
     if(R.on&&GAME.on)R.stop();
     if(!R.on){const p=ME.root.position;if(Math.hypot(p.x-player.pos.x,p.z-player.pos.y)>60){const q=PARK;at(q.s,tmpA);if(Math.hypot(p.x-tmpA.x,p.z-tmpA.z)>5){placeCar(ME,q.s,q.lat);R.h=ME.root.rotation.y;ME.body.position.set(0,0,0);ME.body.rotation.set(0,0,0);}}return;}   // 人走遠了：賽車自己開回起跑線後面停好
@@ -14020,6 +14215,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
   U.netBig=(name,d)=>{const st=S[d.k|0];if(!st)return;if(d.e==='jp'){burst(st);st.msg='👑 大獎';st.msgT=4;toast(`🎉 ${name} 在推幣機第 ${st.i+1} 台中了大獎！`);AUDIO.sfx('cheer');}};
   {const P=document.getElementById('emotePanel'),el=document.createElement('div');el.id='emHold';P.appendChild(el);const t0=EMOTE.toggle;EMOTE.toggle=()=>{t0();if(!P.hidden)U.holdMenu(el);};   /* 動作選單最下面：選拿哪個獎品、炫耀 */
    el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();if(b.dataset.hs){P.hidden=true;document.getElementById('bEmote').classList.remove('on');U.show();return;}if(b.dataset.hd){U.holdPick(b.dataset.hd);U.holdMenu(el);}});}
+  {const b=document.getElementById('hkBtn');if(b)b.onclick=()=>{menu.hidden=true;document.getElementById('bMenu').classList.remove('on');FJW.hkOpen();};}   /* 2026-10-27.32 景點集章本 */
   {const b=document.getElementById('codeMenu');if(b)b.onclick=()=>{menu.hidden=true;document.getElementById('bMenu').classList.remove('on');changeOpen();setTimeout(()=>{const i=pn.querySelector('form.code input');if(i)i.focus();},60);};}   /* 輸入過代碼（W.par）就不會有輸入框，直接是「家長加錢」按鈕 */   /* 選單也可以直接輸入代碼（不用走到推幣樂園） */
   U.dbg=()=>({S,W,phys,draw,fill,hole,RL,dropOne,credit,saveF,loadF,IN,changeOpen,prizeOpen,mkPrize,nearSt,FD,FW,WIN_W});
   return U;})();
@@ -14312,6 +14508,189 @@ const FISH=(()=>{const F={on:false,seat:-1};
    西北角：扭蛋機 3 台（動物、交通、點心，20 元一次；金色的是隱藏版）、夾娃娃機（30 元一次，搖桿移爪子、按「抓」）。轉到、夾到的放進推幣樂園的「獎品」（可以拿著、炫耀）。
    零用錢跟推幣樂園同一個錢包（PUSH.W）；店裡的東西（熱狗、蒸氣、爪子、娃娃）走到店附近才做出來、才動（省電、省記憶體）。
    擺設（熱食台、機台外殼、海報、立牌）在建便利商店那段（合併網格）。只有自己看得到吃東西、夾娃娃（不連線）。 */
+/* ---------------- 富士山頂、長途纜車的風景（2026-10-27.30 使用者：「纜車想搭一個長途的，搭到富士山如何？但是要有風景」→ 選了：湖和瀑布、雲海和飛鳥、森林和溫泉小鎮、熱氣球和日落；
+   山頂：觀景台和望遠鏡、雪地可以玩、從山頂滑雪下來、許願和紀念章） ----------------
+   - 山頂（806 m）：雪地平台（推雪球、丟雪球、4 個雪人）、觀景台＋3 支望遠鏡（按 F 看：拉近、拖曳轉）、山頂小屋（蓋紀念章＝登頂紀錄、掛許願牌：牌子掛在旁邊的架子上）
+   - 風景（走到富士山附近、坐長途纜車才做出來）：山腳的湖＋瀑布、楓紅森林、溫泉小鎮（冒煙的小屋、紅色拱門、露天溫泉）、半山腰一圈雲海、熱氣球；坐長途纜車時旁邊有一群鳥跟著飛
+   - 纜車線、車站、雪道在 SKI 那段（LINES[3]、K.R[2]）。 */
+const FJW=(()=>{const W={scope:null};
+  const $=id=>document.getElementById(id),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=(a,b)=>a+Math.random()*(b-a);
+  const C={x:FJ.cx,z:FJ.cz},T=SKI.ST.T,dT=(()=>{const dx=T.x-C.x,dz=T.z-C.z,l=Math.hypot(dx,dz);return {x:dx/l,z:dz/l};})();
+  const rot=(v,a)=>({x:v.x*Math.cos(a)-v.z*Math.sin(a),z:v.x*Math.sin(a)+v.z*Math.cos(a)}),at=(a,r)=>{const v=rot(dT,a);return {x:C.x+v.x*r,z:C.z+v.z*r};};
+  const SV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-fuji')||'{}')||{};}catch(_){}return {n:o.n|0,first:o.first||'',last:o.last||'',wish:Array.isArray(o.wish)?o.wish.slice(-12):[]};})();
+  const save=()=>{try{localStorage.setItem('home-fuji',JSON.stringify(SV));}catch(_){}};W.SV=SV;
+  const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+  const bigT=t=>{const el=$('gBig');if(!el)return;el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');};
+  // ================= 山頂（一開始就做：站得上去） =================
+  const TOPY=FJ.TOP,G=new THREE.Group();scene.add(G);
+  {const snow=std({color:'#f3f7fb',roughness:0.85}),wood=std({color:'#7a5232',roughness:0.85}),dark=std({color:'#3a2a20',roughness:0.8}),stl=std({color:'#9aa0a8',roughness:0.4,metalness:0.6});
+   const disc=new THREE.Mesh(new THREE.CircleGeometry(FJ.SR+2,64).rotateX(-Math.PI/2),snow);disc.position.set(C.x,TOPY+0.02,C.z);disc.receiveShadow=true;G.add(disc);
+   for(let k=0;k<26;k++){const a=k/26*Math.PI*2+rnd(-0.1,0.1),r=FJ.SR-rnd(1,5),rk=new THREE.Mesh(new THREE.DodecahedronGeometry(rnd(0.6,1.6),0),std({color:'#6b6560',roughness:0.95}));rk.position.set(C.x+Math.cos(a)*r,TOPY+0.2,C.z+Math.sin(a)*r);rk.rotation.set(rnd(0,3),rnd(0,3),0);rk.scale.y=0.6;G.add(rk);}   /* 火山口邊的石頭 */
+   // 觀景台（朝尖山那邊）＋3 支望遠鏡
+   const D=at(0.6,64),dh=Math.atan2(D.x-C.x,D.z-C.z);W.deck={x:D.x,z:D.z,h:dh};
+   {const g=new THREE.Group();g.position.set(D.x,TOPY,D.z);g.rotation.y=dh;G.add(g);const pl=new THREE.Mesh(new THREE.BoxGeometry(14,0.3,7),wood);pl.position.set(0,0.15,1.5);pl.receiveShadow=true;g.add(pl);
+    for(let i=-7;i<=7;i+=1.75){const p=new THREE.Mesh(new THREE.BoxGeometry(0.1,1.1,0.1),wood);p.position.set(i,0.85,5);g.add(p);}const rl=new THREE.Mesh(new THREE.BoxGeometry(14.1,0.1,0.12),wood);rl.position.set(0,1.38,5);g.add(rl);const rl2=rl.clone();rl2.position.y=0.9;g.add(rl2);
+    W.scopes=[-4,0,4].map(x=>{const t=new THREE.Group();t.position.set(x,0.3,3.6);const leg=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.09,1.05,8),stl);leg.position.y=0.52;t.add(leg);const bd=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.15,0.55,12).rotateX(Math.PI/2),std({color:'#2f6fd0',roughness:0.4,metalness:0.3}));bd.position.set(0,1.15,0.05);bd.rotation.x=-0.15;t.add(bd);g.add(t);
+      g.updateMatrixWorld(true);const w=new V3();t.getWorldPosition(w);return {x:w.x,z:w.z,y:TOPY+0.3};});
+    surfaces.push({x0:D.x-8,x1:D.x+8,z0:D.z-8,z1:D.z+8,y:TOPY+0.3,off:false,deck:1});
+    const lab=labelSprite('🔭 觀景台','站在望遠鏡前面按 F 看','rgba(31,111,184,0.88)');lab.position.set(D.x,TOPY+3.4,D.z);lab.scale.multiplyScalar(0.7);G.add(lab);}
+   // 山頂小屋（紀念章、許願）＋許願牌架子
+   const H=at(-1.7,38),hh=Math.atan2(C.x-H.x,C.z-H.z);W.hut={x:H.x,z:H.z,h:hh};
+   {const g=new THREE.Group();g.position.set(H.x,TOPY,H.z);g.rotation.y=hh;G.add(g);const wl=new THREE.Mesh(new THREE.BoxGeometry(6,3,4.5),wood);wl.position.y=1.5;wl.castShadow=true;g.add(wl);
+    const rf=new THREE.Mesh(new THREE.ConeGeometry(4.6,1.9,4).rotateY(Math.PI/4),dark);rf.scale.set(1,1,0.82);rf.position.y=3.9;g.add(rf);const sr=new THREE.Mesh(new THREE.ConeGeometry(4.65,0.5,4).rotateY(Math.PI/4),snow);sr.scale.set(1,1,0.83);sr.position.y=4.6;g.add(sr);
+    const dr=new THREE.Mesh(new THREE.BoxGeometry(1.2,2.1,0.06),dark);dr.position.set(0,1.05,2.26);g.add(dr);
+    {const [c,x]=cvs(512,128);x.fillStyle='#3a2a20';x.fillRect(0,0,512,128);x.fillStyle='#ffe9b0';x.font=`900 60px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText('🗻 富士山頂小屋',256,66);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+     const sg=new THREE.Mesh(new THREE.PlaneGeometry(3.4,0.85),new THREE.MeshBasicMaterial({map:t,toneMapped:false}));sg.position.set(0,2.6,2.27);g.add(sg);}
+    addCircle(H.x,H.z,2.8,3.2);
+    // 許願牌架：兩根柱子＋三條橫桿，牌子掛上去
+    const rk=new THREE.Group();rk.position.set(4.6,0,1.2);g.add(rk);for(const x of [-1.6,1.6]){const p=new THREE.Mesh(new THREE.BoxGeometry(0.12,2.2,0.12),wood);p.position.set(x,1.1,0);rk.add(p);}for(const y of [1.2,1.6,2.0]){const b=new THREE.Mesh(new THREE.BoxGeometry(3.3,0.06,0.06),wood);b.position.y=y;rk.add(b);}
+    W.plq=[];for(let i=0;i<12;i++){const [c,x]=cvs(160,110),t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const m=new THREE.Mesh(new THREE.PlaneGeometry(0.46,0.32),new THREE.MeshStandardMaterial({map:t,roughness:0.8,side:THREE.DoubleSide}));m.position.set(-1.25+(i%4)*0.83,2.0-Math.floor(i/4)*0.4-0.19,0.05);m.visible=false;rk.add(m);W.plq.push({m,c,x,t});}
+    const lab=labelSprite('🗻 富士山頂小屋','按 F：蓋紀念章、掛許願牌','rgba(122,63,184,0.9)');lab.position.set(H.x,TOPY+5.6,H.z);lab.scale.multiplyScalar(0.7);G.add(lab);}
+   for(const [a,r,k] of [[2.4,30,0],[2.9,42,1],[3.4,34,2],[-2.6,50,3]]){const p=at(a,r);SKI.mkSnowman(p.x,p.z,k);}}   /* 雪人 4 個 */
+  function plqDraw(){SV.wish.slice(-12).forEach((w,i)=>{const q=W.plq[i];if(!q)return;const g=q.x;g.fillStyle='#e8c995';g.fillRect(0,0,160,110);g.strokeStyle='#8a5a2e';g.lineWidth=6;g.strokeRect(3,3,154,104);g.fillStyle='#5a2a10';g.font=`800 ${w.length>6?22:28}px ${FONT}`;g.textAlign='center';g.textBaseline='middle';
+      const a=w.slice(0,8),b=w.slice(8,16);g.fillText(a,80,b?40:56,148);if(b)g.fillText(b,80,74,148);q.t.needsUpdate=true;q.m.visible=true;});}
+  plqDraw();
+  // ================= 風景（靠近才做） =================
+  let built=false;const SC=new THREE.Group();SC.visible=false;scene.add(SC);const STEAM=[],BAL=[],BIRD=[],CLD=[];let fall=null;
+  const soft=(()=>{const [c,g]=cvs(64,64),r=g.createRadialGradient(32,32,2,32,32,30);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
+  const LK={x:476,z:1080};
+  function build(){if(built)return;built=true;
+    const water=std({color:'#3a86b8',roughness:0.12,metalness:0.35,transparent:true,opacity:0.92});
+    // 湖（照纜車方向轉）＋沙岸
+    const la=Math.atan2(T.x-SKI.ST.F.x,T.z-SKI.ST.F.z);
+    {const sh=new THREE.Mesh(new THREE.CircleGeometry(1,48).rotateX(-Math.PI/2),std({color:'#c9b98a',roughness:1}));sh.scale.set(205,1,145);sh.position.set(LK.x,0.06,LK.z);sh.rotation.y=la;SC.add(sh);
+     const lk=new THREE.Mesh(new THREE.CircleGeometry(1,48).rotateX(-Math.PI/2),water);lk.scale.set(190,1,130);lk.position.set(LK.x,0.14,LK.z);lk.rotation.y=la;SC.add(lk);}
+    // 瀑布：湖東邊的岩壁
+    {const CX=700,CZ=1105,rock=std({color:'#6b6f73',roughness:0.95});const cliff=new THREE.Mesh(new THREE.BoxGeometry(46,72,40),rock);cliff.position.set(CX,36,CZ);SC.add(cliff);
+     for(let k=0;k<9;k++){const r=new THREE.Mesh(new THREE.DodecahedronGeometry(rnd(10,18),0),rock);r.position.set(CX+rnd(-20,20),rnd(30,75),CZ+rnd(-18,18));SC.add(r);}
+     const tr=new THREE.Mesh(new THREE.ConeGeometry(14,10,8),std({color:'#3f6a3a',roughness:1}));tr.position.set(CX,78,CZ);SC.add(tr);
+     const [c,g]=cvs(64,256);for(let x=0;x<64;x+=4){g.fillStyle=`rgba(${220+Math.random()*35|0},${235+Math.random()*20|0},255,${0.55+Math.random()*0.4})`;g.fillRect(x,0,4,256);for(let y=0;y<256;y+=8+Math.random()*20){g.fillStyle='rgba(255,255,255,0.9)';g.fillRect(x,y,4,3+Math.random()*6);}}
+     const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2,3);fall=t;const wf=new THREE.Mesh(new THREE.PlaneGeometry(14,70),new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false}));wf.position.set(CX-23.2,35,CZ);wf.rotation.y=-Math.PI/2;SC.add(wf);
+     for(let k=0;k<10;k++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:soft,color:'#ffffff',transparent:true,opacity:0,depthWrite:false}));s.userData={t:k*0.4,src:'fall',x:CX-26,z:CZ};SC.add(s);STEAM.push(s);}}
+    // 楓紅森林
+    {const N=280,tg=new THREE.CylinderGeometry(0.3,0.45,3,6).translate(0,1.5,0),cg=new THREE.IcosahedronGeometry(3.2,0).translate(0,5.2,0);const tm=new THREE.InstancedMesh(tg,std({color:'#6b4a2f',roughness:0.9}),N),cm=new THREE.InstancedMesh(cg,std({color:'#ffffff',roughness:0.85,flatShading:true}),N);
+     const mm=new THREE.Matrix4(),q=new THREE.Quaternion(),sv=new V3(),pv=new V3(),col=new THREE.Color(),PAL=['#d8432a','#e8752a','#f2b33a','#c0302a','#e05a3a','#9aa83a'];let n=0;
+     for(let tries=0;tries<3000&&n<N;tries++){const a=Math.random()*Math.PI*2,r=rnd(170,560),x=LK.x+Math.cos(a)*r*1.2,z=LK.z+Math.sin(a)*r;if(FJ.r(x,z)<FJ.RB-40&&FJ.h(x,z)>60)continue;if(Math.hypot(x-700,z-1105)<45||Math.hypot(x-415,z-985)<60)continue;
+       const y=FJ.inside(x,z)?FJ.h(x,z)-0.3:0,sc=rnd(0.8,1.5);mm.compose(pv.set(x,y,z),q.setFromAxisAngle(new V3(0,1,0),Math.random()*6),sv.set(sc,sc,sc));tm.setMatrixAt(n,mm);cm.setMatrixAt(n,mm);cm.setColorAt(n,col.set(PAL[n%PAL.length]));n++;}
+     tm.count=cm.count=n;for(const m of [tm,cm]){m.frustumCulled=false;SC.add(m);}}
+    // 溫泉小鎮：冒煙的小屋、紅色拱門、露天溫泉
+    {const wall=std({color:'#efe4cc',roughness:0.9}),roof=std({color:'#4a3428',roughness:0.8}),red=std({color:'#c8322a',roughness:0.6});
+     for(let k=0;k<7;k++){const x=372+(k%4)*30+rnd(-4,4),z=995+Math.floor(k/4)*24+rnd(-3,3),g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rnd(-0.3,0.3);const w=new THREE.Mesh(new THREE.BoxGeometry(9,4.5,7),wall);w.position.y=2.25;g.add(w);
+       const r=new THREE.Mesh(new THREE.ConeGeometry(7.4,3.2,4).rotateY(Math.PI/4),roof);r.scale.set(1,1,0.8);r.position.y=6.1;g.add(r);SC.add(g);
+       for(let i=0;i<2;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:soft,color:'#ffffff',transparent:true,opacity:0,depthWrite:false}));s.userData={t:i*1.4+k*0.3,src:'house',x:x+rnd(-2,2),z:z+rnd(-2,2),y:7};SC.add(s);STEAM.push(s);}}
+     {const g=new THREE.Group();g.position.set(420,0,975);g.rotation.y=la;for(const x of [-4.5,4.5]){const p=new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.5,9,10),red);p.position.set(x,4.5,0);g.add(p);}
+      const b1=new THREE.Mesh(new THREE.BoxGeometry(13,0.9,1.1),red);b1.position.y=9.2;g.add(b1);const b2=new THREE.Mesh(new THREE.BoxGeometry(10.5,0.6,0.8),red);b2.position.y=7.6;g.add(b2);const tp=new THREE.Mesh(new THREE.BoxGeometry(14,0.4,1.4),std({color:'#2a2a2a'}));tp.position.y=9.8;g.add(tp);SC.add(g);}   /* 紅色拱門 */
+     {const p=new THREE.Mesh(new THREE.CircleGeometry(9,32).rotateX(-Math.PI/2),std({color:'#7fc8d8',roughness:0.1,metalness:0.2}));p.position.set(500,0.2,1010);SC.add(p);const rim=new THREE.Mesh(new THREE.TorusGeometry(9,0.8,6,32).rotateX(Math.PI/2),std({color:'#7b756c',roughness:1}));rim.position.set(500,0.3,1010);SC.add(rim);
+      for(let i=0;i<8;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:soft,color:'#ffffff',transparent:true,opacity:0,depthWrite:false}));s.userData={t:i*0.5,src:'pool',x:500+rnd(-6,6),z:1010+rnd(-6,6),y:1};SC.add(s);STEAM.push(s);}}}   /* 露天溫泉 */
+    // 雲海：富士山半山腰一圈（纜車在雲上面一點經過）
+    {const [c,g]=cvs(256,128);for(let k=0;k<14;k++){const x=rnd(40,216),y=rnd(50,90),r=rnd(26,52),gr=g.createRadialGradient(x,y,2,x,y,r);gr.addColorStop(0,'rgba(255,255,255,0.95)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,256,128);}const t=new THREE.CanvasTexture(c);
+     for(let k=0;k<46;k++){const a=-Math.PI/2+rnd(-1.5,1.5)+Math.atan2(dT.z,dT.x)+Math.PI/2,r=rnd(520,1380),s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,color:'#ffffff',transparent:true,opacity:rnd(0.7,0.92),depthWrite:false,fog:false}));
+       const x=C.x+Math.cos(a)*r,z=C.z+Math.sin(a)*r;s.position.set(x,rnd(430,490),z);const w=rnd(180,300);s.scale.set(w,w*0.4,1);s.userData={a,r,sp:rnd(0.004,0.01)};SC.add(s);CLD.push(s);}}
+    // 熱氣球：纜車路線旁邊
+    {const cols=[['#e0262c','#ffd23a'],['#1f6fe0','#ffffff'],['#2e9a4e','#ffcf2f'],['#9b5cf6','#ff7ab0'],['#ff8a1a','#1f3b6e']];
+     cols.forEach((cc,k)=>{const [c,g]=cvs(128,64);for(let i=0;i<8;i++){g.fillStyle=cc[i%2];g.fillRect(i*16,0,16,64);}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const gr=new THREE.Group();
+       const env=new THREE.Mesh(new THREE.SphereGeometry(9,20,14),std({map:t,roughness:0.6}));env.scale.y=1.2;env.position.y=12;gr.add(env);const bk=new THREE.Mesh(new THREE.BoxGeometry(2.4,1.8,2.4),std({color:'#8a5a2e'}));bk.position.y=0.9;gr.add(bk);
+       for(const [x,z] of [[-1,-1],[1,-1],[-1,1],[1,1]]){const rp=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,5,4),std({color:'#444'}));rp.position.set(x,4,z);gr.add(rp);}
+       const u=0.12+k*0.15,F=SKI.ST.F,x=T.x+(F.x-T.x)*u,z=T.z+(F.z-T.z)*u,sd=k%2?1:-1,px=x+(-(F.z-T.z))/2328*sd*rnd(70,140),pz=z+((F.x-T.x))/2328*sd*rnd(70,140);
+       gr.position.set(px,rnd(140,380),pz);gr.userData={y0:gr.position.y,ph:Math.random()*6};SC.add(gr);BAL.push(gr);});}
+    // 鳥群（坐長途纜車時跟著飛）
+    {const wg=new THREE.BufferGeometry();wg.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0,-1.1,0,0.35,0,0,0.5],3));wg.computeVertexNormals();const bm=new THREE.MeshBasicMaterial({color:'#2a2d33',side:THREE.DoubleSide});
+     for(let k=0;k<12;k++){const b=new THREE.Group(),L=new THREE.Mesh(wg,bm),R=new THREE.Mesh(wg,bm);R.scale.x=-1;b.add(L,R);b.userData={L,R,ox:rnd(-18,18),oy:rnd(-4,6),oz:rnd(-10,10),ph:Math.random()*6};b.visible=false;SC.add(b);BIRD.push(b);}}
+    SC.traverse(o=>{o.userData.noCull=true;});}
+  // ================= 每格 =================
+  const CV=new V3();
+  W.tick=dt=>{if(!hkBuilt&&started)hkBuild();const p=player.pos,near=FJ.ride||p.y>760||FJ.r(p.x,p.y)<FJ.RB+600||player.y>260;if(near)build();if(built)SC.visible=near;if(!near||!built)return;const t=performance.now()/1000;
+    if(fall)fall.offset.y-=dt*1.4;
+    for(const s of STEAM){const u=s.userData;u.t+=dt;const T2=u.src==='fall'?2:3;if(u.t>T2)u.t-=T2;const k=u.t/T2;
+      if(u.src==='fall'){s.position.set(u.x+Math.sin(u.t*3)*3,2+k*14,u.z+Math.cos(u.t*2)*5);s.scale.setScalar(8+k*12);s.material.opacity=0.55*Math.sin(k*Math.PI);}
+      else{s.position.set(u.x+Math.sin(t*0.5+u.t)*0.6,u.y+k*(u.src==='pool'?4:7),u.z);s.scale.setScalar((u.src==='pool'?2:2.6)+k*3);s.material.opacity=0.45*Math.sin(k*Math.PI);}}
+    for(const c of CLD){c.visible=!W.scope;const u=c.userData;u.a+=u.sp*dt*0.1;   /* 望遠鏡看得穿雲 */c.position.x=C.x+Math.cos(u.a)*u.r;c.position.z=C.z+Math.sin(u.a)*u.r;}
+    for(const b of BAL){const u=b.userData;b.position.y=u.y0+Math.sin(t*0.3+u.ph)*6;b.rotation.y=t*0.05+u.ph;}
+    const ri=SKI.rideInfo&&SKI.rideInfo(),cab=SKI.cab&&SKI.cab(),fly=ri&&ri.fuji&&cab&&ri.ph==='go';
+    for(const b of BIRD){b.visible=!!fly;if(!fly)continue;const u=b.userData;cab.getWorldPosition(CV);const h=cab.rotation.y,sx=Math.sin(h),cz=Math.cos(h);
+      const ox=u.ox+Math.sin(t*0.4+u.ph)*4,oz=26+u.oz+Math.cos(t*0.3+u.ph)*3;b.position.set(CV.x+ox*cz+oz*sx,CV.y+u.oy+Math.sin(t*1.3+u.ph)*1.2,CV.z-ox*sx+oz*cz);b.rotation.y=h;const f=Math.sin(t*9+u.ph)*0.7;u.L.rotation.z=f;u.R.rotation.z=-f;}};
+  // ================= 2026-10-27.32 景點集章（使用者：「先做富士山腳車站（坐回山頂）、雪道旗門跳台、多站集章」）=================
+  //   12 個景點各有一座「集章台」（木頭台子＋紅色小屋頂），走過去按 F 蓋章；富士山頂那一格在山頂小屋蓋（原本的紀念章）。
+  //   每個景點第一次蓋章 20 元（富士山頂是小屋給 50 元），12 個全部蓋到再 300 元；集章本在選單「📒 景點集章本」，沒蓋到的可以按「📍 前往」。存 home-hanko。
+  //   台子走到附近才做（W.tick 第一次跑的時候：SPOTS 在後面才有）。
+  const HKL=[['alley','我家巷口','🏠','巷口',2.5,3],['ring','大圓環','⭕','大圓環',-1,9],['jump','跳台公園','🛹','跳台公園',3,-3],['night','夜市','🏮','夜市',3,3],['castle','城堡豪宅','🏰','城堡豪宅',3,6],['uni','大學','🎓','大學',11,5],
+    ['race','賽車場','🏎️','賽車場',-4,3],['swirl','大漩渦','🌀','大漩渦',3,6],['mtn','雲霧山頂','⛰️','雲霧山（山頂）',3,-4],['peak','尖山頂','⛷️',null],['fjb','富士山腳','🚡',null],['fuji','富士山頂','🗻',null]].map(([id,n,e,sp,f,r])=>({id,n,e,sp,f,r}));
+  const HV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-hanko')||'{}')||{};}catch(_){}return o&&typeof o==='object'?o:{};})();
+  if(SV.n&&!HV.fuji)HV.fuji={d:SV.first||today(),n:SV.n};   /* 以前在山頂小屋蓋過 → 集章本上也算 */
+  const hkSave=()=>{try{localStorage.setItem('home-hanko',JSON.stringify(HV));}catch(_){}};
+  const hkN=()=>HKL.filter(s=>HV[s.id]).length;
+  let hkBuilt=false;
+  function hkBuild(){if(hkBuilt)return;hkBuilt=true;const ST2=SKI.ST,wood=std({color:'#8a5a2e',roughness:0.8}),top=std({color:'#f4e6c8',roughness:0.7}),red=std({color:'#c0392b',roughness:0.6}),ink=std({color:'#7a1018',roughness:0.9});
+    const gB=new THREE.BoxGeometry(0.9,0.95,0.55).translate(0,0.475,0),gT=new THREE.BoxGeometry(1.0,0.06,0.66),gP=new THREE.BoxGeometry(0.07,1.4,0.07).translate(0,0.7,0),gR=new THREE.BoxGeometry(1.25,0.08,0.85),gS=new THREE.CylinderGeometry(0.06,0.07,0.14,10).translate(0,0.07,0),gK=new THREE.SphereGeometry(0.05,8,6),gI=new THREE.BoxGeometry(0.17,0.03,0.13);
+    for(const s of HKL){if(s.id==='fuji'){s.x=W.hut.x;s.z=W.hut.z;s.y=TOPY;s.hut=1;continue;}
+      if(s.sp){const p=SPOTS.find(q=>q.name===s.sp);if(!p)continue;const fx=-Math.sin(p.yaw),fz=-Math.cos(p.yaw),rx=Math.cos(p.yaw),rz=-Math.sin(p.yaw);s.x=p.x+fx*s.f+rx*s.r;s.z=p.z+fz*s.f+rz*s.r;s.y=heightAt(s.x,s.z,(p.y||0)+1.5);s.ry=Math.atan2(p.x-s.x,p.z-s.z);}   /* 景點傳送點的右前方 3 m，面向傳送點 */
+      else if(s.id==='peak'){const T=ST2.T;s.x=MOUNT.PEAK.x-5;s.z=MOUNT.PEAK.z+17;s.y=heightAt(s.x,s.z,T.y+3);s.ry=Math.atan2(T.x-s.x,T.z-s.z);}   /* 山頂平台南邊（一樣高）：離纜繩 10 m、離雪道邊 5 m */
+      else{const G=ST2.G;s.x=G.x+10;s.z=G.z-3;s.y=heightAt(s.x,s.z,G.y+3);s.ry=Math.atan2(G.x-s.x,G.z-s.z);}
+      const g=new THREE.Group();g.position.set(s.x,s.y,s.z);g.rotation.y=s.ry;scene.add(g);const add=(geo,m,x,y,z,rx)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);if(rx)o.rotation.x=rx;o.castShadow=true;g.add(o);return o;};
+      add(gB,wood,0,0,0);add(gT,top,0,0.98,0.02,0.22);add(gI,ink,-0.2,1.02,0.08,0.22);add(gS,red,0.2,1.0,0.06,0.22);add(gK,wood,0.2,1.17,0.04);
+      for(const x of [-0.5,0.5])add(gP,wood,x,0.95,-0.3);add(gR,red,0,2.38,-0.12,-0.18);
+      addCircle(s.x,s.z,0.5,1.1);const lab=labelSprite(`${s.e} ${s.n}`,'🖋️ 集章台・按 F 蓋章','rgba(176,40,48,0.9)');lab.position.set(s.x,s.y+3.1,s.z);lab.scale.multiplyScalar(0.5);scene.add(lab);}}
+  const hkNear=()=>{if(!hkBuilt||!started||mode!=='walk')return null;const p=player.pos;for(const s of HKL){if(s.hut||s.x==null)continue;if(Math.hypot(p.x-s.x,p.y-s.z)<1.9&&Math.abs(player.y-s.y)<2.5)return s;}return null;};
+  function hkMark(id,silent){const s=HKL.find(q=>q.id===id);if(!s)return '';const d=today(),o=HV[id],first=!o;HV[id]=o?{d:o.d,n:(o.n|0)+(o.l===d?0:1),l:d}:{d,n:1,l:d};hkSave();
+    let msg=first?`🖋️ 蓋到「${s.n}」了！（${hkN()}／${HKL.length}）`:`🖋️ 「${s.n}」再蓋一次（第 ${HV[id].n} 天）`;
+    if(first&&id!=='fuji'){EARN(20,`📒 集章：${s.n}`);msg+='　+20 元';}
+    if(first&&hkN()===HKL.length&&!HV.all){HV.all=d;hkSave();EARN(300,'📒 景點集章本集滿了');msg='🏅 12 個景點全部蓋滿了！送你 300 元零用錢';if(!silent){bigT('🏅 集章本集滿了！');AUDIO.sfx('bigcheer');}}
+    else if(!silent){bigT(first?`🖋️ ${s.e} ${s.n}`:'🖋️ 蓋好了');AUDIO.sfx(first?'cheer':'click');}
+    return msg;}
+  const hk=document.createElement('div');hk.id='hkPanel';hk.className='panel';hk.hidden=true;document.body.appendChild(hk);
+  {const st=document.createElement('style');st.textContent=`#hkPanel[hidden]{display:none!important}#hkPanel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(460px,calc(100vw - 32px));max-height:88vh;overflow:auto;overflow-x:hidden;z-index:61;padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+    #hkPanel .hd{display:flex;justify-content:space-between;align-items:center;font-size:18px;font-weight:800}#hkPanel .hd button{background:#444;color:#fff;border:0;border-radius:8px;padding:4px 10px}
+    #hkPanel .msg{background:#3fbf7a;border-radius:10px;padding:6px 8px;font-weight:800}#hkPanel .bar{height:10px;border-radius:5px;background:rgba(255,255,255,.15);overflow:hidden}#hkPanel .bar i{display:block;height:100%;background:linear-gradient(90deg,#ff6a5a,#ffcf4a)}
+    #hkPanel .gd{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}#hkPanel .c{display:flex;flex-direction:column;align-items:center;gap:4px;background:rgba(255,255,255,.06);border-radius:12px;padding:8px 4px;font-size:14px;font-weight:800;text-align:center}
+    #hkPanel .ink{width:74px;height:74px;border-radius:50%;border:4px solid #d8262d;color:#d8262d;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:12px;line-height:1.2;background:rgba(255,255,255,.92)}#hkPanel .ink b{font-size:24px}
+    #hkPanel .c.no .ink{border:3px dashed rgba(255,255,255,.35);color:rgba(255,255,255,.4);background:none}#hkPanel .c.no .ink b{opacity:.35}#hkPanel .c.new .ink{animation:hkIn .5s ease-out}
+    @keyframes hkIn{0%{transform:scale(1.8) rotate(-30deg);opacity:0}70%{transform:scale(.92) rotate(var(--r))}100%{transform:scale(1) rotate(var(--r))}}
+    #hkPanel .c button{font-size:12px;padding:4px 8px;border-radius:8px;border:0;background:#3a6fd0;color:#fff;font-weight:800}#hkPanel .ft{font-size:13px;opacity:.85;line-height:1.6}`;document.head.appendChild(st);}
+  for(const ev of ['pointerdown','touchstart','keydown','wheel'])hk.addEventListener(ev,e=>e.stopPropagation());
+  function hkOpen(msg,nw){if(!hkBuilt)hkBuild();const n=hkN();
+    hk.innerHTML=`<div class="hd">📒 景點集章本（${n}／${HKL.length}）<button data-x="1">✕</button></div>${msg?`<div class="msg">${msg}</div>`:''}<div class="bar"><i style="width:${n/HKL.length*100}%"></i></div>
+      <div class="gd">${HKL.map((s,i)=>{const o=HV[s.id],r=((i*37)%17-8);return `<div class="c${o?'':' no'}${nw===s.id?' new':''}"><div class="ink" style="transform:rotate(${o?r:0}deg);--r:${r}deg">${o?s.n.slice(0,5):''}<b>${s.e}</b>${o?o.d.slice(2).replace(/-/g,'.'):'？'}</div>${s.n}${o?'':`<button data-go="${s.id}">📍 前往</button>`}</div>`;}).join('')}</div>
+      <div class="ft">走到景點的「🖋️ 集章台」按 F 蓋章（富士山頂在山頂小屋蓋）。每個景點第一次蓋 20 元，${HKL.length} 個全部蓋滿再送 300 元${HV.all?'（✔ 已經集滿了）':''}。</div>`;hk.hidden=false;}
+  hk.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.x){hk.hidden=true;return;}
+    if(b.dataset.go){const s=HKL.find(q=>q.id===b.dataset.go);if(!s||s.x==null)return;hk.hidden=true;if(mode==='aerial')toggleAerial();if(SKI.ride)return toast('坐纜車的時候不能傳送');
+      if(s.hut){const h=W.hut;teleport(h.x+Math.sin(h.h)*4.5,h.z+Math.cos(h.h)*4.5,h.h,TOPY);}else{const fx=Math.sin(s.ry),fz=Math.cos(s.ry);teleport(s.x+fx*1.5,s.z+fz*1.5,Math.atan2(fx,fz),s.y);}}});   /* 站在台子前面、面向台子（1.5 m：一到就可以按 F） */
+  W.hkOpen=()=>hkOpen();
+  W.hkDbg=()=>({HKL,HV,hkMark,hkBuild});
+  // ================= 望遠鏡、山頂小屋：走過去按 F =================
+  const onTop=()=>started&&mode==='walk'&&FJ.r(player.pos.x,player.pos.y)<FJ.SR+8&&player.y>TOPY-2;
+  W.label=()=>{if(W.scope)return {k:'exit',t:'🔭 離開望遠鏡'};{const s=hkNear();if(s)return {k:'hk',id:s.id,t:`🖋️ 蓋章：${s.e} ${s.n}`};}if(!onTop()||(typeof SKI!=='undefined'&&SKI.on))return null;const p=player.pos;
+    for(let i=0;i<W.scopes.length;i++){const s=W.scopes[i];if(Math.hypot(p.x-s.x,p.y-s.z)<1.1)return {k:'scope',i,t:'🔭 看望遠鏡'};}
+    if(Math.hypot(p.x-W.hut.x,p.y-W.hut.z)<5.2)return {k:'hut',t:'🗻 山頂小屋：紀念章、許願'};return null;};
+  W.act=a=>{if(a.k==='hk'){const m=hkMark(a.id);hkOpen(m,a.id);return;}if(a.k==='exit')W.exit();else if(a.k==='scope')scopeOn(a.i);else if(a.k==='hut')hutOpen();};
+  let fov0=null;
+  function scopeOn(i){const s=W.scopes[i];W.scope={i,x:s.x,z:s.z,y:s.y+1.45};fov0=camera.fov;player.yaw=Math.atan2(-dT.x,-dT.z);player.pitch=-0.27;player.vel.set(0,0);toast('🔭 拖曳轉方向看，往遠處看得到雲霧山、尖山、我家那邊；按 F 或 Esc 離開');AUDIO.sfx('click');syncActBtn();}
+  W.exit=()=>{if(!W.scope)return;W.scope=null;if(fov0!=null){camera.fov=fov0;camera.updateProjectionMatrix();fov0=null;}syncActBtn();};
+  W.scopeCam=()=>{const s=W.scope;camera.position.set(s.x-Math.sin(player.yaw)*9,s.y+1,s.z-Math.cos(player.yaw)*9);   /* 往前 9 m：欄杆、山頂雪地邊緣不會擋到 */camera.rotation.set(player.pitch,player.yaw,0,'YXZ');if(camera.fov!==14){camera.fov=14;camera.updateProjectionMatrix();}};
+  W.key=e=>{if(W.scope&&e.code==='Escape'){W.exit();return true;}return false;};
+  // 山頂小屋：紀念章（登頂紀錄）、許願牌
+  const pn=document.createElement('div');pn.id='fjPanel';pn.className='panel';pn.hidden=true;document.body.appendChild(pn);
+  {const st=document.createElement('style');st.textContent=`#fjPanel[hidden]{display:none!important}#fjPanel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,calc(100vw - 32px));max-height:86vh;overflow:auto;z-index:60;padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+    #fjPanel .hd{display:flex;justify-content:space-between;align-items:center;font-size:18px;font-weight:800}#fjPanel .hd button{background:#444;color:#fff;border:0;border-radius:8px;padding:4px 10px}
+    #fjPanel .stamp{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.07);border-radius:12px;padding:10px}#fjPanel .stamp .ink{width:86px;height:86px;border-radius:50%;border:4px solid #d8262d;color:#d8262d;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:13px;line-height:1.25;transform:rotate(-8deg);flex:none;background:rgba(255,255,255,.9)}
+    #fjPanel .stamp .ink b{font-size:22px}#fjPanel .stamp.no .ink{opacity:.25}#fjPanel .stamp .t{font-size:14px;line-height:1.6}
+    #fjPanel button.o{font-size:16px;font-weight:800;padding:10px;border-radius:12px;border:0;background:linear-gradient(180deg,#ff6a5a,#d8262d);color:#fff}#fjPanel button.o:disabled{opacity:.45}
+    #fjPanel form{display:flex;gap:6px}#fjPanel form input{flex:1;min-width:0;font-size:16px;padding:8px 10px;border-radius:9px;border:1px solid #666;background:#111;color:#fff}#fjPanel form button{border:0;border-radius:9px;padding:8px 12px;font-weight:900;background:#e8a020;color:#2a1600}
+    #fjPanel .wl{font-size:13px;opacity:.85;line-height:1.7}`;document.head.appendChild(st);}
+  for(const ev of ['pointerdown','touchstart','keydown','wheel'])pn.addEventListener(ev,e=>e.stopPropagation());
+  function hutOpen(msg){const d=today(),done=SV.last===d;
+    pn.innerHTML=`<div class="hd">🗻 富士山頂小屋<button data-x="1">✕</button></div>${msg?`<div style="background:#3fbf7a;border-radius:10px;padding:6px 8px;font-weight:800">${msg}</div>`:''}
+      <div class="stamp${SV.n?'':' no'}"><div class="ink">富士山頂<b>🗻</b>${SV.last?SV.last.slice(2).replace(/-/g,'.'):'？'}</div><div class="t">登頂紀錄：<b>${SV.n}</b> 次${SV.first?`<br>第一次：${SV.first}`:''}${SV.last?`<br>最近一次：${SV.last}`:''}</div></div>
+      <button class="o" data-st="1" ${done?'disabled':''}>${done?'✔ 今天蓋過紀念章了':'🖋️ 蓋紀念章（登頂紀錄 +1）'}</button><button class="o" data-hk="1" style="background:linear-gradient(180deg,#5aa8ff,#2f6fd0)">📒 景點集章本（${hkN()}／${HKL.length}）</button>
+      <div><b>🎋 掛許願牌</b>（寫好按「掛上去」，會掛在小屋旁邊的架子上）</div>
+      <form><input maxlength="16" placeholder="寫下願望（最多 16 個字）" enterkeyhint="done" autocomplete="off"><button type="submit">掛上去</button></form>
+      ${SV.wish.length?`<div class="wl">架子上的願望：<br>${SV.wish.slice(-12).reverse().map(w=>'・'+w.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))).join('<br>')}</div>`:''}`;pn.hidden=false;
+    pn.querySelector('form').onsubmit=e=>{e.preventDefault();const v=pn.querySelector('form input').value.trim();if(!v)return;SV.wish.push(v.slice(0,16));SV.wish=SV.wish.slice(-12);save();plqDraw();AUDIO.sfx('chime');hutOpen('🎋 許願牌掛上去了！');};}
+  pn.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.x){pn.hidden=true;return;}if(b.dataset.hk){pn.hidden=true;hkOpen();return;}
+    if(b.dataset.st){const d=today(),first=!SV.n;SV.n++;SV.last=d;if(!SV.first)SV.first=d;save();AUDIO.sfx(first?'bigcheer':'cheer');bigT(first?'🎉 第一次登上富士山頂！':'🖋️ 蓋好紀念章了！');if(first)EARN(50,'🗻 第一次登上富士山頂');const hm=hkMark('fuji',true);hutOpen((first?'🎉 第一次登上富士山頂！送你 50 元零用錢':`🖋️ 第 ${SV.n} 次登頂紀錄`)+(hm.startsWith('🏅')?'<br>'+hm:`<br>📒 集章本 ${hkN()}／${HKL.length}`));}});
+  W.arrive=()=>{if(!SV.n)setTimeout(()=>toast('🗻 第一次來富士山頂：去「山頂小屋」蓋紀念章吧！'),4200);};
+  W.dbg=()=>({SV,built,BIRD,BAL,CLD,scopeOn,hutOpen,build});
+  return W;})();
+
 const CVS=(()=>{const C={on:false,food:null};
   const $=id=>document.getElementById(id),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=(a,b)=>a+Math.random()*(b-a);
   const W=()=>PUSH.W,money=()=>W().money|0;
@@ -16149,7 +16528,7 @@ const keys={};let mode='walk';let started=false;
 const orbit=new OrbitControls(camera,renderer.domElement);orbit.enabled=false;orbit.enableDamping=true;orbit.maxPolarAngle=Math.PI*0.48;orbit.minDistance=6;orbit.maxDistance=220;
 
 let placeTimer=0;
-function teleport(x,z,yaw,y=0){if(CVS.on)CVS.stop();if(PAX.on)PAX.leave('',true);if(RIDE.on)RIDE.stop(true);if(DECO.sit)DECO.stand(true);if(typeof RS!=='undefined'){if(RS.on)RS.stop();if(RS.seat)RS.standUp();}if(DD.on)DD.stop(true);if(KF.on)KF.stop(true);if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();if(MU.on)MU.stop(true);if(CU.on)CU.stop(true);if(NM.on)NM.stop();if(RB.on)RB.stop();if(SB.on)SB.stop();if(RACE.on)RACE.stop();   /* 玩到一半用「前往」：先結束遊戲（原本會一直被拉回跑道／擂台） */
+function teleport(x,z,yaw,y=0){if(CVS.on)CVS.stop();FJW.exit();if(PAX.on)PAX.leave('',true);if(RIDE.on)RIDE.stop(true);if(DECO.sit)DECO.stand(true);if(typeof RS!=='undefined'){if(RS.on)RS.stop();if(RS.seat)RS.standUp();}if(DD.on)DD.stop(true);if(KF.on)KF.stop(true);if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();if(MU.on)MU.stop(true);if(CU.on)CU.stop(true);if(NM.on)NM.stop();if(RB.on)RB.stop();if(SB.on)SB.stop();if(RACE.on)RACE.stop();   /* 玩到一半用「前往」：先結束遊戲（原本會一直被拉回跑道／擂台） */
   if(BALLOON.riding)BALLOON.reset();BB.reset();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(SKATE.on){SKATE.vel.set(0,0);SKATE.v=0;SKATE.ground=true;SKATE.vy=0;if(yaw!==undefined)SKATE.dir=yaw;}player.y=y;player.vy=0;const fd=document.getElementById('fade');if(fd&&started){fd.style.transition='none';fd.style.opacity=1;requestAnimationFrame(()=>{fd.style.transition='opacity .35s';fd.style.opacity=0;});}player.vel.set(0,0);player.pos.set(x,z);resolve(player.pos,0.3,y);if(yaw!==undefined){player.yaw=yaw;player.pitch=-0.05;}if(mode==='aerial'){orbit.target.set(x,0,z);}placeTimer=0;}
 const SPOTS=[
   {name:'我家門口',x:DOOR.x,z:3.6,yaw:0},
@@ -16161,7 +16540,7 @@ const SPOTS=[
   {name:'頂樓',x:3.6,z:-6.5,yaw:Math.PI,y:FL[4]},
   {name:'城堡豪宅',x:298,z:97,yaw:0},   /* 2026-10-21.2 */
   {name:'火箭試車場',x:321,z:151.6,yaw:Math.PI},   /* 2026-10-24.5（10-24.6 實測：原本離租車站 4.5 m，看不到「租」的按鈕 → 站在租車站前面、面向它） */
-  {name:'雲霧山（山腳）',x:448,z:110.5,yaw:-Math.PI/2},{name:'雲霧山（山頂）',x:MOUNT.LOT.x,z:MOUNT.LOT.z,yaw:Math.PI,y:MOUNT.TOP},{name:'雲霧山滑雪場（尖山頂）',x:SKI.ST.T.x+2,z:SKI.ST.T.z+2,yaw:Math.PI*0.75,y:SKI.ST.T.y},   /* 2026-10-27.18 */   /* 2026-10-21.9 */
+  {name:'雲霧山（山腳）',x:448,z:110.5,yaw:-Math.PI/2},{name:'雲霧山（山頂）',x:MOUNT.LOT.x,z:MOUNT.LOT.z,yaw:Math.PI,y:MOUNT.TOP},{name:'雲霧山滑雪場（尖山頂）',x:SKI.ST.T.x+2,z:SKI.ST.T.z+2,yaw:Math.PI*0.75,y:SKI.ST.T.y},{name:'富士山頂',x:(SKI.ST.F.x*3+FJ.cx)/4,z:(SKI.ST.F.z*3+FJ.cz)/4,yaw:Math.atan2(-(SKI.ST.T.x-FJ.cx),-(SKI.ST.T.z-FJ.cz)),y:FJ.TOP},{name:'富士山腳',x:SKI.ST.G.x,z:SKI.ST.G.z-5,yaw:Math.PI,y:SKI.ST.G.y},   /* 2026-10-27.32 富士山雪道終點、山腳纜車站 */   /* 2026-10-27.18 */   /* 2026-10-21.9 */
   {name:'隔壁新家（擺傢俱）',x:3.0+UW,z:-4.0,yaw:0},   /* 2026-10-20.11 往東第 1 戶 */
   {name:'後陽台',x:3.6,z:-13.0,yaw:-Math.PI/2},
   {name:'西側通道',x:0.7,z:-5,yaw:0},
@@ -16195,6 +16574,7 @@ addEventListener('keydown',e=>{keys[e.code]=true;if(!started){if(e.code==='Enter
   if(RS.on&&RS.key(e,true))return;   // 小餐館：1～3 做菜、Esc 打烊
   if(PUSH.on&&PUSH.key(e,true))return;
   if(CVS.on&&CVS.key(e,true))return;
+  if(FJW.key(e))return;
   if(KF.on&&KF.key(e,true))return;   // 武道快打：J 拳 K 腳 L 防禦 U 摔 I 必殺   // 跳舞機：方向鍵／D F J K 踩、Esc 離開
   if(MU.on&&MU.key(e,true))return;   // 音樂教室：唱名鍵／按洞鍵、空白鍵吹、Esc 離開
   if(CU.on&&CU.key(e,true))return;   // 校園大逃亡：1～3 選卡／大招（Q E R）、P 自動、Esc 離開
@@ -16278,7 +16658,7 @@ document.getElementById('lbl').onchange=e=>{labels.visible=e.target.checked;};
  /* 2026-10-27.24 分三組＋圖示＋短一點的名字（SPOTS 的 name 不能改：計程車、傳送站用名字找） */
  const GR=[['🏠 我家',[['我家門口','🚪'],['1F 客廳','🛋️'],['1F 廚房','🍳'],['2F','🛏️'],['3F','🛏️'],['4F 露台','🪴'],['頂樓','🔝'],['後陽台','🧺'],['西側通道','🚶'],['超級彈跳床','🤸','彈跳床'],['隔壁新家（擺傢俱）','🛠️','隔壁新家']]],
    ['🏘️ 附近',[['巷口','🛣️'],['便利商店','🏪'],['跳舞機','🕺'],['大圓環','⭕'],['運動場','🏃'],['直排輪架','🛼','直排輪'],['籃球場','🏀'],['小餐館','🍜'],['服裝店','👗'],['網球場','🎾'],['夜市','🏮'],['跳台公園','🛹'],['機器人擂台','🤖','機器人']]],
-   ['🗺️ 遠一點',[['城堡豪宅','🏰'],['火箭試車場','🚀','火箭'],['雲霧山（山腳）','⛰️','雲霧山腳'],['雲霧山（山頂）','🏔️','雲霧山頂'],['雲霧山滑雪場（尖山頂）','⛷️','滑雪場'],['熱氣球','🎈'],['賽車場','🏎️'],['大漩渦','🌀'],['大學','🎓'],['音樂館','🎵']]]];
+   ['🗺️ 遠一點',[['城堡豪宅','🏰'],['火箭試車場','🚀','火箭'],['雲霧山（山腳）','⛰️','雲霧山腳'],['雲霧山（山頂）','🏔️','雲霧山頂'],['雲霧山滑雪場（尖山頂）','⛷️','滑雪場'],['富士山頂','🗻'],['富士山腳','🚡'],['熱氣球','🎈'],['賽車場','🏎️'],['大漩渦','🌀'],['大學','🎓'],['音樂館','🎵']]]];
  const used=new Set(),rest=SPOTS.filter(s=>!GR.some(g=>g[1].some(x=>x[0]===s.name)));if(rest.length)GR[2][1].push(...rest.map(s=>[s.name,'📍']));   /* 新加的地點沒分組：放「遠一點」 */
  GR.forEach((g,gi)=>{const wrap=document.createElement('div');wrap.className='g'+(gi+1);wrap.innerHTML=`<div class="gh">${g[0]}</div>`;const grid=document.createElement('div');grid.className='grid';wrap.appendChild(grid);gotoEl.appendChild(wrap);
  for(const [nm,ic,short] of g[1]){const s=SPOTS.find(q=>q.name===nm);if(!s||used.has(s))continue;used.add(s);const btn=document.createElement('button');btn.innerHTML=`<i>${ic}</i><span>${short||nm}</span>`;btn.title=s.name;btn.onclick=()=>{if(mode==='aerial')toggleAerial();const t=s.bal?BALLOON.spot():s;teleport(t.x,t.z,t.yaw,t.y||0);menu.hidden=true;bMenu.classList.remove('on');};grid.appendChild(btn);}});}
@@ -16402,6 +16782,7 @@ function updatePlace(){
   let t=['周邊',''];
   const room=mode==='walk'&&!BALLOON.riding?roomAt(x,z,player.y):null;
   if(BALLOON.riding)t=['熱氣球',`高度 ${Math.max(0,Math.round(BALLOON.alt))} m`];
+  else if(SKI.ride&&FJ.ride)t=['長途纜車','往富士山'];else if(FJ.r(x,z)<FJ.RB&&mode==='walk')t=['富士山',FJW.scope?'望遠鏡':player.y>FJ.TOP-3?'山頂':'山坡'];   /* 2026-10-27.30 */
   else if(MOUNT&&x>MOUNT.x0&&x<MOUNT.x1&&z>MOUNT.z0&&z<MOUNT.z1&&player.y>0.6){const n=MOUNT.near(x,z),top=Math.hypot(x-MOUNT.LOT.x,z-MOUNT.LOT.z)<MOUNT.LOT.r+4;const dk=MOUNT.DK,deck=x>dk.x0-0.5&&x<dk.x1&&z>dk.z0-0.5&&z<dk.z1+0.5;t=['雲霧山',deck?'觀景台':top?'山頂停車場':n&&n.d<MOUNT.W?`山路 ${Math.round(player.y)} m`:'山坡'];}   /* 2026-10-21.9 */
   else if(inR(x,z,RKP_R)&&!room)t=['火箭試車場',RIDE.on&&RIDE.k==='rocket'?(RIDE.fly?'飛行中':'彈射、噴射跳躍、倒吊彎道、飛越挑戰'):'入口租火箭跑車（80 元）'];   /* 2026-10-24.5 */
   else if(room)t=[room.house===2?`城堡豪宅 ${room.fl}`:room.house?`鄰居（往東第 1 戶）${room.f+1}F`:`我家 ${room.f+1}F`,room.name];
@@ -18623,7 +19004,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       case 'px':PAX.rx(d,f);break;   /* 坐朋友的車 */
       case 'lkR':case 'lkA':case 'lkN':case 'lkS':case 'lkQ':case 'lkF':LINK.rx(d,f);break;   /* 2026-10-27.7 牽手、背、抱 */
       case 'duR':case 'duA':case 'duN':case 'duG':case 'duE':case 'duQ':DUO.rx(d,f);break;
-      case 'siR':case 'siA':case 'siN':case 'siG':case 'siF':SKI.rx(d,f);break;case 'snR':case 'snA':case 'snN':case 'snG':case 'snF':case 'snH':SKI.brx(d,f);break;case 'sbW':case 'sbH':SKI.thrRx(d,f);break;   /* 2026-10-27.28 丟雪球 */   /* 2026-10-27.21 滾雪球 */   /* 2026-10-27.18 滑雪比賽 */   /* 2026-10-27.11 兩人小遊戲 */
+      case 'siR':case 'siA':case 'siN':case 'siG':case 'siF':SKI.rx(d,f);break;case 'snR':case 'snA':case 'snN':case 'snG':case 'snF':case 'snH':SKI.brx(d,f);break;case 'sbW':case 'sbH':SKI.thrRx(d,f);break;case 'caI':case 'caA':case 'caN':case 'caS':case 'caF':case 'caE':case 'caP':case 'caG':SKI.crx(d,f);break;   /* 2026-10-27.31 一起坐纜車 */   /* 2026-10-27.28 丟雪球 */   /* 2026-10-27.21 滾雪球 */   /* 2026-10-27.18 滑雪比賽 */   /* 2026-10-27.11 兩人小遊戲 */
       case 'puEv':PUSH.netBig(q.name||'有人',d);break;
       case 'fiS':case 'fiA':case 'fiQ':case 'fiN':case 'fiR':case 'fiB':case 'fiE':case 'fiT':FISH.netRx(d,f);break;
       case 'rsS':case 'rsC':case 'rsO':case 'rsE':RS.netRx(d,f);break;
@@ -20028,7 +20409,7 @@ function step(dt){
     if(joy.id!==null){f+=-joy.y;s+=joy.x;if(Math.hypot(joy.x,joy.y)>0.92)running=true;}
     if(BB.lock()){f=0;s=0;running=false;}   // 投籃、灌籃中不能走
     if(EMOTE.on&&EMOTE.step(dt,f,s)){f=0;s=0;}
-    if(RS.seat){f=0;s=0;}if(PAX.on){f=0;s=0;running=false;}if(CG.lock()){f=0;s=0;running=false;}if(SKI.hitT>0){f=0;s=0;running=false;}if(CG.on&&CG.m==='statue')running=false;   /* 城堡遊戲：被冰住、數數中；木頭人只能用走的（大廳 18 m，用跑的一次口令就到了） */   /* 坐朋友的車：不能走 */   // 在小餐館坐著等菜：不能走   // 做動作中：推搖桿就停
+    if(RS.seat||FJW.scope){f=0;s=0;}if(PAX.on){f=0;s=0;running=false;}if(CG.lock()){f=0;s=0;running=false;}if(SKI.hitT>0){f=0;s=0;running=false;}if(CG.on&&CG.m==='statue')running=false;   /* 城堡遊戲：被冰住、數數中；木頭人只能用走的（大廳 18 m，用跑的一次口令就到了） */   /* 坐朋友的車：不能走 */   // 在小餐館坐著等菜：不能走   // 做動作中：推搖桿就停
     if(CVS.on){CVS.step(dt,f,s);f=0;s=0;running=false;}   /* 夾娃娃機：搖桿移爪子 */
     const stage=running&&Math.hypot(f,s)>0.1?1:0;
     const speed=[2.4,5.5][stage]*comfort.speed*(CG.on?CG.spd():1)*LINK.spd()*CVS.spd()*SKI.rollSpd();   /* 2026-10-27.27 喝運動飲料跑快 */   /* 2026-10-27.5 城堡遊戲：鬼跑比較快、衝刺、閃身 */
@@ -20039,7 +20420,7 @@ function step(dt){
     if(DD.on)DD.step(dt);else if(KF.on)KF.step(dt);else if(PUSH.on)PUSH.step(dt);else if(FISH.on)FISH.step(dt);else if(RS.on)RS.step(dt);else if(MU.on)MU.step(dt);else if(CU.on)CU.step(dt,f,s);else if(SB.on)SB.step(dt,f,s);else if(RB.on)RB.step(dt,f,s);else if(NM.on)NM.step(dt,f,s);else if(RACE.on)RACE.step(dt,f,s);else if(BALLOON.riding)BALLOON.step(dt,f,s,stage);else if(LIE.on)LIE.step(dt,f,s);else if(DECO.sit)DECO.sitStep(dt);else if(PAX.on)PAX.step(dt);else if(RIDE.on)RIDE.step(dt,f,s,running);else if(SKI.ride)SKI.rideStep(dt);else if(SKI.on)SKI.step(dt,f,s,running);else if(DUO.on)DUO.step(dt);else if(LINK.isF())LINK.step(dt);else if(SKATE.on)SKATE.step(dt,f,s,running);else if(BB.fly)BB.flyStep(dt);else if(TN.on)TN.step(dt,f,s,running);else{
     player.vel.x+=((fx*f+rx*s)*speed-player.vel.x)*k;player.vel.y+=((fz*f+rz*s)*speed-player.vel.y)*k;
     {const mx=player.vel.x*dt,mz=player.vel.y*dt,n=Math.max(1,Math.ceil(Math.hypot(mx,mz)/0.2));for(let i=0;i<n;i++){player.pos.x+=mx/n;player.pos.y+=mz/n;resolve(player.pos,0.3,player.y);}}
-    player.pos.x=Math.max(BOUND.x0,Math.min(BOUND.x1,player.pos.x));player.pos.y=Math.max(BOUND.z0,Math.min(BOUND.z1,player.pos.y));
+    FJ.keep(player.pos);   /* 2026-10-27.30 地圖範圍＋富士山 */
     // 高度：踩上樓梯／樓板，懸空就往下掉
     // 高度：爬梯、跳躍、踩上樓梯／樓板，懸空就往下掉
     // 爬梯（使用者：很難爬、爬的時候沒有照著梯子）：上梯子就自動轉身面對梯子、人吸到梯子正前方；
@@ -20081,6 +20462,7 @@ function step(dt){
     else if(RACE.on){avatar.root.visible=false;if(RACE.sk8)RACE.skPose(dt);RACE.camera(dt);}   /* 開賽車：鏡頭跟車 */
     else if(PAX.on){avatar.root.visible=view==='third';updateAvatar(dt,0);PAX.camera(dt);}   /* 坐朋友的車：座位上看（可以轉頭）／第三人稱繞著車 */
     else if(RIDE.on){avatar.root.visible=view==='third';updateAvatar(dt,0);RIDE.camera(dt);}   /* 騎車、開車：鏡頭在車子後面（第一人稱＝駕駛座） */
+    else if(FJW.scope){avatar.root.visible=false;FJW.scopeCam();}   /* 2026-10-27.30 富士山頂望遠鏡 */
     else if(SKI.ride){avatar.root.visible=SKI.rideOut();updateAvatar(dt,0);SKI.rideCam(dt);}   /* 2026-10-27.28 坐纜車：車廂裡往外看／外面看 */
     else if(SKI.ballCam()){avatar.root.visible=true;updateAvatar(dt,stage);SKI.camBall(dt);}   /* 2026-10-27.21 鏡頭跟著雪球 */
     else if(view==='third'){avatar.root.visible=true;updateAvatar(dt,stage);camDt=dt;thirdPersonCamera();}
@@ -20122,7 +20504,7 @@ function step(dt){
   CU.tick(dt);
   MU.tick(dt);
   DD.tick(dt);
-  KF.tick(dt);PUSH.tick(dt);CVS.tick(dt);FISH.tick(dt);RS.tick(dt);DECO.tick(dt);
+  KF.tick(dt);PUSH.tick(dt);CVS.tick(dt);FJW.tick(dt);FISH.tick(dt);RS.tick(dt);DECO.tick(dt);
   GATES.tick(dt);NET.tick(dt);CG.tick(dt);LINK.tick(dt);DUO.tick(dt);SKI.tick(dt);
   {let t=0;if(CALM.on&&mode==='walk'&&started){const sp=RACE.on?Math.abs(RACE.v)*0.05:SKATE.on?SKATE.vel.length():player.vel.length();let dy=player.yaw-CALM.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
      t=Math.min(0.85,sp*0.08+Math.abs(dy)/Math.max(dt,1e-3)*0.22+(player.ground?0:0.2));}   // 防暈：越快、轉越快、在空中，四周越暗
@@ -20149,6 +20531,7 @@ function loop(){
     else o=(mode==='aerial'||s.userData.always)?1:THREE.MathUtils.smoothstep(d,8,18);
     s.material.opacity=o;s.visible=o>0.01;}}
   dcull(dt);
+  sky.position.copy(camera.position);   /* 2026-10-27.30 天空跟著鏡頭（富士山頂離地圖中心 2.5 km，原本跑到天空外面一片黑） */
   if(!FISH.on)renderer.render(DD.on?DD.scene:KF.on?KF.scene:scene,camera);   /* 撈魚機：蓋住整個畫面，3D 不用畫（省電） */   /* 跳舞機：只畫舞台小場景 */
   drawMinimap();
   placeTimer-=dt;if(placeTimer<=0){updatePlace();placeTimer=0.25;}
@@ -20188,7 +20571,7 @@ for(const [obj,fn] of [[NM,'start'],[NM,'startArmy'],[SB,'start'],[KF,'start'],[
    按了＝那個視窗原本的關閉方式（原本的 ✕／關閉／離開／取消／不要…），沒有就藏起來；原本「✕」開頭的鈕（✕、✕ 關閉、✕ 離開）藏起來（不要兩顆 ✕），沒有 ✕ 的「關閉」「離開」字按鈕照留。
    視窗內容重新產生（innerHTML）時自動補回去。 */
 const XC=(()=>{
-  const SEL='#menu,#emotePanel,#closet,#rcPanel,#rbPanel,#sbPanel,#muPanel,#muChart,#ddPanel,#kfPanel,#cuPanel,#nmPanel,#skModPanel,#gOver,#decoInv,#decoP,#puPanel,#cvPanel,#rsPhoto,#rsPanel,#bgmBoxP,#netPanel,#netChat,#netFxP,#netPhoto,.paxP,#cgP,#cgR,#netInv,#cgPop,#lkPop,#duPop,#duR,#skiPop,#skiR';
+  const SEL='#menu,#emotePanel,#closet,#rcPanel,#rbPanel,#sbPanel,#muPanel,#muChart,#ddPanel,#kfPanel,#cuPanel,#nmPanel,#skModPanel,#gOver,#decoInv,#decoP,#puPanel,#cvPanel,#fjPanel,#ridePick,#caPop,#rsPhoto,#rsPanel,#bgmBoxP,#netPanel,#netChat,#netFxP,#netPhoto,.paxP,#cgP,#cgR,#netInv,#cgPop,#lkPop,#duPop,#duR,#skiPop,#skiR';
   const FN={menu:()=>document.getElementById('bMenu').click(),emotePanel:()=>EMOTE.toggle()};   // 用上面按鈕開關的選單：再按一次那顆
   const ICON=/^\s*[✕×✖]/,TXT=[/^\s*[✕×✖]/,/關閉/,/離開|結束/,/取消|不要|不玩/];
   const css=document.createElement('style');css.textContent=
@@ -20213,7 +20596,7 @@ const XC=(()=>{
   setInterval(scan,500);scan();
   {const m=document.getElementById('mmClose');if(m){look(m);m.style.removeProperty('display');m.style.setProperty('line-height','33px','important');m.style.setProperty('text-align','center','important');m.style.setProperty('top','6px','important');m.style.setProperty('right','6px','important');m.textContent='✕';}}   /* 電腦的大地圖：自己的關閉鈕換成一樣的樣子（顯示／藏起來照原本：小地圖時不出現） */
   return {scan,close};})();
-window.__dbg={CVS,XC,CG,LINK,DUO,SKI,CREL,EVICT,ULM,sun,PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+window.__dbg={FJ,FJW,CVS,XC,CG,LINK,DUO,SKI,CREL,EVICT,ULM,sun,PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
