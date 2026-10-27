@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-27.23"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-27.24"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -61,6 +61,14 @@
   #menu .grid button{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 4px;font-size:13px}
   #menu .grid button:hover{background:rgba(255,180,84,.25)}
   #menu .grid button.on{background:var(--accent);color:#3a2300;border-color:transparent;font-weight:700}
+  #goto .gh{font-size:12px;font-weight:700;margin:2px 0 5px;letter-spacing:.04em}   /* 2026-10-27.24 前往：分組、每格上面一個圖示（使用者：「前往的地點，有沒有辦法調整一下增加辨識度」） */
+  #goto .grid{margin-bottom:12px}
+  #goto .grid button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:54px;padding:6px 2px;line-height:1.25}
+  #goto .grid button i{font-style:normal;font-size:21px;line-height:1}
+  #goto .grid button span{font-size:12.5px}
+  #goto .g1 .gh{color:#ffc27a}#goto .g1 button{border-color:rgba(255,180,84,.45)}
+  #goto .g2 .gh{color:#8fe0a0}#goto .g2 button{border-color:rgba(120,215,140,.45)}
+  #goto .g3 .gh{color:#8cc4ff}#goto .g3 button{border-color:rgba(120,180,255,.45)}
   #menu label{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px}
   #menu input[type=range]{width:100%;accent-color:var(--accent)}
   #menu .note{font-size:12px;color:var(--ink-2);line-height:1.6;margin-top:14px}
@@ -872,9 +880,8 @@
 <div id="menu" class="panel" hidden>
   <button id="fsBtn">全螢幕（隱藏網址列）</button>
   <button id="netBtn">👥 連線：和別人一起玩</button>
-  <div id="offBox" style="margin:8px 0 4px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:1.5;cursor:pointer"><div id="offInfo">📦 離線版本：檢查中…</div><button id="offClr" hidden style="display:block;margin:6px 0 0 auto;width:auto;min-height:0;background:none;border:0;color:var(--ink-2);text-decoration:underline;padding:2px 0;font-size:12px">只清離線資料</button></div><!-- 2026-10-27.23 使用者：「清資料的按鈕不要放在那麼明顯，沒事不會清」→ 平常藏起來，點這格才出現（小灰字） -->
   <h3>前往</h3>
-  <div class="grid" id="goto"></div>
+  <div id="goto"></div>
   <h3>環境</h3>
   <label><span>時間</span><span id="tval">15:00</span></label>
   <input id="time" type="range" min="6" max="19" step="0.25" value="15">
@@ -930,6 +937,7 @@
   <label style="margin-top:10px"><span>走路速度</span><span id="spdVal">100%</span></label>
   <input id="spd" type="range" min="0.5" max="1.5" step="0.05" value="1">
   <p class="note">樓高取自建照（1F 3.8 m、2–4F 3.2 m）。每戶面寬約 4.8 m、深約 12.4 m，室內尺寸依實際量測；鄰近建築依街景、空拍推估，有誤差可再調整。</p>
+  <div id="offBox" style="margin:14px 0 0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:13px;line-height:1.5;cursor:pointer"><div id="offInfo">📦 離線版本：檢查中…</div><button id="offClr" hidden style="display:block;margin:6px 0 0 auto;width:auto;min-height:0;background:none;border:0;color:var(--ink-2);text-decoration:underline;padding:2px 0;font-size:12px">只清離線資料</button></div><!-- 2026-10-27.23 使用者：「清資料的按鈕不要放在那麼明顯，沒事不會清」→ 平常藏起來，點這格才出現（小灰字） -->
 </div>
 
 <div id="minimap" class="panel"><canvas id="mm"></canvas><div class="tag">↑ 北</div><button id="mmClose" aria-label="關閉地圖">×</button></div>
@@ -15780,7 +15788,13 @@ bMenu.onclick=()=>{menu.hidden=!menu.hidden;bMenu.classList.toggle('on',!menu.hi
 document.getElementById('time').oninput=e=>setTime(+e.target.value);
 document.getElementById('lbl').onchange=e=>{labels.visible=e.target.checked;};
 {const gotoEl=document.getElementById('goto');
- for(const s of SPOTS){const btn=document.createElement('button');btn.textContent=s.name;btn.onclick=()=>{if(mode==='aerial')toggleAerial();const t=s.bal?BALLOON.spot():s;teleport(t.x,t.z,t.yaw,t.y||0);menu.hidden=true;bMenu.classList.remove('on');};gotoEl.appendChild(btn);}}
+ /* 2026-10-27.24 分三組＋圖示＋短一點的名字（SPOTS 的 name 不能改：計程車、傳送站用名字找） */
+ const GR=[['🏠 我家',[['我家門口','🚪'],['1F 客廳','🛋️'],['1F 廚房','🍳'],['2F','🛏️'],['3F','🛏️'],['4F 露台','🪴'],['頂樓','🔝'],['後陽台','🧺'],['西側通道','🚶'],['超級彈跳床','🤸','彈跳床'],['隔壁新家（擺傢俱）','🛠️','隔壁新家']]],
+   ['🏘️ 附近',[['巷口','🛣️'],['便利商店','🏪'],['跳舞機','🕺'],['大圓環','⭕'],['運動場','🏃'],['直排輪架','🛼','直排輪'],['籃球場','🏀'],['小餐館','🍜'],['服裝店','👗'],['網球場','🎾'],['夜市','🏮'],['跳台公園','🛹'],['機器人擂台','🤖','機器人']]],
+   ['🗺️ 遠一點',[['城堡豪宅','🏰'],['火箭試車場','🚀','火箭'],['雲霧山（山腳）','⛰️','雲霧山腳'],['雲霧山（山頂）','🏔️','雲霧山頂'],['雲霧山滑雪場（尖山頂）','⛷️','滑雪場'],['熱氣球','🎈'],['賽車場','🏎️'],['大漩渦','🌀'],['大學','🎓'],['音樂館','🎵']]]];
+ const used=new Set(),rest=SPOTS.filter(s=>!GR.some(g=>g[1].some(x=>x[0]===s.name)));if(rest.length)GR[2][1].push(...rest.map(s=>[s.name,'📍']));   /* 新加的地點沒分組：放「遠一點」 */
+ GR.forEach((g,gi)=>{const wrap=document.createElement('div');wrap.className='g'+(gi+1);wrap.innerHTML=`<div class="gh">${g[0]}</div>`;const grid=document.createElement('div');grid.className='grid';wrap.appendChild(grid);gotoEl.appendChild(wrap);
+ for(const [nm,ic,short] of g[1]){const s=SPOTS.find(q=>q.name===nm);if(!s||used.has(s))continue;used.add(s);const btn=document.createElement('button');btn.innerHTML=`<i>${ic}</i><span>${short||nm}</span>`;btn.title=s.name;btn.onclick=()=>{if(mode==='aerial')toggleAerial();const t=s.bal?BALLOON.spot():s;teleport(t.x,t.z,t.yaw,t.y||0);menu.hidden=true;bMenu.classList.remove('on');};grid.appendChild(btn);}});}
 function bindComfort(id,valId,fmt,apply){const el=document.getElementById(id),lab=document.getElementById(valId);
   let v=null;try{v=localStorage.getItem('home-'+id);}catch(_){}
   if(v!==null)el.value=v;const upd=()=>{apply(+el.value);lab.textContent=fmt(+el.value);try{localStorage.setItem('home-'+id,el.value);}catch(_){}};el.oninput=upd;upd();}
