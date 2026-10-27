@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-27.36"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-27.38"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -904,6 +904,7 @@
   <button id="netBtn">👥 連線：和別人一起玩</button>
   <h3>前往</h3>
   <div id="goto"></div>
+  <button id="gcBtn" style="margin-top:8px">📖 卡片書（🌠 同行、🧲 磁力）</button><!-- 2026-10-27.38 -->
   <button id="hkBtn" style="margin-top:8px">📒 景點集章本（12 個景點蓋章）</button><!-- 2026-10-27.32 -->
   <h3>環境</h3>
   <label><span>時間</span><span id="tval">15:00</span></label>
@@ -3331,7 +3332,7 @@ function currentAct(){if(FJW.scope)return {fj:{k:'exit',t:'🔭 離開望遠鏡'
 function syncActBtn(){const a=currentAct();actCur=a;
   const html=!a?'':a.fj?`<kbd>F</kbd>${a.fj.t}`:a.cv?`<kbd>F</kbd>${a.cv.t}`:a.rd?`<kbd>F</kbd>${a.rd}`:a.si?`<kbd>F</kbd>${a.si}`:a.dr?`<kbd>F</kbd>🚪 ${csDoorOpen(a.dr.d)?'關上':'打開'}${a.dr.d.gate?'大門':'門'}`:a.de?(a.de.k==='place'?'':`<kbd>F</kbd>${a.de.t}`):a.dd?`<kbd>F</kbd>${a.dd}`:a.kf?`<kbd>F</kbd>${a.kf}`:a.fi?`<kbd>F</kbd>${a.fi.t}`:a.pu?`<kbd>F</kbd>${a.pu.t}`:a.rs?`<kbd>F</kbd>${a.rs}`:a.mu?`<kbd>F</kbd>${a.mu}`:a.cu?`<kbd>F</kbd>${a.cu}`:a.rc?`<kbd>F</kbd>${a.rc}`:a.nm?`<kbd>F</kbd>${a.nm}`:a.rb?`<kbd>F</kbd>${a.rb}`:a.sb?`<kbd>F</kbd>${a.sb}`:a.mq?(a.mq.closet?`<kbd>F</kbd>打開衣櫃（${outfitCount('f')+outfitCount('m')} 套）`:`<kbd>F</kbd>試穿：${CHAR_OUTFITS[a.mq.g][a.mq.o].name}`):a.tn?`<kbd>F</kbd>${a.tn}`:a.bb?`<kbd>F</kbd>${a.bb}`:a.sk?`<kbd>F</kbd>${a.sk}`:a.bal?`<kbd>F</kbd>${a.bal}`:a.bed?`<kbd>F</kbd>${a.bed}`:a.cab?`<kbd>F</kbd>${a.cab.target>0.5?'關上':a.cab.kind==='drawer'?'拉開':'打開'}${a.cab.label}`:`<kbd>F</kbd>${a.cur.target>0.5?'拉開':'拉上'}${a.cur.label}`;
   if(html!==actHtml){actHtml=html;actBtn.innerHTML=html;actBtn.hidden=!html;}}
-function toggleAct(){const a=currentAct();if(a&&a.fj){FJW.act(a.fj);syncActBtn();return;}if(a&&a.cv){CVS.act(a.cv);syncActBtn();return;}if(a&&a.rd){RIDE.act();syncActBtn();return;}if(a&&a.si){SKI.act();syncActBtn();return;}if(a&&a.dr){const v=csDoorOpen(a.dr.d)?0:1;for(const d of a.dr.grp)d.man=v;csDoorSave();if(typeof CG!=='undefined')CG.door(a.dr.grp,v);AUDIO.sfx('door');syncActBtn();return;}if(a&&a.de){DECO.act(a.de);syncActBtn();return;}if(a&&a.dd){DD.toggle();syncActBtn();return;}if(a&&a.kf){KF.toggle();syncActBtn();return;}if(a&&a.fi){FISH.act(a.fi);syncActBtn();return;}if(a&&a.pu){PUSH.act(a.pu);syncActBtn();return;}if(a&&a.rs){RS.act();syncActBtn();return;}if(a&&a.mu){MU.toggle();syncActBtn();return;}if(a&&a.cu){CU.toggle();syncActBtn();return;}if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.sb){SB.toggle();syncActBtn();return;}if(a&&a.rb){RB.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
+function toggleAct(){if(GCARD.on)return;const a=currentAct();if(a&&a.fj){FJW.act(a.fj);syncActBtn();return;}if(a&&a.cv){CVS.act(a.cv);syncActBtn();return;}if(a&&a.rd){RIDE.act();syncActBtn();return;}if(a&&a.si){SKI.act();syncActBtn();return;}if(a&&a.dr){const v=csDoorOpen(a.dr.d)?0:1;for(const d of a.dr.grp)d.man=v;csDoorSave();if(typeof CG!=='undefined')CG.door(a.dr.grp,v);AUDIO.sfx('door');syncActBtn();return;}if(a&&a.de){DECO.act(a.de);syncActBtn();return;}if(a&&a.dd){DD.toggle();syncActBtn();return;}if(a&&a.kf){KF.toggle();syncActBtn();return;}if(a&&a.fi){FISH.act(a.fi);syncActBtn();return;}if(a&&a.pu){PUSH.act(a.pu);syncActBtn();return;}if(a&&a.rs){RS.act();syncActBtn();return;}if(a&&a.mu){MU.toggle();syncActBtn();return;}if(a&&a.cu){CU.toggle();syncActBtn();return;}if(a&&a.rc){RACE.toggle();syncActBtn();return;}if(a&&a.nm){NM.toggle();syncActBtn();return;}if(a&&a.sb){SB.toggle();syncActBtn();return;}if(a&&a.rb){RB.toggle();syncActBtn();return;}if(a&&a.tn){TN.toggle();syncActBtn();return;}if(a&&a.mq){if(a.mq.closet)CLOSET.toggle();else SHOP.tryOn(a.mq);syncActBtn();return;}if(a&&a.bb){BB.toggle();syncActBtn();return;}if(a&&a.sk){SKATE.toggle();syncActBtn();return;}if(a&&a.bal){BALLOON.toggle();syncActBtn();return;}if(a&&a.bed){LIE.toggle();syncActBtn();return;}if(a){const o=a.cab||a.cur;o.target=o.target>0.5?0:1;AUDIO.sfx(a.cur?'swish':o.kind==='louver'?'rattle':'click');}syncActBtn();}
 actBtn.addEventListener('click',e=>{e.stopPropagation();toggleAct();});
 actBtn.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();toggleAct();},{passive:false});
 document.getElementById('curOpen').onclick=()=>{for(const c of CURTAINS)if(!c.cs)c.target=0;syncActBtn();AUDIO.sfx('swish');};   /* 設定裡的「全部拉開／拉上」只管我家（城堡圓塔的簾子各自開關） */
@@ -5805,17 +5806,19 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
       const [c,x]=cvs(128,128);x.fillStyle='#ffffff';x.font=`900 100px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText(String(k+1),64,72);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
       const p=new THREE.Mesh(new THREE.PlaneGeometry(0.62,0.62),new THREE.MeshBasicMaterial({map:t,transparent:true,toneMapped:false}));p.position.set(PDX[k],PDY[k]*0.5,0.755);g.add(p);
       const sf={x0:0,x1:0,z0:0,z1:0,y:0,off:true,pod:1};surfaces.push(sf);PDM.surf.push(sf);}   /* 站得上去 */
+    {const [c,x]=cvs(1024,200),t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;PDM.bx=x;PDM.bt=t;const bd=new THREE.Mesh(new THREE.PlaneGeometry(5.8,1.13),new THREE.MeshBasicMaterial({map:t,toneMapped:false,side:THREE.DoubleSide}));bd.position.set(0,3.35,-1.05);g.add(bd);
+     const pm=std({color:'#8a6a2a',roughness:0.6});for(const sx of [-2.8,2.8]){const p=new THREE.Mesh(new THREE.BoxGeometry(0.12,3.9,0.12),pm);p.position.set(sx,1.95,-1.1);g.add(p);}}   /* 看板：標題＋前三名 */
     g.visible=false;g.traverse(o=>{o.userData.noCull=true;});scene.add(g);PDM.g=g;}
   const PDH=document.createElement('div');PDH.id='podHud';PDH.className='panel';PDH.hidden=true;document.body.appendChild(PDH);
   {const st=document.createElement('style');st.textContent=`#podHud[hidden],#bwHud[hidden]{display:none!important}#podHud{position:fixed;left:12px;top:calc(64px + var(--sat,0px));z-index:13;padding:8px 10px;font-size:14px;display:flex;flex-direction:column;gap:6px;max-width:200px}
     #podHud button{font-size:15px;font-weight:800;padding:8px 10px;border-radius:10px;border:0;background:#ffcf4a;color:#2a1a00}#podHud button.x{background:#3a4258;color:#fff}
     #bwHud{position:fixed;left:12px;top:calc(64px + var(--sat,0px));z-index:12;padding:8px 12px;font-size:14px;line-height:1.5;min-width:150px;max-width:230px}#bwHud b{font-size:17px}#bwHud .sc{font-size:24px;font-weight:900;letter-spacing:.02em}
-    @media (orientation:portrait){body.touch #podHud,body.touch #bwHud{top:calc(110px + var(--sat,0px))}}@media (orientation:landscape) and (max-height:520px){body.touch #podHud,body.touch #bwHud{top:calc(62px + var(--sat,0px));font-size:13px}body.touch #bwHud .sc{font-size:19px}}`;document.head.appendChild(st);}
+    @media (orientation:portrait){body.touch #podHud,body.touch #bwHud{top:calc(110px + var(--sat,0px))}}@media (orientation:landscape) and (max-height:520px){body.touch #podHud,body.touch #bwHud{top:calc(62px + var(--sat,0px));font-size:13px}body.touch #podHud{flex-direction:row;flex-wrap:wrap;align-items:center;max-width:340px;gap:4px;padding:6px 8px}body.touch #podHud button{font-size:13px;padding:6px 8px}body.touch #podHud b{width:100%}body.touch #bwHud .sc{font-size:19px}}`;document.head.appendChild(st);}
   for(const ev of ['pointerdown','touchstart','keydown','wheel'])PDH.addEventListener(ev,e=>e.stopPropagation());
   function podShow(x,z,ids,title){podBuild();const y=gy(x,z);Object.assign(PDM,{on:true,t:0,x,y,z,ids:ids.slice(),title});PDM.g.position.set(x,y,z);PDM.g.visible=true;
     PDM.surf.forEach((s,k)=>{Object.assign(s,{x0:x+PDX[k]-0.85,x1:x+PDX[k]+0.85,z0:z-0.75,z1:z+0.75,y:y+PDY[k],off:false});});
-    sprFree(PDM.lab);PDM.lab=labelSprite('🏆 '+title,ids.slice(0,3).map((id,i)=>['🥇','🥈','🥉'][i]+' '+pName(id)).join('　'),'rgba(200,140,20,0.92)');PDM.lab.position.set(0,4.7,0);PDM.lab.scale.multiplyScalar(0.5);PDM.g.add(PDM.lab);
-    const k=ids.indexOf(me());if(S.on)S.stop();podHud();AUDIO.sfx('bigcheer');if(k<0||S.ride)return;
+    {const g=PDM.bx,t=PDM.bt;g.fillStyle='#b8860b';g.fillRect(0,0,1024,200);g.fillStyle='#ffd23a';g.fillRect(8,8,1008,184);g.fillStyle='#3a2300';g.textAlign='center';g.textBaseline='middle';g.font=`900 64px ${FONT}`;g.fillText('🏆 '+title,512,62,990);g.font=`800 50px ${FONT}`;g.fillText(ids.slice(0,3).map((id,i)=>['🥇','🥈','🥉'][i]+' '+pName(id)).join('　'),512,146,990);t.needsUpdate=true;}   /* 2026-10-27.36 頒獎台後面的看板（原本飄在空中的名牌會擋住站在台上的人的視線） */
+    const k=ids.indexOf(me());podHud();AUDIO.sfx('bigcheer');if(k<0||S.ride||busyG()||mode!=='walk'||Math.hypot(player.pos.x-x,player.pos.y-z)>200)return;if(S.on)S.stop();   /* 已經跑去玩別的、離很遠：不把人拉回來 */
     if(k<3){player.pos.set(x+PDX[k],z);player.y=y+PDY[k];}else{player.pos.set(x+(k-3-(ids.length-4)/2)*1.3,z+2.6);player.y=gy(player.pos.x,player.pos.y);}   /* 第 4 名以後站在前面；人物面向前面（拍照的方向），自己的鏡頭也在前面（做動作時人物會轉向鏡頭） */
     player.yaw=0;avatar.yaw=Math.PI;player.pitch=-0.1;player.vel.set(0,0);player.vy=0;setTimeout(()=>{if(PDM.on&&EMOTE.can())EMOTE.start(k===0?'wow':'clap');},700);}
   function podHud(){PDH.innerHTML=`<b>🏆 ${esc(PDM.title)}</b><button data-a="ph">📸 拍頒獎照</button><button data-a="fw">🎆 放煙火</button><button data-a="x" class="x">✕ 離開頒獎台</button>`;PDH.hidden=false;}
@@ -5823,7 +5826,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   function podHide(){if(!PDM.on)return;PDM.on=false;PDM.g.visible=false;for(const s of PDM.surf)s.off=true;PDH.hidden=true;}
   function podFw(n,send){for(let i=0;i<n;i++)setTimeout(()=>{if(!PDM.on)return;const {x,y,z}=PDM,ci=Math.floor(Math.random()*FPAL.length),seed=Math.floor(Math.random()*1e6),k=['ball','heart','star','willow','ring'][Math.floor(Math.random()*5)],px=x+(Math.random()-0.5)*18,pz=z-8-Math.random()*10;
       fwLaunch(px,y,pz,k,ci,seed);if(send&&NET.on)NET.out('*',{t:'caF',p:[px,y,pz].map(v=>+v.toFixed(1)),k,c:ci,s:seed});},i*450);}   /* 頒獎台後面放（大家都看得到） */
-  function podPhoto(){if(!PDM.on)return;const {x,y,z}=PDM,cam=new THREE.PerspectiveCamera(50,1.5,0.1,3000);cam.position.set(x,y+2.1,z+7.2);cam.lookAt(x,y+2,z);
+  function podPhoto(){if(!PDM.on)return;const {x,y,z}=PDM,cam=new THREE.PerspectiveCamera(50,1.5,0.1,3000);cam.position.set(x,y+2.2,z+7.6);cam.lookAt(x,y+2.1,z);
     const vis=avatar.root.visible;avatar.root.visible=true;const cv=renderer.domElement;cam.aspect=cv.width/cv.height;cam.updateProjectionMatrix();renderer.render(scene,cam);let url='';try{url=cv.toDataURL('image/jpeg',0.9);}catch(_){}avatar.root.visible=vis;if(!url)return;AUDIO.sfx('click');
     const d=new Date(),fn=`頒獎照-${d.getMonth()+1}-${d.getDate()}-${d.getHours()}${String(d.getMinutes()).padStart(2,'0')}.jpg`;PHO.innerHTML=`<img src="${url}" alt="頒獎照"><div class="bt"><a href="${url}" download="${fn}">💾 存到手機</a><button>關閉</button></div>`;PHO.hidden=false;PHO.querySelector('button').onclick=()=>{PHO.hidden=true;PHO.innerHTML='';};}
   function podTick(dt){if(!PDM.on)return;PDM.t+=dt;if(PDM.t-dt<1.2&&PDM.t>=1.2)podFw(4,false);if(PDM.t>150||Math.hypot(player.pos.x-PDM.x,player.pos.y-PDM.z)>70)podHide();}   /* 一開始自動放 4 發（各自放：不用傳） */
@@ -5857,7 +5860,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     if(S.ride){S.ride=null;if(myCab)myCab.visible=false;RH.hidden=true;}if(S.on)S.stop();if(MB&&!MB.dead)bEnd(MB);
     const tm=BW.team[me()],mates=ids.filter(id=>BW.team[id]===tm),j=mates.indexOf(me()),sd=tm?1:-1;player.pos.set(FJ.cx+sd*13,FJ.cz+(j-(mates.length-1)/2)*2.6);player.y=FJ.TOP;player.vy=0;player.yaw=avatar.yaw=sd<0?-Math.PI/2:Math.PI/2;player.pitch=0;player.vel.set(0,0);
     wallsOn(true);RES.hidden=true;POP.hidden=true;AUDIO.sfx('go');bwHudT=0;
-    toast(`❄️ 雪球大戰！你是${tm?'🔵 藍隊':'🔴 紅隊'}（${mates.map(nm).join('、')}）：90 秒，打中對方 +1、金雪球 +3；躲在雪牆後面！`);}
+    toast(`❄️ 你是${tm?'🔵 藍隊':'🔴 紅隊'}！躲雪牆、搶中間的🌟金雪球（+3）`);}
   function bwGold(id,x,z){if(!BW)return;BW.g={id,x,z};if(!goldM){goldM=new THREE.Mesh(SBG,GBM);goldM.scale.setScalar(2.2);goldM.castShadow=true;goldM.userData.noCull=true;scene.add(goldM);}goldM.position.set(x,FJ.TOP+0.6,z);goldM.visible=true;big('🌟 金雪球出現在中間了！');AUDIO.sfx('chime');}
   function bwClaim(id,by){if(BW&&BW.g&&BW.g.id===id&&!BW.g.by){BW.g.by=by;if(NET.on)NET.out('*',{t:'bwK',id,by});bwGot(id,by);}}   /* 主持：先到先得 */
   function bwGot(id,by){if(!BW)return;if(BW.g&&BW.g.id===id){BW.g=null;if(goldM)goldM.visible=false;}if(by===me()){BW.my3=3;big('🌟 拿到金雪球！接下來 3 顆一顆 3 分');AUDIO.sfx('combo');}else toast(`🌟 ${nm(by)} 拿到金雪球了！小心`);bwHudT=0;}
@@ -14363,6 +14366,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
   U.netBig=(name,d)=>{const st=S[d.k|0];if(!st)return;if(d.e==='jp'){burst(st);st.msg='👑 大獎';st.msgT=4;toast(`🎉 ${name} 在推幣機第 ${st.i+1} 台中了大獎！`);AUDIO.sfx('cheer');}};
   {const P=document.getElementById('emotePanel'),el=document.createElement('div');el.id='emHold';P.appendChild(el);const t0=EMOTE.toggle;EMOTE.toggle=()=>{t0();if(!P.hidden)U.holdMenu(el);};   /* 動作選單最下面：選拿哪個獎品、炫耀 */
    el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();if(b.dataset.hs){P.hidden=true;document.getElementById('bEmote').classList.remove('on');U.show();return;}if(b.dataset.hd){U.holdPick(b.dataset.hd);U.holdMenu(el);}});}
+  {const b=document.getElementById('gcBtn');if(b)b.onclick=()=>{menu.hidden=true;document.getElementById('bMenu').classList.remove('on');GCARD.open();};}   /* 2026-10-27.38 卡片書 */
   {const b=document.getElementById('hkBtn');if(b)b.onclick=()=>{menu.hidden=true;document.getElementById('bMenu').classList.remove('on');FJW.hkOpen();};}   /* 2026-10-27.32 景點集章本 */
   {const b=document.getElementById('codeMenu');if(b)b.onclick=()=>{menu.hidden=true;document.getElementById('bMenu').classList.remove('on');changeOpen();setTimeout(()=>{const i=pn.querySelector('form.code input');if(i)i.focus();},60);};}   /* 輸入過代碼（W.par）就不會有輸入框，直接是「家長加錢」按鈕 */   /* 選單也可以直接輸入代碼（不用走到推幣樂園） */
   U.dbg=()=>({S,W,phys,draw,fill,hole,RL,dropOne,credit,saveF,loadF,IN,changeOpen,prizeOpen,mkPrize,nearSt,FD,FW,WIN_W});
@@ -14762,7 +14766,7 @@ const FJW=(()=>{const W={scope:null};
   //   每個景點第一次蓋章 20 元（富士山頂是小屋給 50 元），12 個全部蓋到再 300 元；集章本在選單「📒 景點集章本」，沒蓋到的可以按「📍 前往」。存 home-hanko。
   //   台子走到附近才做（W.tick 第一次跑的時候：SPOTS 在後面才有）。
   const HKL=[['alley','我家巷口','🏠','巷口',2.5,3],['ring','大圓環','⭕','大圓環',-1,9],['jump','跳台公園','🛹','跳台公園',3,-3],['night','夜市','🏮','夜市',3,3],['castle','城堡豪宅','🏰','城堡豪宅',3,6],['uni','大學','🎓','大學',11,5],
-    ['race','賽車場','🏎️','賽車場',-4,3],['swirl','大漩渦','🌀','大漩渦',3,6],['mtn','雲霧山頂','⛰️','雲霧山（山頂）',3,-4],['peak','尖山頂','⛷️',null],['fjb','富士山腳','🚡',null],['fuji','富士山頂','🗻',null]].map(([id,n,e,sp,f,r])=>({id,n,e,sp,f,r}));
+    ['race','賽車場','🏎️','賽車場',-4,3],['swirl','大漩渦','🌀','大漩渦',-4,10],['mtn','雲霧山頂','⛰️','雲霧山（山頂）',3,-4],['peak','尖山頂','⛷️',null],['fjb','富士山腳','🚡',null],['fuji','富士山頂','🗻',null]].map(([id,n,e,sp,f,r])=>({id,n,e,sp,f,r}));
   const HV=(()=>{let o={};try{o=JSON.parse(localStorage.getItem('home-hanko')||'{}')||{};}catch(_){}return o&&typeof o==='object'?o:{};})();
   if(SV.n&&!HV.fuji)HV.fuji={d:SV.first||today(),n:SV.n};   /* 以前在山頂小屋蓋過 → 集章本上也算 */
   const hkSave=()=>{try{localStorage.setItem('home-hanko',JSON.stringify(HV));}catch(_){}};
@@ -14839,6 +14843,137 @@ const FJW=(()=>{const W={scope:null};
   W.dbg=()=>({SV,built,BIRD,BAL,CLD,scopeOn,hutOpen,build});
   return W;})();
 
+/* ---------------- 📖 卡片書：貪婪之島的咒語卡（2026-10-27.38 使用者：「增加一個功能，貪婪之島的『同行卡片』，可以使用卡片把大家都飛過去某個地方」「那個同行飛過去，要有動畫哦，酷酷的，降落的時候要那個鋼鐵人降落的那個帥帥姿勢」→ 選了：同行＋磁力、不用拿、無限用） ----------------
+   選單「📖 卡片書」或按 B：
+   - 🌠 同行：選一個地點 → 自己＋身邊 20 m 內的朋友一起變成光飛過去（gcA 告訴朋友：一起飛、落在旁邊一圈）；冷卻 15 秒
+   - 🧲 磁力：選一個朋友 → 飛到他前面（gcM 告訴他）；冷卻 10 秒
+   動畫（G.ph）：1 舉起卡片發光、光柱（1 秒）→ 2 衝上天（0.9 秒）→ 3 拖著光尾巴飛過去（1.2～4 秒，越遠飛越高）→ 4 從天上直直落下（0.8 秒）
+   → 5 鋼鐵人落地（單膝跪地、右拳撐地、左手往後伸、先低頭再抬頭；地面衝擊波＋雪花／塵土、畫面閃一下、鏡頭在前面低角度看）→ 站起來。
+   別人畫面上：s.gc＝[階段 1～5, 面向]，照樣擺姿勢、畫光尾巴、落地衝擊波。 */
+const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
+  const $=id=>document.getElementById(id),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),ease=u=>u*u*(3-2*u);
+  const bigT=t=>{const el=$('gBig');if(!el)return;el.textContent=t;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');};
+  const pn=id=>(NET.pn&&NET.pn(String(id)))||'朋友',esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const T1=1.0,T2=0.9,T4=0.8,T5=1.5,CDA=15,CDM=10;   // 舉卡片、衝上天、落下、落地姿勢；冷卻
+  // ---- 特效：發光貼圖、光尾巴、衝擊波、塵土／雪花、光柱、頭上的卡片、身上的光 ----
+  const GLOW=(()=>{const [c,g]=cvs(64,64),r=g.createRadialGradient(32,32,2,32,32,30);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(0.35,'rgba(255,245,200,0.75)');r.addColorStop(1,'rgba(255,220,120,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
+  const TR=[],RINGS=[],DUST=[];
+  function trail(x,y,z,col,sz){let q=TR.find(o=>o.t<=0);if(!q){if(TR.length>=70)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));s.userData.noCull=true;s.visible=false;scene.add(s);q={s,t:0,T:1,sz:1};TR.push(q);}
+    q.s.position.set(x,y,z);q.s.material.color.set(col);q.t=q.T=0.8;q.sz=sz;q.s.visible=true;}
+  function ring(x,y,z,col,R,T){let q=RINGS.find(o=>o.t<=0);if(!q){if(RINGS.length>=8)return;const m=new THREE.Mesh(new THREE.RingGeometry(0.82,1,56).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false}));m.userData.noCull=true;m.visible=false;scene.add(m);q={m,t:0,T:1,R:1};RINGS.push(q);}
+    q.m.position.set(x,y+0.1,z);q.m.material.color.set(col);q.R=R;q.t=q.T=T;q.m.visible=true;}
+  function dust(x,y,z,n,col){for(let i=0;i<n;i++){let q=DUST.find(o=>o.t<=0);if(!q){if(DUST.length>=40)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,transparent:true,depthWrite:false,fog:false}));s.userData.noCull=true;s.visible=false;scene.add(s);q={s,t:0,T:1,v:new V3()};DUST.push(q);}
+    const a=Math.random()*Math.PI*2,sp=3+Math.random()*6;q.s.position.set(x,y+0.3,z);q.v.set(Math.cos(a)*sp,1+Math.random()*3,Math.sin(a)*sp);q.s.material.color.set(col);q.t=q.T=0.9+Math.random()*0.3;q.s.visible=true;}}
+  let pillar=null,card=null,aura=null,cardK='';
+  function fxInit(){if(pillar)return;pillar=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.5,70,24,1,true).translate(0,35,0),new THREE.MeshBasicMaterial({color:'#ffe9a0',transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false}));pillar.visible=false;pillar.userData.noCull=true;scene.add(pillar);
+    const [c,g]=cvs(128,180),t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;G.ct={c,g,t};card=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false,fog:false}));card.visible=false;card.userData.noCull=true;card.renderOrder=8;scene.add(card);
+    aura=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:'#ffe9a0',transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));aura.visible=false;aura.userData.noCull=true;scene.add(aura);}
+  const CARDS={acc:{ic:'🌠',n:'同行',r:'A',tx:'帶著身邊 20 m 內的朋友，一起變成光飛到選的地方',cd:CDA},mag:{ic:'🧲',n:'磁力',r:'A',tx:'選一個朋友，變成光飛到他前面',cd:CDM}};
+  function cardDraw(k){if(cardK===k)return;cardK=k;const {g,t}=G.ct,C=CARDS[k==='mag'?'mag':'acc'],gr=g.createLinearGradient(0,0,0,180);gr.addColorStop(0,'#2a3b8f');gr.addColorStop(1,'#120d3a');g.fillStyle=gr;g.fillRect(0,0,128,180);g.strokeStyle='#f2c94c';g.lineWidth=8;g.strokeRect(4,4,120,172);
+    g.textAlign='center';g.textBaseline='middle';g.font='62px sans-serif';g.fillText(C.ic,64,76);g.fillStyle='#ffe9a0';g.font=`900 30px ${FONT}`;g.fillText(C.n,64,146);t.needsUpdate=true;}
+  // ---- 飛 ----
+  const F={};
+  G.canFly=()=>started&&mode==='walk'&&!G.on&&!SKI.ride&&!RIDE.on&&!PAX.on&&!BALLOON.riding&&!LIE.on&&!DECO.sit&&!player.climb&&!FJW.scope&&EMOTE.can();
+  function fly(x,z,y,opt){if(SKI.on)SKI.stop();if(SKATE.on)SKATE.stop();if(EMOTE.on)EMOTE.stop(true);fxInit();cardDraw(opt.kind==='mag'?'mag':'acc');
+    const x0=player.pos.x,z0=player.pos.y,y0=player.y,D=Math.hypot(x-x0,z-z0);
+    Object.assign(F,{x0,z0,y0,x,z,y,D,dir:D>1?Math.atan2(-(x-x0),-(z-z0)):avatar.yaw,T3:cl(D/140,1.2,4),H:Math.min(160,20+D*0.12),kind:opt.kind,dn:opt.dn||'',by:opt.by||'',trT:0,cv:null,ci:0});
+    G.on=true;G.ph=1;G.t=0;camInit=false;if(view!=='third'){view='third';syncViewUI();}player.vel.set(0,0);player.vy=0;avatar.yaw=F.dir;
+    AUDIO.sfx('chime');bigT(opt.kind==='mag'?'🧲 磁力 使用！':opt.kind==='pull'?`🌠 ${pn(opt.by)} 的同行！`:'🌠 同行 使用！');if(typeof syncActBtn==='function')syncActBtn();}
+  G.step=dt=>{if(!G.on)return;G.t+=dt;const f=F;let x=f.x0,z=f.z0,y=f.y0;const yA=f.y0+35,yB=f.y+60;
+    if(G.ph===1&&G.t>=T1){G.ph=2;G.t=0;AUDIO.sfx('whoosh');ring(f.x0,f.y0,f.z0,'#ffe9a0',7,0.6);dust(f.x0,f.y0,f.z0,10,'#fff6d0');if(f.dn)bigT(`🌠 → ${f.dn}`);}
+    if(G.ph===2){const u=Math.min(1,G.t/T2);y=f.y0+35*u*u;if(G.t>=T2){G.ph=3;G.t=0;}}
+    if(G.ph===3){const u=Math.min(1,G.t/f.T3),e=ease(u);x=f.x0+(f.x-f.x0)*e;z=f.z0+(f.z-f.z0)*e;y=yA+(yB-yA)*e+f.H*Math.sin(Math.PI*u);if(G.t>=f.T3){G.ph=4;G.t=0;AUDIO.sfx('whoosh');}}
+    if(G.ph===4){const u=Math.min(1,G.t/T4);x=f.x;z=f.z;y=yB-(yB-f.y)*u*u;if(G.t>=T4){G.ph=5;G.t=0;land();}}
+    if(G.ph===5){x=f.x;z=f.z;y=f.y;if(G.t>=T5){end();return;}}
+    player.pos.set(x,z);player.y=y;player.vel.set(0,0);player.vy=0;player.ground=G.ph===1||G.ph===5;avatar.yaw=f.dir;
+    if(G.ph===3)landPick(f);
+    if(G.ph>=2&&G.ph<=4){f.trT-=dt;if(f.trT<=0){f.trT=0.022;trail(x,y+1.1,z,'#ffe9a0',1.3);}}};   /* 光尾巴 */
+  function land(){const f=F,sn=FJ.snow(f.x,f.z)||f.y>100;ring(f.x,f.y,f.z,'#ffffff',10,0.75);ring(f.x,f.y,f.z,'#ffe9a0',5,0.5);dust(f.x,f.y,f.z,12,sn?'#eef6ff':'#d6c7a6');AUDIO.sfx('bigboom');AUDIO.sfx('thud');
+    if(!(typeof CALM!=='undefined'&&CALM.on)){const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:#fff;z-index:85;opacity:.5;transition:opacity .35s;pointer-events:none';document.body.appendChild(d);setTimeout(()=>{d.style.opacity='0';},30);setTimeout(()=>d.remove(),450);}}   /* 落地：衝擊波、塵土（雪地是雪花）、閃一下 */
+  function end(){const f=F;G.on=false;G.ph=0;player.pos.set(f.x,f.z);resolve(player.pos,0.3,f.y);const h=heightAt(player.pos.x,player.pos.y,f.y+0.5);player.y=Math.abs(h-f.y)<3?h:f.y;player.vy=0;player.ground=true;player.vel.set(0,0);player.yaw=f.dir;player.pitch=-0.08;avatar.yaw=f.dir;
+    if(card)card.visible=false;if(aura)aura.visible=false;if(pillar)pillar.visible=false;toast(f.kind==='mag'?'🧲 飛到了！':`🌠 到了：${f.dn}`);if(typeof syncActBtn==='function')syncActBtn();}
+  G.cancel=()=>{if(!G.on)return;G.on=false;G.ph=0;if(card)card.visible=false;if(aura)aura.visible=false;if(pillar)pillar.visible=false;};   /* 飛到一半被傳送（前往） */
+  // ---- 姿勢（自己、別人一樣） ----
+  function poseAt(a,ph,t){a.zeroJoints();const r=(o,x,y,z)=>{if(o)o.rotation.set(x,y||0,z||0);};a.body.position.y=0;a.body.rotation.set(0,0,0);
+    for(const o of [a.armL,a.armR,a.legL,a.legR])r(o,0);
+    if(ph===1){a.body.rotation.x=-0.08;r(a.armR,-2.95,0,0.12);r(a.foreR,-0.15);a.hand(1,'open');r(a.armL,-0.35,0,-0.3);a.hand(-1,'fist');}   /* 舉起卡片 */
+    else if(ph===2){r(a.armL,0.35,0,-0.3);r(a.armR,0.35,0,0.3);a.hand(1,'open');a.hand(-1,'open');r(a.legL,0.05);r(a.legR,-0.05);r(a.shinL,0.15);r(a.shinR,0.1);}   /* 衝上天：手往下往後（像鋼鐵人噴射） */
+    else if(ph===3){a.body.rotation.x=1.25;r(a.armR,-2.95,0,0.05);a.hand(1,'fist');r(a.armL,0.15,0,-0.12);a.hand(-1,'open');r(a.legL,0.1);r(a.legR,0.22);r(a.shinL,0.2);r(a.shinR,0.4);}   /* 飛：身體往前趴、右拳往前 */
+    else if(ph===4){a.body.rotation.x=-0.05;r(a.armL,-0.3,0,-1.1);r(a.armR,-0.3,0,1.1);a.hand(1,'open');a.hand(-1,'open');r(a.legL,-0.35);r(a.legR,0.1);r(a.shinL,0.7);r(a.shinR,0.4);}   /* 落下：手張開 */
+    else if(ph===5){const k=t<1.1?1:Math.max(0,1-(t-1.1)/0.4);   /* 鋼鐵人落地：最後 0.4 秒慢慢站起來 */
+      a.body.position.y=-0.5*k;a.body.rotation.x=0.75*k;r(a.legL,-1.9*k);r(a.shinL,2.2*k);r(a.legR,0);r(a.shinR,1.6*k);   /* 這個骨架：身體 rotation.x 正的＝往前傾（姿勢拼圖確認過） */
+      r(a.armR,-0.6*k,0,0.08);a.hand(1,'fist');r(a.armL,1.2*k,0,-0.6*k);r(a.foreL,-0.1*k);a.hand(-1,'open');
+      if(a.head)r(a.head,0.4*k*(t<0.7?1:Math.max(0,1-(t-0.7)/0.3)));}}   /* 先低頭，再抬頭看前面 */
+  G.pose=(a,dt)=>{if(G.on)poseAt(a,G.ph,G.t);};
+  // ---- 鏡頭 ----
+  const CP=new V3();let camInit=false;
+  function blocked(x0,z0,x1,z1,y0,y1){for(const c of colliders){if(c.off||c.h<=y0+0.3||c.y0>=y1)continue;if(Math.max(x0,x1)<c.x0-0.2||Math.min(x0,x1)>c.x1+0.2||Math.max(z0,z1)<c.z0-0.2||Math.min(z0,z1)>c.z1+0.2)continue;
+      for(let k=1;k<12;k++){const u=k/12,x=x0+(x1-x0)*u,z=z0+(z1-z0)*u;if(c.circle?Math.hypot(x-c.x,z-c.z)<c.r+0.15:x>c.x0-0.15&&x<c.x1+0.15&&z>c.z0-0.15&&z<c.z1+0.15)return true;}}return false;}
+  const CDA2=[0,0.6,-0.6,1.2,-1.2,1.9,-1.9,Math.PI],RC=new THREE.Raycaster(),RO=new V3(),RD=new V3();
+  function rayClear(f,ox,oz){RC.camera=camera;RO.set(f.x,f.y+1.2,f.z);RD.set(ox,0.2,oz).normalize();RC.set(RO,RD);RC.far=Math.hypot(ox,oz);for(const h of RC.intersectObjects(scene.children,true)){const o=h.object;if(!o.visible||o.isSprite||o.isPoints||o.isLine)continue;return false;}return true;}   /* 攤位、看板（不是碰撞盒的）也會擋 */
+  function landPick(f){if(f.cv||f.ci>=CDA2.length)return;const a=f.dir+CDA2[f.ci++],ox=-Math.sin(a)*4.8,oz=-Math.cos(a)*4.8;if(!blocked(f.x,f.z,f.x+ox,f.z+oz,f.y,f.y+2.2)&&rayClear(f,ox,oz))f.cv=[ox,oz];}   /* 飛的時候每格測一個方向（不會一下子卡住） */
+  function landCam(f){for(const da of CDA2){const a=f.dir+da,ox=-Math.sin(a)*4.8,oz=-Math.cos(a)*4.8;if(!blocked(f.x,f.z,f.x+ox,f.z+oz,f.y,f.y+2.2))return [ox,oz];}return [-Math.sin(f.dir)*3,-Math.cos(f.dir)*3];}   /* 落地鏡頭：先從正前方找，跟人中間不能有牆、看板（碰撞盒） */
+  G.cam=dt=>{const f=F,px=player.pos.x,pz=player.pos.y,py=player.y,ph=G.ph,fx=-Math.sin(f.dir),fz=-Math.cos(f.dir);let tx,ty,tz,lx,ly,lz,k;
+    if(!camInit){camInit=true;CP.copy(camera.position);}
+    if(ph===1){tx=px+fx*4.3-fz*1.3;ty=py+1.7;tz=pz+fz*4.3+fx*1.3;lx=px;ly=py+1.7;lz=pz;k=1-Math.exp(-dt*5);}   /* 前面斜看：舉卡片 */
+    else if(ph===2){tx=CP.x;ty=CP.y;tz=CP.z;lx=px;ly=py+1;lz=pz;k=0;}   /* 鏡頭留在原地往上看：咻一下飛上去 */
+    else if(ph===3){tx=px-fx*6;ty=py+2.4;tz=pz-fz*6;lx=px+fx*25;ly=py-3;lz=pz+fz*25;k=G.t<0.25?1-Math.exp(-dt*12):1;}   /* 飛很快：鏡頭直接跟著（不然會被甩在後面） */   /* 後面跟著飛 */
+    else{if(!f.cv)f.cv=landCam(f);tx=f.x+f.cv[0];ty=f.y+1.4;tz=f.z+f.cv[1];lx=f.x;ly=ph===4?Math.max(f.y+0.8,py+0.6):f.y+0.7;lz=f.z;k=ph===4&&G.t<0.06?1:1-Math.exp(-dt*8);}   /* 落地：在前面低角度看 */
+    CP.x+=(tx-CP.x)*k;CP.y+=(ty-CP.y)*k;CP.z+=(tz-CP.z)*k;camera.position.copy(CP);
+    if(ph===5&&G.t<0.35&&!(typeof CALM!=='undefined'&&CALM.on))camera.position.y+=Math.sin(G.t*70)*0.09*(1-G.t/0.35);   /* 落地震一下 */
+    camera.lookAt(lx,ly,lz);};
+  // ---- 每格：特效、冷卻 ----
+  G.tick=dt=>{for(const q of TR){if(q.t<=0)continue;q.t-=dt;const k=Math.max(0,q.t/q.T),dc=q.s.position.distanceTo(camera.position);q.s.material.opacity=k*Math.min(1,Math.max(0,(dc-3)/9));q.s.scale.setScalar(q.sz*(0.35+0.65*k));if(q.t<=0)q.s.visible=false;}
+    for(const q of RINGS){if(q.t<=0)continue;q.t-=dt;const u=1-Math.max(0,q.t/q.T);q.m.scale.setScalar(0.5+q.R*u);q.m.material.opacity=1-u;if(q.t<=0)q.m.visible=false;}
+    for(const q of DUST){if(q.t<=0)continue;q.t-=dt;q.v.y-=6*dt;q.v.multiplyScalar(Math.exp(-2*dt));q.s.position.addScaledVector(q.v,dt);const k=Math.max(0,q.t/q.T);q.s.material.opacity=k*0.55;q.s.scale.setScalar(0.6+1.3*(1-k));if(q.t<=0)q.s.visible=false;}
+    if(G.on&&card){const ph=G.ph;card.visible=ph===1;if(ph===1){card.position.set(player.pos.x+Math.sin(avatar.yaw+Math.PI)*0.1,player.y+2.55+0.08*Math.sin(G.t*6),player.pos.y+Math.cos(avatar.yaw+Math.PI)*0.1);const s=0.3+0.25*Math.min(1,G.t*3);card.scale.set(s,s*1.4,1);card.material.rotation=Math.sin(G.t*9)*0.12;}
+      aura.visible=ph<=4;if(aura.visible){aura.position.set(player.pos.x,player.y+1.1,player.pos.y);aura.scale.setScalar(ph===1?1+G.t*1.6:2);aura.material.opacity=ph===1?Math.min(0.75,G.t):0.4;}
+      pillar.visible=(ph===1&&G.t>0.45)||ph===2;if(pillar.visible){pillar.position.set(F.x0,F.y0,F.z0);pillar.material.opacity=ph===1?Math.min(0.55,(G.t-0.45)*1.1):Math.max(0,0.55-G.t*0.7);}}
+    for(const k in G.cd)if(G.cd[k]>0)G.cd[k]-=dt;
+    if(!BK.hidden&&performance.now()>bkT)draw();};
+  // ---- 連線：別人看到你飛 ----
+  const REM=new Map();
+  G.net=()=>G.on?[G.ph,+avatar.yaw.toFixed(2)]:null;
+  G.remote=(q,A,dt)=>{const s=q.s,gc=s&&s.gc,id=String(q.id);let r=REM.get(id);if(!Array.isArray(gc)){if(r)REM.delete(id);return;}if(!r){r={ph:0,t:0,trT:0};REM.set(id,r);}const ph=gc[0]|0,d=dt||1/30;
+    if(ph!==r.ph){const p=A.root.position;if(ph===5){ring(p.x,p.y,p.z,'#ffffff',10,0.75);dust(p.x,p.y,p.z,14,p.y>100?'#ffffff':'#d6c7a6');if(camera.position.distanceTo(p)<90)AUDIO.sfx('thud');}else if(ph===2){ring(p.x,p.y,p.z,'#ffe9a0',7,0.6);if(camera.position.distanceTo(p)<90)AUDIO.sfx('whoosh');}r.ph=ph;r.t=0;}r.t+=d;
+    A.root.rotation.y=(+gc[1]||0)+Math.PI;poseAt(A,ph,r.t);
+    if(ph>=2&&ph<=4){r.trT-=d;if(r.trT<=0){r.trT=0.03;const p=A.root.position;trail(p.x,p.y+1.1,p.z,'#bfe3ff',2);}}};
+  // ---- 卡片書 ----
+  const BK=document.createElement('div');BK.id='gcBook';BK.className='panel';BK.hidden=true;document.body.appendChild(BK);let bkV='main',bkT=0;
+  {const st=document.createElement('style');st.textContent=`#gcBook[hidden]{display:none!important}#gcBook{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(430px,calc(100vw - 24px));max-height:88vh;overflow:auto;overflow-x:hidden;z-index:62;padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#4a3320,#24170b);border:3px solid #c9a24a;border-radius:16px;color:#fff;animation:gcIn .35s ease-out}
+    @keyframes gcIn{0%{transform:translate(-50%,-50%) scale(.6) rotate(-5deg);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+    #gcBook .hd{display:flex;justify-content:space-between;align-items:center;font-size:19px;font-weight:900;color:#ffe9a0}#gcBook .hd button{background:#5a4024;color:#fff;border:1px solid #c9a24a;border-radius:8px;padding:4px 10px;font-size:15px}
+    #gcBook .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}#gcBook .cd{border-radius:12px;padding:10px 8px;background:linear-gradient(180deg,#2a3b8f,#120d3a);border:3px solid #f2c94c;text-align:center;box-shadow:0 0 14px rgba(242,201,76,.35);display:flex;flex-direction:column;align-items:center;gap:4px}
+    #gcBook .cd .rk{align-self:flex-start;font-size:12px;font-weight:900;color:#f2c94c}#gcBook .cd .ic{font-size:46px;line-height:1.1}#gcBook .cd .nm{font-size:22px;font-weight:900;color:#ffe9a0}#gcBook .cd .tx{font-size:12px;opacity:.92;line-height:1.5;min-height:54px}
+    #gcBook button.use{width:100%;font-size:16px;font-weight:900;padding:9px 6px;border-radius:10px;border:0;background:linear-gradient(180deg,#ffe08a,#e8a020);color:#3a2300}#gcBook button.use:disabled{background:#555;color:#ccc}
+    #gcBook .lst{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}#gcBook .lst button{font-size:14px;font-weight:800;padding:9px 6px;border-radius:10px;border:1px solid #c9a24a;background:#2a3b8f;color:#fff}
+    #gcBook .note{font-size:13px;opacity:.9;line-height:1.6}`;document.head.appendChild(st);}
+  for(const ev of ['pointerdown','touchstart','keydown','wheel'])BK.addEventListener(ev,e=>e.stopPropagation());
+  const IN=new Set(['1F 客廳','1F 廚房','2F','3F','隔壁新家（擺傢俱）','後陽台','西側通道','熱氣球']);   /* 室內、窄的地方不能從天上降落 */
+  const dests=()=>SPOTS.filter(s=>!s.bal&&!IN.has(s.name)&&isFinite(s.x));
+  function nearFriends(){if(!NET.on)return [];const out=[];for(const [id,q] of NET.P){const a=q&&q.s&&q.s.a;if(!a||q.s.ca)continue;if(Math.hypot(a[0]-player.pos.x,a[2]-player.pos.y)<=20&&Math.abs(a[1]-player.y)<12)out.push(String(id));}return out;}
+  function draw(){bkT=performance.now()+400;let h=`<div class="hd">📖 卡片書<button data-x="1">✕</button></div>`;
+    if(bkV==='acc'){const nf=nearFriends();h+=`<div class="note">🌠 <b>同行</b>：選要飛去哪裡${nf.length?`（身邊的 ${nf.map(pn).map(esc).join('、')} 會一起飛）`:'（身邊 20 m 內的朋友會一起飛）'}</div><div class="lst">${dests().map((s,i)=>`<button data-d="${i}">${esc(s.name)}</button>`).join('')}</div><button class="use" data-b="1" style="background:#5a4024;color:#fff">← 回卡片書</button>`;}
+    else if(bkV==='mag'){const L=NET.on?[...NET.P.entries()].filter(([,q])=>q&&q.s&&q.s.a):[];h+=`<div class="note">🧲 <b>磁力</b>：選要飛去找哪個朋友</div>${L.length?`<div class="lst">${L.map(([id,q])=>`<button data-f="${esc(id)}">${esc(q.name||pn(id))}<br><small>${Math.round(Math.hypot(q.s.a[0]-player.pos.x,q.s.a[2]-player.pos.y))} m${q.s.ca?'・坐纜車中':''}</small></button>`).join('')}</div>`:'<div class="note">先「👥 連線」跟朋友連在一起，才能用磁力飛過去找他。</div>'}<button class="use" data-b="1" style="background:#5a4024;color:#fff">← 回卡片書</button>`;}
+    else h+=`<div class="cards">${['acc','mag'].map(k=>{const C=CARDS[k],c=G.cd[k];return `<div class="cd"><div class="rk">${C.r}</div><div class="ic">${C.ic}</div><div class="nm">${C.n}</div><div class="tx">${C.tx}</div><button class="use" data-u="${k}" ${c>0?'disabled':''}>${c>0?`冷卻中 ${Math.ceil(c)} 秒`:'使用！'}</button></div>`;}).join('')}</div><div class="note">卡片不會用完：用過等一下（同行 ${CDA} 秒、磁力 ${CDM} 秒）就能再用。電腦按 B 打開。</div>`;
+    if(BK.innerHTML!==h)BK.innerHTML=h;}
+  G.open=v=>{bkV=v||'main';draw();BK.hidden=false;AUDIO.sfx('click');};
+  BK.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset;
+    if(d.x){BK.hidden=true;return;}if(d.b){bkV='main';draw();return;}
+    if(d.u){if(!G.canFly()){toast(G.on?'正在飛':'現在不能用卡片（先離開遊戲、下車）');return;}bkV=d.u;draw();return;}
+    if(d.d!=null){const s=dests()[+d.d];if(s)useAcc(s);return;}
+    if(d.f!=null)useMag(d.f);});
+  function useAcc(s){if(!G.canFly()||G.cd.acc>0)return;BK.hidden=true;if(mode==='aerial'&&typeof toggleAerial==='function')toggleAerial();const y=s.y!=null?s.y:heightAt(s.x,s.z,1.5),nf=nearFriends(),n=nf.length+1;
+    fly(s.x,s.z,y,{kind:'acc',dn:s.name});G.cd.acc=CDA;
+    nf.forEach((id,i)=>{const a=F.dir+(i+1)/n*Math.PI*2,ox=Math.sin(a)*2.4,oz=Math.cos(a)*2.4;NET.out(id,{t:'gcA',x:+(s.x+ox).toFixed(2),z:+(s.z+oz).toFixed(2),y:+y.toFixed(2),dn:s.name});});   /* 朋友落在旁邊一圈 */
+    if(nf.length)toast(`🌠 同行：帶著 ${nf.map(pn).join('、')} 一起飛到 ${s.name}！`);}
+  function useMag(id){if(!G.canFly()||G.cd.mag>0)return;const q=NET.P.get(id)||NET.P.get(+id),a=q&&q.s&&q.s.a;if(!a){toast('找不到這個朋友');return;}if(q.s.ca){toast('朋友正在坐纜車，等他下來再飛過去');return;}BK.hidden=true;
+    const dx=player.pos.x-a[0],dz=player.pos.y-a[2],l=Math.hypot(dx,dz)||1,x=a[0]+dx/l*2.2,z=a[2]+dz/l*2.2,y=heightAt(x,z,a[1]+1.5);fly(x,z,Math.abs(y-a[1])<3?y:a[1],{kind:'mag',dn:pn(id)});G.cd.mag=CDM;NET.out(String(id),{t:'gcM'});}
+  G.rx=(d,f)=>{f=String(f);if(d.t==='gcA'){const x=+d.x,z=+d.z;if(!isFinite(x)||!isFinite(z))return;if(!G.canFly()){toast(`🌠 ${pn(f)} 用了同行，可是你正在忙，沒有跟去`);return;}const y=heightAt(x,z,(+d.y||0)+1.5);fly(x,z,Math.abs(y-(+d.y||0))<3?y:+d.y||0,{kind:'pull',by:f,dn:String(d.dn||'').slice(0,20)});}
+    else if(d.t==='gcM')toast(`🧲 ${pn(f)} 用磁力飛過來找你了！`);};
+  addEventListener('keydown',e=>{if(e.repeat||e.code!=='KeyB'||!started)return;if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;if(BK.hidden)G.open();else BK.hidden=true;});
+  G.dbg=()=>({F,fly,poseAt,useAcc,useMag,nearFriends,dests,REM});
+  return G;})();
 const CVS=(()=>{const C={on:false,food:null};
   const $=id=>document.getElementById(id),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=(a,b)=>a+Math.random()*(b-a);
   const W=()=>PUSH.W,money=()=>W().money|0;
@@ -15855,7 +15990,7 @@ function playerFall(dt){
   TRAMP.after(vin);   // 彈跳床
 }
 let jumpHeld=false;   // 手機「跳」按住中（彈跳床：按住就一直用力彈）
-function doJump(){if(!started||mode!=='walk'||TN.on||RACE.on)return;if(SKI.on||SKI.ride){SKI.jump();return;}if(DUO.on){DUO.press();return;}if(LINK.jump())return;if(typeof CG!=='undefined'&&CG.lock())return;if(PAX.on){PAX.space();return;}if(RIDE.on){RIDE.jump();return;}if(EMOTE.on)EMOTE.stop();if(BALLOON.riding){BALLOON.burnPress();return;}if(SKATE.on){SKATE.jump();return;}if(BB.lock())return;if(LIE.on){LIE.stop();syncActBtn();return;}if(DECO.sit){DECO.stand();return;}if(player.climb)return;
+function doJump(){if(!started||mode!=='walk'||TN.on||RACE.on||GCARD.on)return;if(SKI.on||SKI.ride){SKI.jump();return;}if(DUO.on){DUO.press();return;}if(LINK.jump())return;if(typeof CG!=='undefined'&&CG.lock())return;if(PAX.on){PAX.space();return;}if(RIDE.on){RIDE.jump();return;}if(EMOTE.on)EMOTE.stop();if(BALLOON.riding){BALLOON.burnPress();return;}if(SKATE.on){SKATE.jump();return;}if(BB.lock())return;if(LIE.on){LIE.stop();syncActBtn();return;}if(DECO.sit){DECO.stand();return;}if(player.climb)return;
   if(TRAMP.press())return;   // 彈跳床：往下掉時按＝下一下彈更高（不是二段跳）、剛彈起來補按也算
   if(player.ground){player.vy=4.6*CVS.jmp();player.ground=false;player.jumps=1;}else if(player.jumps<2){player.vy=4.6*CVS.jmp();player.jumps=2;}}   /* 2026-10-27.27 喝珍奶跳高 */
 const lidShut=()=>HATCH_LID.t<0.95;
@@ -16637,7 +16772,7 @@ function updateAvatar(dt,stage){
   if(PAX.on)PAX.pose(a,dt);else if(RIDE.on)RIDE.pose(a,dt);else if(LIE.on)LIE.pose(a);else if(SKI.on||SKI.ride||SKI.hitT>0)SKI.pose(a,dt);else if(SKATE.on)SKATE.pose(a,dt);else if(BB.on)BB.pose(a,dt);else if(TN.on)TN.pose(a,dt);else if(EMOTE.on)EMOTE.pose(a,dt);else if(a.root.rotation.x)a.root.rotation.x=0;   // 躺床、直排輪
   RS.sitPose(a,dt);   // 在小餐館坐著點菜
   DECO.pose(a,dt);   // 隔壁新家：坐沙發、躺床
-  PUSH.holdPose(a,dt);CVS.pose(a,dt);SKI.throwPose(a,dt);LINK.pose(a,dt);DUO.pose(a,dt);   /* 2026-10-27.7 牽手、背、抱；2026-10-27.11 兩人小遊戲 */   // 獎品拿在手上／炫耀（玩遊戲、做動作時自己不會套用）
+  PUSH.holdPose(a,dt);CVS.pose(a,dt);SKI.throwPose(a,dt);LINK.pose(a,dt);DUO.pose(a,dt);GCARD.pose(a,dt);   /* 2026-10-27.7 牽手、背、抱；2026-10-27.11 兩人小遊戲 */   // 獎品拿在手上／炫耀（玩遊戲、做動作時自己不會套用）
   for(const A2 of AVATARS)if(A2.root.visible&&A2.root.position.distanceToSquared(camera.position)<2025)A2.cloth(dt);   // 2026-10-21.6 衣服會飄（自己、連線的朋友、小餐館客人）
 }
 // 第三人稱鏡頭：碰到牆會自動拉近
@@ -16676,7 +16811,7 @@ const keys={};let mode='walk';let started=false;
 const orbit=new OrbitControls(camera,renderer.domElement);orbit.enabled=false;orbit.enableDamping=true;orbit.maxPolarAngle=Math.PI*0.48;orbit.minDistance=6;orbit.maxDistance=220;
 
 let placeTimer=0;
-function teleport(x,z,yaw,y=0){if(CVS.on)CVS.stop();FJW.exit();if(PAX.on)PAX.leave('',true);if(RIDE.on)RIDE.stop(true);if(DECO.sit)DECO.stand(true);if(typeof RS!=='undefined'){if(RS.on)RS.stop();if(RS.seat)RS.standUp();}if(DD.on)DD.stop(true);if(KF.on)KF.stop(true);if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();if(MU.on)MU.stop(true);if(CU.on)CU.stop(true);if(NM.on)NM.stop();if(RB.on)RB.stop();if(SB.on)SB.stop();if(RACE.on)RACE.stop();   /* 玩到一半用「前往」：先結束遊戲（原本會一直被拉回跑道／擂台） */
+function teleport(x,z,yaw,y=0){GCARD.cancel();if(CVS.on)CVS.stop();FJW.exit();if(PAX.on)PAX.leave('',true);if(RIDE.on)RIDE.stop(true);if(DECO.sit)DECO.stand(true);if(typeof RS!=='undefined'){if(RS.on)RS.stop();if(RS.seat)RS.standUp();}if(DD.on)DD.stop(true);if(KF.on)KF.stop(true);if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();if(MU.on)MU.stop(true);if(CU.on)CU.stop(true);if(NM.on)NM.stop();if(RB.on)RB.stop();if(SB.on)SB.stop();if(RACE.on)RACE.stop();   /* 玩到一半用「前往」：先結束遊戲（原本會一直被拉回跑道／擂台） */
   if(BALLOON.riding)BALLOON.reset();BB.reset();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(SKATE.on){SKATE.vel.set(0,0);SKATE.v=0;SKATE.ground=true;SKATE.vy=0;if(yaw!==undefined)SKATE.dir=yaw;}player.y=y;player.vy=0;const fd=document.getElementById('fade');if(fd&&started){fd.style.transition='none';fd.style.opacity=1;requestAnimationFrame(()=>{fd.style.transition='opacity .35s';fd.style.opacity=0;});}player.vel.set(0,0);player.pos.set(x,z);resolve(player.pos,0.3,y);if(yaw!==undefined){player.yaw=yaw;player.pitch=-0.05;}if(mode==='aerial'){orbit.target.set(x,0,z);}placeTimer=0;}
 const SPOTS=[
   {name:'我家門口',x:DOOR.x,z:3.6,yaw:0},
@@ -19077,7 +19212,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       a.length=0;a.push(r3(kfS.x),0,r3(kfS.z),0,r3(kfS.yaw||0),0,1,0,0,0,0,0,0);for(const k of JN){const v=J[k]||[0,0,0];a.push(v[0],v[1],v[2]);}a.push(0,0,0,0,0,0);}
     const s={t:'s',a,h:kfS?['fist','fist']:HN.slice(),dd:DD.on?1:0};if(kfS&&kfS.info)s.kf=kfS.info;{const pu=PUSH.netPack();if(pu)s.pu=pu;const fi=FISH.netPack();if(fi)s.fi=fi;const hw=PUSH.wear();if(hw)s.hw=hw;const ph=PUSH.holdNet();if(ph)s.ph=ph;const rh=RS.netPack();if(rh)s.rh=rh;}   /* 推幣機：第幾台、投幣口、投的代幣；頭上戴的獎品 */
     if(BALLOON.riding){const g=BALLOON.g;s.b=[r3(BALLOON.pos.x),r3(BALLOON.y),r3(BALLOON.pos.y),BALLOON.burn>0?1:0,r3(g.rotation.x),r3(g.rotation.z)];}   /* 搭熱氣球：熱氣球也要傳（不然對方只看到人飄在空中） */
-    if(RIDE.on)s.rd=RIDE.net();if(PAX.on)s.px=PAX.net();{const lk=LINK.net();if(lk)s.lk=lk;}{const si=SKI.net();if(si)Object.assign(s,si);}if(RIDE.on&&PAX.hasPax()){const mr=MOUNT.raceNet();if(mr)s.mr=mr;}   /* 坐朋友的車：坐哪台、哪個位子；司機有乘客時傳比賽的電腦車 */   /* 2026-10-21.7 騎車、開車：車子也傳 */
+    if(RIDE.on)s.rd=RIDE.net();if(PAX.on)s.px=PAX.net();{const lk=LINK.net();if(lk)s.lk=lk;}{const si=SKI.net();if(si)Object.assign(s,si);}{const gc=GCARD.net();if(gc)s.gc=gc;}if(RIDE.on&&PAX.hasPax()){const mr=MOUNT.raceNet();if(mr)s.mr=mr;}   /* 坐朋友的車：坐哪台、哪個位子；司機有乘客時傳比賽的電腦車 */   /* 2026-10-21.7 騎車、開車：車子也傳 */
     if(A.morph)s.dk=1;if(hidMe())s.hid=1;if(rcC){const q=rcC.quaternion;s.rc=[r3(q.x),r3(q.y),r3(q.z),r3(q.w)];}
     {const now=performance.now(),dt=(now-lastP.t)/1000;if(dt>0.02&&dt<0.5){const vx=(a[0]-lastP.x)/dt,vz=(a[2]-lastP.z)/dt;if(Math.hypot(vx,vz)<(rcC?150:130))s.v=[Math.round(vx*100)/100,Math.round(vz*100)/100];}lastP.x=a[0];lastP.z=a[2];lastP.t=now;}   /* 速度：對方那邊照速度往前推算，溜很快時才不會一頓一頓 */
     {const jt=SKATE.on?SKATE.jet:RACE.on&&RACE.sk8?RACE.bst||0:0;if(jt)s.jt=jt;}   /* 直排輪推進器開著（1 橘色、2 超級加速藍白色） */
@@ -19131,7 +19266,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       if(sc){const c=sc.root,sn=!R.car||c.position.distanceTo(tv.set(tx,a[1],tz))>Math.max(12,sp*0.6);R.car=sc;c.visible=true;if(sn)c.position.set(tx,a[1],tz);else c.position.lerp(tv,k);tq.set(s.rc[0],s.rc[1],s.rc[2],s.rc[3]);if(sn)c.quaternion.copy(tq);else c.quaternion.slerp(tq,k);
         if(!R.ctag){R.ctag=mkSprite(tagTex(q.name||'…',PC[q.id]),2.6,0.65);R.ctag.position.set(0,2.3,0);}if(R.ctag.parent!==c){for(const x of [...c.children])if(x.isSprite&&x.renderOrder===9)c.remove(x);c.add(R.ctag);}}   /* 一起跑時加的名字也拿掉，換這個 */
       else if(R.car){if(R.ctag&&R.ctag.parent)R.ctag.parent.remove(R.ctag);if(!(RACE.net&&RACE.RMS.has(q.id)))R.car.root.visible=false;R.car=null;}}
-    PAX.remPose(q,A);LINK.remPlace(q,A);SKI.remote(q,A,dt);   /* 坐在車上的人：照自己畫面上的那台車擺；牽手、被背的人：照自己畫面上帶頭的人擺 */
+    PAX.remPose(q,A);LINK.remPlace(q,A);SKI.remote(q,A,dt);GCARD.remote(q,A,dt);   /* 坐在車上的人：照自己畫面上的那台車擺；牽手、被背的人：照自己畫面上帶頭的人擺 */
     o.visible=!s.hid;}
   const tq=new THREE.Quaternion();
   function goTo(id){if(typeof CG!=='undefined'&&CG.on){st('城堡遊戲中不能傳送');return;}const q=N.P.get(id);if(!q||!q.s){st('還不知道 '+(q&&q.name||'對方')+' 在哪裡');return;}const a=q.s.a;P.hidden=true;teleport(a[0]+1.3,a[2]+1.3,undefined,a[1]>0.5?a[1]:0);toast('📍 到 '+(q.name||'對方')+' 旁邊了');}
@@ -19152,7 +19287,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       case 'px':PAX.rx(d,f);break;   /* 坐朋友的車 */
       case 'lkR':case 'lkA':case 'lkN':case 'lkS':case 'lkQ':case 'lkF':LINK.rx(d,f);break;   /* 2026-10-27.7 牽手、背、抱 */
       case 'duR':case 'duA':case 'duN':case 'duG':case 'duE':case 'duQ':DUO.rx(d,f);break;
-      case 'siR':case 'siA':case 'siN':case 'siG':case 'siF':SKI.rx(d,f);break;case 'snR':case 'snA':case 'snN':case 'snG':case 'snF':case 'snH':SKI.brx(d,f);break;case 'sbW':case 'sbH':SKI.thrRx(d,f);break;case 'bwR':case 'bwA':case 'bwN':case 'bwS':case 'bwH':case 'bwG':case 'bwC':case 'bwK':SKI.bwRx(d,f);break;case 'gsQ':case 'gsS':SKI.gsRx(d,f);break;   /* 2026-10-27.34 雪球大戰、大雪人 */case 'caI':case 'caA':case 'caN':case 'caS':case 'caF':case 'caE':case 'caP':case 'caG':SKI.crx(d,f);break;   /* 2026-10-27.31 一起坐纜車 */   /* 2026-10-27.28 丟雪球 */   /* 2026-10-27.21 滾雪球 */   /* 2026-10-27.18 滑雪比賽 */   /* 2026-10-27.11 兩人小遊戲 */
+      case 'siR':case 'siA':case 'siN':case 'siG':case 'siF':SKI.rx(d,f);break;case 'snR':case 'snA':case 'snN':case 'snG':case 'snF':case 'snH':SKI.brx(d,f);break;case 'sbW':case 'sbH':SKI.thrRx(d,f);break;case 'bwR':case 'bwA':case 'bwN':case 'bwS':case 'bwH':case 'bwG':case 'bwC':case 'bwK':SKI.bwRx(d,f);break;case 'gsQ':case 'gsS':SKI.gsRx(d,f);break;case 'gcA':case 'gcM':GCARD.rx(d,f);break;   /* 2026-10-27.34 雪球大戰、大雪人 */case 'caI':case 'caA':case 'caN':case 'caS':case 'caF':case 'caE':case 'caP':case 'caG':SKI.crx(d,f);break;   /* 2026-10-27.31 一起坐纜車 */   /* 2026-10-27.28 丟雪球 */   /* 2026-10-27.21 滾雪球 */   /* 2026-10-27.18 滑雪比賽 */   /* 2026-10-27.11 兩人小遊戲 */
       case 'puEv':PUSH.netBig(q.name||'有人',d);break;
       case 'fiS':case 'fiA':case 'fiQ':case 'fiN':case 'fiR':case 'fiB':case 'fiE':case 'fiT':FISH.netRx(d,f);break;
       case 'rsS':case 'rsC':case 'rsO':case 'rsE':RS.netRx(d,f);break;
@@ -20565,7 +20700,7 @@ function step(dt){
     const fx=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),rx=Math.cos(player.yaw),rz=-Math.sin(player.yaw);
     const k=1-Math.exp(-dt*7);
     RIDE.guard();   // 開始別的遊戲／躺床／坐下：先下車
-    if(DD.on)DD.step(dt);else if(KF.on)KF.step(dt);else if(PUSH.on)PUSH.step(dt);else if(FISH.on)FISH.step(dt);else if(RS.on)RS.step(dt);else if(MU.on)MU.step(dt);else if(CU.on)CU.step(dt,f,s);else if(SB.on)SB.step(dt,f,s);else if(RB.on)RB.step(dt,f,s);else if(NM.on)NM.step(dt,f,s);else if(RACE.on)RACE.step(dt,f,s);else if(BALLOON.riding)BALLOON.step(dt,f,s,stage);else if(LIE.on)LIE.step(dt,f,s);else if(DECO.sit)DECO.sitStep(dt);else if(PAX.on)PAX.step(dt);else if(RIDE.on)RIDE.step(dt,f,s,running);else if(SKI.ride)SKI.rideStep(dt);else if(SKI.on)SKI.step(dt,f,s,running);else if(DUO.on)DUO.step(dt);else if(LINK.isF())LINK.step(dt);else if(SKATE.on)SKATE.step(dt,f,s,running);else if(BB.fly)BB.flyStep(dt);else if(TN.on)TN.step(dt,f,s,running);else{
+    if(GCARD.on)GCARD.step(dt);else if(DD.on)DD.step(dt);else if(KF.on)KF.step(dt);else if(PUSH.on)PUSH.step(dt);else if(FISH.on)FISH.step(dt);else if(RS.on)RS.step(dt);else if(MU.on)MU.step(dt);else if(CU.on)CU.step(dt,f,s);else if(SB.on)SB.step(dt,f,s);else if(RB.on)RB.step(dt,f,s);else if(NM.on)NM.step(dt,f,s);else if(RACE.on)RACE.step(dt,f,s);else if(BALLOON.riding)BALLOON.step(dt,f,s,stage);else if(LIE.on)LIE.step(dt,f,s);else if(DECO.sit)DECO.sitStep(dt);else if(PAX.on)PAX.step(dt);else if(RIDE.on)RIDE.step(dt,f,s,running);else if(SKI.ride)SKI.rideStep(dt);else if(SKI.on)SKI.step(dt,f,s,running);else if(DUO.on)DUO.step(dt);else if(LINK.isF())LINK.step(dt);else if(SKATE.on)SKATE.step(dt,f,s,running);else if(BB.fly)BB.flyStep(dt);else if(TN.on)TN.step(dt,f,s,running);else{
     player.vel.x+=((fx*f+rx*s)*speed-player.vel.x)*k;player.vel.y+=((fz*f+rz*s)*speed-player.vel.y)*k;
     {const mx=player.vel.x*dt,mz=player.vel.y*dt,n=Math.max(1,Math.ceil(Math.hypot(mx,mz)/0.2));for(let i=0;i<n;i++){player.pos.x+=mx/n;player.pos.y+=mz/n;resolve(player.pos,0.3,player.y);}}
     FJ.keep(player.pos);   /* 2026-10-27.30 地圖範圍＋富士山 */
@@ -20597,6 +20732,7 @@ function step(dt){
         if(player.y>=FL[4]+0.8&&v>0)player.pos.y-=1.4*dt;}   // 爬到頂繼續往上推：往北跨到屋頂上
     }else playerFall(dt);}
     if(DD.on){avatar.root.visible=true;updateAvatar(dt,0);DD.pose(dt);DD.camera(dt);}
+    else if(GCARD.on){avatar.root.visible=true;updateAvatar(dt,0);GCARD.cam(dt);}   /* 2026-10-27.38 同行、磁力：飛行鏡頭 */
     else if(KF.on){KF.pose(dt);KF.camera(dt);}
     else if(CVS.on){avatar.root.visible=false;CVS.camera(dt);}   /* 夾娃娃機：鏡頭在機台前面 */
     else if(PUSH.on){avatar.root.visible=false;PUSH.camera(dt);}
@@ -20652,7 +20788,7 @@ function step(dt){
   CU.tick(dt);
   MU.tick(dt);
   DD.tick(dt);
-  KF.tick(dt);PUSH.tick(dt);CVS.tick(dt);FJW.tick(dt);FISH.tick(dt);RS.tick(dt);DECO.tick(dt);
+  KF.tick(dt);PUSH.tick(dt);CVS.tick(dt);FJW.tick(dt);GCARD.tick(dt);FISH.tick(dt);RS.tick(dt);DECO.tick(dt);
   GATES.tick(dt);NET.tick(dt);CG.tick(dt);LINK.tick(dt);DUO.tick(dt);SKI.tick(dt);
   {let t=0;if(CALM.on&&mode==='walk'&&started){const sp=RACE.on?Math.abs(RACE.v)*0.05:SKATE.on?SKATE.vel.length():player.vel.length();let dy=player.yaw-CALM.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));
      t=Math.min(0.85,sp*0.08+Math.abs(dy)/Math.max(dt,1e-3)*0.22+(player.ground?0:0.2));}   // 防暈：越快、轉越快、在空中，四周越暗
@@ -20744,7 +20880,7 @@ const XC=(()=>{
   setInterval(scan,500);scan();
   {const m=document.getElementById('mmClose');if(m){look(m);m.style.removeProperty('display');m.style.setProperty('line-height','33px','important');m.style.setProperty('text-align','center','important');m.style.setProperty('top','6px','important');m.style.setProperty('right','6px','important');m.textContent='✕';}}   /* 電腦的大地圖：自己的關閉鈕換成一樣的樣子（顯示／藏起來照原本：小地圖時不出現） */
   return {scan,close};})();
-window.__dbg={FJ,FJW,CVS,XC,CG,LINK,DUO,SKI,CREL,EVICT,ULM,sun,PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+window.__dbg={GCARD,FJ,FJW,CVS,XC,CG,LINK,DUO,SKI,CREL,EVICT,ULM,sun,PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
