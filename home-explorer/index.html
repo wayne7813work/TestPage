@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-28.6"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-28.13"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14992,8 +14992,19 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
   const TR=[],RINGS=[],DUST=[];
   function trail(x,y,z,col,sz){let q=TR.find(o=>o.t<=0);if(!q){if(TR.length>=70)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));s.userData.noCull=true;s.visible=false;scene.add(s);q={s,t:0,T:1,sz:1};TR.push(q);}
     q.s.position.set(x,y,z);q.s.material.color.set(col);q.t=q.T=0.8;q.sz=sz;q.s.visible=true;}
-  function ring(x,y,z,col,R,T){let q=RINGS.find(o=>o.t<=0);if(!q){if(RINGS.length>=8)return;const m=new THREE.Mesh(new THREE.RingGeometry(0.82,1,56).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false}));m.userData.noCull=true;m.visible=false;scene.add(m);q={m,t:0,T:1,R:1};RINGS.push(q);}
+  function ring(x,y,z,col,R,T){let q=RINGS.find(o=>o.t<=0);if(!q){if(RINGS.length>=12)return;const m=new THREE.Mesh(new THREE.RingGeometry(0.82,1,56).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false}));m.userData.noCull=true;m.visible=false;scene.add(m);q={m,t:0,T:1,R:1};RINGS.push(q);}
     q.m.position.set(x,y+0.1,z);q.m.material.color.set(col);q.R=R;q.t=q.T=T;q.m.visible=true;}
+  // 2026-10-28.7 使用者：「降落的時候，下面是不是要有一些特效，風啊、氣流的」→ 白色細長的風（落下時往上竄、落地時貼著地面往外噴）
+  const WIND=[];let WG=null;
+  function streak(x,y,z,vx,vy,vz,yaw,vert,len,T,w=1){let q=WIND.find(o=>o.t<=0);if(!q){if(WIND.length>=90)return;if(!WG)WG=new THREE.PlaneGeometry(1,0.07);const m=new THREE.Mesh(WG,new THREE.MeshBasicMaterial({color:'#ffffff',transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false}));m.rotation.order='YXZ';m.userData.noCull=true;m.visible=false;scene.add(m);q={m,t:0,T:1,v:new V3(),L:1};WIND.push(q);}
+    q.m.position.set(x,y,z);q.v.set(vx,vy,vz);q.m.rotation.set(vert?0:-Math.PI/2,yaw,vert?Math.PI/2:0);q.L=len;q.m.scale.set(len,w,1);q.m.material.opacity=0;q.t=q.T=T;q.m.visible=true;}   /* vert＝直的（落下時往上竄）；不然平躺在地上，長的方向＝(cos yaw, 0, −sin yaw) */
+  function gust(x,y,z){for(let i=0;i<30;i++){const a=i/30*Math.PI*2+Math.random()*0.2,sp=10+Math.random()*7,r=0.5+Math.random()*0.5;streak(x+Math.cos(a)*r,y+0.1+Math.random()*0.45,z-Math.sin(a)*r,Math.cos(a)*sp,0.4+Math.random()*1.4,-Math.sin(a)*sp,a,false,1.3+Math.random()*1.3,0.5+Math.random()*0.3);}}   /* 落地：一圈風貼著地面往外噴 */
+  // 2026-10-28.10 使用者：「多人降落氣流特效要一起，不是每個人一個」→ 同行帶朋友：大家共用一個中心（帶頭的人落的地方）、只噴一次大的（人越多圈越大）；自己落地、看到朋友落地都叫 groupGust，3 秒內同一個中心的只算一次（手機之間有延遲，有人晚一點落地也不會再噴一次）
+  let GG={t:-9,x:0,z:0};
+  function groupGust(x,y,z,n){const now=performance.now()/1000;if(now-GG.t<3&&Math.hypot(x-GG.x,z-GG.z)<4)return;GG={t:now,x,z};const R0=1.6+n*0.9,N=Math.min(60,24+n*9);
+    ring(x,y,z,'#ffffff',10+n*2.5,0.9);ring(x,y,z,'#cfe8ff',6+n*1.6,0.65);ring(x,y,z,'#ffe9a0',4+n,0.5);
+    for(let i=0;i<N;i++){const a=i/N*Math.PI*2+Math.random()*0.15,sp=12+Math.random()*9,r=R0*(0.6+Math.random()*0.5);streak(x+Math.cos(a)*r,y+0.1+Math.random()*0.6,z-Math.sin(a)*r,Math.cos(a)*sp,0.4+Math.random()*1.6,-Math.sin(a)*sp,a,false,2+Math.random()*2.2,0.65+Math.random()*0.35,2.4);}
+    dust(x,y,z,Math.min(24,8+n*4),y>100?'#eef6ff':'#e9e2d0');}   /* 一起的：風粗一點、塵土一圈大的 */
   function dust(x,y,z,n,col){for(let i=0;i<n;i++){let q=DUST.find(o=>o.t<=0);if(!q){if(DUST.length>=40)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,transparent:true,depthWrite:false,fog:false}));s.userData.noCull=true;s.visible=false;scene.add(s);q={s,t:0,T:1,v:new V3()};DUST.push(q);}
     const a=Math.random()*Math.PI*2,sp=3+Math.random()*6;q.s.position.set(x,y+0.3,z);q.v.set(Math.cos(a)*sp,1+Math.random()*3,Math.sin(a)*sp);q.s.material.color.set(col);q.t=q.T=0.9+Math.random()*0.3;q.s.visible=true;}}
   let pillar=null,card=null,aura=null,cardK='';
@@ -15008,7 +15019,7 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
   G.canFly=()=>started&&mode==='walk'&&!G.on&&!SKI.ride&&!RIDE.on&&!PAX.on&&!BALLOON.riding&&!LIE.on&&!DECO.sit&&!player.climb&&!FJW.scope&&EMOTE.can();
   function fly(x,z,y,opt){if(SKI.on)SKI.stop();if(SKATE.on)SKATE.stop();if(EMOTE.on)EMOTE.stop(true);fxInit();cardDraw(opt.kind==='mag'?'mag':'acc');
     const x0=player.pos.x,z0=player.pos.y,y0=player.y,D=Math.hypot(x-x0,z-z0);
-    Object.assign(F,{x0,z0,y0,x,z,y,D,dir:D>1?Math.atan2(-(x-x0),-(z-z0)):avatar.yaw,T3:cl(D/140,1.2,4),H:Math.min(160,20+D*0.12),kind:opt.kind,dn:opt.dn||'',by:opt.by||'',trT:0,cv:null,ci:0});
+    Object.assign(F,{x0,z0,y0,x,z,y,D,dir:D>1?Math.atan2(-(x-x0),-(z-z0)):avatar.yaw,T3:cl(D/140,1.2,4),H:Math.min(160,20+D*0.12),kind:opt.kind,dn:opt.dn||'',by:opt.by||'',trT:0,cv:null,ci:0,cx:isFinite(opt.cx)?opt.cx:x,cz:isFinite(opt.cz)?opt.cz:z,gn:Math.max(1,Math.min(8,opt.gn|0))});   /* cx、cz＝大家的中心、gn＝幾個人一起飛 */
     G.on=true;G.ph=1;G.t=0;camInit=false;if(view!=='third'){view='third';syncViewUI();}player.vel.set(0,0);player.vy=0;avatar.yaw=F.dir;
     AUDIO.sfx('chime');bigT(opt.kind==='mag'?'🧲 磁力 使用！':opt.kind==='pull'?`🌠 ${pn(opt.by)} 的同行！`:'🌠 同行 使用！');if(typeof syncActBtn==='function')syncActBtn();}
   G.step=dt=>{if(!G.on)return;G.t+=dt;const f=F;let x=f.x0,z=f.z0,y=f.y0;const yA=f.y0+35,yB=f.y+60;
@@ -15019,13 +15030,17 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
     if(G.ph===5){x=f.x;z=f.z;y=f.y;if(G.t>=T5){end();return;}}
     player.pos.set(x,z);player.y=y;player.vel.set(0,0);player.vy=0;player.ground=G.ph===1||G.ph===5;avatar.yaw=f.dir;
     if(G.ph===3)landPick(f);
+    if(G.ph===4){f.wT=(f.wT||0)-dt;if(f.wT<=0){f.wT=0.03;const a=Math.random()*Math.PI*2,r=0.7+Math.random()*0.9;streak(x+Math.cos(a)*r,y+Math.random()*2.4,z-Math.sin(a)*r,0,10+Math.random()*6,0,Math.atan2(camera.position.x-x,camera.position.z-z),true,1.4+Math.random()*1.2,0.32);}   /* 2026-10-28.7 落下：身邊的風往上竄 */
+      f.rT=(f.rT||0)-dt;if(f.rT<=0&&y-f.y<35){f.rT=0.13;ring(f.cx,f.y,f.cz,'#e8f4ff',(2+(1-(y-f.y)/35)*3.5)*(f.gn>1?1.2+f.gn*0.35:1),0.42);}
+      f.gT=(f.gT||0)-dt;if(f.gT<=0&&y-f.y<30){f.gT=0.045;const a=Math.random()*Math.PI*2,r=(0.8+Math.random()*1.6)*(f.gn>1?1+f.gn*0.45:1),sp=5+(1-(y-f.y)/30)*7;streak(f.cx+Math.cos(a)*r,f.y+0.08+Math.random()*0.25,f.cz-Math.sin(a)*r,Math.cos(a)*sp,0.2,-Math.sin(a)*sp,a,false,0.9+Math.random()*0.8,0.45,f.gn>1?1.8:1);}}   /* 地上的風被往外吹開（越近越強） */   /* 快到地面：地上被吹出一圈一圈的氣流 */
     if(G.ph>=2&&G.ph<=4){f.trT-=dt;if(f.trT<=0){f.trT=0.022;trail(x,y+1.1,z,'#ffe9a0',1.3);}}};   /* 光尾巴 */
-  function land(){const f=F,sn=FJ.snow(f.x,f.z)||f.y>100;ring(f.x,f.y,f.z,'#ffffff',10,0.75);ring(f.x,f.y,f.z,'#ffe9a0',5,0.5);dust(f.x,f.y,f.z,12,sn?'#eef6ff':'#d6c7a6');AUDIO.sfx('bigboom');AUDIO.sfx('thud');
+  function land(){const f=F,sn=FJ.snow(f.x,f.z)||f.y>100;if(f.gn>1)groupGust(f.cx,f.y,f.cz,f.gn);else{ring(f.x,f.y,f.z,'#ffffff',10,0.75);gust(f.x,f.y,f.z);ring(f.x,f.y,f.z,'#ffe9a0',5,0.5);}dust(f.x,f.y,f.z,12,sn?'#eef6ff':'#d6c7a6');AUDIO.sfx('bigboom');AUDIO.sfx('thud');
     if(!(typeof CALM!=='undefined'&&CALM.on)){const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:#fff;z-index:85;opacity:.5;transition:opacity .35s;pointer-events:none';document.body.appendChild(d);setTimeout(()=>{d.style.opacity='0';},30);setTimeout(()=>d.remove(),450);}}   /* 落地：衝擊波、塵土（雪地是雪花）、閃一下 */
   function end(){const f=F;G.on=false;G.ph=0;player.pos.set(f.x,f.z);resolve(player.pos,0.3,f.y);const h=heightAt(player.pos.x,player.pos.y,f.y+0.5);player.y=Math.abs(h-f.y)<3?h:f.y;player.vy=0;player.ground=true;player.vel.set(0,0);player.yaw=f.dir;player.pitch=-0.08;avatar.yaw=f.dir;
     if(card)card.visible=false;if(aura)aura.visible=false;if(pillar)pillar.visible=false;toast(f.kind==='mag'?'🧲 飛到了！':`🌠 到了：${f.dn}`);if(typeof syncActBtn==='function')syncActBtn();}
   G.cancel=()=>{if(!G.on)return;G.on=false;G.ph=0;if(card)card.visible=false;if(aura)aura.visible=false;if(pillar)pillar.visible=false;};   /* 飛到一半被傳送（前往） */
   // ---- 姿勢（自己、別人一樣） ----
+  const LB=new THREE.Box3(),LV=new V3();
   function poseAt(a,ph,t){a.zeroJoints();const r=(o,x,y,z)=>{if(o)o.rotation.set(x,y||0,z||0);};a.body.position.y=0;a.body.rotation.set(0,0,0);
     for(const o of [a.armL,a.armR,a.legL,a.legR])r(o,0);
     if(ph===1){a.body.rotation.x=-0.08;r(a.armR,-2.95,0,0.12);r(a.foreR,-0.15);a.hand(1,'open');r(a.armL,-0.35,0,-0.3);a.hand(-1,'fist');}   /* 舉起卡片 */
@@ -15035,7 +15050,8 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
     else if(ph===5){const k=t<1.1?1:Math.max(0,1-(t-1.1)/0.4);   /* 鋼鐵人落地：最後 0.4 秒慢慢站起來 */
       a.body.position.y=-0.5*k;a.body.rotation.x=0.75*k;r(a.legL,-1.9*k);r(a.shinL,2.2*k);r(a.legR,0);r(a.shinR,1.6*k);   /* 這個骨架：身體 rotation.x 正的＝往前傾（姿勢拼圖確認過） */
       r(a.armR,-0.6*k,0,0.08);a.hand(1,'fist');r(a.armL,1.2*k,0,-0.6*k);r(a.foreL,-0.1*k);a.hand(-1,'open');
-      if(a.head)r(a.head,0.4*k*(t<0.7?1:Math.max(0,1-(t-0.7)/0.3)));}}   /* 先低頭，再抬頭看前面 */
+      if(a.head)r(a.head,0.4*k*(t<0.7?1:Math.max(0,1-(t-0.7)/0.3)));
+      a.root.updateMatrixWorld(true);LB.setFromObject(a.legL,true);const lo=Math.min(LB.min.y,LB.setFromObject(a.legR,true).min.y)-a.root.getWorldPosition(LV).y;a.body.position.y-=lo/(a.root.scale.y||1);}}   /* 2026-10-28.7 使用者：降落時腳陷到地板下面 → 以前固定往下壓 0.5（腳陷 35～45 cm），改成量腳最低的地方剛好貼地（用頂點量：外框在腿斜的時候會大很多，人會浮起來） */   /* 先低頭，再抬頭看前面 */
   G.pose=(a,dt)=>{if(G.on)poseAt(a,G.ph,G.t);};
   // ---- 鏡頭 ----
   const CP=new V3();let camInit=false;
@@ -15057,6 +15073,7 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
   // ---- 每格：特效、冷卻 ----
   G.tick=dt=>{for(const q of TR){if(q.t<=0)continue;q.t-=dt;const k=Math.max(0,q.t/q.T),dc=q.s.position.distanceTo(camera.position);q.s.material.opacity=k*Math.min(1,Math.max(0,(dc-3)/9));q.s.scale.setScalar(q.sz*(0.35+0.65*k));if(q.t<=0)q.s.visible=false;}
     for(const q of RINGS){if(q.t<=0)continue;q.t-=dt;const u=1-Math.max(0,q.t/q.T);q.m.scale.setScalar(0.5+q.R*u);q.m.material.opacity=1-u;if(q.t<=0)q.m.visible=false;}
+    for(const q of WIND){if(q.t<=0)continue;q.t-=dt;const k=Math.max(0,q.t/q.T);q.m.position.addScaledVector(q.v,dt);q.v.multiplyScalar(Math.exp(-2.4*dt));q.m.material.opacity=0.8*Math.min(1,k*2)*Math.min(1,(1-k)*8);q.m.scale.x=q.L*(0.6+0.9*(1-k));if(q.t<=0)q.m.visible=false;}
     for(const q of DUST){if(q.t<=0)continue;q.t-=dt;q.v.y-=6*dt;q.v.multiplyScalar(Math.exp(-2*dt));q.s.position.addScaledVector(q.v,dt);const k=Math.max(0,q.t/q.T);q.s.material.opacity=k*0.55;q.s.scale.setScalar(0.6+1.3*(1-k));if(q.t<=0)q.s.visible=false;}
     if(G.on&&card){const ph=G.ph;card.visible=ph===1;if(ph===1){card.position.set(player.pos.x+Math.sin(avatar.yaw+Math.PI)*0.1,player.y+2.55+0.08*Math.sin(G.t*6),player.pos.y+Math.cos(avatar.yaw+Math.PI)*0.1);const s=0.3+0.25*Math.min(1,G.t*3);card.scale.set(s,s*1.4,1);card.material.rotation=Math.sin(G.t*9)*0.12;}
       aura.visible=ph<=4;if(aura.visible){aura.position.set(player.pos.x,player.y+1.1,player.pos.y);aura.scale.setScalar(ph===1?1+G.t*1.6:2);aura.material.opacity=ph===1?Math.min(0.75,G.t):0.4;}
@@ -15065,9 +15082,9 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
     if(!BK.hidden&&performance.now()>bkT)draw();};
   // ---- 連線：別人看到你飛 ----
   const REM=new Map();
-  G.net=()=>G.on?[G.ph,+avatar.yaw.toFixed(2)]:null;
+  G.net=()=>G.on?[G.ph,+avatar.yaw.toFixed(2),+F.cx.toFixed(1),+F.cz.toFixed(1),F.gn,+F.y.toFixed(2)]:null;   /* 最後一個＝落地的高度（別人畫面上人物還在半空滑下來，風要噴在地上） */
   G.remote=(q,A,dt)=>{const s=q.s,gc=s&&s.gc,id=String(q.id);let r=REM.get(id);if(!Array.isArray(gc)){if(r)REM.delete(id);return;}if(!r){r={ph:0,t:0,trT:0};REM.set(id,r);}const ph=gc[0]|0,d=dt||1/30;
-    if(ph!==r.ph){const p=A.root.position;if(ph===5){ring(p.x,p.y,p.z,'#ffffff',10,0.75);dust(p.x,p.y,p.z,14,p.y>100?'#ffffff':'#d6c7a6');if(camera.position.distanceTo(p)<90)AUDIO.sfx('thud');}else if(ph===2){ring(p.x,p.y,p.z,'#ffe9a0',7,0.6);if(camera.position.distanceTo(p)<90)AUDIO.sfx('whoosh');}r.ph=ph;r.t=0;}r.t+=d;
+    if(ph!==r.ph){const p=A.root.position;if(ph===5){const gn=gc[4]|0,gy=isFinite(+gc[5])&&gc[5]!=null?+gc[5]:p.y;if(gn>1&&isFinite(+gc[2])){if(camera.position.distanceTo(p)<120)groupGust(+gc[2],gy,+gc[3],gn);}else{ring(p.x,gy,p.z,'#ffffff',10,0.75);if(camera.position.distanceTo(p)<90)gust(p.x,gy,p.z);}dust(p.x,gy,p.z,14,p.y>100?'#ffffff':'#d6c7a6');if(camera.position.distanceTo(p)<90)AUDIO.sfx('thud');}else if(ph===2){ring(p.x,p.y,p.z,'#ffe9a0',7,0.6);if(camera.position.distanceTo(p)<90)AUDIO.sfx('whoosh');}r.ph=ph;r.t=0;}r.t+=d;
     A.root.rotation.y=(+gc[1]||0)+Math.PI;poseAt(A,ph,r.t);
     if(ph>=2&&ph<=4){r.trT-=d;if(r.trT<=0){r.trT=0.03;const p=A.root.position;trail(p.x,p.y+1.1,p.z,'#bfe3ff',2);}}};
   // ---- 卡片書 ----
@@ -15098,8 +15115,8 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
     if(d.p!=null){accTo(d.p);return;}
     if(d.f!=null)useMag(d.f);});
   function useAcc(s){if(!G.canFly()){toast(G.on?'正在飛':'現在不能用卡片（先離開遊戲、下車）');return;}if(G.cd.acc>0)return;BK.hidden=true;if(mode==='aerial'&&typeof toggleAerial==='function')toggleAerial();const y=s.y!=null?s.y:heightAt(s.x,s.z,1.5),nf=nearFriends(),n=nf.length+1;
-    fly(s.x,s.z,y,{kind:'acc',dn:s.name});G.cd.acc=CDA;
-    nf.forEach((id,i)=>{const a=F.dir+(i+1)/n*Math.PI*2,ox=Math.sin(a)*2.4,oz=Math.cos(a)*2.4;NET.out(id,{t:'gcA',x:+(s.x+ox).toFixed(2),z:+(s.z+oz).toFixed(2),y:+y.toFixed(2),dn:s.name});});   /* 朋友落在旁邊一圈 */
+    fly(s.x,s.z,y,{kind:'acc',dn:s.name,cx:s.x,cz:s.z,gn:n});G.cd.acc=CDA;
+    nf.forEach((id,i)=>{const a=F.dir+(i+1)/n*Math.PI*2,ox=Math.sin(a)*2.4,oz=Math.cos(a)*2.4;NET.out(id,{t:'gcA',x:+(s.x+ox).toFixed(2),z:+(s.z+oz).toFixed(2),y:+y.toFixed(2),dn:s.name,cx:+s.x.toFixed(2),cz:+s.z.toFixed(2),gn:n});});   /* 朋友落在旁邊一圈 */
     if(nf.length)toast(`🌠 同行：帶著 ${nf.map(pn).join('、')} 一起飛到 ${s.name}！`);}
   // 2026-10-28.4 使用者：「同行可以飛到某個人旁邊嗎」→ 同行清單上面多一排朋友（身邊 20 m 內的不列，他們本來就一起飛）；落在朋友前面 4 m、大家圍一圈
   const farFriends=()=>{if(!NET.on)return [];const nf=new Set(nearFriends());return [...NET.P.entries()].filter(([id,q])=>q&&q.s&&q.s.a&&!nf.has(String(id)));};
@@ -15108,7 +15125,7 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
     if(!G.canFly()){toast(G.on?'正在飛':'現在不能用卡片（先離開遊戲、下車）');return;}if(G.cd.acc>0)return;useAcc({name:`${pn(id)}旁邊`,x,z,y:Math.abs(y-a[1])<3?y:a[1]});NET.out(String(id),{t:'gcM',acc:1,n:nearFriends().length});}
   function useMag(id){if(!G.canFly()){toast(G.on?'正在飛':'現在不能用卡片（先離開遊戲、下車）');return;}if(G.cd.mag>0)return;const q=NET.P.get(id)||NET.P.get(+id),a=q&&q.s&&q.s.a;if(!a){toast('找不到這個朋友');return;}if(q.s.ca){toast('朋友正在坐纜車，等他下來再飛過去');return;}BK.hidden=true;
     const dx=player.pos.x-a[0],dz=player.pos.y-a[2],l=Math.hypot(dx,dz)||1,x=a[0]+dx/l*2.2,z=a[2]+dz/l*2.2,y=heightAt(x,z,a[1]+1.5);fly(x,z,Math.abs(y-a[1])<3?y:a[1],{kind:'mag',dn:pn(id)});G.cd.mag=CDM;NET.out(String(id),{t:'gcM'});}
-  G.rx=(d,f)=>{f=String(f);if(d.t==='gcA'){const x=+d.x,z=+d.z;if(!isFinite(x)||!isFinite(z))return;if(!G.canFly()){toast(`🌠 ${pn(f)} 用了同行，可是你正在忙，沒有跟去`);return;}const y=heightAt(x,z,(+d.y||0)+1.5);fly(x,z,Math.abs(y-(+d.y||0))<3?y:+d.y||0,{kind:'pull',by:f,dn:String(d.dn||'').slice(0,20)});}
+  G.rx=(d,f)=>{f=String(f);if(d.t==='gcA'){const x=+d.x,z=+d.z;if(!isFinite(x)||!isFinite(z))return;if(!G.canFly()){toast(`🌠 ${pn(f)} 用了同行，可是你正在忙，沒有跟去`);return;}const y=heightAt(x,z,(+d.y||0)+1.5);fly(x,z,Math.abs(y-(+d.y||0))<3?y:+d.y||0,{kind:'pull',by:f,dn:String(d.dn||'').slice(0,20),cx:+d.cx,cz:+d.cz,gn:d.gn|0});}
     else if(d.t==='gcM')toast(d.acc?`🌠 ${pn(f)}${d.n>0?` 帶著 ${d.n|0} 個朋友`:''}用同行飛過來找你了！`:`🧲 ${pn(f)} 用磁力飛過來找你了！`);};
   addEventListener('keydown',e=>{if(e.repeat||e.code!=='KeyB'||!started)return;if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;if(BK.hidden)G.open();else BK.hidden=true;});
   G.dbg=()=>({F,fly,poseAt,useAcc,useMag,nearFriends,dests,REM});
