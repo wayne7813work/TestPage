@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-28.18"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-29.1"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1159,8 +1159,9 @@ DESERT.roadAt=(x,z)=>{const R=DESERT.road;let bd=1e9,bx=0,bz=0,run=0,at=0;for(le
 // 走路、開車的範圍：地圖裡、沙漠圓形裡、沙漠公路上都可以；稍微超出就推回邊上（回傳 true）；離很遠才回傳 false（由呼叫的人照地圖邊界擋）
 DESERT.keep=p=>{const D=DESERT;if(p.x>=BOUND.x0&&p.x<=BOUND.x1&&p.y>=BOUND.z0&&p.y<=BOUND.z1)return true;
   const dx=p.x-D.cx,dz=p.y-D.cz,r=Math.hypot(dx,dz);if(r<D.R)return true;const q=D.roadAt(p.x,p.y);if(q.d<D.RW)return true;
-  if(r<D.R+80&&r-D.R<q.d-D.RW){const k=(D.R-0.5)/r;p.x=D.cx+dx*k;p.y=D.cz+dz*k;return true;}
-  if(q.d<D.RW+80){const k=(D.RW-0.05)/q.d;p.x=q.x+(p.x-q.x)*k;p.y=q.z+(p.y-q.z)*k;return true;}return false;};
+  const db=Math.hypot(p.x-Math.max(BOUND.x0,Math.min(BOUND.x1,p.x)),p.y-Math.max(BOUND.z0,Math.min(BOUND.z1,p.y)));   /* 2026-10-29.1 實測：地圖北邊（公路 z 22 那段離北邊界只有 82 m）、東邊一碰邊界就被拉到公路上（一下 75 m）→ 離地圖邊界比較近就交給呼叫的人夾回地圖 */
+  if(r<D.R+80&&r-D.R<q.d-D.RW&&r-D.R<db){const k=(D.R-0.5)/r;p.x=D.cx+dx*k;p.y=D.cz+dz*k;return true;}
+  if(q.d<D.RW+80&&q.d-D.RW<db){const k=(D.RW-0.05)/q.d;p.x=q.x+(p.x-q.x)*k;p.y=q.z+(p.y-q.z)*k;return true;}return false;};
 // 2026-10-27.30 富士山走得上去（使用者：「纜車想搭一個長途的，搭到富士山如何？但是要有風景」）：賽車場南邊遠景那座富士山（網格跟賽車場那段 FUJI 一樣）照網格算高度；
 //   山頂 74 m 內是平台（806.3 m）；在富士山範圍裡可以走出地圖邊界（FJ.keep）
 const FJ=(()=>{const F={H:820,RB:1500,RT:70,cx:-300,cz:2450,SEG:180,RG:40,TOP:806.3,SR:74,ride:false};
@@ -2963,7 +2964,7 @@ const RIDE=(()=>{
   const tp=new V2();
   R.step=(dt,f,s,run)=>{const t0=R.tn||T[R.k];dt=Math.min(dt,0.05);
     {const tk=!!keys.KeyT;if(tk&&!R.tk)R.doTrick();R.tk=tk;}if(tipT>0){tipT-=dt;if(tipT<=0&&tipEl)tipEl.style.opacity=0;}if(R.comboT>0)R.comboT-=dt;if(R.wob)R.wob=Math.max(0,R.wob-dt);
-    const RK=R.k==='rocket',hb=CK(R.k)&&(RK?(R.hbBtn||!!keys.KeyX):(keys.Space||jumpHeld||R.hbBtn));   /* 火箭跑車：空白鍵／跳＝噴射，甩尾改 X 或甩尾鈕 */
+    const RK=R.k==='rocket',hb=CK(R.k)&&!DRONE.on&&(RK?(R.hbBtn||!!keys.KeyX):(keys.Space||jumpHeld||R.hbBtn));   /* 火箭跑車：空白鍵／跳＝噴射，甩尾改 X 或甩尾鈕 */
     if(RK&&R.lp){loopStep(dt,t0);return;}if(R.lpCam>0)R.lpCam-=dt;
     if(RK&&R.ground&&!R.fly&&RKP){const LP=RKP.LP;if(Math.abs(R.z-LP.zc)<LP.w/2&&R.x>LP.cx-32&&R.x<LP.cx-1.6&&-Math.sin(R.h)>0.85&&R.v>8)R.lpCam=Math.max(R.lpCam||0,0.4);   /* 2026-10-24.6 實測：衝向彎道時就先把鏡頭慢慢移到側面（不然鏡頭來不及，畫面卡在軌道後面） */
       if(Math.abs(R.z-LP.zc)<LP.w/2+0.2&&R.x>LP.cx-1.6&&R.x<LP.cx+0.6&&-Math.sin(R.h)>0.85&&R.v>0){   /* 2026-10-24.6 實測：偏中線 2.4 m 就撞上去 → 整條道（6 m）都算，進去後 loopStep 會拉回中間 */if(R.v>=8)loopStart();else if(!R.lpTold){R.lpTold=true;tip('太慢了！加速到 30 km/h 以上再衝進去');}}else R.lpTold=false;}
@@ -3029,7 +3030,7 @@ const RIDE=(()=>{
   R.launch=()=>{if(!R.on||R.k!=='rocket')return;if(!R.ground||R.fly){tip('要在地上才能彈射');return;}if(R.lch)return;if(Math.abs(R.v)>1.5){tip('先停下來，才能彈射起步');return;}R.lch={st:'cd',t:0,n:4};AUDIO.sfx('click');};
   R.toggleFly=()=>{if(!R.on||R.k!=='rocket')return;if(R.fly){R.fly=false;R.glide=!R.ground;tip(R.ground?'飛行模式關了':'關掉飛行：慢慢降落');return;}if(R.gas<0.15){tip('冷氣瓶快空了，先在地上補氣');return;}R.fly=true;R.glide=false;R.lch=null;if(R.ground){R.ground=false;R.vy=5;}tip('🛫 飛行模式',true);AUDIO.sfx('whoosh');
     if(!R.toldF){R.toldF=true;toast('🛫 「跳」往上、「下降」往下；穿過黃色圈圈＝飛行計時賽');}};
-  function rocketStep(dt,f,t0){const up=!!(keys.Space||jumpHeld),dn=!!(keys.KeyC||R.dnBtn);let fdn=0,fbk=0;R.thr=false;
+  function rocketStep(dt,f,t0){const up=!DRONE.on&&!!(keys.Space||jumpHeld),dn=!DRONE.on&&!!(keys.KeyC||R.dnBtn);   /* 2026-10-29.1 空拍中空白鍵／C 是空拍機上下：火箭跑車不要跟著噴射 */let fdn=0,fbk=0;R.thr=false;
     {const kl=!!keys.KeyL;if(kl&&!R.kl)R.launch();R.kl=kl;const kg=!!keys.KeyG;if(kg&&!R.kg)R.toggleFly();R.kg=kg;}
     if(R.lch){const L=R.lch;L.t+=dt;if(L.st==='cd'){R.v=0;const n=3-Math.floor(L.t);if(n!==L.n&&n>0){L.n=n;tip(String(n),true);AUDIO.sfx('beep');}fbk=0.15;if(L.t>=3){L.st='go';L.t=0;tip('🚀 彈射！',true);AUDIO.sfx('takeoff');AUDIO.sfx('whoosh');}}
       else{R.v=Math.min(t0.vmax*1.1,R.v+34*dt);fbk=1;if(!L.rec&&R.v>=27.8){L.rec=L.t;const s=L.rec.toFixed(2);const nb=!R.best06||L.rec<R.best06;if(nb){R.best06=L.rec;try{localStorage.setItem('home-rk06',String(L.rec));}catch(_){}}tip(`0～100 km/h：${s} 秒${nb?'（新紀錄！）':''}`,true);}if(L.t>1.8||!R.ground)R.lch=null;}}
@@ -3306,7 +3307,7 @@ var MOUNT=(()=>{
     if(k==='bike'){A.legL.rotation.x=-0.75+Math.sin(p)*0.45;A.legR.rotation.x=-0.75-Math.sin(p)*0.45;A.shinL.rotation.x=0.9-Math.cos(p)*0.5;A.shinR.rotation.x=0.9+Math.cos(p)*0.5;}
     else{A.legL.rotation.x=A.legR.rotation.x=-1.25;A.shinL.rotation.x=A.shinR.rotation.x=1.35;}
     A.armL.rotation.x=t0.arm;A.armR.rotation.x=t0.arm;A.armL.rotation.z=-0.12;A.armR.rotation.z=0.12;if(A.foreL){A.foreL.rotation.x=-0.35;A.foreR.rotation.x=-0.35;}}
-  C.raceOK=R=>{if(race||!R.on||R.k==='twist'||R.k==='rocket'||!R.ground   /* 2026-10-24.6 實測：火箭跑車按「比賽」會出錯（電腦對手沒有火箭跑車），而且會飛不公平 → 不能比 */||Math.abs(R.v)>2)return null;const n=near(R.x,R.z);if(!n||n.d>C.W)return null;if(n.i<=IF+3)return 'up';if(n.i>=IT-3)return 'down';return null;};
+  C.raceOK=R=>{if(race||!R.on||!AIC[R.k]/* 2026-10-29.1 吉普車、駱駝（還有扭扭車、火箭跑車）沒有電腦對手：按比賽會出錯 → 不能比 */||!R.ground   /* 2026-10-24.6 實測：火箭跑車按「比賽」會出錯（電腦對手沒有火箭跑車），而且會飛不公平 → 不能比 */||Math.abs(R.v)>2)return null;const n=near(R.x,R.z);if(!n||n.d>C.W)return null;if(n.i<=IF+3)return 'up';if(n.i>=IT-3)return 'down';return null;};
   C.raceStart=R=>{const dir=C.raceOK(R);if(!dir)return;const up=dir==='up',s0=(up?1:P.length-3)*STEP,q=at(s0,{}),fx=up?q.tx:-q.tx,fz=up?q.tz:-q.tz,h=Math.atan2(-fx,-fz);
     run=null;R.x=q.x;R.z=q.z;R.y=q.y;R.h=R.vh=h;R.v=0;R.steer=0;R.camP=null;   /* 你在中間，電腦在左右兩邊 */
     race={dir,k:R.k,st:'count',cd:0,t:0,ais:[],fin:[],place:1,lastN:0,bumpT:0};
@@ -4320,7 +4321,7 @@ const COURT_SCORE={cv:null,tex:null};
    const T=TRAMP.cur;if(T&&!TRAMP.boosted&&now-TRAMP.last<250&&player.vy>0){player.vy=Math.min(T.cap,player.vy+T.boost);TRAMP.boosted=true;AUDIO.sfx('boing');return true;}   // 剛彈起來才按：補上
    return false;};
  TRAMP.after=(vin)=>{if(!player.ground)return;const T=TRAMP.at();if(!T||Math.abs(player.y-T.y)>0.05)return;
-   const now=performance.now(),boost=TRAMP.armed||now-TRAMP.jumpAt<450||!!keys.Space||jumpHeld;
+   const now=performance.now(),boost=TRAMP.armed||now-TRAMP.jumpAt<450||!DRONE.on&&(!!keys.Space||jumpHeld);
    const v=Math.min(T.cap,Math.max(boost?7.5:4.2,-vin*T.rest+(boost?T.boost:0.4)));
    player.vy=v;player.ground=false;player.jumps=1;T.dip=Math.min(0.32+T.r*0.05,0.08-vin*0.025);T.dv=0;TRAMP.last=now;TRAMP.armed=false;TRAMP.boosted=boost;TRAMP.cur=T;TRAMP.peak=false;AUDIO.sfx('boing');
    if(!TRAMP.told){TRAMP.told=true;toast('彈跳床：往下掉的時候按一下「跳」（或一直按住）就越彈越高；拿著球在空中按「灌籃」＝彈跳床灌籃');}};
@@ -5808,7 +5809,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     if(BR&&BR.ball===b){BR.res[me()]={d,r:+dia};for(const id of BR.ids)if(id!==me())NET.out(id,{t:'snF',d,r:+dia});bRes();toast(`⛄ 你的雪球滾了 ${d} m、直徑 ${dia} m`);return;}
     let rec='';if(d>BBEST&&d>=20){if(BBEST>0)rec='（新紀錄！）';BBEST=d;try{localStorage.setItem('home-snow-best',String(d));}catch(_){}}
     toast(`⛄ 雪球碎掉了！滾了 ${d} m、直徑 ${dia} m${rec}`);AUDIO.sfx(rec?'bigcheer':'cheer');if(d>=40)EARN(Math.min(30,Math.round(d/12)),'⛄ 滾雪球');}
-  S.pushOK=()=>started&&mode==='walk'&&!busyG()&&!S.ride&&S.fallT<=0&&S.hitT<=0&&S.lock<=0&&(snowAt(player.pos.x,player.pos.y)||nearMine());
+  S.pushOK=()=>started&&mode==='walk'&&!DRONE.on&&!busyG()&&!S.ride&&S.fallT<=0&&S.hitT<=0&&S.lock<=0&&(!S.on||(BR&&BR.st==='go'))&&(snowAt(player.pos.x,player.pos.y)||nearMine());   /* 2026-10-28.19 使用者：「滑雪的時候推雪球按鈕取消，會不小心按到」→ 滑雪中不出現（滾雪球比賽還是可以滑雪去追、再推） */
   const nearMine=()=>MB&&!MB.dead&&Math.hypot(MB.x-player.pos.x,MB.z-player.pos.y)<MB.r+3;
   S.push=()=>{if(!S.pushOK())return;const now=performance.now();if(now<pushCd)return;pushCd=now+400;const yaw=S.on?S.dir:player.yaw,fx=-Math.sin(yaw),fz=-Math.cos(yaw);
     if(MB&&MB.hold){if(gsNear()){gsPlace();return;}release();return;}
@@ -5882,7 +5883,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     #sbtBtn b{font-size:24px}#sbtBtn span{font-size:11px}body:not(.touch) #sbtBtn{right:30px;bottom:302px}`;document.head.appendChild(st);}
   const TBN=document.createElement('button');TBN.id='sbtBtn';TBN.hidden=true;TBN.innerHTML=`<b>❄️</b><span>丟雪球${isTouch?'':'（Y）'}</span>`;document.body.appendChild(TBN);
   TBN.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();S.throw();});TBN.addEventListener('touchstart',e=>e.stopPropagation());
-  S.throwOK=()=>started&&mode==='walk'&&!busyG()&&!S.ride&&!S.on&&S.hitT<=0&&!(MB&&MB.hold)&&snowAt(player.pos.x,player.pos.y)&&!(BW&&BW.st==='count'&&BW.ids.includes(me()));
+  S.throwOK=()=>started&&mode==='walk'&&!DRONE.on&&!busyG()&&!S.ride&&!S.on&&S.hitT<=0&&!(MB&&MB.hold)&&snowAt(player.pos.x,player.pos.y)&&!(BW&&BW.st==='count'&&BW.ids.includes(me()));
   function spawnThrow(o){let q=THR.find(t=>!t.m.visible);if(!q){if(THR.length>=14)q=THR[0];else{q={m:new THREE.Mesh(SBG,SBM),tr:[]};q.m.castShadow=true;q.m.userData.noCull=true;scene.add(q.m);for(let i=0;i<5;i++){const sp=new THREE.Sprite(TRM);sp.visible=false;sp.userData.noCull=true;scene.add(sp);q.tr.push(sp);}THR.push(q);}}Object.assign(q,o,{t:0,h:[],gold:!!o.gold});q.m.material=o.gold?GBM:SBM;q.m.scale.setScalar(o.gold?2:1);q.m.visible=true;q.m.position.set(o.x,o.y,o.z);}   /* 金雪球：大一倍、金色 */
   S.throw=()=>{if(!S.throwOK())return;const now=performance.now();if(now<thrCd)return;thrCd=now+380;
     const yaw=player.yaw,hx=-Math.sin(yaw),hz=-Math.cos(yaw),el=cl(0.08+player.pitch*0.9,-0.2,0.9),v=15,sc=bodyH().scale;
@@ -7491,7 +7492,7 @@ const RACE=(()=>{
   R.start=sk8=>{sk8=!!sk8&&SKATE.on;if(SB.on)SB.stop();setTimeout(syncViewUI,0);if(EMOTE.on)EMOTE.stop(true);if(SKATE.on)SKATE.stop();
     R.sk8=sk8;ME.root.visible=!sk8;if(sk8){avatar.setSkates(true);const q=near(player.pos.x,player.pos.y);if(Math.abs(q.lat)<WALL-1.5&&player.pos.y<620){ME.root.position.set(player.pos.x,0,player.pos.y);ME.root.rotation.set(0,player.yaw,0);ME.body.position.set(0,0,0);ME.body.rotation.set(0,0,0);}}   /* 直排輪：從你站的地方出發（車子藏起來，「車」的位置就是你） */if(BB.on)BB.stop();if(TN.on)TN.stop();if(LIE.on)LIE.stop();if(CLOSET.isOpen)CLOSET.close();
     R.on=true;R.st='pick';R.mode=null;R.v=0;R.bst=0;R.gauge=100;R.sk=null;R.zero=0;R.drift=0;R.driftT=0;R.h=ME.root.rotation.y;R.i=-1;R.y=0;R.roll=0;R.pitch=0;R.yawOff=0;
-    fovSave=camera.fov;R.camP=null;R.sPrev=undefined;document.body.classList.add('rc');hud.hidden=false;btns.hidden=false;navEl.hidden=false;mapC.hidden=false;panel.hidden=false;navMesh.visible=true;
+    fovSave=camFov0();R.camP=null;R.sPrev=undefined;document.body.classList.add('rc');hud.hidden=false;btns.hidden=false;navEl.hidden=false;mapC.hidden=false;panel.hidden=false;navMesh.visible=true;
     if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}
     R.eng=sk8?null:AUDIO.engine&&AUDIO.engine();R.skSnd=sk8?AUDIO.skateLoop():null;AUDIO.sfx('chime');drawMapBg();syncAuto();R.autoLat=undefined;
     syncNetBtn();panel.querySelector('h3').textContent=sk8?'賽車場・直排輪':'賽車場・我的賽車';panel.querySelector('[data-m=exit]').textContent=sk8?'離開（繼續溜）':'下車';
@@ -8693,7 +8694,7 @@ const NM=(()=>{
     N.stop();N.pickPanel();panel.querySelector('.res').innerHTML=html;if(win)AUDIO.sfx('cheer');}
   N.armyStep=armyStep;
   N.adbg=()=>({EX,EZ,EHP,EAL,EGR,get eHi(){return eHi;},laneOf,laneZ,AWP,RNG,AGPAN,AW,LNW,WL,AX});   /* 測試用 */
-  N.armyCam=dt=>{const asp=camera.aspect||1.6,pw=asp<1?1-asp:0;if(N.fov0==null)N.fov0=camera.fov;{const tf=asp>=1?42:N.fov0;if(camera.fov!==tf){camera.fov=tf;camera.updateProjectionMatrix();}}   /* 橫拿／電腦：視野縮小（拉近），路才不會只有一小條 */
+  N.armyCam=dt=>{const asp=camera.aspect||1.6,pw=asp<1?1-asp:0;if(N.fov0==null)N.fov0=camFov0();{const tf=asp>=1?42:N.fov0;if(camera.fov!==tf){camera.fov=tf;camera.updateProjectionMatrix();}}   /* 橫拿／電腦：視野縮小（拉近），路才不會只有一小條 */
     if(asp>=1){CP.set(AX-10,7,LC+(N.cz-LC)*0.3);CL.set(AX+4,0,LC+(N.cz-LC)*0.15);}else{CP.set(AX-8.5-pw*10,10.5-pw,LC+(N.cz-LC)*0.3);CL.set(AX+9-pw*15,0,LC+(N.cz-LC)*0.15);}
     if(!N.camP){N.camP=CP.clone();N.camL=CL.clone();}const k=1-Math.exp(-dt*5);N.camP.lerp(CP,k);N.camL.lerp(CL,k);camera.position.copy(N.camP);camera.lookAt(N.camL);};
   return N;})();
@@ -14893,7 +14894,7 @@ const FJW=(()=>{const W={scope:null};
     SC.traverse(o=>{o.userData.noCull=true;});}
   // ================= 每格 =================
   const CV=new V3();
-  W.tick=dt=>{if(!hkBuilt&&started)hkBuild();const p=player.pos,near=FJ.ride||p.y>760||FJ.r(p.x,p.y)<FJ.RB+600||player.y>260;if(near)build();if(built)SC.visible=near;if(!near||!built)return;const t=performance.now()/1000;
+  W.tick=dt=>{if(!hkBuilt&&started)hkBuild();const p=player.pos,near=FJ.ride||p.y>760||FJ.r(p.x,p.y)<FJ.RB+600||player.y>260||DRONE.on&&FJ.r(DRONE.p.x,DRONE.p.z)<FJ.RB+600;   /* 2026-10-29.1 空拍機飛過來也要做出來（以前看人的位置：人在家、空拍機飛到富士山看不到風景） */if(near)build();if(built)SC.visible=near;if(!near||!built)return;const t=performance.now()/1000;
     if(fall)fall.offset.y-=dt*1.4;
     for(const s of STEAM){const u=s.userData;u.t+=dt;const T2=u.src==='fall'?2:3;if(u.t>T2)u.t-=T2;const k=u.t/T2;
       if(u.src==='fall'){s.position.set(u.x+Math.sin(u.t*3)*3,2+k*14,u.z+Math.cos(u.t*2)*5);s.scale.setScalar(8+k*12);s.material.opacity=0.55*Math.sin(k*Math.PI);}
@@ -14957,7 +14958,7 @@ const FJW=(()=>{const W={scope:null};
     if(Math.hypot(p.x-W.hut.x,p.y-W.hut.z)<5.2)return {k:'hut',t:'🗻 山頂小屋：紀念章、許願'};return null;};
   W.act=a=>{if(a.k==='hk'){const m=hkMark(a.id);hkOpen(m,a.id);return;}if(a.k==='exit')W.exit();else if(a.k==='scope')scopeOn(a.i);else if(a.k==='hut')hutOpen();};
   let fov0=null;
-  function scopeOn(i){const s=W.scopes[i];W.scope={i,x:s.x,z:s.z,y:s.y+1.45};fov0=camera.fov;player.yaw=Math.atan2(-dT.x,-dT.z);player.pitch=-0.27;player.vel.set(0,0);toast('🔭 拖曳轉方向看，往遠處看得到雲霧山、尖山、我家那邊；按 F 或 Esc 離開');AUDIO.sfx('click');syncActBtn();}
+  function scopeOn(i){const s=W.scopes[i];W.scope={i,x:s.x,z:s.z,y:s.y+1.45};fov0=camFov0();player.yaw=Math.atan2(-dT.x,-dT.z);player.pitch=-0.27;player.vel.set(0,0);toast('🔭 拖曳轉方向看，往遠處看得到雲霧山、尖山、我家那邊；按 F 或 Esc 離開');AUDIO.sfx('click');syncActBtn();}
   W.exit=()=>{if(!W.scope)return;W.scope=null;if(fov0!=null){camera.fov=fov0;camera.updateProjectionMatrix();fov0=null;}syncActBtn();};
   W.scopeCam=()=>{const s=W.scope;camera.position.set(s.x-Math.sin(player.yaw)*9,s.y+1,s.z-Math.cos(player.yaw)*9);   /* 往前 9 m：欄杆、山頂雪地邊緣不會擋到 */camera.rotation.set(player.pitch,player.yaw,0,'YXZ');if(camera.fov!==14){camera.fov=14;camera.updateProjectionMatrix();}};
   W.key=e=>{if(W.scope&&e.code==='Escape'){W.exit();return true;}return false;};
@@ -15026,8 +15027,8 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
     g.textAlign='center';g.textBaseline='middle';g.font='62px sans-serif';g.fillText(C.ic,64,76);g.fillStyle='#ffe9a0';g.font=`900 30px ${FONT}`;g.fillText(C.n,64,146);t.needsUpdate=true;}
   // ---- 飛 ----
   const F={};
-  G.canFly=()=>started&&mode==='walk'&&!G.on&&!SKI.ride&&!RIDE.on&&!PAX.on&&!BALLOON.riding&&!LIE.on&&!DECO.sit&&!player.climb&&!FJW.scope&&EMOTE.can();
-  function fly(x,z,y,opt){if(SKI.on)SKI.stop();if(SKATE.on)SKATE.stop();if(EMOTE.on)EMOTE.stop(true);fxInit();cardDraw(opt.kind==='mag'?'mag':'acc');
+  G.canFly=()=>started&&mode==='walk'&&!G.on&&!SKI.ride&&!RIDE.on&&!PAX.on&&!BALLOON.riding&&!LIE.on&&!DECO.sit&&!player.climb&&!FJW.scope&&EMOTE.can()&&!PAINT.on&&!TN.on&&!DUO.on&&!CVS.on&&!(typeof CG!=='undefined'&&CG.on);   /* 2026-10-29.1 潑漆、網球、兩人小遊戲、便利商店、城堡遊戲中不會被朋友的同行拉走（以前遊戲還開著人卻飛走了） */
+  function fly(x,z,y,opt){if(DRONE.on&&typeof toggleAerial==='function')toggleAerial();   /* 2026-10-29.1 被朋友拉走時在空拍：先收回（以前空拍機鏡頭蓋掉飛行畫面） */if(SKI.on)SKI.stop();if(SKATE.on)SKATE.stop();if(EMOTE.on)EMOTE.stop(true);fxInit();cardDraw(opt.kind==='mag'?'mag':'acc');
     const x0=player.pos.x,z0=player.pos.y,y0=player.y,D=Math.hypot(x-x0,z-z0);
     Object.assign(F,{x0,z0,y0,x,z,y,D,dir:D>1?Math.atan2(-(x-x0),-(z-z0)):avatar.yaw,T3:cl(D/140,1.2,4),H:Math.min(160,20+D*0.12),kind:opt.kind,dn:opt.dn||'',by:opt.by||'',trT:0,cv:null,ci:0,cx:isFinite(opt.cx)?opt.cx:x,cz:isFinite(opt.cz)?opt.cz:z,gn:Math.max(1,Math.min(8,opt.gn|0)),to:opt.to||'',fol:opt.fol||null,hx:x0,hz:z0,hy:y0});   /* cx、cz＝大家的中心、gn＝幾個人一起飛 */
     G.on=true;G.ph=1;G.t=0;camInit=false;if(view!=='third'){view='third';syncViewUI();}player.vel.set(0,0);player.vy=0;avatar.yaw=F.dir;
@@ -15048,7 +15049,7 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
     if(!(typeof CALM!=='undefined'&&CALM.on)){const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:#fff;z-index:85;opacity:.5;transition:opacity .35s;pointer-events:none';document.body.appendChild(d);setTimeout(()=>{d.style.opacity='0';},30);setTimeout(()=>d.remove(),450);}}   /* 落地：衝擊波、塵土（雪地是雪花）、閃一下 */
   function end(){const f=F;G.on=false;G.ph=0;player.pos.set(f.x,f.z);resolve(player.pos,0.3,f.y);const h=heightAt(player.pos.x,player.pos.y,f.y+0.5);player.y=Math.abs(h-f.y)<3?h:f.y;player.vy=0;player.ground=true;player.vel.set(0,0);player.yaw=f.dir;player.pitch=-0.08;avatar.yaw=f.dir;
     if(card)card.visible=false;if(aura)aura.visible=false;if(pillar)pillar.visible=false;toast(f.kind==='mag'?'🧲 飛到了！':`🌠 到了：${f.dn}`);if(typeof syncActBtn==='function')syncActBtn();}
-  G.cancel=()=>{if(!G.on)return;G.on=false;G.ph=0;if(card)card.visible=false;if(aura)aura.visible=false;if(pillar)pillar.visible=false;};   /* 飛到一半被傳送（前往） */
+  G.cancel=()=>{if(!G.on)return;if(F.fol&&F.fol.length&&G.ph<5){F.fol.forEach(id=>NET.out(id,{t:'gcR',home:1}));F.fol=null;}   /* 2026-10-29.1 帶頭的人飛到一半被傳送走：一起飛的朋友也回原地（以前照樣飛到原本的地方） */G.on=false;G.ph=0;if(card)card.visible=false;if(aura)aura.visible=false;if(pillar)pillar.visible=false;};   /* 飛到一半被傳送（前往） */
   // ---- 姿勢（自己、別人一樣） ----
   const LB=new THREE.Box3(),LV=new V3();
   function poseAt(a,ph,t){a.zeroJoints();const r=(o,x,y,z)=>{if(o)o.rotation.set(x,y||0,z||0);};a.body.position.y=0;a.body.rotation.set(0,0,0);
@@ -15132,22 +15133,25 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
   const farFriends=()=>{if(!NET.on)return [];const nf=new Set(nearFriends());return [...NET.P.entries()].filter(([id,q])=>q&&q.s&&q.s.a&&!nf.has(String(id)));};
   function accTo(id){const q=NET.P.get(id)||NET.P.get(+id),a=q&&q.s&&q.s.a;if(!a){toast('找不到這個朋友');return;}if(q.s.ca){toast('朋友正在坐纜車，等他下來再飛過去');return;}
     if(!G.canFly()){toast(G.on?'正在飛':'現在不能用卡片（先離開遊戲、下車）');return;}if(G.cd.acc>0)return;const t=dest(q),m=nearFriends().length,p=spotNear(t.x,t.y,t.z,4+(t.gn>1?1.5:0)+(m?1:0));
-    useAcc({name:`${pn(id)}旁邊`,x:p.x,z:p.z,y:p.y,cx:t.gn>1||t.fl?t.x:p.x,cz:t.gn>1||t.fl?t.z:p.z,gn:t.fl?t.gn+m+1:m+1},String(id));NET.out(String(id),{t:'gcM',acc:1,n:m});}
+    useAcc({name:`${pn(id)}旁邊`,x:p.x,z:p.z,y:p.y,cx:t.gn>1||t.fl?t.x:p.x,cz:t.gn>1||t.fl?t.z:p.z,gn:t.fl?t.gn+m+1:m+1},String(id));NET.out(String(id),{t:'gcM',acc:1,n:m,fl:t.fl});}
   function useMag(id){if(!G.canFly()){toast(G.on?'正在飛':'現在不能用卡片（先離開遊戲、下車）');return;}if(G.cd.mag>0)return;const q=NET.P.get(id)||NET.P.get(+id),a=q&&q.s&&q.s.a;if(!a){toast('找不到這個朋友');return;}if(q.s.ca){toast('朋友正在坐纜車，等他下來再飛過去');return;}BK.hidden=true;
-    const t=dest(q),p=spotNear(t.x,t.y,t.z,2.2+(t.gn>1?2.4:0));fly(p.x,p.z,p.y,{kind:'mag',dn:pn(id),to:String(id)});G.cd.mag=CDM;NET.out(String(id),{t:'gcM'});}
+    const t=dest(q),p=spotNear(t.x,t.y,t.z,2.2+(t.gn>1?2.4:0));fly(p.x,p.z,p.y,{kind:'mag',dn:pn(id),to:String(id)});G.cd.mag=CDM;NET.out(String(id),{t:'gcM',fl:t.fl});}
   // 2026-10-28.14 使用者：「兩個人同時對對方用同行會怎樣」→ 以前兩個人互換位置（在天上擦身而過，落地還是很遠）；朋友正在飛也是飛到他起飛的地方、或停在半空
   //   改成：朋友正在飛 → 飛去他要降落的地方；同時互飛 → 編號大的留在原地等（還在舉卡片就收起來，飛起來了就落回原地，身邊一起飛的朋友也一起回去）；朋友飛去別的地方 → 他回 gcW 告訴你，你半路轉彎
   function dest(q){const a=q.s.a,gc=q.s.gc;if(Array.isArray(gc)&&(gc[0]|0)>=1&&(gc[0]|0)<=4&&isFinite(+gc[2])&&isFinite(+gc[5]))return {x:+gc[2],z:+gc[3],y:+gc[5],gn:Math.max(1,gc[4]|0),fl:1};return {x:a[0],z:a[2],y:a[1],gn:1,fl:0};}
-  function spotNear(ax,ay,az,d){const dx=player.pos.x-ax,dz=player.pos.y-az,l=Math.hypot(dx,dz)||1,x=ax+dx/l*d,z=az+dz/l*d,y=heightAt(x,z,ay+1.5);return {x,z,y:Math.abs(y-ay)<3?y:ay};}
+  function spotNear(ax,ay,az,d){const dx=player.pos.x-ax,dz=player.pos.y-az,l=Math.hypot(dx,dz)||1,a0=Math.atan2(dx/l,dz/l);   /* 2026-10-29.1 朋友站在金字塔頂邊、高台邊：往我這邊退 4 m 會在半空 → 換別的方向、近一點找跟朋友一樣高的地方 */
+    for(const tol of [0.8,3])for(const dd of [d,d*0.6,1.2])for(const da of [0,0.6,-0.6,1.3,-1.3,2.1,-2.1,Math.PI]){const x=ax+Math.sin(a0+da)*dd,z=az+Math.cos(a0+da)*dd,y=heightAt(x,z,ay+1.5);if(Math.abs(y-ay)<tol)return {x,z,y};}   /* 先找一樣高的；斜坡上再放寬到 3 m（原本的標準） */
+    return {x:ax+dx/l*0.8,z:az+dz/l*0.8,y:ay};}
   function redir(x,z,y,o){const f=F;if(!G.on||G.ph>3||!isFinite(x)||!isFinite(z)||!isFinite(y))return false;
     if(G.ph===3){f.x0=player.pos.x;f.z0=player.pos.y;f.y0=player.y-35;G.t=0;}   /* 飛到一半：從現在的位置重新算路線 */
     const D=Math.hypot(x-f.x0,z-f.z0),dir=D>1?Math.atan2(-(x-f.x0),-(z-f.z0)):f.dir;
     Object.assign(f,{x,z,y,D,dir,T3:cl(D/140,1.2,4),H:Math.min(160,20+D*0.12),cv:null,ci:0,cx:isFinite(o.cx)?o.cx:x,cz:isFinite(o.cz)?o.cz:z,gn:Math.max(1,Math.min(8,o.gn|0||1)),dn:o.dn||f.dn});if(o.to!=null)f.to=o.to;
     if(f.fol&&f.fol.length){const n=f.fol.length+1;f.fol.forEach((id,i)=>{const a=dir+(i+1)/n*Math.PI*2;NET.out(id,o.home?{t:'gcR',home:1}:{t:'gcR',x:+(x+Math.sin(a)*2.4).toFixed(2),z:+(z+Math.cos(a)*2.4).toFixed(2),y:+y.toFixed(2),cx:+f.cx.toFixed(2),cz:+f.cz.toFixed(2),gn:f.gn,dn:f.dn});});}
     if(f.dn&&G.ph>=2)bigT(`🌠 → ${f.dn}`);return true;}
-  function goHome(){const f=F;if(!G.on)return;if(G.ph===1){if(f.fol)f.fol.forEach(id=>NET.out(id,{t:'gcR',home:1}));G.cancel();if(typeof syncActBtn==='function')syncActBtn();return;}redir(f.hx,f.hz,f.hy,{dn:'原地',home:1,to:''});}   /* 還在舉卡片：收起來；飛起來了：落回原地 */
+  function goHome(){const f=F;if(!G.on)return;if(G.ph===1){G.cancel();if(typeof syncActBtn==='function')syncActBtn();return;}redir(f.hx,f.hz,f.hy,{dn:'原地',home:1,to:''});}   /* 還在舉卡片：收起來；飛起來了：落回原地 */
   G.rx=(d,f)=>{f=String(f);if(d.t==='gcA'){const x=+d.x,z=+d.z;if(!isFinite(x)||!isFinite(z))return;if(!G.canFly()){toast(`🌠 ${pn(f)} 用了同行，可是你正在忙，沒有跟去`);return;}const y=heightAt(x,z,(+d.y||0)+1.5);fly(x,z,Math.abs(y-(+d.y||0))<3?y:+d.y||0,{kind:'pull',by:f,dn:String(d.dn||'').slice(0,20),cx:+d.cx,cz:+d.cz,gn:d.gn|0});}
     else if(d.t==='gcM'){const k=d.acc?'🌠':'🧲';
+      if(G.on&&G.ph<=3&&F.to===f&&d.fl){toast(`${k} ${pn(f)} 飛過來找你，會降落在你旁邊`);return;}   /* 2026-10-29.1 他是看到我在飛、飛去我要降落的地方：我照樣飛（以前編號大的我會留在原地 → 兩個人分開） */
       if(G.on&&G.ph<=3&&F.to===f){if(String(NET.myId())>f){goHome();toast(`${k} ${pn(f)} 也同時飛過來找你 → 你留在原地等他`);}else toast(`${k} ${pn(f)} 也同時要飛過來找你 → 他在原地等你`);return;}   /* 兩個人同時互飛：編號大的留在原地 */
       if(G.on&&F.to!==f&&G.ph<=5)NET.out(f,{t:'gcW',x:+F.cx.toFixed(2),z:+F.cz.toFixed(2),y:+F.y.toFixed(2),gn:F.gn});   /* 我正在飛去別的地方：告訴他我要降落在哪 */
       toast(d.acc?`🌠 ${pn(f)}${d.n>0?` 帶著 ${d.n|0} 個朋友`:''}用同行飛過來找你了！`:`🧲 ${pn(f)} 用磁力飛過來找你了！`);}
@@ -15173,7 +15177,7 @@ var PAINT=(()=>{const P={on:false,st:'idle'};
   const TC=['#ff8a1f','#8e44ff'],TN=['🟠 橘隊','🟣 紫隊'];
   // 2026-10-28.1 難度（使用者選「潑漆大作戰加內容」）：普通＝10-27.42 調過的；電腦看到人多久才開始射（see 秒）、對人一秒射幾發、多準（jit）、走多快、多常丟炸彈、每隊電腦拿的武器
   const DIFF=[{n:'🙂 簡單',see:1.1,rate:2.2,jit:0.45,spd:0.85,bomb:0.07,wp:[0,1,0]},{n:'😀 普通',see:0.7,rate:3.2,jit:0.3,spd:1,bomb:0.18,wp:[0,1,4]},{n:'😈 困難',see:0.4,rate:4.4,jit:0.17,spd:1.1,bomb:0.3,wp:[3,1,2]}];
-  let DI=1;try{DI=cl(+(localStorage.getItem('home-ptdiff')??1)|0,0,2);}catch(_){}const DF=()=>DIFF[DI];
+  let DI=1;try{const v=+(localStorage.getItem('home-ptdiff')??1);DI=Number.isFinite(v)?cl(v|0,0,2):1;}catch(_){}   /* 存檔是亂值：普通 */const DF=()=>DIFF[DI];
   // 2026-10-28.1 武器 5 種（kind＝漆彈種類：0 一般、1 炸彈、2 長射、3 散彈、4 漆桶）
   const WN=['🔫 潑漆槍','🧹 大滾筒','🎯 長射槍','💥 散彈槍','🪣 漆桶'],WT=['準星對哪裡就射哪裡','按住往前推一路塗，壓到敵人＝打倒；站著按＝甩一片','射得很遠、一發 3 格血，飛過去的地方畫一條線（一秒不到一發）','一次噴 6 顆散開，越近越強','拋一大桶，落地潑開一大片、附近的敵人 2 格血'];
   const FI=[0.1,0,0.9,0.6,0.85],KR=[1.05,3.0,0.55,0.7,2.3],KL=[2,6,1.2,1,3],KD=[1,0,3,1,2],KMAX=[16.5,13,30,8,10];   // 每發間隔（秒）；漆彈：落地大小、最久飛幾秒、打中幾格血、最遠
@@ -15350,9 +15354,9 @@ var PAINT=(()=>{const P={on:false,st:'idle'};
       if(s.kind!==1)for(const e of ENTS){if(e.t===s.t||e.dead||e.prot>0)continue;const mx=nx-s.x,mz=nz-s.z,u=cl(((e.x-s.x)*mx+(e.z-s.z)*mz)/(mx*mx+mz*mz||1),0,1),hy=s.y+(ny-s.y)*u,dx=s.x+mx*u-e.x,dz=s.z+mz*u-e.z,top=e.slide?0.85:1.95;if(dx*dx+dz*dz<0.42&&hy>e.y+0.05&&hy<e.y+top){   /* 2026-10-28.1 整段路線檢查（長射槍很快，一格飛 1 m 多，不然會穿過人） */if(auth(e))hurt(e,s.own,KD[s.kind]||1);if(s.own&&s.own.me)hitMark(false);drops(nx,ny,nz,s.t,s.kind===4?18:6,2.5,2.5);splat(e.x+dx*0.3,e.z+dz*0.3,s.kind===4?1.6:0.45,s.t,s.own,s.vx,s.vz);kill(s);hit=true;break;}}
       if(hit)continue;
       const b=solidAt(nx,nz);
-      if(b&&ny<b.h){if(s.y>=b.h-0.08){if(b.k==='plat')land(s,nx,b.h,nz);else{if(s.kind!==1)decal(nx,b.h,nz,0,1,0,Math.min(1.6,s.r*1.1),s.t);drops(nx,b.h,nz,s.t,5,2.2,1.8);if(s.kind===1){s.x=nx;s.z=nz;s.y=b.h+0.28;s.fuse=0.6;s.m.position.set(nx,s.y,nz);}else kill(s);}continue;}
+      if(b&&ny<b.h){if(s.y>=b.h-0.08){if(b.k==='plat'||s.kind===4)land(s,nx,b.h,nz);/* 2026-10-29.1 漆桶落在木箱、矮牆頂上：以前直接不見，現在照樣潑開 */else{if(s.kind!==1)decal(nx,b.h,nz,0,1,0,Math.min(1.6,s.r*1.1),s.t);drops(nx,b.h,nz,s.t,5,2.2,1.8);if(s.kind===1){s.x=nx;s.z=nz;s.y=b.h+0.28;s.fuse=0.6;s.m.position.set(nx,s.y,nz);}else kill(s);}continue;}
         const nxv=s.x<=b.x0?-1:s.x>=b.x1?1:0,nzv=nxv?0:s.z<=b.z0?-1:s.z>=b.z1?1:0;const hx=nxv<0?b.x0:nxv>0?b.x1:cl(nx,b.x0,b.x1),hz=nzv<0?b.z0:nzv>0?b.z1:cl(nz,b.z0,b.z1);
-        if(s.kind===1){s.vx*=-0.3;s.vz*=-0.3;continue;}decal(hx,ny,hz,nxv,0,nzv,Math.min(1.7,s.r*1.15),s.t);drops(hx,ny,hz,s.t,5,1.5,2);splat(hx+nxv*0.5,hz+nzv*0.5,s.r*0.45,s.t,s.own,s.vx,s.vz);kill(s);continue;}   /* 打到牆、箱子側面：留下漆痕、牆腳一點點 */
+        if(s.kind===1){s.vx*=-0.3;s.vz*=-0.3;continue;}if(s.kind===4){const lx=hx+nxv*0.7,lz=hz+nzv*0.7;decal(hx,ny,hz,nxv,0,nzv,1.7,s.t);land(s,lx,groundAt(lx,lz,ny),lz);continue;}   /* 漆桶打到側面：牆腳潑開 */decal(hx,ny,hz,nxv,0,nzv,Math.min(1.7,s.r*1.15),s.t);drops(hx,ny,hz,s.t,5,1.5,2);splat(hx+nxv*0.5,hz+nzv*0.5,s.r*0.45,s.t,s.own,s.vx,s.vz);kill(s);continue;}   /* 打到牆、箱子側面：留下漆痕、牆腳一點點 */
       const g=groundAt(nx,nz,s.y);if(ny<=g+0.05||s.life<=0){if(nx>X0&&nx<X0+AW&&nz>Z0&&nz<Z0+AH)land(s,nx,g,nz);else kill(s);continue;}
       s.x=nx;s.z=nz;s.y=ny;s.m.position.set(nx,ny,nz);if(s.kind!==1&&s.kind!==4){V9.set(nx+s.vx,ny+s.vy,nz+s.vz);s.m.lookAt(V9);}
       if(s.kind===2){s.tr+=Math.hypot(s.vx,s.vz)*dt;if(s.tr>0.7){s.tr=0;if(nx>X0&&nx<X0+AW&&nz>Z0&&nz<Z0+AH&&ny<groundAt(nx,nz,ny)+3.5)splat(nx,nz,0.32,s.t,s.own,s.vx,s.vz);}}}}   /* 🎯 長射：飛過去的地方畫一條線 */
@@ -15421,6 +15425,7 @@ var PAINT=(()=>{const P={on:false,st:'idle'};
     if(e.slide){e.ink=Math.min(100,e.ink+50*dt);if(Math.random()<dt*8)drops(e.x,0.1,e.z,e.t,1,1.5,1);}
     if(e.spin>0){spinTick(e,dt);return;}
     const mvd=Math.hypot(e.x-px,e.z-pz);
+    if(e.wp!==1)e.roll=false;   /* 2026-10-29.1 推滾筒推到一半換成槍：以前一直是「在滾」（變慢、朋友那邊照樣塗地、壓到人） */
     if(e.wp===1){e.roll=hold&&mvd>0.01&&e.ink>2&&P.st==='play';e.rollT-=dt;if(e.roll&&e.rollT<=0){e.rollT=0.1;e.ink-=0.35;const l=mvd||1;rollStamp(e,(e.x-px)/l,(e.z-pz)/l);if(Math.random()<0.4)AUDIO.sfx('swish');}
       else if(hold&&mvd<0.01&&P.st==='play'&&e.flickT<=0&&e.ink>=5){e.flickT=0.55;const A2=aim(e);let dx=A2.x-e.x,dz=A2.z-e.z;e.ink-=5;for(let k=-2;k<=2;k++){const a=k*0.17,c=Math.cos(a),sn=Math.sin(a);fire(e,dx*c-dz*sn,dx*sn+dz*c,rnd(5,8),0,0.04);e.ink+=0.65;}firing=0.4;AUDIO.sfx('swish');}   /* 站著按：甩一片 */
       return;}
@@ -15429,7 +15434,7 @@ var PAINT=(()=>{const P={on:false,st:'idle'};
     noInk-=dt;}
   function doBomb(){const e=ENTS[0];if(!P.on||P.st!=='play'||!e||e.dead||e.spin>0)return;if(e.bombT>0)return;if(e.ink<40){toast('💣 漆不夠（要 40%）');AUDIO.sfx('beep');return;}const A2=aim(e);e.bombT=0.8;if(bomb(e,A2.x-e.x,A2.z-e.z,Math.hypot(A2.x-e.x,A2.z-e.z),A2.y)){firing=0.4;AUDIO.sfx('whoosh');}}
   function doSpecial(){const e=ENTS[0];if(!P.on||P.st!=='play'||!e||e.dead||e.spin>0)return;if(e.sp<100){toast(`🌀 特殊技還沒集滿（${Math.floor(e.sp)}%，多塗地就會集滿）`);return;}e.sp=0;e.spin=2.6;gBig('🌀 旋風噴漆！');AUDIO.sfx('whoosh');}
-  function setMyWp(w){WPK=w;try{localStorage.setItem('home-ptwp',String(w));}catch(_){}const e=ENTS[0];if(e)e.wp=w;setWp(myGun,w);toast(`換成 ${WN[w]}：${WT[w]}`);}
+  function setMyWp(w){WPK=w;try{localStorage.setItem('home-ptwp',String(w));}catch(_){}const e=ENTS[0];if(e){e.wp=w;if(w!==1)e.roll=false;}setWp(myGun,w);toast(`換成 ${WN[w]}：${WT[w]}`);}
   function hitMark(kill){if(!aimEl)return;aimEl.classList.remove('hit','kill');void aimEl.offsetWidth;aimEl.classList.add(kill?'kill':'hit');}
   // ================= 畫面 =================
   let hitFx=null,aimEl=null,T=0,hud=null,fb=null,pad=null,res=null,pop=null,dif=null,lastHud='',hudT=0,endWait=0;
@@ -15467,15 +15472,18 @@ var PAINT=(()=>{const P={on:false,st:'idle'};
       up=e=>{const b=e.target.closest('button');if(!b)return;b.classList.remove('on');const k=b.dataset.k;if(k==='fire')hold=false;else if(k==='slide')slideK=false;};
     pad.addEventListener('pointerdown',dn);pad.addEventListener('pointerup',up);pad.addEventListener('pointercancel',up);pad.addEventListener('lostpointercapture',up,true);pad.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();},{passive:false});
     hud.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.x){if(P.net&&P.net.st==='wait'){cancelInv();return;}stop(false);}else if(b.dataset.go){launch();}else if(b.dataset.w){setMyWp((WPK+1)%WN.length);lastHud='';hudDraw();}});
-    dif.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;dif.hidden=true;if(b.dataset.d!=null){DI=cl(+b.dataset.d|0,0,2);try{localStorage.setItem('home-ptdiff',String(DI));}catch(_){}start();}});
+    dif.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;dif.hidden=true;if(b.dataset.d!=null&&P.label()&&mode==='walk'&&!RIDE.on&&!PAX.on&&!SKI.ride&&!DRONE.on){   /* 2026-10-29.1 面板開著走開／傳送後再點：以前直接把人拉到競技場（沒有下車、沒收空拍） */DI=cl(+b.dataset.d|0,0,2);try{localStorage.setItem('home-ptdiff',String(DI));}catch(_){}start();}});
     res.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;res.hidden=true;if(b.dataset.a==='again')start();else if(b.dataset.a==='dif'){stop(true);choose();}else if(b.dataset.a==='inv'){stop(true);invite();}else stop(false);});
     pop.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const f=pop.dataset.f;pop.hidden=true;if(b.dataset.a==='ok'){NET.out(f,{t:'ptA'});toast('🎨 等開房間的人按開始…');}else NET.out(f,{t:'ptN'});});}
+  // 2026-10-29.1 「⇄」有時按了沒反應：資訊框每 0.25 秒整段 innerHTML（時間、漆量一直變），按下到放開中間按鈕被換掉 → 字和按鈕分開，按鈕只有字變了才換
+  let lastB='';
+  function hudPut(h,b){let d=hud.firstElementChild;if(!d||!d.classList.contains('hd0')){hud.innerHTML='<div class="hd0"></div><div class="hb0"></div>';d=hud.firstElementChild;lastHud=lastB=null;}if(h!==lastHud){lastHud=h;d.innerHTML=h;}if(b!==lastB){lastB=b;hud.lastElementChild.innerHTML=b;}}
   function hudDraw(){if(P.net&&P.net.st==='wait'){const N=P.net,left=Math.max(0,Math.ceil((N.end-performance.now())/1000));
-      const h=`<b>🎨 邀請大家來潑漆</b>　⏱ ${left}<br>答應了：${N.ids.filter(i=>i!==me()).map(i=>esc(nm(i))).join('、')||'（還沒有）'}<br>還沒回：${[...N.wait].map(i=>esc(nm(i))).join('、')||'—'}<br><button data-go="1" class="ok">🚀 開始！</button> <button data-x="1">✕ 取消</button>`;if(h!==lastHud){lastHud=h;hud.innerHTML=h;}return;}
+      hudPut(`<b>🎨 邀請大家來潑漆</b>　⏱ ${left}<br>答應了：${N.ids.filter(i=>i!==me()).map(i=>esc(nm(i))).join('、')||'（還沒有）'}<br>還沒回：${[...N.wait].map(i=>esc(nm(i))).join('、')||'—'}`,`<button data-go="1" class="ok">🚀 開始！</button> <button data-x="1">✕ 取消</button>`);return;}
     const mE=ENTS[0];if(!mE)return;const [a,b]=score(),left=Math.max(0,P.st==='count'?DUR:DUR-T),mm=Math.floor(left/60),ss=String(Math.floor(left%60)).padStart(2,'0');
     const h=`<b>🎨 ${P.net?'👥 ':''}潑漆大作戰</b>${!P.net||P.net.host?` <small class="df">${DF().n}</small>`:''}　⏱ <b>${P.st==='count'?Math.ceil(3-T):P.st==='end'||P.st==='done'?'0:00':mm+':'+ss}</b><div class="bar"><i style="width:${a.toFixed(1)}%;background:${TC[0]}"></i><i style="flex:1;background:transparent"></i><i style="width:${b.toFixed(1)}%;background:${TC[1]}"></i></div>
-      🟠 <b>${a.toFixed(0)}%</b>　🟣 <b>${b.toFixed(0)}%</b>　🎯${mE.kills} 💀${mE.deaths}<br>${mE.dead?'💀 重新出發中…':'❤️'.repeat(Math.max(0,mE.hp))+'🤍'.repeat(Math.max(0,mE.mh-Math.max(0,mE.hp)))}<div class="ink"><i style="width:${mE.ink}%;background:${TC[mE.t]}"></i></div><div class="spm"><i style="width:${mE.spin>0?100:mE.sp}%"></i></div>
-      <button data-w="1">${WN[WPK]} ⇄</button> <button data-x="1">✕ 結束</button>`;if(h!==lastHud){lastHud=h;hud.innerHTML=h;}
+      🟠 <b>${a.toFixed(0)}%</b>　🟣 <b>${b.toFixed(0)}%</b>　🎯${mE.kills} 💀${mE.deaths}<br>${mE.dead?'💀 重新出發中…':'❤️'.repeat(Math.max(0,mE.hp))+'🤍'.repeat(Math.max(0,mE.mh-Math.max(0,mE.hp)))}<div class="ink"><i style="width:${mE.ink}%;background:${TC[mE.t]}"></i></div><div class="spm"><i style="width:${mE.spin>0?100:mE.sp}%"></i></div>`;
+    hudPut(h,`<button data-w="1">${WN[WPK]} ⇄</button> <button data-x="1">✕ 結束</button>`);
     {const ic=WN[WPK].split(' ')[0];if(fb.firstChild&&fb.firstChild.nodeValue!==ic)fb.firstChild.nodeValue=ic;}   /* 射擊鈕的圖示跟著武器換 */
     const spb=pad.querySelector('[data-k=sp]');spb.classList.toggle('rdy',mE.sp>=100&&mE.spin<=0);}
   // ================= 一局 =================
@@ -15484,7 +15492,7 @@ var PAINT=(()=>{const P={on:false,st:'idle'};
     splat(BASE[0].x,BASE[0].z,4.5,0,null,0,0);splat(BASE[1].x,BASE[1].z,4.5,1,null,0,0);
     if(myGun&&myGun.parent)myGun.parent.remove(myGun);const mt=ENTS[0].t;myGun=MYG[mt]||(MYG[mt]=gun(mt));myGun.visible=true;setWp(myGun,WPK);avatar.root.add(myGun);
     P.on=true;P.st='count';P.endT=0;P.podDone=false;T=0;hold=false;slideK=false;endWait=0;res.hidden=true;pop.hidden=true;hud.hidden=false;pad.hidden=false;aimEl.hidden=false;lastHud='';hudDraw();gBig('3');AUDIO.sfx('beep');syncActBtn();}
-  function botTeam(list){const n=[0,0];for(const e of list)if(e.bot){e.wp=DF().wp[n[e.t]%3];n[e.t]++;}}   /* 每隊第 2 個電腦拿滾筒；2026-10-28.1 第 1、3 個照難度（困難：散彈、長射） */
+  function botTeam(list,di){const W=(DIFF[di]||DF()).wp,n=[0,0];for(const e of list)if(e.bot){e.wp=W[n[e.t]%3];n[e.t]++;}}   /* 2026-10-29.1 連線：照開房間的人的難度（di）；以前朋友照自己的難度 → 電腦手上的武器跟射出來的不一樣 */   /* 每隊第 2 個電腦拿滾筒；2026-10-28.1 第 1、3 個照難度（困難：散彈、長射） */
   function start(){P.net=null;const t0=n=>ent(0,{bot:true,k:n,name:BN[0][n]}),t1=n=>ent(1,{bot:true,k:2+n,name:BN[1][n]});
     const L=[ent(0,{me:true,name:'你'}),t0(0),t0(1),t1(0),t1(1),t1(2)];botTeam(L);setup(L);for(const e of ENTS)if(e.bot)e.b=bot(e.k,e.t,e.name);for(const e of ENTS)if(e.bot)botLook(e);
     toast(document.body.classList.contains('touch')?'🎨 你是 🟠 橘隊！準星對哪就射哪（按住🔫）、🛝 在自己的顏色上滑、💣 丟炸彈、🌀 特殊技':'🎨 你是 🟠 橘隊！準星對哪就射哪（按住 J）、K 滑行、L 炸彈、U 特殊技（塗地集滿）');}
@@ -15494,9 +15502,9 @@ var PAINT=(()=>{const P={on:false,st:'idle'};
   function cancelInv(){if(!P.net||P.net.st!=='wait')return;for(const id of P.net.ids)if(id!==me())NET.out(id,{t:'ptQ'});P.net=null;hud.hidden=true;syncActBtn();}
   function launch(){const N=P.net;if(!N||N.st!=='wait'||!N.host)return;if(N.ids.length<2){P.net=null;hud.hidden=true;toast('沒有人答應，自己跟電腦打');start();return;}
     const tm={},cnt=[0,0];N.ids.forEach((id,i)=>{tm[id]=i%2;cnt[i%2]++;});const need=Math.max(3,cnt[0],cnt[1]),bots=[];let k=0;for(let t=0;t<2;t++)for(let j=cnt[t];j<need;j++)bots.push([k++,t,BN[t][j-cnt[t]]||('電腦'+k)]);
-    for(const id of N.ids)if(id!==me())NET.out(id,{t:'ptS',ids:N.ids,tm,bots});goNet(N.ids,tm,bots,me());}
-  function goNet(ids,tm,bots,org){if(Math.hypot(player.pos.x-AX,player.pos.y-AZ)>60&&typeof teleport==='function'){const sp=SPOTS.find(s=>s.name==='沙漠金字塔');if(sp)teleport(sp.x,sp.z,sp.yaw||0,0);}
-    const mi=me(),list=[ent(tm[mi]|0,{me:true,name:'你'})];for(const id of ids)if(id!==mi)list.push(ent(tm[id]|0,{id:String(id),name:nm(id)}));for(const [k,t,n] of bots)list.push(ent(t,{bot:true,k,name:n}));botTeam(list);
+    for(const id of N.ids)if(id!==me())NET.out(id,{t:'ptS',ids:N.ids,tm,bots,di:DI});goNet(N.ids,tm,bots,me(),DI);}
+  function goNet(ids,tm,bots,org,di){if(Math.hypot(player.pos.x-AX,player.pos.y-AZ)>60&&typeof teleport==='function'){const sp=SPOTS.find(s=>s.name==='沙漠金字塔');if(sp)teleport(sp.x,sp.z,sp.yaw||0,0);}
+    const mi=me(),list=[ent(tm[mi]|0,{me:true,name:'你'})];for(const id of ids)if(id!==mi)list.push(ent(tm[id]|0,{id:String(id),name:nm(id)}));for(const [k,t,n] of bots)list.push(ent(t,{bot:true,k,name:n}));botTeam(list,di);
     P.net={org:String(org),host:String(org)===mi,ids:ids.map(String),tm,st:'play',seen:{}};setup(list);for(const e of ENTS)if(e.bot)e.b=bot(e.k,e.t,e.name);for(const e of ENTS)if(e.bot)botLook(e);
     const mates=ENTS.filter(e=>e.t===ENTS[0].t&&!e.me).map(e=>e.name);toast(`🎨 連線潑漆！你是 ${TN[ENTS[0].t]}（隊友：${mates.join('、')}）。準星對哪裡就射哪裡（J／🔫）`);}
   function stop(quiet){if(!P.on&&P.st==='idle'&&!P.net)return;if(P.net&&NET.on&&P.on&&P.st!=='done')for(const id of P.net.ids)if(id!==me())NET.out(id,{t:'ptQ'});
@@ -15529,7 +15537,7 @@ var PAINT=(()=>{const P={on:false,st:'idle'};
     for(let t=0.6;t<=cd;t+=0.15){const x=px-fx*t,y=py-fy*t,z=pz-fz*t;const b=solidAt(x,z);if((b&&y<b.h+0.2)||y<groundAt(x,z)+0.25){d=Math.max(0.6,t-0.2);break;}}
     camera.position.set(px-fx*d,py-fy*d,pz-fz*d);camera.rotation.set(pit,player.yaw,0,'YXZ');};
   // ================= 每格 =================
-  P.tick=dt=>{chkT-=dt;if(chkT<=0){chkT=1;const d=Math.hypot(player.pos.x-D.cx,player.pos.y-D.cz);if(!built&&d<900)build();if(G)G.visible=d<1400;}
+  P.tick=dt=>{if(dif&&!dif.hidden&&!P.label())dif.hidden=true;   /* 2026-10-29.1 選難度面板：走開、傳送、被邀請開局就收起來 */chkT-=dt;if(chkT<=0){chkT=1;const d=Math.min(Math.hypot(player.pos.x-D.cx,player.pos.y-D.cz),DRONE.on?Math.hypot(DRONE.p.x-D.cx,DRONE.p.z-D.cz):1e9);   /* 2026-10-29.1 空拍機飛到沙漠也看得到 */if(!built&&d<900)build();if(G)G.visible=d<1400;}
     if(P.net&&P.net.st==='wait'){if(performance.now()>P.net.end||!P.net.wait.size)launch();else{hudT-=dt;if(hudT<=0){hudT=0.25;hudDraw();}}return;}
     if(!P.on){if(P.st==='done'&&res&&!res.hidden&&Math.hypot(player.pos.x-AX,player.pos.y-AZ)>70){res.hidden=true;P.st='idle';}return;}
     if(Math.hypot(player.pos.x-AX,player.pos.y-AZ)>70||mode!=='walk'){const dn=P.st==='done';stop(true);if(res)res.hidden=true;if(!dn)toast('離開競技場，潑漆大作戰結束了');return;}
@@ -15587,7 +15595,7 @@ var PAINT=(()=>{const P={on:false,st:'idle'};
       setTimeout(()=>{if(!pop.hidden&&pop.dataset.f===f){pop.hidden=true;NET.out(f,{t:'ptN'});}},12000);break;}
     case 'ptA':{const N=P.net;if(N&&N.host&&N.st==='wait'&&N.wait.has(f)){N.wait.delete(f);N.ids.push(f);toast(`🎨 ${nm(f)} 要一起打`);lastHud='';hudDraw();}break;}
     case 'ptN':{const N=P.net;if(N&&N.host&&N.st==='wait'){N.wait.delete(f);lastHud='';hudDraw();}break;}
-    case 'ptS':{const ids=(d.ids||[]).map(String);if(!ids.includes(me()))return;if(pop)pop.hidden=true;if(P.on){P.net=null;stop(true);}goNet(ids,d.tm||{},Array.isArray(d.bots)?d.bots:[],f);break;}
+    case 'ptS':{const ids=(d.ids||[]).map(String);if(!ids.includes(me()))return;if(pop)pop.hidden=true;if(P.on){P.net=null;stop(true);}goNet(ids,d.tm||{},Array.isArray(d.bots)?d.bots:[],f,d.di);break;}
     case 'ptK':{if(!P.on||!P.net)return;const v=byKey(d.v),by=byKey(d.b);if(!v||v.me)return;die(v,by,+d.x||v.x,+d.z||v.z);break;}
     case 'ptE':{if(!P.on||!P.net||f!==P.net.org)return;if(P.st!=='done')finish({a:+d.a||0,b:+d.b||0,st:Array.isArray(d.st)?d.st:[]});break;}
     case 'ptQ':{if(P.net&&P.net.st!=='wait'&&!P.on)return;if(pop&&!pop.hidden&&pop.dataset.f===f){pop.hidden=true;}P.gone(f);break;}}};
@@ -15812,7 +15820,7 @@ const CVS=(()=>{const C={on:false,food:null};
   let bcT=6,bcK=0,wasIn=false;
   const BC=['📢 店內廣播：歡迎光臨！熱食區有關東煮、茶葉蛋、大熱狗，櫃台結帳','📢 店內廣播：買東西集點，集滿 10 點送「店長熊玩偶」！','📢 店內廣播：扭蛋機有金色的隱藏版，看你轉不轉得到！',
     '📢 店內廣播：喝運動飲料跑得快，喝珍珠奶茶跳得高！','📢 店內廣播：夾娃娃機一次 30 元，對準了再按「抓！」','📢 店內廣播：霜淇淋一支 25 元，吃完全身冒冷氣喔！'];
-  C.tick=dt=>{const p=player.pos,near=!STORE_REG.dead&&(C.on||Math.abs(p.x-5)<30&&Math.abs(p.y-16)<30);
+  C.tick=dt=>{const p=player.pos,near=!STORE_REG.dead&&(C.on||Math.abs(p.x-5)<30&&Math.abs(p.y-16)<30||DRONE.on&&Math.abs(DRONE.p.x-5)<30&&Math.abs(DRONE.p.z-16)<30);   /* 空拍機飛進店裡 */
     if(near)build();if(built)G.visible=near;
     if(near&&built){const t=performance.now()/1000;for(const m of SAUS)m.rotation.x=t*1.6;
       for(const s of STEAM){const u=s.userData;u.t+=dt;if(u.t>2.2)u.t-=2.2;const k=u.t/2.2,sx=u.src?1.76:1.77,sz=u.src?18.17:17.64;s.position.set(sx+Math.sin(t+u.t*3)*0.03,(u.src?1.28:1.22)+k*0.35,sz+Math.cos(t*0.7+u.t)*0.03);s.material.opacity=0.32*Math.sin(k*Math.PI);s.scale.setScalar(0.12+k*0.2);}
@@ -17280,10 +17288,10 @@ const THUMB=(()=>{const T={},CW=128,CH=256,COLS=12,list=[];
   function shoot(i){const it=list[i],A=avatar;A.dress({g:it.g,o:it.o,h:T.hair(i)});A.zeroJoints();
     for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);A.body.position.set(0,0,0);A.body.rotation.set(0,0,0);
     A.armL.rotation.z=-0.13;A.armR.rotation.z=0.13;A.foreL.rotation.x=A.foreR.rotation.x=-0.15;A.root.updateMatrixWorld(true);
-    renderer.setRenderTarget(rt);renderer.setClearColor(0x000000,0);for(let k=0;k<2;k++){renderer.clear();renderer.render(sc,cam);}buf.fill(0);   /* 2026-10-28.5 畫兩次再讀：有些手機讀到的是上一張（隔壁格一模一樣） */renderer.readRenderTargetPixels(rt,0,0,RW,RH,buf);
+    renderer.setRenderTarget(rt);renderer.setClearColor(0x000000,0);const last=(T.retry[i]|0)>=2;if(last){renderer.clear();renderer.readRenderTargetPixels(rt,0,0,RW,RH,buf);}   /* 2026-10-29.1 最後一次：先讀一張空白的（手機讀到「上一張」就會是空白，不會是別套） */for(let k=0;k<2;k++){renderer.clear();renderer.render(sc,cam);}buf.fill(0);   /* 2026-10-28.5 畫兩次再讀：有些手機讀到的是上一張（隔壁格一模一樣） */renderer.readRenderTargetPixels(rt,0,0,RW,RH,buf);
     const id=tc.createImageData(RW,RH),row=RW*4;for(let y=0;y<RH;y++)id.data.set(buf.subarray((RH-1-y)*row,(RH-y)*row),y*row);tc.putImageData(id,0,0);   // 讀回來是上下顛倒的
     {let h=0;for(let p=0;p<buf.length;p+=4*61)h=(Math.imul(h,31)+buf[p]+buf[p+1]*7+buf[p+2]*13+buf[p+3]*17)|0;   /* 2026-10-16 使用者：衣櫃的衣服跟名字不一樣 → 有些手機讀回來的是上一張的畫面（整排錯一格）：跟別套一模一樣就等下一批重拍（最多 2 次） */
-     const prev=T.hash.get(h);if(prev!=null&&prev!==i){if((T.retry[i]|0)<2){T.retry[i]=(T.retry[i]|0)+1;T.dup=(T.dup||0)+1;return false;}T.done[i]=true;T.n++;T.fail=(T.fail||0)+1;dollCell(i);return;}T.hash.set(h,i);}   /* 2026-10-28.5 重拍兩次還是跟別套一樣：不收（以前會收下、存起來一直錯），那格畫紙娃娃、這次不存、下次再拍 */
+     const prev=T.hash.get(h);if(prev!=null&&prev!==i&&!last){if((T.retry[i]|0)<2){T.retry[i]=(T.retry[i]|0)+1;T.dup=(T.dup||0)+1;return false;}T.done[i]=true;T.n++;T.fail=(T.fail||0)+1;dollCell(i);return;}T.hash.set(h,i);}   /* 2026-10-28.5 重拍兩次還是跟別套一樣：不收（以前會收下、存起來一直錯），那格畫紙娃娃、這次不存、下次再拍 */
     const cx=(i%COLS)*CW,cy=Math.floor(i/COLS)*CH;ax.clearRect(cx,cy,CW,CH);ax.drawImage(tmp,cx,cy,CW,CH);T.done[i]=true;T.n++;let vis=0;for(let p=3;p<buf.length;p+=4*97)if(buf[p]>0)vis++;if(vis>40)T.okSet.add(i);else{T.fail=(T.fail||0)+1;dollCell(i);}}   /* 人物大約占 15～25%（取樣約 1350 點 → 200 點以上）；太少＝沒拍到 */
   // 2026-10-15 使用者：衣櫃、服裝店又看不到衣服 → 照片拍失敗的那格改畫紙娃娃（衣櫃、服裝店立牌都看得到東西），不存起來、下次重拍
   function dollCell(i){if(!T.dollFn)return;try{const it=list[i],c2=document.createElement('canvas');c2.width=CW;c2.height=CH;T.dollFn(c2,CHAR_OUTFITS[it.g][it.o],true);const cx=(i%COLS)*CW,cy=Math.floor(i/COLS)*CH;ax.clearRect(cx,cy,CW,CH);ax.drawImage(c2,cx,cy);T.okSet.add(i);}catch(_){}}   /* 拍出來是空的（有些手機讀不回畫面）：不算拍好，衣櫃留紙娃娃、也不存起來 */
@@ -17561,7 +17569,7 @@ document.getElementById('bView').onclick=toggleView;
     toast(isTouch?'🚁 空拍機：左邊搖桿飛、右邊滑動轉頭、⬆⬇ 上下、兩指捏開放大（望遠）':'🚁 空拍機：WASD／方向鍵飛、空白鍵或 E 上升、Shift 或 Q 下降、拖曳滑鼠轉頭、滾輪放大縮小；V 結束');};
   D.stop=()=>{if(!D.on)return;D.on=false;D.up=0;bA.classList.remove('on');document.body.classList.remove('drone');hud.hidden=true;
     const f=+document.getElementById('fov').value||60;camera.fov=f;camera.updateProjectionMatrix();camera.rotation.order='YXZ';camDistCur=null;syncViewUI();syncHint();};
-  D.key=e=>{if(['Space','KeyQ','KeyE','ShiftLeft','ShiftRight','ArrowLeft','ArrowRight'].includes(e.code)){if(e.code==='Space')e.preventDefault();return true;}return false;};   /* 這些鍵給空拍機用（不跳、不轉人） */
+  D.key=e=>{if(['Space','KeyQ','KeyE','ShiftLeft','ShiftRight','ArrowLeft','ArrowRight','KeyF','KeyK','KeyN','KeyJ','KeyR','KeyT','KeyX'].includes(e.code)){if(e.code==='Space')e.preventDefault();return true;}return false;};   /* 這些鍵給空拍機用（不跳、不轉人）；2026-10-29.1 F 互動、K 變小孩、N 動作、R 比賽…空拍中也不要（以前按 F 會蓋章、開門、開始遊戲） */
   D.look=(dx,dy,k)=>{D.yaw-=dx*k;D.pitch=cl(D.pitch-dy*k,-1.5,1.3);};
   D.zoom=f=>{D.fov=cl(f,14,75);};
   D.step=dt=>{if(NO()){D.stop();return;}
@@ -17575,6 +17583,7 @@ document.getElementById('bView').onclick=toggleView;
     D.hT-=dt;if(D.hT<=0){D.hT=0.3;const dm=Math.round(Math.hypot(D.p.x-player.pos.x,D.p.z-player.pos.y,D.p.y-player.y)),zt=camera.fov<55?`・放大 ${(60/camera.fov).toFixed(1)}×`:'';const t=`🚁 高度 ${Math.round(hA)} m・離你 ${dm} m${zt}`;if(tx.textContent!==t)tx.textContent=t;}};
   })();
 function toggleAerial(){if(DRONE.on)DRONE.stop();else DRONE.start();}
+function camFov0(){return DRONE.on?(+document.getElementById('fov').value||60):camera.fov;}   /* 2026-10-29.1 要記住「原本的視野」時用：空拍中放大過的話，記到的是放大的（結束後一直放大） */
 // 小地圖可以按 × 關掉（手機預設關閉，選擇會記住）；「地圖」按鈕／M 鍵：關著就打開，開著就切換放大
 let mmOn=!isTouch;try{const v=localStorage.getItem('home-mm');if(v!==null)mmOn=v==='1';}catch(_){}
 function setMinimap(on){mmOn=on;mmWrap.classList.toggle('off',!on);if(!on)mmWrap.classList.remove('big');bM.classList.toggle('on',mmWrap.classList.contains('big'));
@@ -19881,7 +19890,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     {const H=BB.port&&BB.port();if(H)s.hp=[r3(H.x),r3(H.z),H.dir];}   /* 隨身籃框（變出來之後一直留在原地） */
     {const M=BB.mate&&BB.mate();if(M&&M.root.visible){const o=M.root;s.mt=[r3(o.position.x),r3(o.position.y),r3(o.position.z),r3(o.rotation.y),r3(M.body.position.y),...[M.armL,M.armR,M.legL,M.legR].flatMap(g=>[r3(g.rotation.x),r3(g.rotation.y),r3(g.rotation.z)])];}}   /* 隊友 23 號 */
     if(EMOTE.on)s.em=EMOTE.on.k;
-    {const g=PAINT.tag()?PAINT.tag():SKI.tag()?SKI.tag():DUO.on?DUO.tag():PAX.on?PAX.tag():RS.tag()?RS.tag():TN.on?(TN.net?'🎾 網球對打':'🎾 打網球'):RACE.on?(RACE.net?'🏎️ 一起賽車':RACE.sk8?'🛼 直排輪比賽':'🏎️ 賽車'):RIDE.on?`${RIDE.T[RIDE.k].e} ${RIDE.k==='car'||RIDE.k==='rocket'?'開':'騎'}${RIDE.T[RIDE.k].n}`:SB.on?(SB.net?'⛹️ 一起鬥牛':'⛹️ 街頭鬥牛'):CU.on?(CU.coop?'🎓 合作打怪':'🎓 校園大逃亡'):DD.on?(N.vs&&N.vs.go?'💃 一起跳舞':'💃 跳舞機'):KF.on?(KF.net?'🥋 一起快打':'🥋 武道快打'):FISH.on?'🐟 撈魚機':PUSH.on?'🪙 推幣機':MU.on?'🎵 音樂教室':GAME.on?'🧟 打殭屍':NM.on?'🎯 夜市套圈':RB.on?'🤖 機器人擂台':BB.ft?'🏀 罰球大賽':'';if(g)s.g=g;}   /* 在玩什麼遊戲（別人頭上看得到、也不會被惡作劇打擾） */   /* 動作（月球漫步的帽子、Bye Bye Bye 的忍者裝） */
+    {const g=PAINT.tag()?PAINT.tag():SKI.tag()?SKI.tag():DUO.on?DUO.tag():PAX.on?PAX.tag():RS.tag()?RS.tag():TN.on?(TN.net?'🎾 網球對打':'🎾 打網球'):RACE.on?(RACE.net?'🏎️ 一起賽車':RACE.sk8?'🛼 直排輪比賽':'🏎️ 賽車'):RIDE.on?`${RIDE.T[RIDE.k].e} ${RIDE.k==='car'||RIDE.k==='rocket'||RIDE.k==='jeep'?'開':'騎'}${RIDE.T[RIDE.k].n}`:SB.on?(SB.net?'⛹️ 一起鬥牛':'⛹️ 街頭鬥牛'):CU.on?(CU.coop?'🎓 合作打怪':'🎓 校園大逃亡'):DD.on?(N.vs&&N.vs.go?'💃 一起跳舞':'💃 跳舞機'):KF.on?(KF.net?'🥋 一起快打':'🥋 武道快打'):FISH.on?'🐟 撈魚機':PUSH.on?'🪙 推幣機':MU.on?'🎵 音樂教室':GAME.on?'🧟 打殭屍':NM.on?'🎯 夜市套圈':RB.on?'🤖 機器人擂台':BB.ft?'🏀 罰球大賽':'';if(g)s.g=g;}   /* 在玩什麼遊戲（別人頭上看得到、也不會被惡作劇打擾） */   /* 動作（月球漫步的帽子、Bye Bye Bye 的忍者裝） */
     return s;}   /* 第一人稱時自己的人物是藏起來的，對方照樣要看得到 */
   const tv=new V3(),lastP={x:0,z:0,t:0},lastB={x:0,y:0,z:0,t:0,ok:false};
   const HN=['relax','relax'];{const h0=avatar.hand;avatar.hand=(side,name)=>{HN[side>0?1:0]=name;h0(side,name);};}   /* 記住手勢（比讚、比 YA…）傳給對方 */
@@ -19895,8 +19904,9 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     let i=13;for(const kk of JN){const g=A[kk];if(g)g.rotation.set(LA(g.rotation.x,a[i]),LA(g.rotation.y,a[i+1]),LA(g.rotation.z,a[i+2]));i+=3;}
     for(const H of [A.handL,A.handR]){const g=H&&H.g;if(g)g.rotation.set(LA(g.rotation.x,a[i]),LA(g.rotation.y,a[i+1]),LA(g.rotation.z,a[i+2]));i+=3;}
     const h=s.h||[];if(h[0]!==R.h0){R.h0=h[0];A.hand(-1,h[0]||'relax');}if(h[1]!==R.h1){R.h1=h[1];A.hand(1,h[1]||'relax');}
-    if(s.rd){const [k,x,y,z,h,ln,pt,v,mi]=s.rd,key=k+(mi>=0?'#'+mi:'');if(!R.rd||R.rd.k!==key){if(R.rd)scene.remove(R.rd.o);const m=mi>=0&&NB_CARS[mi]?mkCar(NB_CARS[mi]):RIDE.modelOf(k);m.rotation.order='YXZ';m.traverse(c=>{c.userData.noCull=true;});scene.add(m);R.rd={k:key,o:m,wh:m.userData.wh||[]};}   /* 別人騎的車（開鄰居的車：mi＝第幾款，畫一樣的車） */
-      const m=R.rd.o;m.position.set(L(m.position.x,x+vx*age),L(m.position.y,y+0.03),L(m.position.z,z+vz*age));m.rotation.set(LA(m.rotation.x,ln),LA(m.rotation.y,h+Math.PI/2),LA(m.rotation.z,pt));for(const w of R.rd.wh)w.rotation.z-=v*dt/(k==='bike'?0.33:k==='twist'?0.06:0.3);m.visible=o.visible;if(k==='rocket'){const fl=s.rd[9]|0;rocketFlame(m,Math.floor(fl/10)/9,(fl%10)/9);}}   /* 朋友的火箭跑車也看得到噴火 */
+    if(s.rd){const [k,x,y,z,h,ln,pt,v,mi]=s.rd,key=k+(mi>=0?'#'+mi:'');if(!R.rd||R.rd.k!==key){if(R.rd)scene.remove(R.rd.o);const m=mi>=0&&NB_CARS[mi]?mkCar(NB_CARS[mi]):RIDE.modelOf(RIDE.T[k]?k:'car');   /* 2026-10-29.1 朋友的版本比較新、開了這版沒有的車：先畫成汽車（以前會一直出錯） */m.rotation.order='YXZ';m.traverse(c=>{c.userData.noCull=true;});scene.add(m);R.rd={k:key,o:m,wh:m.userData.wh||[]};}   /* 別人騎的車（開鄰居的車：mi＝第幾款，畫一樣的車） */
+      const m=R.rd.o;m.position.set(L(m.position.x,x+vx*age),L(m.position.y,y+0.03),L(m.position.z,z+vz*age));m.rotation.set(LA(m.rotation.x,ln),LA(m.rotation.y,h+Math.PI/2),LA(m.rotation.z,pt));for(const w of R.rd.wh)w.rotation.z-=v*dt/(k==='bike'?0.33:k==='twist'?0.06:k==='jeep'?0.42:0.3);m.visible=o.visible;
+      if(k==='camel'&&m.userData.legs){const sp=Math.abs(v),a=Math.min(1,sp/2.5)*0.5;R.rd.ped=(R.rd.ped||0)+sp*dt*2.2;const ph=R.rd.ped*0.55;m.userData.legs.forEach((l,i)=>{l.rotation.z=Math.sin(ph+(i%2?Math.PI:0))*a*(i<2?1:0.85);});}   /* 2026-10-29.1 朋友的駱駝：腳照速度擺（以前不動、整隻往前滑）；吉普車輪子照大輪胎轉 */if(k==='rocket'){const fl=s.rd[9]|0;rocketFlame(m,Math.floor(fl/10)/9,(fl%10)/9);}}   /* 朋友的火箭跑車也看得到噴火 */
     else if(R.rd){scene.remove(R.rd.o);R.rd=null;}
     const dk=!!s.dk;if(dk!==R.dk){R.dk=dk;A.setMorph(dk);if(q.cfg)A.dress(q.cfg);A.root.traverse(x=>{x.userData.noCull=true;});R.h0=R.h1=null;}   /* 變身死亡騎士 */
     // 熱氣球：第一次用到才複製一份（不要標籤）
