@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-29.1"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-29.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1174,8 +1174,9 @@ const FJ=(()=>{const F={H:820,RB:1500,RT:70,cx:-300,cz:2450,SEG:180,RG:40,TOP:80
     const y=(NG[j*W+i]*(1-v)+NG[j*W+i+1]*v)*(1-u)+(NG[(j+1)*W+i]*(1-v)+NG[(j+1)*W+i+1]*v)*u;return Math.max(0,y+0.3)+(F.bump?F.bump(x,z):0);};   /* 網格內插（高 0.3 m：腳不會陷進山裡）；F.bump＝富士山雪道的跳台（SKI 那段設定） */
   F.snow=(x,z)=>F.inside(x,z)&&F.h(x,z)>470;   /* 雪線以上：可以推雪球、丟雪球 */
   F.keep=p=>{if(p.x>=BOUND.x0&&p.x<=BOUND.x1&&p.y>=BOUND.z0&&p.y<=BOUND.z1)return;if(DESERT.keep(p))return;   /* 沙漠：圓形範圍＋2026-10-28.1 沙漠公路 */const dx=p.x-F.cx,dz=p.y-F.cz,r=Math.hypot(dx,dz);if(r<F.RB-2)return;
-    if(p.y>BOUND.z1-5&&r<F.RB+400){const k=(F.RB-2)/r;const nx=F.cx+dx*k,nz=F.cz+dz*k;if(nz>BOUND.z1-5){p.x=nx;p.y=nz;return;}}
-    p.x=Math.max(BOUND.x0,Math.min(BOUND.x1,p.x));p.y=Math.max(BOUND.z0,Math.min(BOUND.z1,p.y));};   /* 地圖範圍或富士山上才可以走 */
+    {const ax=p.x-F.cx;if(p.x>=BOUND.x0&&p.x<=BOUND.x1&&Math.abs(ax)<F.RB){const zc=F.cz-Math.sqrt(F.RB*F.RB-ax*ax);if(zc-BOUND.z1<40&&p.y>=BOUND.z1&&p.y<=zc+2)return;}}   /* 2026-10-29.2 山腳離地圖 40 m 內的那段空地：直接走過去／開過去（以前一出地圖就跳到山腳） */
+    const k=(F.RB-2)/r,nx=F.cx+dx*k,nz=F.cz+dz*k,mx=Math.max(BOUND.x0,Math.min(BOUND.x1,p.x)),mz=Math.max(BOUND.z0,Math.min(BOUND.z1,p.y));
+    if(Math.hypot(p.x-nx,p.y-nz)<Math.hypot(p.x-mx,p.y-mz)){p.x=nx;p.y=nz;}else{p.x=mx;p.y=mz;}};   /* 地圖範圍或富士山上才可以走：推回比較近的那邊（2026-10-29.2 以前地圖南邊往外走一律跳到山腳，東邊一跳好幾百公尺） */
   return F;})();
 const BOUND_CORE = {x0:-48, x1:96, z0:-60, z1:68};   // 原本的範圍：水泥地面只鋪到這附近，外面是綠地
 const RING = {cx:-16, cz:110, r0:15, r1:26};   // 大圓環：中心、安全島半徑、外緣半徑
@@ -2997,7 +2998,7 @@ const RIDE=(()=>{
     for(let i=0;i<n;i++){R.x+=mx/n;R.z+=mz/n;
       if(CK(R.k)){let ax=0,az=0;for(const o of [1.45,0,-1.45]){tp.set(R.x+fx*o,R.z+fz*o);const bx=tp.x,bz=tp.y;resolve(tp,t0.r,Math.max(R.y,heightAt(bx,bz,R.y+0.6)));ax+=tp.x-bx;az+=tp.y-bz;}if(Math.abs(ax)+Math.abs(az)>1e-4){R.x+=ax/3*1.5;R.z+=az/3*1.5;hit=Math.max(hit,Math.hypot(ax,az));}}
       else{tp.set(R.x,R.z);resolve(tp,t0.r,R.y);const d=Math.hypot(tp.x-R.x,tp.y-R.z);if(d>1e-4){R.x=tp.x;R.z=tp.y;hit=Math.max(hit,d);}}}
-    tp.set(R.x,R.z);if(!DESERT.keep(tp)){tp.x=cl(tp.x,BOUND.x0,BOUND.x1);tp.y=cl(tp.y,BOUND.z0,BOUND.z1);}R.x=tp.x;R.z=tp.y;   /* 2026-10-28.1 沙漠公路、沙漠裡也開得到 */
+    tp.set(R.x,R.z);FJ.keep(tp);{const d=Math.hypot(tp.x-R.x,tp.y-R.z);if(d>0.02)hit=Math.max(hit,d);}R.x=tp.x;R.z=tp.y;   /* 2026-10-28.1 沙漠公路、沙漠裡也開得到；2026-10-29.2 使用者：「開飛天車往富士山飛會卡住」→ 跟走路一樣（地圖、沙漠、富士山），撞到邊界算撞牆（減速），以前車速一直加、車子停在邊界上 */
     if(R.ghost&&R.ghost.length&&Math.hypot(R.x-R.gx,R.z-R.gz)>(CK(R.k)?5:3)){const m=t0.r+(CK(R.k)?1.6:0.25);R.ghost=R.ghost.filter(c=>{const d=Math.hypot(Math.max(c.x0-R.x,0,R.x-c.x1),Math.max(c.z0-R.z,0,R.z-c.z1));if(d>m){c.off=false;return false;}return true;});}   // 開離原車位、也離開那些車了：碰撞恢復
     if(hit>0.01){if(sp>4&&!R.bumpT){AUDIO.sfx(CK(R.k)?'heavy':'thud');R.bumpT=0.5;R.bumps=(R.bumps||0)+1;}R.v*=Math.pow(0.2,Math.min(1,hit*4));if(R.tr&&!R.tr.air&&R.tr.k!=='donut')endTrick(true);}if(R.bumpT)R.bumpT=Math.max(0,R.bumpT-dt);
     // 高度：照地面（樓梯、斜坡、跳台）；離開地面就飛（從斜坡帶著往上的速度）
