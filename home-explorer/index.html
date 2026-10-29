@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-28.13"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-28.18"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -84,6 +84,15 @@
   body.touch #joy{display:block}
   #jumpBtn{position:fixed;right:24px;bottom:150px;width:76px;height:76px;border-radius:50%;border:2px solid rgba(255,255,255,.45);background:rgba(18,24,30,.45);color:#fff;font-size:20px;font-weight:700;z-index:11;display:none;touch-action:none}
   body.touch #jumpBtn{display:block}
+  /* 2026-10-28.15 空拍機 */
+  #drHud{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:12;display:flex;gap:8px;align-items:center;padding:6px 8px 6px 12px;border-radius:12px;font-size:14px;font-weight:700;white-space:nowrap}
+  #drHud[hidden]{display:none!important}#drHud button{font-size:13px;font-weight:800;padding:6px 10px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:inherit}#drHud #drEnd{background:#b8402f;color:#fff;border-color:#e88}
+  #drUp,#drDn{position:fixed;right:calc(24px + var(--sar,0px));width:68px;height:68px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(18,24,30,.5);color:#fff;font-size:28px;font-weight:900;z-index:11;display:none;touch-action:none}
+  #drUp{bottom:calc(196px + var(--sab,0px))}#drDn{bottom:calc(116px + var(--sab,0px))}#drUp.on,#drDn.on{background:rgba(58,160,255,.7)}
+  body.touch.drone #drUp,body.touch.drone #drDn{display:block}body.drone #jumpBtn,body.drone #act,body.drone #bbBtns,body.drone #skBtns,body.drone #gSkills{visibility:hidden}
+  body.drone #hint{display:none}   /* 電腦：資訊條放下面中間（上面是纜車的按鈕） */
+  body.touch #drHud{font-size:12px;left:auto;right:calc(12px + var(--sar,0px));bottom:calc(276px + var(--sab,0px));transform:none;padding:6px;gap:5px;flex-direction:column;align-items:stretch}body.touch #drHud button{font-size:12px;padding:7px 8px}   /* 手機直拿：右邊 ⬆⬇ 上面一欄 */
+  @media (orientation:landscape) and (max-height:520px){body.touch #drHud{flex-direction:row;align-items:center;right:auto;left:50%;transform:translateX(-50%);bottom:calc(8px + var(--sab,0px))}#drUp{bottom:calc(102px + var(--sab,0px))}#drDn{bottom:calc(24px + var(--sab,0px))}}   /* 手機橫拿：下面中間（搖桿、⬆⬇ 中間） */
   #act{position:fixed;left:50%;bottom:66px;transform:translateX(-50%);padding:9px 18px;font-size:14px;z-index:11;border-radius:10px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(8px)}
   #act kbd{font-family:inherit;background:var(--accent);color:#3a2300;border-radius:5px;padding:1px 7px;margin-right:8px;font-weight:700}
   body.touch #act{bottom:28px;font-size:15px;padding:11px 20px}
@@ -1072,6 +1081,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 const V2 = THREE.Vector2, V3 = THREE.Vector3;
+var DRONE={on:false};   /* 2026-10-28.15 空拍機（在「輸入」那段做） */
 const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
 if (isTouch) document.body.classList.add('touch');
 
@@ -6327,7 +6337,7 @@ const BB=(()=>{
     const z=document.getElementById('ftZone'),pz=document.getElementById('ftPerf');z.style.left=`${(0.5-f.green/2)*100}%`;z.style.width=`${f.green*100}%`;pz.style.left=`${(0.5-f.green*0.15)*100}%`;pz.style.width=`${f.green*30}%`;
     document.getElementById('ftMark').style.left=`${f.m*100}%`;}
   B.ftStart=()=>{if(GAME.on){toast('小遊戲中不能玩罰球大賽');return;}if(SKATE.on)SKATE.stop();if(BALLOON.riding)BALLOON.reset();if(LIE.on)LIE.stop();
-    if(mode==='aerial')toggleAerial();const C=COURT;teleport(C.x0+5.8+0.35,C.cz,Math.PI/2);if(!B.on)B.start();
+    if(DRONE.on)toggleAerial();const C=COURT;teleport(C.x0+5.8+0.35,C.cz,Math.PI/2);if(!B.on)B.start();
     B.fire=0;ballMat.emissiveIntensity=0;B.streak=0;B.ft={n:0,N:10,made:0,swish:0,m:0,dir:1,spd:0.85,green:0.24,wait:false};document.body.classList.add('ft');ftEl.hidden=false;ftDraw();
     big('罰球大賽！10 球',false);AUDIO.sfx('wave');toast(isTouch?'罰球大賽：按「投籃」讓指針停在綠色就會進，正中間黃色＝空心':'罰球大賽：按 J（或「投籃」）讓指針停在綠色就會進，正中間黃色＝空心；F 放下球＝結束');};
   function ftCancel(){B.ft=null;document.body.classList.remove('ft');ftEl.hidden=true;}
@@ -6566,10 +6576,10 @@ const BB=(()=>{
     const up=e=>{e.preventDefault();e.stopPropagation();b.classList.remove('hit');};
     b.addEventListener('touchstart',dn,{passive:false});b.addEventListener('touchend',up,{passive:false});b.addEventListener('touchcancel',up,{passive:false});b.addEventListener('mousedown',dn);b.addEventListener('mouseup',up);}
   document.getElementById('ftStart').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');B.ftStart();};
-  document.getElementById('rbMenu').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(166.1,89,-Math.PI/2);setTimeout(()=>RB.pickPanel(),400);};
-  document.getElementById('sbMenu').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(33,124.3,Math.PI);setTimeout(()=>SB.pickPanel(),400);};
-  document.getElementById('cuMenu').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(CAMPUS.pad.x+1.2,CAMPUS.pad.z-1.6,0.25);setTimeout(()=>CU.pickPanel(),400);};
-  document.getElementById('nmMenu').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(98.6,160,-Math.PI/2);setTimeout(()=>NM.pickPanel(),400);};
+  document.getElementById('rbMenu').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(DRONE.on)toggleAerial();teleport(166.1,89,-Math.PI/2);setTimeout(()=>RB.pickPanel(),400);};
+  document.getElementById('sbMenu').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(DRONE.on)toggleAerial();teleport(33,124.3,Math.PI);setTimeout(()=>SB.pickPanel(),400);};
+  document.getElementById('cuMenu').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(DRONE.on)toggleAerial();teleport(CAMPUS.pad.x+1.2,CAMPUS.pad.z-1.6,0.25);setTimeout(()=>CU.pickPanel(),400);};
+  document.getElementById('nmMenu').onclick=()=>{menu.hidden=true;bMenu.classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(DRONE.on)toggleAerial();teleport(98.6,160,-Math.PI/2);setTimeout(()=>NM.pickPanel(),400);};
   draw();
   return B;})();
 
@@ -9231,7 +9241,7 @@ const SB=(()=>{
   function look(team,role,me){if(team===0){const gold=SAVE.gold&&me;return {jer:gold?'#e8b43a':'#2f6fe0',tr:gold?'#5a3a00':'#ffffff',num:ROLES[role].num,ring:me?'#ffe14a':'#38b6ff',shoe:me&&SAVE.shoes?'#ffd23a':'#f4f4f4',shoeE:me&&SAVE.shoes?'#6a4a10':'#000000',h:ROLES[role].h};}
     return {jer:S.O.jer,tr:S.O.tr,num:ROLES[role].num,ring:'#ff5a5a',shoe:'#22252a',h:ROLES[role].h};}
   S.start=i=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(RB.on)RB.stop();if(NM.on)NM.stop();if(RACE.on)RACE.stop();if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
-    if(mode==='aerial')toggleAerial();
+    if(DRONE.on)toggleAerial();
     S.stage=i;S.O=S.netO||OPP[i];S.mode=S.netO?'1v1':SAVE.mode;S.auto=SAVE.auto;panel.hidden=true;
     const roles=S.mode==='1v1'?[[SAVE.role],[S.O.lead]]:[['PG','SG','C'],['PG','SG','C']];
     PL=[];T=[{pl:[],score:0,en:0},{pl:[],score:0,en:0}];let ri=1;
@@ -10314,7 +10324,7 @@ const CU=(()=>{
   function warmUp(){const hid=[];G.traverse(o=>{if(!o.visible){hid.push(o);o.visible=true;}});for(const o of [barSp,SHB])if(o&&!o.visible){hid.push(o);o.visible=true;}const tmp=[];for(const o of [barSp,SHB])if(o&&!o.parent){scene.add(o);tmp.push(o);}
     try{renderer.compile(scene,camera);}catch(_){}for(const o of hid)o.visible=false;for(const o of tmp)scene.remove(o);}
   K.start=(md,i)=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(K.on)K.stop(true);if(RB.on)RB.stop();if(NM.on)NM.stop();if(SB.on)SB.stop();if(RACE.on)RACE.stop();if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
-    if(mode==='aerial')toggleAerial();panel.hidden=true;if(avatar.morph)GAME.morph(false);   /* 死亡騎士：先變回人類（不然拿著大劍又拿槍） */
+    if(DRONE.on)toggleAerial();panel.hidden=true;if(avatar.morph)GAME.morph(false);   /* 死亡騎士：先變回人類（不然拿著大劍又拿槍） */
     K.esc=md==='stage';K.mode='endless';K.stage=i;K.S=K.esc?STG[i]:null;K.R=null;K.hpS=1;   /* 逃生模式：內部跟無盡模式一樣自由走 */
     fgInit();if(K.esc){K.pa=K.S.path[0][0];K.pb=K.S.path[0][1];}else{K.pa=C.pad.x-14;K.pb=C.pad.z;}
     K.on=true;K.st='count';K.cd=2.6;K.lastCd=4;K.t=0;K.prog=0;K.kills=0;K.lv=1;K.xp=0;K.pend=0;K.dAcc=0;K.dLv=1;K.hpMax=100;K.hp=100;K.hurtT=0;K.touch=0;K.spAcc=0;K.waveT=24;K.evt={};K.elT=45;K.chT=50;K.bsT=150;K.bossN=0;
@@ -10945,7 +10955,7 @@ for(const b of root.querySelectorAll('[data-n]'))b.onclick=e=>{e.stopPropagation
   // ================= 開始／結束 =================
   let FL=null,flGold=null,savedView=null;
   M.start=(kind,i,demo)=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(M.on)M.stop(true);if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
-    if(mode==='aerial')toggleAerial();if(avatar.morph)GAME.morph(false);panel.hidden=true;
+    if(DRONE.on)toggleAerial();if(avatar.morph)GAME.morph(false);panel.hidden=true;
     M.on=true;M.kind=kind;M.time=0;M.cm=0;M.judge=null;M.combo=0;M.maxCombo=0;M.wrongAir=false;M.holes=[0,0,0,0,0,0,0,0];M.kh=[0,0,0,0,0,0,0,0];M.blowP=false;M.blowK=false;M.advM=0;M.sway=0;M.ik=null;M.camP=null;M.tickB=null;
     player.pos.set(H.pad.x,H.pad.z);player.y=0;player.vy=0;player.vel.set(0,0);player.yaw=0;avatar.yaw=0;
     if(kind==='lesson'){M.L=i;const L=LESSONS[i];M.ph='intro';M.q=[...L.nw];M.cur=M.q.shift();M.need=3;M.miss=0;M.qn=0;M.hint=false;M.trail=[];M.demoT=0.6;M.done=false;}
@@ -11121,7 +11131,7 @@ for(const b of root.querySelectorAll('[data-n]'))b.onclick=e=>{e.stopPropagation
   function note(t){M.tip=t;showInfo();}
   M.dbg=()=>({applyFS,TIP,pmEval,pmDraw,PMB,M,V,FING,BYF,NN,SONGS,LESSONS,REC,CASE,press,release,advEval,judge,stepOf,nm,nName,buildKeys,KEYMAP,KB,openChart,drawChart,chartEl,SAVE});   /* 測試用 */
   // 選單「小遊戲 → 音樂教室」
-  $('muMenu').onclick=()=>{menuEl.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(H.pad.x,H.pad.z-1.6,Math.PI);setTimeout(()=>M.pickPanel(),400);};
+  $('muMenu').onclick=()=>{menuEl.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(DRONE.on)toggleAerial();teleport(H.pad.x,H.pad.z-1.6,Math.PI);setTimeout(()=>M.pickPanel(),400);};
   return M;})();
 
 /* ---------------- 動作（使用者要求：月球漫步、最近很紅的 Bye Bye Bye，順便放一些常見的動作） ----------------
@@ -11787,7 +11797,7 @@ const DD=(()=>{
   D.toggle=()=>{if(D.on)D.stop();else D.enter();};
   D.enter=()=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(D.on){showPanel();return;}
     if(MU.on)MU.stop(true);if(CU.on)CU.stop(true);if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
-    if(mode==='aerial')toggleAerial();if(avatar.morph)GAME.morph(false);
+    if(DRONE.on)toggleAerial();if(avatar.morph)GAME.morph(false);
     D.on=true;D.play=false;D.paused=false;D.camP=null;D.idleT=0;D.cheer=0;resetFeet();
     player.pos.set(P.x,P.z);player.y=P.y;player.vy=0;player.vel.set(0,0);
     savedView=view;if(view!=='third'){view='third';syncViewUI();}
@@ -11981,7 +11991,7 @@ const DD=(()=>{
     const blink=Math.floor(atT*2.5);for(let l=0;l<4;l++)WP[l].color.set((blink+l)%4===0?'#cfe8ff':'#55657a');};
   D.dbg=()=>({NT,DL,F,LY,press,release,songT,layout,buildMusic,MZ,P});   /* 測試用 */
   // 選單「小遊戲 → 跳舞機」
-  $('ddMenu').onclick=()=>{menuEl.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(P.x,P.z-1.5,Math.PI);setTimeout(()=>D.enter(),400);};
+  $('ddMenu').onclick=()=>{menuEl.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(DRONE.on)toggleAerial();teleport(P.x,P.z-1.5,Math.PI);setTimeout(()=>D.enter(),400);};
   return D;})();
 
 /* ---------------- 武道快打（2026-10-16 使用者：「VR快打」那種湯姆熊歡樂世界的 3D 格鬥機台） ----------------
@@ -12426,7 +12436,7 @@ const KF=(()=>{const K={on:false,ph:'idle'};
   K.toggle=()=>{if(K.on)K.stop();else K.enter();};
   K.enter=()=>{if(GAME.on){toast('小遊戲中不能玩');return;}if(K.on){showPanel();return;}
     if(DD.on)DD.stop(true);if(MU.on)MU.stop(true);if(CU.on)CU.stop(true);if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
-    if(RACE.on)RACE.stop();if(SB.on)SB.stop();if(RB.on)RB.stop();if(NM.on)NM.stop();if(mode==='aerial')toggleAerial();if(avatar.morph)GAME.morph(false);if(CLOSET.isOpen)CLOSET.close();
+    if(RACE.on)RACE.stop();if(SB.on)SB.stop();if(RB.on)RB.stop();if(NM.on)NM.stop();if(DRONE.on)toggleAerial();if(avatar.morph)GAME.morph(false);if(CLOSET.isOpen)CLOSET.close();
     K.on=true;K.play=false;player.pos.set(P.x,P.z);player.y=0;player.vy=0;player.vel.set(0,0);
     savedView=view;if(view!=='third'){view='third';syncViewUI();}
     S.environment=scene.environment;S.environmentIntensity=scene.environmentIntensity;
@@ -12569,9 +12579,9 @@ const KF=(()=>{const K={on:false,ph:'idle'};
     if(r.g){g.font=`800 11px ${FONT}`;g.fillStyle='#7fd0ff';g.fillText('🆚 連線對打',128,176);}else{g.font=`800 11px ${FONT}`;g.fillStyle='#fff';g.fillText('👀 正在打',128,176);}
     SCR.t.needsUpdate=true;}
   K.dbg=()=>({F,MV,PO,IN,cmd,ai,startMove,STAGES,P,paintStage,applyPose,side,WIN,BGM,bgmStep,drawRemote});
-  $('fiMenu').onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(-9.6,21.7,Math.PI);toast('🐟 快樂撈魚機：走到桌子旁邊的位子按 F（代幣在推幣樂園前面的兌幣機換）');};
-  $('puMenu').onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(-7.5,16.3,Math.PI);toast('🪙 推幣樂園：先到兌幣機換代幣，再站到推幣機前面按 F');};
-  $('kfMenu').onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(mode==='aerial')toggleAerial();teleport(P.x,P.z-1.5,Math.PI);setTimeout(()=>K.enter(),400);};
+  $('fiMenu').onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(DRONE.on)toggleAerial();teleport(-9.6,21.7,Math.PI);toast('🐟 快樂撈魚機：走到桌子旁邊的位子按 F（代幣在推幣樂園前面的兌幣機換）');};
+  $('puMenu').onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(DRONE.on)toggleAerial();teleport(-7.5,16.3,Math.PI);toast('🪙 推幣樂園：先到兌幣機換代幣，再站到推幣機前面按 F');};
+  $('kfMenu').onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能玩');return;}if(DRONE.on)toggleAerial();teleport(P.x,P.z-1.5,Math.PI);setTimeout(()=>K.enter(),400);};
 
   // ================= 連線對打（邀請的人那邊跑整場：對方送搖桿方向＋按鈕，這邊每秒 20 次送狀態＋音效／特效／大字） =================
   // 加入的那邊：F[0]＝自己、F[1]＝對方（跟跑整場那邊相反），鏡頭照樣把自己放左邊
@@ -14071,7 +14081,7 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
   const TB=$('bDeco');if(TB)TB.addEventListener('click',e=>{e.stopPropagation();if(U.carry||gone)return;if(U.sit)stand();closeMenu();openPanel();});   /* 上面的「🛋 擺傢俱」：面向傢俱時下面的按鈕會變成「整理」，這顆一直都在 */
   U.tick=dt=>{const dead=!!(REG&&REG.dead);
     // 2026-10-24.3 使用者：「城堡為什麼只能放 200 個，可以放更多嗎」→ 上限改 400；城堡的傢俱只畫人在的那一層（上下樓梯時兩層、空拍全部；在城堡外面只畫 1F，從大門看得到），不然每件約 5 次繪製、全部都畫手機會燙
-    U.flT=(U.flT||0)-dt;if(U.flT<=0){U.flT=0.3;const px=player.pos.x,pz=player.pos.y,inC=px>CASTLE.x0-4&&px<CASTLE.x1+4&&pz>CASTLE.z0-4&&pz<CASTLE.z1+4,fA=inC?CASTLE.fOf(player.y):1,fB=inC?CASTLE.fOf(player.y+2.2):1,all=mode==='aerial';
+    U.flT=(U.flT||0)-dt;if(U.flT<=0){U.flT=0.3;const px=player.pos.x,pz=player.pos.y,inC=px>CASTLE.x0-4&&px<CASTLE.x1+4&&pz>CASTLE.z0-4&&pz<CASTLE.z1+4,fA=inC?CASTLE.fOf(player.y):1,fB=inC?CASTLE.fOf(player.y+2.2):1,all=DRONE.on;
       for(const it of cur())if(it.s==='cs'&&it.g){const v=all||it.f===fA||it.f===fB;if(it.g.visible!==v)it.g.visible=v;}}
     if(U.view&&!(U.NT.on()&&U.NT.has(U.view.f)))backHome(`${U.view.name} 離開了，回到我的家`);   // 朋友離線：回到自己的家
     if(U.want&&performance.now()-U.wantAt>6000){U.want=null;toast('對方沒有回應（請朋友重新整理成最新版）');}
@@ -14452,7 +14462,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
     CL2.set(x,TY+0.02+up,BZ-FD*0.48);CP2.set(x,TY+0.02+up+d*0.8,BZ-FD*0.48-d*0.6);
     if(!U.camP){U.camP=CP2.clone();U.camL=CL2.clone();}const k=1-Math.exp(-dt*5);U.camP.lerp(CP2,k);U.camL.lerp(CL2,k);camera.position.copy(U.camP);camera.lookAt(U.camL);};
   U.start=k=>{if(GAME.on){toast('小遊戲中不能玩');return;}const st=S[k];if(!st)return;if(st.remote){toast(`第 ${k+1} 台 ${st.remote} 正在玩，換一台吧`);return;}
-    if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(mode==='aerial')toggleAerial();if(FISH.on)FISH.stop();   /* 不要同時開兩個（撈魚機還開著） */
+    if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(DRONE.on)toggleAerial();if(FISH.on)FISH.stop();   /* 不要同時開兩個（撈魚機還開著） */
     if(daily())toast(`💰 今天的零用錢來了：${PUSH.DAILY} 元`);U.on=true;U.k=k;st.act=true;U.camP=null;IN.auto=false;ui.querySelector('.auto').classList.remove('on');ui.hidden=false;document.body.classList.add('pu');hud();
     if(W.tok<=0)note(st,'沒有代幣：先到旁邊的兌幣機換（站過去按 F）');else note(st,`投幣口左右擺，對準再投！你有 ${W.tok} 枚代幣`);AUDIO.sfx('chime');};
   U.stop=()=>{if(!U.on)return;const st=S[U.k];if(st.rl){st.rl.t=st.rl.dur;rlEnd(st);}W.tix+=st.tq;st.tq=0;W.tok+=st.rlNext.length;st.rlNext.length=0;st.act=false;IN.L=IN.R=IN.D=false;IN.dT=0;   /* 離開時還沒吐完的彩票、轉到一半的輪盤都算給你 */U.on=false;ui.hidden=true;document.body.classList.remove('pu');saveF();save();avatar.root.visible=view==='third';player.pos.set(sx(U.k),STAND_Z-0.5);player.yaw=Math.PI;player.pitch=-0.1;U.k=-1;};
@@ -14751,7 +14761,7 @@ const FISH=(()=>{const F={on:false,seat:-1};
   // ================= 開始／結束 =================
   F.step=dt=>{if(!F.on)return;const S=SEATS[F.seat];player.vel.set(0,0);player.pos.set(S.x,S.z);player.y=0;frame();};
   F.start=k=>{if(GAME.on){toast('小遊戲中不能玩');return;}const L=seated();if(L.some(p=>p.seat===k)){const o=L.find(p=>p.seat===k);toast(`第 ${k+1} 個位子 ${o.name} 坐了，換一個吧`);return;}
-    if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(mode==='aerial')toggleAerial();if(PUSH.on)PUSH.stop();   /* 不要同時開兩個（推幣機還開著） */
+    if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(DRONE.on)toggleAerial();if(PUSH.on)PUSH.stop();   /* 不要同時開兩個（推幣機還開著） */
     if(PUSH.daily&&PUSH.daily())toast(`💰 今天的零用錢來了：${PUSH.DAILY} 元`);
     F.on=true;F.seat=k;ui.hidden=false;document.body.classList.add('fi');layout();if(F.send&&F.netOn&&F.netOn()){if(iAmMaster())bc(fullState());else F.send('*',{t:'fiQ'});}   /* 自己是主持：把魚送給大家；不是：跟主持要全部的魚 */
     banner={t:0,d:2.6,txt:'🐟 點魚就撈！',sub:nets?`還有 ${nets} 網`:PUSH.W.tok?'第一網會自動投 1 枚代幣（3 網）':'沒有代幣：去兌幣機換',col:'#7dff9a'};AUDIO.sfx('chime');};
@@ -14936,7 +14946,7 @@ const FJW=(()=>{const W={scope:null};
       <div class="gd">${HKL.map((s,i)=>{const o=HV[s.id],r=((i*37)%17-8);return `<div class="c${o?'':' no'}${nw===s.id?' new':''}"><div class="ink" style="transform:rotate(${o?r:0}deg);--r:${r}deg">${o?s.n.slice(0,5):''}<b>${s.e}</b>${o?o.d.slice(2).replace(/-/g,'.'):'？'}</div>${s.n}${o?'':`<button data-go="${s.id}">📍 前往</button>`}</div>`;}).join('')}</div>
       <div class="ft">走到景點的「🖋️ 集章台」按 F 蓋章（富士山頂在山頂小屋蓋）。每個景點第一次蓋 20 元，${HKL.length} 個全部蓋滿再送 300 元${HV.all?'（✔ 已經集滿了）':''}。</div>`;hk.hidden=false;}
   hk.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.x){hk.hidden=true;return;}
-    if(b.dataset.go){const s=HKL.find(q=>q.id===b.dataset.go);if(!s||s.x==null)return;hk.hidden=true;if(mode==='aerial')toggleAerial();if(SKI.ride)return toast('坐纜車的時候不能傳送');
+    if(b.dataset.go){const s=HKL.find(q=>q.id===b.dataset.go);if(!s||s.x==null)return;hk.hidden=true;if(DRONE.on)toggleAerial();if(SKI.ride)return toast('坐纜車的時候不能傳送');
       if(s.hut){const h=W.hut;teleport(h.x+Math.sin(h.h)*4.5,h.z+Math.cos(h.h)*4.5,h.h,TOPY);}else{const fx=Math.sin(s.ry),fz=Math.cos(s.ry);teleport(s.x+fx*1.5,s.z+fz*1.5,Math.atan2(fx,fz),s.y);}}});   /* 站在台子前面、面向台子（1.5 m：一到就可以按 F） */
   W.hkOpen=()=>hkOpen();
   W.hkDbg=()=>({HKL,HV,hkMark,hkBuild});
@@ -15019,7 +15029,7 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
   G.canFly=()=>started&&mode==='walk'&&!G.on&&!SKI.ride&&!RIDE.on&&!PAX.on&&!BALLOON.riding&&!LIE.on&&!DECO.sit&&!player.climb&&!FJW.scope&&EMOTE.can();
   function fly(x,z,y,opt){if(SKI.on)SKI.stop();if(SKATE.on)SKATE.stop();if(EMOTE.on)EMOTE.stop(true);fxInit();cardDraw(opt.kind==='mag'?'mag':'acc');
     const x0=player.pos.x,z0=player.pos.y,y0=player.y,D=Math.hypot(x-x0,z-z0);
-    Object.assign(F,{x0,z0,y0,x,z,y,D,dir:D>1?Math.atan2(-(x-x0),-(z-z0)):avatar.yaw,T3:cl(D/140,1.2,4),H:Math.min(160,20+D*0.12),kind:opt.kind,dn:opt.dn||'',by:opt.by||'',trT:0,cv:null,ci:0,cx:isFinite(opt.cx)?opt.cx:x,cz:isFinite(opt.cz)?opt.cz:z,gn:Math.max(1,Math.min(8,opt.gn|0))});   /* cx、cz＝大家的中心、gn＝幾個人一起飛 */
+    Object.assign(F,{x0,z0,y0,x,z,y,D,dir:D>1?Math.atan2(-(x-x0),-(z-z0)):avatar.yaw,T3:cl(D/140,1.2,4),H:Math.min(160,20+D*0.12),kind:opt.kind,dn:opt.dn||'',by:opt.by||'',trT:0,cv:null,ci:0,cx:isFinite(opt.cx)?opt.cx:x,cz:isFinite(opt.cz)?opt.cz:z,gn:Math.max(1,Math.min(8,opt.gn|0)),to:opt.to||'',fol:opt.fol||null,hx:x0,hz:z0,hy:y0});   /* cx、cz＝大家的中心、gn＝幾個人一起飛 */
     G.on=true;G.ph=1;G.t=0;camInit=false;if(view!=='third'){view='third';syncViewUI();}player.vel.set(0,0);player.vy=0;avatar.yaw=F.dir;
     AUDIO.sfx('chime');bigT(opt.kind==='mag'?'🧲 磁力 使用！':opt.kind==='pull'?`🌠 ${pn(opt.by)} 的同行！`:'🌠 同行 使用！');if(typeof syncActBtn==='function')syncActBtn();}
   G.step=dt=>{if(!G.on)return;G.t+=dt;const f=F;let x=f.x0,z=f.z0,y=f.y0;const yA=f.y0+35,yB=f.y+60;
@@ -15114,19 +15124,35 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
     if(d.d!=null){const s=dests()[+d.d];if(s)useAcc(s);return;}
     if(d.p!=null){accTo(d.p);return;}
     if(d.f!=null)useMag(d.f);});
-  function useAcc(s){if(!G.canFly()){toast(G.on?'正在飛':'現在不能用卡片（先離開遊戲、下車）');return;}if(G.cd.acc>0)return;BK.hidden=true;if(mode==='aerial'&&typeof toggleAerial==='function')toggleAerial();const y=s.y!=null?s.y:heightAt(s.x,s.z,1.5),nf=nearFriends(),n=nf.length+1;
-    fly(s.x,s.z,y,{kind:'acc',dn:s.name,cx:s.x,cz:s.z,gn:n});G.cd.acc=CDA;
-    nf.forEach((id,i)=>{const a=F.dir+(i+1)/n*Math.PI*2,ox=Math.sin(a)*2.4,oz=Math.cos(a)*2.4;NET.out(id,{t:'gcA',x:+(s.x+ox).toFixed(2),z:+(s.z+oz).toFixed(2),y:+y.toFixed(2),dn:s.name,cx:+s.x.toFixed(2),cz:+s.z.toFixed(2),gn:n});});   /* 朋友落在旁邊一圈 */
+  function useAcc(s,to){if(!G.canFly()){toast(G.on?'正在飛':'現在不能用卡片（先離開遊戲、下車）');return;}if(G.cd.acc>0)return;BK.hidden=true;if(DRONE.on&&typeof toggleAerial==='function')toggleAerial();const y=s.y!=null?s.y:heightAt(s.x,s.z,1.5),nf=nearFriends(),n=nf.length+1,cx=isFinite(s.cx)?s.cx:s.x,cz=isFinite(s.cz)?s.cz:s.z,gn=Math.min(8,s.gn|0||n);
+    fly(s.x,s.z,y,{kind:'acc',dn:s.name,cx,cz,gn,to:to||'',fol:nf});G.cd.acc=CDA;
+    nf.forEach((id,i)=>{const a=F.dir+(i+1)/n*Math.PI*2,ox=Math.sin(a)*2.4,oz=Math.cos(a)*2.4;NET.out(id,{t:'gcA',x:+(s.x+ox).toFixed(2),z:+(s.z+oz).toFixed(2),y:+y.toFixed(2),dn:s.name,cx:+cx.toFixed(2),cz:+cz.toFixed(2),gn});});   /* 朋友落在旁邊一圈 */
     if(nf.length)toast(`🌠 同行：帶著 ${nf.map(pn).join('、')} 一起飛到 ${s.name}！`);}
   // 2026-10-28.4 使用者：「同行可以飛到某個人旁邊嗎」→ 同行清單上面多一排朋友（身邊 20 m 內的不列，他們本來就一起飛）；落在朋友前面 4 m、大家圍一圈
   const farFriends=()=>{if(!NET.on)return [];const nf=new Set(nearFriends());return [...NET.P.entries()].filter(([id,q])=>q&&q.s&&q.s.a&&!nf.has(String(id)));};
   function accTo(id){const q=NET.P.get(id)||NET.P.get(+id),a=q&&q.s&&q.s.a;if(!a){toast('找不到這個朋友');return;}if(q.s.ca){toast('朋友正在坐纜車，等他下來再飛過去');return;}
-    const dx=player.pos.x-a[0],dz=player.pos.y-a[2],l=Math.hypot(dx,dz)||1,x=a[0]+dx/l*4,z=a[2]+dz/l*4,y=heightAt(x,z,a[1]+1.5);
-    if(!G.canFly()){toast(G.on?'正在飛':'現在不能用卡片（先離開遊戲、下車）');return;}if(G.cd.acc>0)return;useAcc({name:`${pn(id)}旁邊`,x,z,y:Math.abs(y-a[1])<3?y:a[1]});NET.out(String(id),{t:'gcM',acc:1,n:nearFriends().length});}
+    if(!G.canFly()){toast(G.on?'正在飛':'現在不能用卡片（先離開遊戲、下車）');return;}if(G.cd.acc>0)return;const t=dest(q),m=nearFriends().length,p=spotNear(t.x,t.y,t.z,4+(t.gn>1?1.5:0)+(m?1:0));
+    useAcc({name:`${pn(id)}旁邊`,x:p.x,z:p.z,y:p.y,cx:t.gn>1||t.fl?t.x:p.x,cz:t.gn>1||t.fl?t.z:p.z,gn:t.fl?t.gn+m+1:m+1},String(id));NET.out(String(id),{t:'gcM',acc:1,n:m});}
   function useMag(id){if(!G.canFly()){toast(G.on?'正在飛':'現在不能用卡片（先離開遊戲、下車）');return;}if(G.cd.mag>0)return;const q=NET.P.get(id)||NET.P.get(+id),a=q&&q.s&&q.s.a;if(!a){toast('找不到這個朋友');return;}if(q.s.ca){toast('朋友正在坐纜車，等他下來再飛過去');return;}BK.hidden=true;
-    const dx=player.pos.x-a[0],dz=player.pos.y-a[2],l=Math.hypot(dx,dz)||1,x=a[0]+dx/l*2.2,z=a[2]+dz/l*2.2,y=heightAt(x,z,a[1]+1.5);fly(x,z,Math.abs(y-a[1])<3?y:a[1],{kind:'mag',dn:pn(id)});G.cd.mag=CDM;NET.out(String(id),{t:'gcM'});}
+    const t=dest(q),p=spotNear(t.x,t.y,t.z,2.2+(t.gn>1?2.4:0));fly(p.x,p.z,p.y,{kind:'mag',dn:pn(id),to:String(id)});G.cd.mag=CDM;NET.out(String(id),{t:'gcM'});}
+  // 2026-10-28.14 使用者：「兩個人同時對對方用同行會怎樣」→ 以前兩個人互換位置（在天上擦身而過，落地還是很遠）；朋友正在飛也是飛到他起飛的地方、或停在半空
+  //   改成：朋友正在飛 → 飛去他要降落的地方；同時互飛 → 編號大的留在原地等（還在舉卡片就收起來，飛起來了就落回原地，身邊一起飛的朋友也一起回去）；朋友飛去別的地方 → 他回 gcW 告訴你，你半路轉彎
+  function dest(q){const a=q.s.a,gc=q.s.gc;if(Array.isArray(gc)&&(gc[0]|0)>=1&&(gc[0]|0)<=4&&isFinite(+gc[2])&&isFinite(+gc[5]))return {x:+gc[2],z:+gc[3],y:+gc[5],gn:Math.max(1,gc[4]|0),fl:1};return {x:a[0],z:a[2],y:a[1],gn:1,fl:0};}
+  function spotNear(ax,ay,az,d){const dx=player.pos.x-ax,dz=player.pos.y-az,l=Math.hypot(dx,dz)||1,x=ax+dx/l*d,z=az+dz/l*d,y=heightAt(x,z,ay+1.5);return {x,z,y:Math.abs(y-ay)<3?y:ay};}
+  function redir(x,z,y,o){const f=F;if(!G.on||G.ph>3||!isFinite(x)||!isFinite(z)||!isFinite(y))return false;
+    if(G.ph===3){f.x0=player.pos.x;f.z0=player.pos.y;f.y0=player.y-35;G.t=0;}   /* 飛到一半：從現在的位置重新算路線 */
+    const D=Math.hypot(x-f.x0,z-f.z0),dir=D>1?Math.atan2(-(x-f.x0),-(z-f.z0)):f.dir;
+    Object.assign(f,{x,z,y,D,dir,T3:cl(D/140,1.2,4),H:Math.min(160,20+D*0.12),cv:null,ci:0,cx:isFinite(o.cx)?o.cx:x,cz:isFinite(o.cz)?o.cz:z,gn:Math.max(1,Math.min(8,o.gn|0||1)),dn:o.dn||f.dn});if(o.to!=null)f.to=o.to;
+    if(f.fol&&f.fol.length){const n=f.fol.length+1;f.fol.forEach((id,i)=>{const a=dir+(i+1)/n*Math.PI*2;NET.out(id,o.home?{t:'gcR',home:1}:{t:'gcR',x:+(x+Math.sin(a)*2.4).toFixed(2),z:+(z+Math.cos(a)*2.4).toFixed(2),y:+y.toFixed(2),cx:+f.cx.toFixed(2),cz:+f.cz.toFixed(2),gn:f.gn,dn:f.dn});});}
+    if(f.dn&&G.ph>=2)bigT(`🌠 → ${f.dn}`);return true;}
+  function goHome(){const f=F;if(!G.on)return;if(G.ph===1){if(f.fol)f.fol.forEach(id=>NET.out(id,{t:'gcR',home:1}));G.cancel();if(typeof syncActBtn==='function')syncActBtn();return;}redir(f.hx,f.hz,f.hy,{dn:'原地',home:1,to:''});}   /* 還在舉卡片：收起來；飛起來了：落回原地 */
   G.rx=(d,f)=>{f=String(f);if(d.t==='gcA'){const x=+d.x,z=+d.z;if(!isFinite(x)||!isFinite(z))return;if(!G.canFly()){toast(`🌠 ${pn(f)} 用了同行，可是你正在忙，沒有跟去`);return;}const y=heightAt(x,z,(+d.y||0)+1.5);fly(x,z,Math.abs(y-(+d.y||0))<3?y:+d.y||0,{kind:'pull',by:f,dn:String(d.dn||'').slice(0,20),cx:+d.cx,cz:+d.cz,gn:d.gn|0});}
-    else if(d.t==='gcM')toast(d.acc?`🌠 ${pn(f)}${d.n>0?` 帶著 ${d.n|0} 個朋友`:''}用同行飛過來找你了！`:`🧲 ${pn(f)} 用磁力飛過來找你了！`);};
+    else if(d.t==='gcM'){const k=d.acc?'🌠':'🧲';
+      if(G.on&&G.ph<=3&&F.to===f){if(String(NET.myId())>f){goHome();toast(`${k} ${pn(f)} 也同時飛過來找你 → 你留在原地等他`);}else toast(`${k} ${pn(f)} 也同時要飛過來找你 → 他在原地等你`);return;}   /* 兩個人同時互飛：編號大的留在原地 */
+      if(G.on&&F.to!==f&&G.ph<=5)NET.out(f,{t:'gcW',x:+F.cx.toFixed(2),z:+F.cz.toFixed(2),y:+F.y.toFixed(2),gn:F.gn});   /* 我正在飛去別的地方：告訴他我要降落在哪 */
+      toast(d.acc?`🌠 ${pn(f)}${d.n>0?` 帶著 ${d.n|0} 個朋友`:''}用同行飛過來找你了！`:`🧲 ${pn(f)} 用磁力飛過來找你了！`);}
+    else if(d.t==='gcW'){if(!G.on||F.to!==f)return;const x=+d.x,z=+d.z,y=+d.y,gn=Math.max(1,d.gn|0);if(!isFinite(x)||!isFinite(z)||!isFinite(y))return;const mag=F.kind==='mag',m=F.fol?F.fol.length:0,p=spotNear(x,y,z,mag?2.2+(gn>1?2.4:0):4+(gn>1?1.5:0)+(m?1:0));redir(p.x,p.z,p.y,mag?{dn:pn(f)}:{cx:x,cz:z,gn:gn+m+1,dn:`${pn(f)}旁邊`});}   /* 朋友飛去別的地方了：半路轉彎跟過去 */
+    else if(d.t==='gcR'){if(!G.on||F.kind!=='pull'||F.by!==f)return;if(d.home)goHome();else redir(+d.x,+d.z,+d.y,{cx:+d.cx,cz:+d.cz,gn:d.gn,dn:String(d.dn||'').slice(0,20)});}};   /* 帶我飛的人轉彎／回原地 */
   addEventListener('keydown',e=>{if(e.repeat||e.code!=='KeyB'||!started)return;if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;if(BK.hidden)G.open();else BK.hidden=true;});
   G.dbg=()=>({F,fly,poseAt,useAcc,useMag,nearFriends,dests,REM});
   return G;})();
@@ -15744,7 +15770,7 @@ const CVS=(()=>{const C={on:false,food:null};
     btnEl.innerHTML=CW.st==='done'?`<button data-k="again">再玩<small>30 元</small></button><button data-k="exit">離開<small>Esc</small></button>`:`<button data-k="grab" ${CW.st!=='aim'?'disabled':''}>抓！<small>空白鍵</small></button><button data-k="exit">離開<small>Esc</small></button>`;}
   function reset(){Object.assign(CW,{st:'aim',x:-0.05,z:19.88,y:CY,t:20,k:0,held:null,slip:false,res:''});cwHud();}
   C.start=()=>{if(C.on||busy())return;if(!pay(30))return;build();
-    if(EMOTE.on)EMOTE.stop(true);if(CLOSET.isOpen)CLOSET.close();if(mode==='aerial')toggleAerial();
+    if(EMOTE.on)EMOTE.stop(true);if(CLOSET.isOpen)CLOSET.close();if(DRONE.on)toggleAerial();
     C.on=true;C.camP=null;save();document.body.classList.add('cw');hudEl.hidden=false;btnEl.hidden=false;reset();AUDIO.sfx('chime');
     if(!SV.told){SV.told=1;save();toast('🧸 夾娃娃機：移動爪子對準娃娃，按「抓！」；爪子會自己下去、夾起來、送到右前角的出口，掉進去就是你的！');}};
   C.stop=()=>{if(!C.on)return;C.on=false;IN.L=IN.R=false;document.body.classList.remove('cw');hudEl.hidden=true;btnEl.hidden=true;
@@ -16297,7 +16323,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
       <div class="row"><button data-again="1">↺ 再玩一次</button>${R.day<NDAY&&SAVE.u>R.day?'<button data-nextday="1">▶ 下一天</button>':''}<button data-leave="1">離開</button></div>`;pn.hidden=false;}
   // ================= 開始／結束 =================
   R.start=(day,diff,free)=>{if(GAME.on){toast('小遊戲中不能開店');return;}if(remOpen()&&!R.on){toast(`${NT.nameOf(RM.o)} 已經開店了：到櫃台按 F「一起煮」`);return;}if(R.seat)standUp();if(R.on)clearDay();
-    if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(mode==='aerial')toggleAerial();if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();
+    if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(DRONE.on)toggleAerial();if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();
     R.free=!!free;if(R.free){R.diff=cl(diff|0,0,2);DAY={n:0,menu:[...WALLK,'custom'],gap:999,maxC:0};}else{R.day=cl(day|0,1,SAVE.u);R.diff=cl(diff|0,0,2);DAY={...DAYS[R.day]};const Df=DIFF[R.diff];DAY.gap*=Df.gap;DAY.maxC=Math.min(3,DAYS[R.day].maxC+Df.maxC);}   /* 自由煮：沒有客人、6 道菜＋自創料理 */
     R.on=true;R.over=false;R.cook=null;spawned=0;spawnT=1.2;dayT=0;endT=0;stat={coins:0,served:0,miss:0,qsum:0,cid:0};PASS=[];FLY=[];HOLD=[];
     R.x=ST.stove;player.pos.set(R.x,CHEF_Z);player.vel.set(0,0);player.y=0;avatar.yaw=0;chefHat(true);avatar.root.traverse(o=>{o.userData.noCull=true;});   /* 鏡頭比較遠：自己的人物不要被距離裁切藏掉 */
@@ -16350,7 +16376,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     if(nearC)return '開店：好好吃小餐館（煮飯遊戲）';return null;};
   R.act=()=>{const L=R.label();if(!L)return;if(L.startsWith('一起煮'))R.helpStart();else if(L.startsWith('坐下')){const x=player.pos.x,z=player.pos.y,T=TABLES.find(T=>Math.hypot(x-T.x,z-T.cz)<0.9);if(T)R.orderOpen(T.i);}else R.open();};
   R.what=()=>R.seat?'在小餐館吃飯':R.on?(R.helper?'一起煮':R.free?'自由煮':R.over?'打烊了':`第 ${R.day} 天・🪙 ${stat.coins}・😋 ${stat.served}/${DAY.n}`):'';
-  {const b=$('rsMenu');if(b)b.onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能開店');return;}if(mode==='aerial')toggleAerial();teleport(52,46.9,Math.PI);setTimeout(()=>R.open(),350);};}   /* 選單：直接到櫃台前面、打開開店面板 */
+  {const b=$('rsMenu');if(b)b.onclick=()=>{menu.hidden=true;$('bMenu').classList.remove('on');if(GAME.on){toast('小遊戲中不能開店');return;}if(DRONE.on)toggleAerial();teleport(52,46.9,Math.PI);setTimeout(()=>R.open(),350);};}   /* 選單：直接到櫃台前面、打開開店面板 */
   applyUpg();wallDraw();
   // ================= 連線（2026-10-17 第三階段）：一起煮＋朋友當客人 =================
   // 店長＝開店的人：客人、點菜單、出餐台都在店長這邊算，每 0.2 秒送 rsS（狀態）給大家。
@@ -16393,7 +16419,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
       r.A.root.position.set(r.x,0.03,r.z);r.A.root.rotation.y=r.yaw+Math.PI;}
     const want=R.helper&&RM.pass?RM.pass:[];if(RPASS.map(p=>p.k).join()!==want.join()){for(const p of RPASS)dishFree(p.m);RPASS=want.filter(k=>DISH[k]).map((k,i)=>{const m=mkDish(k);m.scale.setScalar(1.5);const q=passPos(i);m.position.set(q.x,q.y,q.z);G.add(m);return {k,m};});}}
   // ---- 一起煮 ----
-  function prepOthers(){if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(mode==='aerial')toggleAerial();if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();}
+  function prepOthers(){if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(DRONE.on)toggleAerial();if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();}
   R.helpStart=()=>{if(!remOpen()||RM.over||R.on||R.seat||GAME.on)return;prepOthers();const o=RM.o;R.helper=o;R.on=true;R.over=false;R.cook=null;R.free=!!RM.free;R.day=RM.day||1;R.diff=RM.diff|0;
     DAY={n:RM.st?RM.st[3]:0,menu:(RM.menu||[]).filter(k=>DISH[k]),gap:999,maxC:0};spawned=1;stat={coins:0,served:0,miss:0,qsum:0,cid:0};PASS=[];FLY=[];HOLD=[];
     R.x=ST.drink;player.pos.set(R.x,CHEF_Z+0.7);player.vel.set(0,0);player.y=0;avatar.yaw=0;chefHat(true);avatar.root.traverse(q=>{q.userData.noCull=true;});
@@ -16469,7 +16495,7 @@ function dcull(dt){if(!DCULL.on)return;DCULL.clock=(DCULL.clock||0)+dt;DCULL.t-=
   // 改：鏡頭離地越高，不畫的距離推越遠（離地 12 m 以上開始；電腦 32 m 兩倍、52 m 以上三倍；手機、平板最多兩倍，不然繪製次數最多會變兩倍、容易燙），東西出現時小很多、又被霧淡掉；
   // 量（手機設定、45 m 高飛過住家一帶 5 秒）：看得到的跳動 160 → 2 倍 70 → 3 倍 36 次；平均繪製 228 → 270 → 311、最多 418 → 611 → 864。
   // 另外出現、消失的距離差 10%（看得到的要到 1.1 倍才藏），在切換點附近飛不會一開一關。
-  const cp=camera.position,v=DCULL.v,hb=mode==='aerial'?0:Math.max(0,Math.min(DCULL.hbMax,(cp.y-heightAt(cp.x,cp.z,cp.y)-12)/20)),far=(mode==='aerial'?1.8:1+hb)*(LOWMEM?0.75:1);DCULL.hb=hb;   /* 2026-10-23.2 手機、平板：遠處小東西早一點不畫 */
+  const cp=camera.position,v=DCULL.v,hb=DRONE.on?0:Math.max(0,Math.min(DCULL.hbMax,(cp.y-heightAt(cp.x,cp.z,cp.y)-12)/20)),far=(DRONE.on?1.8:1+hb)*(LOWMEM?0.75:1);DCULL.hb=hb;   /* 2026-10-23.2 手機、平板：遠處小東西早一點不畫 */
   for(const o of DCULL.list){const g=o.geometry;if(!g.boundingSphere){g.computeBoundingSphere();if(!g.boundingSphere)continue;}
     const R=g.boundingSphere.radius*o.matrixWorld.getMaxScaleOnAxis();if(!(R<12)){if(o.layers.mask!==1)o.layers.set(0);continue;}
     v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld);const lim=(55+R*45)*far*(o.layers.mask===1?1.1:1),show=v.distanceTo(cp)-R<lim;
@@ -16583,7 +16609,7 @@ function playerFall(dt){
   TRAMP.after(vin);   // 彈跳床
 }
 let jumpHeld=false;   // 手機「跳」按住中（彈跳床：按住就一直用力彈）
-function doJump(){if(!started||mode!=='walk'||TN.on||RACE.on||GCARD.on)return;if(SKI.on||SKI.ride){SKI.jump();return;}if(DUO.on){DUO.press();return;}if(LINK.jump())return;if(typeof CG!=='undefined'&&CG.lock())return;if(PAX.on){PAX.space();return;}if(RIDE.on){RIDE.jump();return;}if(EMOTE.on)EMOTE.stop();if(BALLOON.riding){BALLOON.burnPress();return;}if(SKATE.on){SKATE.jump();return;}if(BB.lock())return;if(LIE.on){LIE.stop();syncActBtn();return;}if(DECO.sit){DECO.stand();return;}if(player.climb)return;
+function doJump(){if(!started||mode!=='walk'||TN.on||RACE.on||GCARD.on||DRONE.on)return;if(SKI.on||SKI.ride){SKI.jump();return;}if(DUO.on){DUO.press();return;}if(LINK.jump())return;if(typeof CG!=='undefined'&&CG.lock())return;if(PAX.on){PAX.space();return;}if(RIDE.on){RIDE.jump();return;}if(EMOTE.on)EMOTE.stop();if(BALLOON.riding){BALLOON.burnPress();return;}if(SKATE.on){SKATE.jump();return;}if(BB.lock())return;if(LIE.on){LIE.stop();syncActBtn();return;}if(DECO.sit){DECO.stand();return;}if(player.climb)return;
   if(TRAMP.press())return;   // 彈跳床：往下掉時按＝下一下彈更高（不是二段跳）、剛彈起來補按也算
   if(player.ground){player.vy=4.6*CVS.jmp();player.ground=false;player.jumps=1;}else if(player.jumps<2){player.vy=4.6*CVS.jmp();player.jumps=2;}}   /* 2026-10-27.27 喝珍奶跳高 */
 const lidShut=()=>HATCH_LID.t<0.95;
@@ -17395,7 +17421,7 @@ function thirdPersonCamera(){
 function toggleView(){if(RACE.on){RACE.cam=RACE.cam===2?0:2;toast(RACE.cam===2?'視角：駕駛艙（第一人稱）':'視角：追車');syncViewUI();return;}   /* 賽車：第一人稱＝駕駛艙 */
   view=view==='third'?'first':'third';try{localStorage.setItem('home-view2',view);}catch(_){}syncViewUI();}
 function setKid(on,say){kid=on;try{localStorage.setItem('home-kid',on?'1':'0');}catch(_){}avatar.root.scale.setScalar(bodyH().scale*(avatar.morph?1.25:1));const cb=document.getElementById('kid');if(cb)cb.checked=on;if(say)toast(on?'小孩視角（身高約 130 cm）':'大人視角');}
-function syncViewUI(){const b=document.getElementById('bView');const third=RACE.on?RACE.cam!==2:view==='third';b.textContent=third?'第三人稱':'第一人稱';b.classList.toggle('on',third);avatar.root.visible=mode==='aerial'||view==='third';   /* 空拍時也看得到人物（使用者要求） */}
+function syncViewUI(){const b=document.getElementById('bView');const third=RACE.on?RACE.cam!==2:view==='third';b.textContent=third?'第三人稱':'第一人稱';b.classList.toggle('on',third);avatar.root.visible=DRONE.on||view==='third';   /* 空拍時也看得到人物（使用者要求） */}
 // 目前在我家的哪一層、哪個房間（室內自動切第一人稱，第三人稱鏡頭在小房間會卡牆）
 function floorOf(y){let f=0;for(let k=1;k<5;k++)if(y>=FL[k]-(k===4?0.3:0.6))f=k;return f;}   // 4＝屋頂
 function roomAt(x,z,y){if(x>=CASTLE.x0-3.8&&x<=CASTLE.x1+3.8&&z>=CASTLE.z0-3.8&&z<=CASTLE.z1+3.8){   /* 含四角圓塔 */const f=CASTLE.fOf(y);for(const r of CASTLE.rooms)if(r.f===f&&(r.tower?Math.hypot(x-(r.x0+r.x1)/2,z-(r.z0+r.z1)/2)<CASTLE.RI:x>=r.x0-0.1&&x<=r.x1+0.1&&z>=r.z0-0.1&&z<=r.z1+0.1))return r;return null;}   /* 城堡 */if(z<Z_BACK||z>0.1)return null;const L=x>=HX0&&x<=HX1?ROOMS:x>HX1&&x<=HX1+NB1.dx?NROOMS:null;if(!L)return null;const f=floorOf(y);for(const r of L)if(r.f===f&&x>=r.x0-0.1&&x<=r.x1+0.1&&z>=r.z0-0.1&&z<=r.z1+0.1&&!(r.ymax!==undefined&&y>FL[f]+r.ymax))return r;return null;}
@@ -17405,7 +17431,7 @@ const orbit=new OrbitControls(camera,renderer.domElement);orbit.enabled=false;or
 
 let placeTimer=0;
 function teleport(x,z,yaw,y=0){GCARD.cancel();if(PAINT&&PAINT.on)PAINT.stop();if(typeof SKI!=='undefined'&&SKI&&SKI.rideEnd)SKI.rideEnd();if(CVS.on)CVS.stop();FJW.exit();if(PAX.on)PAX.leave('',true);if(RIDE.on)RIDE.stop(true);if(DECO.sit)DECO.stand(true);if(typeof RS!=='undefined'){if(RS.on)RS.stop();if(RS.seat)RS.standUp();}if(DD.on)DD.stop(true);if(KF.on)KF.stop(true);if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();if(MU.on)MU.stop(true);if(CU.on)CU.stop(true);if(NM.on)NM.stop();if(RB.on)RB.stop();if(SB.on)SB.stop();if(RACE.on)RACE.stop();   /* 玩到一半用「前往」：先結束遊戲（原本會一直被拉回跑道／擂台） */
-  if(BALLOON.riding)BALLOON.reset();BB.reset();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(SKATE.on){SKATE.vel.set(0,0);SKATE.v=0;SKATE.ground=true;SKATE.vy=0;if(yaw!==undefined)SKATE.dir=yaw;}player.y=y;player.vy=0;const fd=document.getElementById('fade');if(fd&&started){fd.style.transition='none';fd.style.opacity=1;requestAnimationFrame(()=>{fd.style.transition='opacity .35s';fd.style.opacity=0;});}player.vel.set(0,0);player.pos.set(x,z);resolve(player.pos,0.3,y);if(yaw!==undefined){player.yaw=yaw;player.pitch=-0.05;}if(mode==='aerial'){orbit.target.set(x,0,z);}placeTimer=0;}
+  if(BALLOON.riding)BALLOON.reset();BB.reset();if(EMOTE.on)EMOTE.stop(true);if(LIE.on)LIE.stop();if(SKATE.on){SKATE.vel.set(0,0);SKATE.v=0;SKATE.ground=true;SKATE.vy=0;if(yaw!==undefined)SKATE.dir=yaw;}player.y=y;player.vy=0;const fd=document.getElementById('fade');if(fd&&started){fd.style.transition='none';fd.style.opacity=1;requestAnimationFrame(()=>{fd.style.transition='opacity .35s';fd.style.opacity=0;});}player.vel.set(0,0);player.pos.set(x,z);resolve(player.pos,0.3,y);if(yaw!==undefined){player.yaw=yaw;player.pitch=-0.05;}if(DRONE.on){orbit.target.set(x,0,z);}placeTimer=0;}
 const SPOTS=[
   {name:'我家門口',x:DOOR.x,z:3.6,yaw:0},
   {name:'1F 客廳',x:3.8,z:-4.0,yaw:0},
@@ -17447,6 +17473,7 @@ const SPOTS=[
 const canvas=renderer.domElement;
 addEventListener('keydown',e=>{keys[e.code]=true;if(!started){if(e.code==='Enter'&&!startBtn.disabled)startBtn.click();return;}
   if(GAME.on&&GAME.key(e,true))return;   // 小遊戲的技能鍵
+  if(DRONE.on&&DRONE.key(e))return;   // 空拍機：空白鍵、Q E、Shift 上下
   if(DD.on&&DD.key(e,true))return;
   if(FISH.on&&FISH.key(e,true))return;
   if(RS.on&&RS.key(e,true))return;   // 小餐館：1～3 做菜、Esc 打烊
@@ -17478,6 +17505,7 @@ addEventListener('mouseup',()=>{dragging=false;});
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 addEventListener('mousemove',e=>{
   if(mode!=='walk'||!started||!dragging)return;
+  if(DRONE.on){DRONE.look(e.clientX-lastX,e.clientY-lastY,0.004*comfort.sens);lastX=e.clientX;lastY=e.clientY;return;}
   player.yaw-=(e.clientX-lastX)*0.004*comfort.sens;player.pitch-=(e.clientY-lastY)*0.004*comfort.sens;lastX=e.clientX;lastY=e.clientY;
   player.pitch=Math.max(-1.45,Math.min(view==='third'?0.6:1.45,player.pitch));
 });
@@ -17492,6 +17520,7 @@ function moveJoy(t){const r=joyEl.getBoundingClientRect();let dx=t.clientX-(r.le
 let pinch=null;const tpos=new Map();
 const pinchDist=()=>{const a=tpos.get(pinch.a),b=tpos.get(pinch.b);return a&&b?Math.hypot(a.x-b.x,a.y-b.y):0;};
 function applyPinch(){const r=pinchDist()/pinch.d0;if(!r)return;const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  if(DRONE.on){DRONE.zoom(pinch.fov/r);return;}   /* 空拍機：兩指捏開＝放大（望遠） */
   if(view==='first'){if(r<0.8){toggleView();pinch.d0=pinchDist()||1;pinch.camd=comfort.camDist;}else{const el=document.getElementById('fov');el.value=clamp(pinch.fov/r,45,80);el.oninput();}}
   else{const el=document.getElementById('camd');el.value=clamp(pinch.camd/r,1.5,12);el.oninput();}}
 canvas.addEventListener('touchstart',e=>{if(mode!=='walk')return;for(const t of e.changedTouches){tpos.set(t.identifier,{x:t.clientX,y:t.clientY});
@@ -17500,6 +17529,7 @@ canvas.addEventListener('touchstart',e=>{if(mode!=='walk')return;for(const t of 
 addEventListener('touchmove',e=>{for(const t of e.changedTouches){
   if(tpos.has(t.identifier))tpos.set(t.identifier,{x:t.clientX,y:t.clientY});
   if(t.identifier===joy.id)moveJoy(t);
+  else if(t.identifier===lookId&&DRONE.on&&!pinch){DRONE.look(t.clientX-lx,t.clientY-ly,0.0045*comfort.sens);lx=t.clientX;ly=t.clientY;}
   else if(t.identifier===lookId&&mode==='walk'&&!pinch){player.yaw-=(t.clientX-lx)*0.0045*comfort.sens;player.pitch-=(t.clientY-ly)*0.0045*comfort.sens;player.pitch=Math.max(-1.45,Math.min(1.45,player.pitch));lx=t.clientX;ly=t.clientY;}
 }
   if(pinch&&mode==='walk')applyPinch();},{passive:true});
@@ -17511,17 +17541,40 @@ addEventListener('touchcancel',()=>{joy.id=null;joy.x=joy.y=0;knob.style.transfo
 /* ---------------- UI ---------------- */
 const bA=document.getElementById('bAerial'),bM=document.getElementById('bMap'),bMenu=document.getElementById('bMenu'),menu=document.getElementById('menu'),mmWrap=document.getElementById('minimap');
 document.getElementById('bView').onclick=toggleView;
-function toggleAerial(){if(PAX.on)PAX.leave('',true);if(RIDE.on)RIDE.stop(true);if((CVS.on||RS.on||DD.on||KF.on||PUSH.on||FISH.on||MU.on||CU.on||SB.on||RB.on||NM.on||RACE.on)&&mode==='walk')return;   /* 街頭鬥牛、擂台、夜市、賽車中不能切空拍（主迴圈不會跑遊戲＝整個停住） */
-  if(mode==='walk'){
-    mode='aerial';
-    orbit.target.set(player.pos.x,2,player.pos.y);
-    camera.position.set(player.pos.x+Math.sin(player.yaw)*35+10,38,player.pos.y+Math.cos(player.yaw)*35+10);
-    orbit.enabled=true;orbit.update();bA.classList.add('on');
-  }else{
-    mode='walk';orbit.enabled=false;bA.classList.remove('on');camera.rotation.order='YXZ';   // 離開空拍：人留在原地（原本會傳送到鏡頭看的地方）
-  }
-  syncViewUI();syncHint();
-}
+// 2026-10-28.15 使用者：「空拍模式很糟糕，都不能移動到處看，像搭纜車的時候想用空拍到處找視角看煙火都不行」
+//   以前：鏡頭只能繞著人轉（OrbitControls 對準人），而且一開空拍就把纜車、坐車、開車全部停掉、主迴圈不跑遊戲
+//   改成空拍機：鏡頭自己飛（搖桿／WASD 前後左右、⬆⬇／空白鍵 E 上升、Shift Q 下降、拖曳轉頭、滾輪／兩指＝望遠），人原本在做的事照樣繼續（纜車照樣開、車上照樣坐、煙火照樣放）
+(()=>{const D=Object.assign(DRONE,{on:false,yaw:0,pitch:-0.3,fov:60,up:0,v:new V3(),p:new V3(),hT:0});   /* 直接改全域的 DRONE（別的地方看 DRONE.on） */const TD=new V3();
+  const NO=()=>CVS.on||RS.on||DD.on||KF.on||PUSH.on||FISH.on||MU.on||CU.on||SB.on||RB.on||NM.on||RACE.on||GAME.on||PAINT.on||TN.on||SKI.on||GCARD.on||(typeof CG!=='undefined'&&CG.on);   /* 小遊戲（有自己的鏡頭、按鍵）、滑雪、卡片飛行中不能開 */
+  const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const hud=document.createElement('div');hud.id='drHud';hud.className='panel';hud.hidden=true;hud.innerHTML='<span id="drTx">🚁 空拍機</span><button id="drHome">🎯 回到我身邊</button><button id="drEnd">✕ 結束空拍</button>';document.body.appendChild(hud);
+  const bu=document.createElement('button');bu.id='drUp';bu.textContent='⬆';const bd=document.createElement('button');bd.id='drDn';bd.textContent='⬇';document.body.append(bu,bd);
+  for(const [b,v] of [[bu,1],[bd,-1]]){b.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();D.up=v;b.classList.add('on');},{passive:false});for(const ev of ['touchend','touchcancel'])b.addEventListener(ev,()=>{if(D.up===v)D.up=0;b.classList.remove('on');});
+    b.addEventListener('mousedown',e=>{e.stopPropagation();D.up=v;});b.addEventListener('mouseup',()=>{D.up=0;});b.addEventListener('mouseleave',()=>{if(D.up===v)D.up=0;});}
+  for(const ev of ['pointerdown','touchstart','mousedown'])hud.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
+  const tx=hud.querySelector('#drTx');
+  D.home=()=>{const yw=player.yaw,b=10;D.p.set(player.pos.x+Math.sin(yw)*b,player.y+7,player.pos.y+Math.cos(yw)*b);D.yaw=yw;D.pitch=-0.45;D.v.set(0,0,0);};   /* 飛回人的後面上方 */
+  hud.querySelector('#drHome').onclick=()=>{D.home();AUDIO.sfx('click');};hud.querySelector('#drEnd').onclick=()=>{if(D.on)D.stop();};
+  D.start=()=>{if(!started||D.on)return;if(NO()){toast('玩小遊戲、滑雪、卡片飛行中不能用空拍');return;}
+    D.on=true;camera.getWorldDirection(TD);D.yaw=Math.atan2(-TD.x,-TD.z);D.pitch=cl(Math.asin(cl(TD.y,-1,1)),-1.45,1.2);D.p.copy(camera.position);D.v.set(0,0,0);D.up=0;D.fov=camera.fov;   /* 從現在的畫面開始飛 */
+    bA.classList.add('on');document.body.classList.add('drone');hud.hidden=false;syncViewUI();syncHint();
+    toast(isTouch?'🚁 空拍機：左邊搖桿飛、右邊滑動轉頭、⬆⬇ 上下、兩指捏開放大（望遠）':'🚁 空拍機：WASD／方向鍵飛、空白鍵或 E 上升、Shift 或 Q 下降、拖曳滑鼠轉頭、滾輪放大縮小；V 結束');};
+  D.stop=()=>{if(!D.on)return;D.on=false;D.up=0;bA.classList.remove('on');document.body.classList.remove('drone');hud.hidden=true;
+    const f=+document.getElementById('fov').value||60;camera.fov=f;camera.updateProjectionMatrix();camera.rotation.order='YXZ';camDistCur=null;syncViewUI();syncHint();};
+  D.key=e=>{if(['Space','KeyQ','KeyE','ShiftLeft','ShiftRight','ArrowLeft','ArrowRight'].includes(e.code)){if(e.code==='Space')e.preventDefault();return true;}return false;};   /* 這些鍵給空拍機用（不跳、不轉人） */
+  D.look=(dx,dy,k)=>{D.yaw-=dx*k;D.pitch=cl(D.pitch-dy*k,-1.5,1.3);};
+  D.zoom=f=>{D.fov=cl(f,14,75);};
+  D.step=dt=>{if(NO()){D.stop();return;}
+    let f=0,s=0,u=D.up;if(keys.KeyW||keys.ArrowUp)f+=1;if(keys.KeyS||keys.ArrowDown)f-=1;if(keys.KeyD||keys.ArrowRight)s+=1;if(keys.KeyA||keys.ArrowLeft)s-=1;
+    if(joy.id!==null){f+=-joy.y;s+=joy.x;}if(keys.Space||keys.KeyE)u+=1;if(keys.ShiftLeft||keys.ShiftRight||keys.KeyQ)u-=1;u=cl(u,-1,1);const L=Math.hypot(f,s);if(L>1){f/=L;s/=L;}
+    const g=heightAt(D.p.x,D.p.z,D.p.y+0.5),hA=Math.max(0,D.p.y-g),zm=camera.fov/60,sp=cl(7+hA*0.45,7,75)*Math.max(0.45,zm),vs=cl(5+hA*0.2,5,28);   /* 飛越高越快；放大望遠時慢一點才好對準 */
+    const fx=-Math.sin(D.yaw),fz=-Math.cos(D.yaw),rx=Math.cos(D.yaw),rz=-Math.sin(D.yaw),k=1-Math.exp(-dt*3.5);
+    D.v.x+=((fx*f+rx*s)*sp-D.v.x)*k;D.v.z+=((fz*f+rz*s)*sp-D.v.z)*k;D.v.y+=(u*vs-D.v.y)*k;D.p.addScaledVector(D.v,dt);
+    const g2=heightAt(D.p.x,D.p.z,D.p.y+0.5);if(D.p.y<g2+0.7){D.p.y=g2+0.7;if(D.v.y<0)D.v.y=0;}if(D.p.y>480){D.p.y=480;if(D.v.y>0)D.v.y=0;}D.p.x=cl(D.p.x,-3000,3000);D.p.z=cl(D.p.z,-3000,3000);   /* 不鑽到地底下 */
+    camera.position.copy(D.p);camera.rotation.set(D.pitch,D.yaw,0,'YXZ');if(Math.abs(camera.fov-D.fov)>0.01){camera.fov=D.fov;camera.updateProjectionMatrix();}
+    D.hT-=dt;if(D.hT<=0){D.hT=0.3;const dm=Math.round(Math.hypot(D.p.x-player.pos.x,D.p.z-player.pos.y,D.p.y-player.y)),zt=camera.fov<55?`・放大 ${(60/camera.fov).toFixed(1)}×`:'';const t=`🚁 高度 ${Math.round(hA)} m・離你 ${dm} m${zt}`;if(tx.textContent!==t)tx.textContent=t;}};
+  })();
+function toggleAerial(){if(DRONE.on)DRONE.stop();else DRONE.start();}
 // 小地圖可以按 × 關掉（手機預設關閉，選擇會記住）；「地圖」按鈕／M 鍵：關著就打開，開著就切換放大
 let mmOn=!isTouch;try{const v=localStorage.getItem('home-mm');if(v!==null)mmOn=v==='1';}catch(_){}
 function setMinimap(on){mmOn=on;mmWrap.classList.toggle('off',!on);if(!on)mmWrap.classList.remove('big');bM.classList.toggle('on',mmWrap.classList.contains('big'));
@@ -17540,7 +17593,7 @@ document.getElementById('lbl').onchange=e=>{labels.visible=e.target.checked;};
    ['🗺️ 遠一點',[['城堡豪宅','🏰'],['火箭試車場','🚀','火箭'],['雲霧山（山腳）','⛰️','雲霧山腳'],['雲霧山（山頂）','🏔️','雲霧山頂'],['雲霧山滑雪場（尖山頂）','⛷️','滑雪場'],['富士山頂','🗻'],['富士山腳','🚡'],['沙漠金字塔','🏜️'],['沙漠驛站','🐪','沙漠驛站'],['熱氣球','🎈'],['賽車場','🏎️'],['大漩渦','🌀'],['大學','🎓'],['音樂館','🎵']]]];
  const used=new Set(),rest=SPOTS.filter(s=>!GR.some(g=>g[1].some(x=>x[0]===s.name)));if(rest.length)GR[2][1].push(...rest.map(s=>[s.name,'📍']));   /* 新加的地點沒分組：放「遠一點」 */
  GR.forEach((g,gi)=>{const wrap=document.createElement('div');wrap.className='g'+(gi+1);wrap.innerHTML=`<div class="gh">${g[0]}</div>`;const grid=document.createElement('div');grid.className='grid';wrap.appendChild(grid);gotoEl.appendChild(wrap);
- for(const [nm,ic,short] of g[1]){const s=SPOTS.find(q=>q.name===nm);if(!s||used.has(s))continue;used.add(s);const btn=document.createElement('button');btn.innerHTML=`<i>${ic}</i><span>${short||nm}</span>`;btn.title=s.name;btn.onclick=()=>{if(mode==='aerial')toggleAerial();const t=s.bal?BALLOON.spot():s;teleport(t.x,t.z,t.yaw,t.y||0);menu.hidden=true;bMenu.classList.remove('on');};grid.appendChild(btn);}});}
+ for(const [nm,ic,short] of g[1]){const s=SPOTS.find(q=>q.name===nm);if(!s||used.has(s))continue;used.add(s);const btn=document.createElement('button');btn.innerHTML=`<i>${ic}</i><span>${short||nm}</span>`;btn.title=s.name;btn.onclick=()=>{if(DRONE.on)toggleAerial();const t=s.bal?BALLOON.spot():s;teleport(t.x,t.z,t.yaw,t.y||0);menu.hidden=true;bMenu.classList.remove('on');};grid.appendChild(btn);}});}
 function bindComfort(id,valId,fmt,apply){const el=document.getElementById(id),lab=document.getElementById(valId);
   let v=null;try{v=localStorage.getItem('home-'+id);}catch(_){}
   if(v!==null)el.value=v;const upd=()=>{apply(+el.value);lab.textContent=fmt(+el.value);try{localStorage.setItem('home-'+id,el.value);}catch(_){}};el.oninput=upd;upd();}
@@ -17552,6 +17605,7 @@ bindComfort('camd','camdVal',v=>v.toFixed(1)+' m',v=>comfort.camDist=v);
 document.getElementById('kid').onchange=e=>setKid(e.target.checked,true);setKid(kid,false);
 // 滑鼠滾輪：第三人稱拉遠／拉近（第一人稱往外滾就切成第三人稱）
 canvas.addEventListener('wheel',e=>{if(!started||mode!=='walk')return;e.preventDefault();
+  if(DRONE.on){DRONE.zoom(DRONE.fov*Math.exp(e.deltaY*0.0012));return;}   /* 空拍機：滾輪放大縮小 */
   if(view==='first'){if(e.deltaY>0)toggleView();return;}
   const el=document.getElementById('camd');el.value=Math.max(1.5,Math.min(12,comfort.camDist*Math.exp(e.deltaY*0.0012)));el.oninput();},{passive:false});
 const toastEl=document.getElementById('toast');let toastTimer=0;
@@ -19401,7 +19455,7 @@ const GAME=(()=>{
     for(const e of G.fx){if(e.sp)scene.remove(e.sp);if(e.mesh)scene.remove(e.mesh);}G.fx=[];G.act=null;G.queue=null;G.hist=[];}
   // free＝自由破壞模式：沒有殭屍，只是拆東西
   function start(free){if(DECO.sit)DECO.stand(true);if(RS.on)RS.stop();if(DD.on)DD.stop(true);if(KF.on)KF.stop(true);if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();if(MU.on)MU.stop(true);if(CU.on)CU.stop();if(BB.on)BB.stop();if(TN.on)TN.stop();if(EMOTE.on)EMOTE.stop(true);if(BALLOON.riding)BALLOON.reset();if(LIE.on)LIE.stop();if(SKATE.on)SKATE.stop();clearAll();DESTR.reset();Object.assign(G,{on:true,over:false,free:!!free,hp:100,wave:0,kills:0,toSpawn:0,spawnT:0,waveT:1.5,calm:0,combo:0,comboT:0,best:0,stop:0,shake:0,airHits:0});
-    if(mode!=='walk')toggleAerial();if(G.prevView===null)G.prevView=view;view='third';syncViewUI();   // 遊戲中用第三人稱（不存成偏好）
+    if(DRONE.on)toggleAerial();if(G.prevView===null)G.prevView=view;view='third';syncViewUI();   // 遊戲中用第三人稱（不存成偏好）
     teleport(5.26,0.6,Math.PI,0);   // 面向巷子（殭屍從那邊來）
     document.body.classList.add('gaming');document.body.classList.toggle('dk',avatar.morph);{const mb=$('gMorph');if(mb)mb.firstChild.textContent=avatar.morph?'還原':'變身';}hud.hidden=false;skills.hidden=false;overEl.hidden=true;killEl.textContent='擊倒 0';comboEl.textContent='';waveEl.textContent='準備…';menu.hidden=true;bMenu.classList.remove('on');
     if(G.free)waveEl.textContent='自由破壞';
@@ -19892,7 +19946,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       case 'px':PAX.rx(d,f);break;   /* 坐朋友的車 */
       case 'lkR':case 'lkA':case 'lkN':case 'lkS':case 'lkQ':case 'lkF':LINK.rx(d,f);break;   /* 2026-10-27.7 牽手、背、抱 */
       case 'duR':case 'duA':case 'duN':case 'duG':case 'duE':case 'duQ':DUO.rx(d,f);break;
-      case 'siR':case 'siA':case 'siN':case 'siG':case 'siF':SKI.rx(d,f);break;case 'snR':case 'snA':case 'snN':case 'snG':case 'snF':case 'snH':SKI.brx(d,f);break;case 'sbW':case 'sbH':SKI.thrRx(d,f);break;case 'bwR':case 'bwA':case 'bwN':case 'bwS':case 'bwH':case 'bwG':case 'bwC':case 'bwK':SKI.bwRx(d,f);break;case 'gsQ':case 'gsS':SKI.gsRx(d,f);break;case 'gcA':case 'gcM':GCARD.rx(d,f);break;case 'ptI':case 'ptA':case 'ptN':case 'ptS':case 'ptK':case 'ptE':case 'ptQ':PAINT.rx(d,f);break;   /* 2026-10-27.34 雪球大戰、大雪人 */case 'caI':case 'caA':case 'caN':case 'caS':case 'caF':case 'caE':case 'caP':case 'caG':case 'caB':SKI.crx(d,f);break;   /* 2026-10-27.31 一起坐纜車 */   /* 2026-10-27.28 丟雪球 */   /* 2026-10-27.21 滾雪球 */   /* 2026-10-27.18 滑雪比賽 */   /* 2026-10-27.11 兩人小遊戲 */
+      case 'siR':case 'siA':case 'siN':case 'siG':case 'siF':SKI.rx(d,f);break;case 'snR':case 'snA':case 'snN':case 'snG':case 'snF':case 'snH':SKI.brx(d,f);break;case 'sbW':case 'sbH':SKI.thrRx(d,f);break;case 'bwR':case 'bwA':case 'bwN':case 'bwS':case 'bwH':case 'bwG':case 'bwC':case 'bwK':SKI.bwRx(d,f);break;case 'gsQ':case 'gsS':SKI.gsRx(d,f);break;case 'gcA':case 'gcM':case 'gcW':case 'gcR':GCARD.rx(d,f);break;case 'ptI':case 'ptA':case 'ptN':case 'ptS':case 'ptK':case 'ptE':case 'ptQ':PAINT.rx(d,f);break;   /* 2026-10-27.34 雪球大戰、大雪人 */case 'caI':case 'caA':case 'caN':case 'caS':case 'caF':case 'caE':case 'caP':case 'caG':case 'caB':SKI.crx(d,f);break;   /* 2026-10-27.31 一起坐纜車 */   /* 2026-10-27.28 丟雪球 */   /* 2026-10-27.21 滾雪球 */   /* 2026-10-27.18 滑雪比賽 */   /* 2026-10-27.11 兩人小遊戲 */
       case 'puEv':PUSH.netBig(q.name||'有人',d);break;
       case 'fiS':case 'fiA':case 'fiQ':case 'fiN':case 'fiR':case 'fiB':case 'fiE':case 'fiT':FISH.netRx(d,f);break;
       case 'rsS':case 'rsC':case 'rsO':case 'rsE':RS.netRx(d,f);break;
@@ -20006,7 +20060,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
   TN.netSend=send;TN.owd=()=>Math.min(0.25,(N.rtt||120)/2000);
   let tnTag=null;
   // 開始連線遊戲前：原本在做的事、別的遊戲都先關掉（2026-10-16.5：原本拿著籃球接受網球邀請會兩個一起開、在一個人賽車時接受跳舞機會兩個一起跑、空拍中接受會卡住）
-  function prep(keep){P.hidden=true;INV.hidden=true;fxClose();CHP.hidden=true;if(mode==='aerial')toggleAerial();if(CLOSET.isOpen)CLOSET.close();
+  function prep(keep){P.hidden=true;INV.hidden=true;fxClose();CHP.hidden=true;if(DRONE.on)toggleAerial();if(CLOSET.isOpen)CLOSET.close();
     if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();
     if(keep!=='dd'&&DD.on)DD.stop(true);if(keep!=='kf'&&KF.on)KF.stop(true);if(PUSH.on)PUSH.stop();if(FISH.on)FISH.stop();if(RS.on)RS.stop();if(keep!=='tn'&&TN.on)TN.stop();if(RACE.on)RACE.stop();if(SB.on)SB.stop();if(keep!=='cu'&&CU.on)CU.stop(true);if(MU.on)MU.stop(true);if(NM.on)NM.stop();if(RB.on)RB.stop();}
   function tnGo(server){prep('tn');TN.startNet(server,N.rname||'對手');
@@ -21137,7 +21191,7 @@ const CG=(()=>{const G={on:false,m:null,ids:[],net:false};
   function spawnOf(m,ids){const i=Math.max(0,ids.indexOf(me()));if(m==='statue')return [294.2+i*2.5,LINE_Z];return SPAWN[i%SPAWN.length];}
   function begin(d){SK.rage=0;SK.dashT=SK.dodgeT=0;SK.cd=[0,0];RADT.clear();smokeOff();G.on=true;G.m=d.m;G.ids=d.ids;G.net=NET.on&&d.ids.length>1;G.items=d.items;G.best=d.best;S={ph:'count',ids:d.ids,it:d.it,fr:[],fd:[],out:[],hold:d.m==='hide'?d.it:d.ids,tk:[],pts:{},hp:{},esc:[]};endAt=performance.now()+d.cnt*1000;
     PANEL.hidden=RES.hidden=true;const np=$c('netPanel');if(np)np.hidden=true;if(DECO.sit)DECO.stand(true);
-    if(mode==='aerial')toggleAerial();if(RIDE.on)RIDE.stop(true);const sp=spawnOf(d.m,d.ids);teleport(sp[0],sp[1],0,0);
+    if(DRONE.on)toggleAerial();if(RIDE.on)RIDE.stop(true);const sp=spawnOf(d.m,d.ids);teleport(sp[0],sp[1],0,0);
     vis=false;if(G.net&&!NET.host){if(!(DECO.view&&DECO.view.f==='0')){vis=true;setTimeout(()=>{if(G.on)DECO.visit('0');},60);}}else if(DECO.view)DECO.backHome('🏰 城堡遊戲：用你自己的城堡擺設');   /* 大家看開房間的人的城堡 */
     const M=MODES[d.m],seek=d.it.includes(me());AUDIO.sfx('go');
     if(d.m==='statue')guardOn();if(d.m==='lava')lavaOn();if(d.m==='treasure'||d.m==='ghost')itemsOn(d.items);if(d.m==='ghost')ghostOn();
@@ -21267,7 +21321,7 @@ const CG=(()=>{const G={on:false,m:null,ids:[],net:false};
         if(land){BTN.style.top=(b?Math.round(b.top):56)+'px';BTN.style.right=b?Math.round(innerWidth-b.left+6)+'px':'';}   /* 2026-10-25.14 手機橫拿：放聊天下面會壓到「跳」→ 改放聊天左邊同一排（沒連線就放上面那排按鈕下面） */
         else{BTN.style.right='';BTN.style.top=(b?Math.round(b.bottom+8):(isTouch?132:170))+'px';}}}}
     if(!G.on)return;if(G.net&&!NET.on){cleanup('連線中斷，城堡遊戲結束了');return;}
-    if(RIDE.on)RIDE.stop(true);if(mode==='aerial')toggleAerial();
+    if(RIDE.on)RIDE.stop(true);if(DRONE.on)toggleAerial();
     if(mode==='walk'&&!inArea(player.pos.x,player.pos.y)&&!(G.m==='ghost'&&S.esc.includes(me()))){G.outT=(G.outT||0)+dt;if(G.outT>0.4){G.outT=0;const sp=SPAWN[Math.floor(Math.random()*SPAWN.length)];teleport(sp[0],sp[1],0,0);toast('🏰 只能在城堡裡面玩');}}else G.outT=0;   /* 跑出城堡（或按了「前往」）＝拉回大廳 */
     hudT-=dt;hud(false);const i=me(),now=performance.now(),left=(endAt-now)/1000,T=now/1000;
     if(bigT>0){bigT-=dt;if(bigT<=0)BIG.hidden=true;}
@@ -21292,9 +21346,10 @@ function step(dt){
   if(mode==='walk'){
     let f=0,s=0;
     if(keys.KeyW||keys.ArrowUp)f+=1;if(keys.KeyS||keys.ArrowDown)f-=1;if(keys.KeyD)s+=1;if(keys.KeyA)s-=1;
-    const turn=((keys.ArrowLeft||keys.KeyQ)?1:0)-((keys.ArrowRight||keys.KeyE)?1:0);player.yaw+=turn*1.8*comfort.sens*dt;
+    const turn=DRONE.on?0:((keys.ArrowLeft||keys.KeyQ)?1:0)-((keys.ArrowRight||keys.KeyE)?1:0);player.yaw+=turn*1.8*comfort.sens*dt;
     let running=keys.ShiftLeft||keys.ShiftRight;
     if(joy.id!==null){f+=-joy.y;s+=joy.x;if(Math.hypot(joy.x,joy.y)>0.92)running=true;}
+    if(DRONE.on){f=0;s=0;running=false;}   /* 空拍機：搖桿、WASD 給空拍機（人不動、車子不開） */
     if(BB.lock()){f=0;s=0;running=false;}   // 投籃、灌籃中不能走
     if(EMOTE.on&&EMOTE.step(dt,f,s)){f=0;s=0;}
     if(RS.seat||FJW.scope){f=0;s=0;}if(PAX.on){f=0;s=0;running=false;}if(CG.lock()){f=0;s=0;running=false;}if(SKI.hitT>0){f=0;s=0;running=false;}if(CG.on&&CG.m==='statue')running=false;   /* 城堡遊戲：被冰住、數數中；木頭人只能用走的（大廳 18 m，用跑的一次口令就到了） */   /* 坐朋友的車：不能走 */   // 在小餐館坐著等菜：不能走   // 做動作中：推搖桿就停
@@ -21356,8 +21411,10 @@ function step(dt){
     else if(SKI.ballCam()){avatar.root.visible=true;updateAvatar(dt,stage);SKI.camBall(dt);}   /* 2026-10-27.21 鏡頭跟著雪球 */
     else if(PAINT.on&&PAINT.camOn()&&view==='third'){avatar.root.visible=true;updateAvatar(dt,stage);PAINT.cam(dt);}   /* 2026-10-27.43 潑漆：右肩後面的鏡頭、準星；時間到從天上看 */
     else if(view==='third'){avatar.root.visible=true;updateAvatar(dt,stage);camDt=dt;thirdPersonCamera();}
+    else if(DRONE.on){avatar.root.visible=true;updateAvatar(dt,stage);}
     else{avatar.root.visible=false;if(BB.on||SHOP.inside()||NET.on)updateAvatar(dt,stage);   /* 連線中：第一人稱也要算走路動作，對方才看得到你在走 */   /* 第一人稱拿著球：人物藏起來，但球照樣跟著手 */
       camera.position.set(player.pos.x,player.y+bodyH().eye,player.pos.y);camera.rotation.set(player.pitch,player.yaw,0,'YXZ');if(LIE.on)LIE.cam();}
+    if(DRONE.on){avatar.root.visible=true;DRONE.step(dt);}   /* 空拍機：前面算好的鏡頭（纜車、車子…）最後換成空拍機的 */
   }else{orbit.update();if(BB.fly)BB.flyStep(dt);else if(!BALLOON.riding&&!LIE.on&&!SKATE.on&&!player.climb)playerFall(dt);avatar.root.visible=true;updateAvatar(dt,0);}   // 空拍：人物站在原地（上下照算：放如來神掌也飛得起來）
   // 衣櫃門約 0.5 秒打開到 100°、抽屜拉出 35 cm
   for(const u of CABS)if(u.t!==u.target){const v=dt*2.2;u.t=Math.abs(u.target-u.t)<=v?u.target:u.t+Math.sign(u.target-u.t)*v;const e=u.t*u.t*(3-2*u.t);
@@ -21418,7 +21475,7 @@ function loop(){
   if(started){try{step(dt*BB.rt(dt)*TN.rt(dt)*RACE.rt(dt)*RB.rt(dt)*SB.rt(dt)*KF.rt(dt));}catch(e){if(!loopErr){loopErr=true;console.error(e);}}}   // 灌籃、遠投進球前有慢動作；這一格出錯也照樣畫畫面（不會整個卡住）
   if(labels.visible){const pf=floorOf(player.y);for(const s of labels.children){const d=camera.position.distanceTo(s.position);let o;
     if(s.userData.room)o=mode==='walk'&&s.userData.floor===pf&&indoors()?THREE.MathUtils.smoothstep(d,1.0,2.0)*(1-THREE.MathUtils.smoothstep(d,5,7.5)):0;
-    else o=(mode==='aerial'||s.userData.always)?1:THREE.MathUtils.smoothstep(d,8,18);
+    else o=(DRONE.on||s.userData.always)?1:THREE.MathUtils.smoothstep(d,8,18);
     s.material.opacity=o;s.visible=o>0.01;}}
   dcull(dt);
   sky.position.copy(camera.position);   /* 2026-10-27.30 天空跟著鏡頭（富士山頂離地圖中心 2.5 km，原本跑到天空外面一片黑） */
@@ -21486,7 +21543,7 @@ const XC=(()=>{
   setInterval(scan,500);scan();
   {const m=document.getElementById('mmClose');if(m){look(m);m.style.removeProperty('display');m.style.setProperty('line-height','33px','important');m.style.setProperty('text-align','center','important');m.style.setProperty('top','6px','important');m.style.setProperty('right','6px','important');m.textContent='✕';}}   /* 電腦的大地圖：自己的關閉鈕換成一樣的樣子（顯示／藏起來照原本：小地圖時不出現） */
   return {scan,close};})();
-window.__dbg={DESERT,PAINT,GCARD,FJ,FJW,CVS,XC,CG,LINK,DUO,SKI,CREL,EVICT,ULM,sun,PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
+window.__dbg={DRONE,DESERT,PAINT,GCARD,FJ,FJW,CVS,XC,CG,LINK,DUO,SKI,CREL,EVICT,ULM,sun,PAX,mkCar,NB_CARS,THREE,MOUNT,RIDE,CASTLE,DOORS,roomAt,DECO,AMUS,NET,KF,PUSH,FISH,RS,dcull,DCULL,GATES,DD,MU,CU,CAMPUS,SB,RB,NM,SKMOD,scene,camera,player,teleport,setTime,toggleAerial,renderer,orbit,step,SPOTS,heightAt,surfaces,GAME,REGIONS,colliders,CABS,currentAct,syncActBtn,avatar,SKATE,BB,HOOPS,toggleAct,EMOTE,TRAMP,vios,THUMB,SHOP,CLOSET,TN,AUDIO,RACE,charCfg:()=>charCfg};
 </script>
 </body>
 </html>
