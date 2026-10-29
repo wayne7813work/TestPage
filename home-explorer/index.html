@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-29.2"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-29.3"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1082,6 +1082,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 const V2 = THREE.Vector2, V3 = THREE.Vector3;
 var DRONE={on:false};   /* 2026-10-28.15 空拍機（在「輸入」那段做） */
+var GOTO_GR=null;   /* 2026-10-29.3 「前往」的分組（我家／附近／遠一點＋圖示）：卡片書同行也照這個分 */
 const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
 if (isTouch) document.body.classList.add('touch');
 
@@ -15107,15 +15108,18 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
     #gcBook .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}#gcBook .cd{border-radius:12px;padding:10px 8px;background:linear-gradient(180deg,#2a3b8f,#120d3a);border:3px solid #f2c94c;text-align:center;box-shadow:0 0 14px rgba(242,201,76,.35);display:flex;flex-direction:column;align-items:center;gap:4px}
     #gcBook .cd .rk{align-self:flex-start;font-size:12px;font-weight:900;color:#f2c94c}#gcBook .cd .ic{font-size:46px;line-height:1.1}#gcBook .cd .nm{font-size:22px;font-weight:900;color:#ffe9a0}#gcBook .cd .tx{font-size:12px;opacity:.92;line-height:1.5;min-height:54px}
     #gcBook button.use{width:100%;font-size:16px;font-weight:900;padding:9px 6px;border-radius:10px;border:0;background:linear-gradient(180deg,#ffe08a,#e8a020);color:#3a2300}#gcBook button.use:disabled{background:#555;color:#ccc}
-    #gcBook .lst{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}#gcBook .lst button{font-size:14px;font-weight:800;padding:9px 6px;border-radius:10px;border:1px solid #c9a24a;background:#2a3b8f;color:#fff}
+    #gcBook .lst{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}#gcBook .gh{font-size:14px;font-weight:900;color:#ffd98a;margin:2px 0 -4px}#gcBook .lst.dg{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}#gcBook .lst.dg button{font-size:13px;padding:6px 3px;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.25}#gcBook .lst.dg button i{font-style:normal;font-size:21px}#gcBook .lst.g1 button{background:#2f7a52}#gcBook .lst.g3 button{background:#8a4a24}#gcBook .lst button{font-size:14px;font-weight:800;padding:9px 6px;border-radius:10px;border:1px solid #c9a24a;background:#2a3b8f;color:#fff}
     #gcBook .note{font-size:13px;opacity:.9;line-height:1.6}`;document.head.appendChild(st);}
   for(const ev of ['pointerdown','touchstart','keydown','wheel'])BK.addEventListener(ev,e=>e.stopPropagation());
   const IN=new Set(['1F 客廳','1F 廚房','2F','3F','隔壁新家（擺傢俱）','後陽台','西側通道','熱氣球']);   /* 室內、窄的地方不能從天上降落 */
   const dests=()=>SPOTS.filter(s=>!s.bal&&!IN.has(s.name)&&isFinite(s.x));
+  // 2026-10-29.3 使用者：「同行的選單沒有分類，好難選」→ 照「前往」的三組（🏠 我家、🏘️ 附近、🗺️ 遠一點）分開，每個地點有圖示、短名字；沒分組的放「📍 其他」
+  function destH(){const L=dests(),used=new Set();let h='';(GOTO_GR||[]).forEach(([gn,items],gi)=>{const bs=[];for(const [nm,ic,short] of items){const i=L.findIndex(s=>s.name===nm);if(i<0||used.has(i))continue;used.add(i);bs.push(`<button data-d="${i}"><i>${ic}</i>${esc(short||nm)}</button>`);}if(bs.length)h+=`<div class="gh">${gn}</div><div class="lst dg g${gi+1}">${bs.join('')}</div>`;});
+    const rest=L.map((s,i)=>used.has(i)?'':`<button data-d="${i}"><i>📍</i>${esc(s.name)}</button>`).join('');if(rest)h+=`<div class="gh">📍 其他</div><div class="lst dg">${rest}</div>`;return h;}
   function nearFriends(){if(!NET.on)return [];const out=[];for(const [id,q] of NET.P){const a=q&&q.s&&q.s.a;if(!a||q.s.ca)continue;if(Math.hypot(a[0]-player.pos.x,a[2]-player.pos.y)<=20&&Math.abs(a[1]-player.y)<12)out.push(String(id));}return out;}
   const DDV=[],dd=t=>{DDV.push(String(t));return `<span class="dd">${t}</span>`;};let lastH='';   /* 2026-10-28.4 使用者：「有時候按同行都沒反應」→ 以前拿 BK.innerHTML 比（瀏覽器會改寫 style、空白，永遠不一樣）＝每 0.4 秒整個面板重畫、按到一半按鈕被換掉；改成跟上次的字串比，距離這種一直變的字只改文字 */
   function draw(){bkT=performance.now()+400;DDV.length=0;let h=`<div class="hd">📖 卡片書<button data-x="1">✕</button></div>`;
-    if(bkV==='acc'){const nf=nearFriends();h+=`<div class="note">🌠 <b>同行</b>：選要飛去哪裡${dd(nf.length?`（身邊的 ${nf.map(pn).map(esc).join('、')} 會一起飛）`:'（身邊 20 m 內的朋友會一起飛）')}</div>${(()=>{const L=farFriends();return L.length?`<div class="note">👥 飛到朋友旁邊：</div><div class="lst">${L.map(([id,q])=>`<button data-p="${esc(id)}" style="background:#7a3fa0">👤 ${esc(q.name||pn(id))}<br><small>${dd(`${Math.round(Math.hypot(q.s.a[0]-player.pos.x,q.s.a[2]-player.pos.y))} m${q.s.ca?'・坐纜車中':''}`)}</small></button>`).join('')}</div><div class="note">📍 飛到地點：</div>`:'';})()}<div class="lst">${dests().map((s,i)=>`<button data-d="${i}">${esc(s.name)}</button>`).join('')}</div><button class="use" data-b="1" style="background:#5a4024;color:#fff">← 回卡片書</button>`;}
+    if(bkV==='acc'){const nf=nearFriends();h+=`<div class="note">🌠 <b>同行</b>：選要飛去哪裡${dd(nf.length?`（身邊的 ${nf.map(pn).map(esc).join('、')} 會一起飛）`:'（身邊 20 m 內的朋友會一起飛）')}</div>${(()=>{const L=farFriends();return L.length?`<div class="note">👥 飛到朋友旁邊：</div><div class="lst">${L.map(([id,q])=>`<button data-p="${esc(id)}" style="background:#7a3fa0">👤 ${esc(q.name||pn(id))}<br><small>${dd(`${Math.round(Math.hypot(q.s.a[0]-player.pos.x,q.s.a[2]-player.pos.y))} m${q.s.ca?'・坐纜車中':''}`)}</small></button>`).join('')}</div><div class="note">📍 飛到地點：</div>`:'';})()}${destH()}<button class="use" data-b="1" style="background:#5a4024;color:#fff">← 回卡片書</button>`;}
     else if(bkV==='mag'){const L=NET.on?[...NET.P.entries()].filter(([,q])=>q&&q.s&&q.s.a):[];h+=`<div class="note">🧲 <b>磁力</b>：選要飛去找哪個朋友</div>${L.length?`<div class="lst">${L.map(([id,q])=>`<button data-f="${esc(id)}">${esc(q.name||pn(id))}<br><small>${dd(`${Math.round(Math.hypot(q.s.a[0]-player.pos.x,q.s.a[2]-player.pos.y))} m${q.s.ca?'・坐纜車中':''}`)}</small></button>`).join('')}</div>`:'<div class="note">先「👥 連線」跟朋友連在一起，才能用磁力飛過去找他。</div>'}<button class="use" data-b="1" style="background:#5a4024;color:#fff">← 回卡片書</button>`;}
     else h+=`<div class="cards">${['acc','mag'].map(k=>{const C=CARDS[k],c=G.cd[k];return `<div class="cd"><div class="rk">${C.r}</div><div class="ic">${C.ic}</div><div class="nm">${C.n}</div><div class="tx">${C.tx}</div><button class="use" data-u="${k}" ${c>0?'disabled':''}>${c>0?`冷卻中 ${Math.ceil(c)} 秒`:'使用！'}</button></div>`;}).join('')}</div><div class="note">卡片不會用完，落地後馬上可以再用。電腦按 B 打開。</div>`;
     const hs=h.replace(/<span class="dd">[^<]*<\/span>/g,'');if(hs!==lastH){lastH=hs;BK.innerHTML=h;}else BK.querySelectorAll('span.dd').forEach((e,i)=>{const v=DDV[i];if(v!=null&&e.dataset.v!==v){e.dataset.v=v;e.innerHTML=v;}});}
@@ -17601,7 +17605,7 @@ document.getElementById('lbl').onchange=e=>{labels.visible=e.target.checked;};
  const GR=[['🏠 我家',[['我家門口','🚪'],['1F 客廳','🛋️'],['1F 廚房','🍳'],['2F','🛏️'],['3F','🛏️'],['4F 露台','🪴'],['頂樓','🔝'],['後陽台','🧺'],['西側通道','🚶'],['超級彈跳床','🤸','彈跳床'],['隔壁新家（擺傢俱）','🛠️','隔壁新家']]],
    ['🏘️ 附近',[['巷口','🛣️'],['便利商店','🏪'],['跳舞機','🕺'],['大圓環','⭕'],['運動場','🏃'],['直排輪架','🛼','直排輪'],['籃球場','🏀'],['小餐館','🍜'],['服裝店','👗'],['網球場','🎾'],['夜市','🏮'],['跳台公園','🛹'],['機器人擂台','🤖','機器人']]],
    ['🗺️ 遠一點',[['城堡豪宅','🏰'],['火箭試車場','🚀','火箭'],['雲霧山（山腳）','⛰️','雲霧山腳'],['雲霧山（山頂）','🏔️','雲霧山頂'],['雲霧山滑雪場（尖山頂）','⛷️','滑雪場'],['富士山頂','🗻'],['富士山腳','🚡'],['沙漠金字塔','🏜️'],['沙漠驛站','🐪','沙漠驛站'],['熱氣球','🎈'],['賽車場','🏎️'],['大漩渦','🌀'],['大學','🎓'],['音樂館','🎵']]]];
- const used=new Set(),rest=SPOTS.filter(s=>!GR.some(g=>g[1].some(x=>x[0]===s.name)));if(rest.length)GR[2][1].push(...rest.map(s=>[s.name,'📍']));   /* 新加的地點沒分組：放「遠一點」 */
+ const used=new Set(),rest=SPOTS.filter(s=>!GR.some(g=>g[1].some(x=>x[0]===s.name)));if(rest.length)GR[2][1].push(...rest.map(s=>[s.name,'📍']));   /* 新加的地點沒分組：放「遠一點」 */GOTO_GR=GR;
  GR.forEach((g,gi)=>{const wrap=document.createElement('div');wrap.className='g'+(gi+1);wrap.innerHTML=`<div class="gh">${g[0]}</div>`;const grid=document.createElement('div');grid.className='grid';wrap.appendChild(grid);gotoEl.appendChild(wrap);
  for(const [nm,ic,short] of g[1]){const s=SPOTS.find(q=>q.name===nm);if(!s||used.has(s))continue;used.add(s);const btn=document.createElement('button');btn.innerHTML=`<i>${ic}</i><span>${short||nm}</span>`;btn.title=s.name;btn.onclick=()=>{if(DRONE.on)toggleAerial();const t=s.bal?BALLOON.spot():s;teleport(t.x,t.z,t.yaw,t.y||0);menu.hidden=true;bMenu.classList.remove('on');};grid.appendChild(btn);}});}
 function bindComfort(id,valId,fmt,apply){const el=document.getElementById(id),lab=document.getElementById(valId);
