@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>我家漫遊</title>
-<meta name="app-version" content="2026-10-29.3"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
+<meta name="app-version" content="2026-10-30.5"><!-- 每次改這個檔案都要把版本號加一：網頁會自動檢查新版 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2959,7 +2959,7 @@ const RIDE=(()=>{
   R.doTrick=()=>{if(!R.on||R.tr)return;const k=R.k,sp=Math.abs(R.v);let t=null;
     if(R.ground){if(k==='twist')t={k:'twirl',dur:1.2};else if(CK(k))t=sp>7?{k:'twowheel',dur:2.4}:{k:'donut',dur:2.4,dir:R.steer<-0.1?1:-1};else{if(sp<2){tip('騎快一點才能翹孤輪');return;}t={k:'wheelie',dur:2.2};}}
     else{const tl=landT();if(tl<0.28){tip('太低了，來不及');return;}const opts=k==='bike'?['spin','flip']:k==='scooter'?['flip','superman']:CK(k)?['roll','flip']:['spin'];t={k:opts[R.alt++%opts.length],dur:Math.min(1.3,tl*0.9),air:true};}
-    t.t=0;R.tr=t;AUDIO.sfx('whoosh');};
+    t.t=0;R.tr=t;AUDIO.sfx('spin');};
   const sm=u=>u*u*(3-2*u),angD=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
   function endTrick(ok){const q=R.tr;R.tr=null;R.fx.flip=R.fx.spin=R.fx.roll=R.fx.wh=R.fx.sup=0;if(!q)return;if(ok){award(q.k);if(q.k==='lpflip'){EARN(30,'倒吊彎道');R.lpN=(R.lpN|0)+1;}}else{R.v*=0.25;R.wob=0.6;tip('摔車了！再試一次');AUDIO.sfx('thud');}}
   // ---------- 每一格：開車 ----------
@@ -3030,23 +3030,23 @@ const RIDE=(()=>{
 // 冷氣瓶 R.gas（0～1）：在地上沒噴的時候慢慢補滿。跳躍一次 12%（約 4.2 m 高）、往下掉時按住＝懸停每秒 22%（約 4.5 秒）；飛行模式每秒 0.8%（約 2 分鐘），沒氣了就慢慢滑翔降落（不會摔）。
   R.gas=1;R.lch=null;R.fly=false;R.glide=false;R.upP=false;R.thr=false;R.fdn=0;R.fbk=0;R.dnBtn=false;R.best06=0;try{R.best06=+localStorage.getItem('home-rk06')||0;}catch(_){}
   R.launch=()=>{if(!R.on||R.k!=='rocket')return;if(!R.ground||R.fly){tip('要在地上才能彈射');return;}if(R.lch)return;if(Math.abs(R.v)>1.5){tip('先停下來，才能彈射起步');return;}R.lch={st:'cd',t:0,n:4};AUDIO.sfx('click');};
-  R.toggleFly=()=>{if(!R.on||R.k!=='rocket')return;if(R.fly){R.fly=false;R.glide=!R.ground;tip(R.ground?'飛行模式關了':'關掉飛行：慢慢降落');return;}if(R.gas<0.15){tip('冷氣瓶快空了，先在地上補氣');return;}R.fly=true;R.glide=false;R.lch=null;if(R.ground){R.ground=false;R.vy=5;}tip('🛫 飛行模式',true);AUDIO.sfx('whoosh');
+  R.toggleFly=()=>{if(!R.on||R.k!=='rocket')return;if(R.fly){R.fly=false;R.glide=!R.ground;tip(R.ground?'飛行模式關了':'關掉飛行：慢慢降落');return;}if(R.gas<0.15){tip('冷氣瓶快空了，先在地上補氣');return;}R.fly=true;R.glide=false;R.lch=null;if(R.ground){R.ground=false;R.vy=5;}tip('🛫 飛行模式',true);AUDIO.sfx('flyup');
     if(!R.toldF){R.toldF=true;toast('🛫 「跳」往上、「下降」往下；穿過黃色圈圈＝飛行計時賽');}};
   function rocketStep(dt,f,t0){const up=!DRONE.on&&!!(keys.Space||jumpHeld),dn=!DRONE.on&&!!(keys.KeyC||R.dnBtn);   /* 2026-10-29.1 空拍中空白鍵／C 是空拍機上下：火箭跑車不要跟著噴射 */let fdn=0,fbk=0;R.thr=false;
     {const kl=!!keys.KeyL;if(kl&&!R.kl)R.launch();R.kl=kl;const kg=!!keys.KeyG;if(kg&&!R.kg)R.toggleFly();R.kg=kg;}
-    if(R.lch){const L=R.lch;L.t+=dt;if(L.st==='cd'){R.v=0;const n=3-Math.floor(L.t);if(n!==L.n&&n>0){L.n=n;tip(String(n),true);AUDIO.sfx('beep');}fbk=0.15;if(L.t>=3){L.st='go';L.t=0;tip('🚀 彈射！',true);AUDIO.sfx('takeoff');AUDIO.sfx('whoosh');}}
+    if(R.lch){const L=R.lch;L.t+=dt;if(L.st==='cd'){R.v=0;const n=3-Math.floor(L.t);if(n!==L.n&&n>0){L.n=n;tip(String(n),true);AUDIO.sfx('beep');}fbk=0.15;if(L.t>=3){L.st='go';L.t=0;tip('🚀 彈射！',true);AUDIO.sfx('takeoff');AUDIO.sfx('flyup');}}
       else{R.v=Math.min(t0.vmax*1.1,R.v+34*dt);fbk=1;if(!L.rec&&R.v>=27.8){L.rec=L.t;const s=L.rec.toFixed(2);const nb=!R.best06||L.rec<R.best06;if(nb){R.best06=L.rec;try{localStorage.setItem('home-rk06',String(L.rec));}catch(_){}}tip(`0～100 km/h：${s} 秒${nb?'（新紀錄！）':''}`,true);}if(L.t>1.8||!R.ground)R.lch=null;}}
     if(R.fly){if(R.gas<=0){R.fly=false;R.glide=true;tip('冷氣瓶用完了：慢慢滑翔降落');AUDIO.sfx('beep');}
       else{R.gas=Math.max(0,R.gas-dt/125);if(R.ground){if(up){R.ground=false;R.vy=5;}}else{const tv=up?8:dn?-8:0;R.vy+=(tv-R.vy)*Math.min(1,dt*2.2)+G0*dt;R.thr=true;fdn=up?1:dn?0.25:0.55;
         if(f>0.05){R.v=Math.min(t0.vmax*0.9,R.v+8*f*dt);fbk=0.4+0.6*f;}else if(f<-0.05)R.v=Math.max(-6,R.v-10*(-f)*dt);else R.v-=Math.sign(R.v)*Math.min(Math.abs(R.v),1.5*dt);}}}
     else if(R.glide){if(R.ground)R.glide=false;else{R.vy+=(-4-R.vy)*Math.min(1,dt*2)+G0*dt;fdn=0.2;R.thr=true;}}
-    else if(!R.lch){if(up&&!R.upP&&R.ground&&R.gas>0.12){R.vy=13;R.ground=false;R.gvy=0;R.gas-=0.12;AUDIO.sfx('whoosh');fdn=1;R.thr=true;}   // 噴射跳躍：大約 3.6 m 高
+    else if(!R.lch){if(up&&!R.upP&&R.ground&&R.gas>0.12){R.vy=13;R.ground=false;R.gvy=0;R.gas-=0.12;AUDIO.sfx('flyup');fdn=1;R.thr=true;}   // 噴射跳躍：大約 3.6 m 高
       else if(up&&!R.ground&&R.gas>0&&R.vy<=0.5){R.gas=Math.max(0,R.gas-0.22*dt);R.vy+=(G0+(0-R.vy)*3)*dt;R.thr=true;fdn=0.8;if(f>0.05){R.v=Math.min(t0.vmax,R.v+5*f*dt);fbk=0.6;}}}   // 按住＝懸停（往上衝的時候照常往上，掉下來時拉住）
     if(R.ground&&!up&&!R.fly)R.gas=Math.min(1,R.gas+0.35*dt);
     if(R.y>160&&R.vy>0)R.vy=0;   // 最高 160 m
     // 第三階段：飛行計時賽（穿過第 1 個圈圈開始計時，依序穿過全部；3 分鐘沒飛完就取消）
     if(RKP&&RKP.RG){const RG=RKP.RG,N=RG.length,nx=R.fr?R.fr.i:0,q=RG[nx],d=Math.hypot(R.x-q.x,R.y+0.6-q.y,R.z-q.z);
-      if(d<5.6){if(!R.fr){R.fr={i:1,t:0};tip(`🏁 飛行計時賽開始！穿過 ${N} 個圈圈`,true);AUDIO.sfx('go');}else{R.fr.i++;AUDIO.sfx('chime');if(R.fr.i>=N){const t=R.fr.t,b=+(localStorage.getItem('home-rkfly')||0),nb=!b||t<b;if(nb)try{localStorage.setItem('home-rkfly',String(t));}catch(_){}
+      if(d<5.6){if(!R.fr){R.fr={i:1,t:0};tip(`🏁 飛行計時賽開始！穿過 ${N} 個圈圈`,true);AUDIO.sfx('go');}else{R.fr.i++;AUDIO.sfx('ding');if(R.fr.i>=N){const t=R.fr.t,b=+(localStorage.getItem('home-rkfly')||0),nb=!b||t<b;if(nb)try{localStorage.setItem('home-rkfly',String(t));}catch(_){}
           tip(`🏆 飛完了！${t.toFixed(1)} 秒${nb?'（新紀錄！）':`（最快 ${b.toFixed(1)} 秒）`}`,true);AUDIO.sfx('bigcheer');EARN(nb?100:60,'飛行計時賽');R.score+=2000;saveBest();R.fr=null;}else tip(`第 ${R.fr.i}／${N} 個 ✔`);}}
       if(R.fr){R.fr.t+=dt;if(R.fr.t>180){R.fr=null;tip('飛太久了，計時賽取消（再穿過第 1 個圈圈重來）');}}
       const ni=R.fr?R.fr.i:0;if(R.rgI!==ni){R.rgI=ni;RKP.rings(true,ni);}const tq=RG[ni];RKP.arrow(R.fly||!!R.fr,R.x,R.y+3.6,R.z,tq.x,tq.y,tq.z);}
@@ -3056,7 +3056,7 @@ const RIDE=(()=>{
   function loopStart(){const LP=RKP.LP;R.lp={th:0,v0:Math.max(R.v,9),v:Math.max(R.v,9)};R.lch=null;R.tr=null;R.drifting=false;R.lpCam=99;R.camSlow=0;tip('🌀 吸地風扇啟動！',true);AUDIO.sfx('whoosh');}
   function loopStep(dt,t0){const LP=RKP.LP,L=R.lp,o=R.obj;L.th+=L.v*dt/LP.r;const hgt=LP.r*(1-Math.cos(Math.min(L.th,Math.PI)));L.v=Math.max(9,Math.sqrt(Math.max(0,L.v0*L.v0-2*9.8*0.45*hgt)));
     if(L.th>=Math.PI){R.lp=null;R.h+=Math.PI;R.vh=R.h;R.pitch=0;R.x=LP.cx;R.y=2*LP.r;R.v=L.v;R.vy=1.5;R.ground=false;R.gvy=0;R.lpCam=1.6;R.camSlow=2.5;   /* 離開彎道：倒著往西飛，空中翻正 */
-      const tl=landT();R.tr={k:'lpflip',dur:Math.max(0.5,tl*0.9),air:true,t:0};tip('🙃 倒過來了！',true);AUDIO.sfx('whoosh');return;}
+      const tl=landT();R.tr={k:'lpflip',dur:Math.max(0.5,tl*0.9),air:true,t:0};tip('🙃 倒過來了！',true);AUDIO.sfx('spin');return;}
     R.x=LP.cx+LP.r*Math.sin(L.th);R.y=hgt;R.z+=(LP.zc-R.z)*Math.min(1,dt*3);R.v=L.v;R.pitch=L.th;R.fdn=0;R.fbk+=(0.5-R.fbk)*Math.min(1,dt*8);
     player.pos.set(R.x,R.z);player.y=R.y;player.vy=0;player.ground=false;player.vel.set(R.v,0);player.yaw=R.h;
     o.position.set(R.x,R.y+0.03,R.z);o.rotation.set(R.lean,R.h+Math.PI/2,R.pitch);for(const w of R.wh)w.rotation.z-=R.v*dt/0.3;rocketFlame(o,0,R.fbk);
@@ -5095,7 +5095,7 @@ const BALLOON=(()=>{const HOME=new V2(2,27.5),g=new THREE.Group();scene.add(g);
     B.pos.x=Math.max(-320,Math.min(360,B.pos.x));B.pos.y=Math.max(-320,Math.min(320,B.pos.y));
     // 垂直：噴火往上升（最快 3 m/s），不噴火慢慢下降；降落中 2 m/s 往下
     B.burn=Math.max(0,B.burn-dt);const target=B.landing?-2.0:B.burn>0?3.0:-0.5;B.vy+=(target-B.vy)*(1-Math.exp(-dt*(B.burn>0?1.4:0.7)));
-    B.y=Math.min(150,B.y+B.vy*dt);const gy=ground();if(B.y<=gy){B.y=gy;if(B.vy<0)B.vy=0;if(B.landing){B.landing=false;AUDIO.sfx('thud');}}
+    B.y=Math.min(150,B.y+B.vy*dt);const gy=ground();if(B.y<=gy){B.y=gy;if(B.vy<0)B.vy=0;if(B.landing){B.landing=false;AUDIO.sfx('softland');}}
     const air=B.y>gy+0.05;g.rotation.z=air?Math.sin(B.t*0.6)*0.025:0;g.rotation.x=air?Math.sin(B.t*0.45)*0.02:0;
     flame.visible=B.burn>0;if(flame.visible)flame.scale.setScalar(0.9+Math.random()*0.7);envMat.emissiveIntensity+=((B.burn>0?0.35:0)-envMat.emissiveIntensity)*Math.min(1,dt*6);
     place();player.pos.copy(B.pos);player.y=B.y+0.12;player.vy=0;player.ground=true;player.vel.set(0,0);player.climb=false;
@@ -5121,7 +5121,7 @@ const LIE=(()=>{const L={on:false,bed:null,z:0,roll:0,half:0};
     const p=fall?new V2(Math.min(b.x1-0.4,Math.max(b.x0+0.6,b.x0+0.9)),side>0?b.z1+0.4:b.z0-0.4):new V2(b.x1+0.45,L.z);
     resolve(p,0.3,b.floor);player.pos.copy(p);player.y=b.floor;player.vy=0;player.ground=true;player.yaw=fall?(side>0?Math.PI:0):-Math.PI/2;player.pitch=-0.05;
     avatar.root.rotation.set(0,player.yaw+Math.PI,0);avatar.body.rotation.y=0;
-    if(fall){AUDIO.sfx('thud');toast('滾下床了！');}else AUDIO.sfx('swish');};
+    if(fall){AUDIO.sfx('tumble');toast('滾下床了！');}else AUDIO.sfx('swish');};
   L.step=(dt,f,s)=>{const b=L.bed,sc=bodyH().scale;
     // 往畫面右邊滾：第一人稱（看天花板、頭朝上）畫面右邊是南（+z）；第三人稱照鏡頭方向
     const rz=-Math.sin(player.yaw),fz=-Math.cos(player.yaw),vz=(view==='first'?s:(fz*f+rz*s))*1.4;
@@ -5171,9 +5171,9 @@ const SKATE=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,back:false,ground:tru
     else{S.setJet(0);toast('推進器關閉');}};
   S.toggleBack=()=>{if(S.fallT>0)return;S.back=!S.back;btns.querySelector('[data-k=back]').classList.toggle('on',S.back);big(S.back?'倒溜！':'轉回來');};
   S.doTrick=()=>{if(S.fallT>0)return;
-    if(!S.ground){S.spinT+=Math.PI*2;AUDIO.sfx('whoosh');return;}   // 空中：多轉一圈
+    if(!S.ground){S.spinT+=Math.PI*2;AUDIO.sfx('spin');return;}   // 空中：多轉一圈
     if(S.trick)return;const t=TRICKS[S.tIdx++%TRICKS.length];S.trick={...t,t:0};addScore(t.pts,t.name);};
-  function fall(msg){S.fallT=1.3;S.trick=null;S.spin=S.spinT=0;S.vel.multiplyScalar(0.2);AUDIO.sfx('thud');big(msg);S.combo=0;cbEl.textContent='';}
+  function fall(msg){S.fallT=1.3;S.trick=null;S.spin=S.spinT=0;S.vel.multiplyScalar(0.2);AUDIO.sfx('tumble');big(msg);S.combo=0;cbEl.textContent='';}
   /* 落地：還沒轉完但剩不到半圈＝落地順勢轉完、照樣算分（使用者嫌失敗率太高）；剩超過半圈才摔倒 */
   function land(){const left=S.spinT-S.spin,n=Math.round(S.spinT/(Math.PI*2));
     if(S.airT>0.3)AUDIO.sfx('land');   /* 2026-10-14：落地改輕快的「嗒」（摔倒才用「咚」） */
@@ -5421,7 +5421,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   const busyG=()=>GAME.on||RACE.on||RIDE.on||PAX.on||NM.on||RB.on||SB.on||CU.on||MU.on||DD.on||KF.on||PUSH.on||FISH.on||RS.on||TN.on||BALLOON.riding||LIE.on||(typeof CG!=='undefined'&&CG.on)||(typeof DUO!=='undefined'&&DUO.on);
   S.start=quiet=>{if(S.on)return;if(busyG()){toast('先離開遊戲、下車再穿滑雪板');return;}if(SKATE.on)SKATE.stop();if(EMOTE.on)EMOTE.stop(true);if(typeof LINK!=='undefined'&&LINK.dbg().role)LINK.release('',false);
     S.on=true;S.vel.set(0,0);S.v=0;S.dir=player.yaw;S.ground=true;S.vy=0;S.gv=0;S.fallT=0;S.spin=S.spinT=0;S.run=null;S.ls=null;if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}HUD.hidden=false;
-    if(!quiet)toast(`⛷️ 穿上滑雪板！${isTouch?'搖桿左右轉彎、往後拉煞車、推到底蹲低；「跳」跳起來、空中再按轉一圈':'A／D 轉彎、S 煞車、W 或 Shift 蹲低；空白鍵跳、空中再按轉一圈'}`);AUDIO.sfx('click');syncActBtn();};
+    if(!quiet)toast(`⛷️ 穿上滑雪板！${isTouch?'搖桿左右轉彎、往後拉煞車、推到底蹲低；「跳」跳起來、空中再按轉一圈':'A／D 轉彎、S 煞車、W 或 Shift 蹲低；空白鍵跳、空中再按轉一圈'}`);AUDIO.sfx('mech');syncActBtn();};
   S.stop=()=>{if(!S.on)return;S.on=false;S.run=null;if(GDM)GDM.visible=false;S.fallT=0;HUD.hidden=true;player.vel.set(0,0);gear(avatar,false);if(S.rc&&S.rc.st!=='done')raceLeave();syncActBtn();};
   const dist=p=>Math.hypot(player.pos.x-p.x,player.pos.y-p.z);
   S.label=()=>{if(S.ride||mode!=='walk')return null;if(dist(ST.A)<5&&Math.abs(player.y-ST.A.y)<3)return '🚡 坐纜車上尖山頂（滑雪場）';if(['B','C'].some(k=>dist(ST[k])<6&&Math.abs(player.y-ST[k].y)<3))return '🚡 坐纜車回尖山頂';
@@ -5487,11 +5487,11 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     brkParts(myCab);big('💥 連接處斷掉了！');AUDIO.sfx('crack');AUDIO.sfx('heavy');R.shake=0.6;toast('🥚 隱藏彩蛋：搖太大力，纜車的連接處斷掉了！');}
   function brkStep(R,dt){const c=myCab,P=R.bp;R.bt+=dt;const hg=P.y-CABH-1.0-gy(P.x,P.z);
     if(R.bst===0&&(R.bt>1.0||hg<14)){R.bst=1;R.bt1=R.bt;big('🚀 噴射裝置啟動！');AUDIO.sfx('takeoff');}
-    else if(R.bst===1&&(R.bt-R.bt1>1.6&&R.bvy>0||R.bt-R.bt1>3)){R.bst=2;R.bt2=R.bt;big('🪂 降落傘打開！');AUDIO.sfx('pop');AUDIO.sfx('whoosh');}
+    else if(R.bst===1&&(R.bt-R.bt1>1.6&&R.bvy>0||R.bt-R.bt1>3)){R.bst=2;R.bt2=R.bt;big('🪂 降落傘打開！');AUDIO.sfx('pop');AUDIO.sfx('flyup');}
     if(R.bst===0)R.bvy-=9.8*dt;
     else if(R.bst===1)R.bvy+=(hg<6?30:12)*dt;   /* 往上推一點（太低就推大力一點） */
     else if(R.bst===2){const desc=cl(hg/5,4.5,12);R.bvy+=(-desc-R.bvy)*Math.min(1,dt*2.2);R.bv.multiplyScalar(Math.exp(-0.6*dt));R.bv.x+=Math.sin(R.bt*0.37+R.bsd)*0.5*dt;R.bv.z+=Math.cos(R.bt*0.29+R.bsd)*0.5*dt;}
-    if(R.bst<3){P.addScaledVector(R.bv,dt);P.y+=R.bvy*dt;const g1=gy(P.x,P.z);if(P.y-CABH-1.0<=g1){P.y=g1+CABH+1.0;R.bst=3;R.bt3=R.bt;R.bvy=0;AUDIO.sfx('thud');AUDIO.sfx('bigcheer');big('🎉 平安降落！');R.shake=0.45;}}
+    if(R.bst<3){P.addScaledVector(R.bv,dt);P.y+=R.bvy*dt;const g1=gy(P.x,P.z);if(P.y-CABH-1.0<=g1){P.y=g1+CABH+1.0;R.bst=3;R.bt3=R.bt;R.bvy=0;AUDIO.sfx('softland');AUDIO.sfx('bigcheer');big('🎉 平安降落！');R.shake=0.45;}}
     const op=R.bst===2?Math.min(1,(R.bt-R.bt2)/0.6):R.bst===3?Math.max(0,1-(R.bt-R.bt3)/1.2):0;R.bop=op;brkLook(c,R.bst,op,R.bt);
     R.ax+=(0-R.ax)*Math.min(1,dt*1.6);R.az=R.bst===2?0.1*Math.sin(R.bt*1.4):R.az*(1-Math.min(1,dt*2));R.shake=Math.max(0,R.shake-dt);
     c.position.copy(P);c.rotation.y=R.bh;c.userData.pivot.rotation.set(R.ax,0,R.az);c.updateMatrixWorld(true);door(c,R.bst===3?Math.min(1,(R.bt-R.bt3)/0.8):0);
@@ -5509,14 +5509,14 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     const ss=R.rev?(1-tt)*Ln.L:tt*Ln.L,ps=R.s;R.s+=(ss-R.s)*Math.min(1,dt*5);R.v=Math.max(0,(R.s-ps)/Math.max(dt,1e-3));R.acc=0;
     const ph=PHN[ca[3]|0]||'go';if(ph!==R.ph){if(ph==='close')AUDIO.sfx('door');if(ph==='open')AUDIO.sfx('chime');R.ph=ph;R.pt=0;}R.pt+=dt;
     door(myCab,ph==='wait'?1:ph==='close'?1-Math.min(1,R.pt/0.9):ph==='open'?Math.min(1,R.pt/0.8):0);
-    while(R.ti<R.tws.length&&R.s>=R.tws[R.ti]){R.axv+=0.32;R.shake=0.28;AUDIO.sfx('click');R.ti++;gameTower();}
+    while(R.ti<R.tws.length&&R.s>=R.tws[R.ti]){R.axv+=0.32;R.shake=0.28;AUDIO.sfx('mech');R.ti++;gameTower();}
     if(ph==='open'&&R.pt>1.1)rideArrive();}
   S.rideStep=dt=>{const R=S.ride,Ln=LINES[R.li];if(R.ph==='brk'){brkStep(R,dt);return;}
     if(R.host)guestStep(R,Ln,dt);
     else if(R.ph==='wait'){R.pt+=dt;door(myCab,1);if(R.pt>=9||(R.inv&&!R.inv.size&&R.pt>1.2)){R.ph='close';R.pt=0;AUDIO.sfx('door');}}
-    else if(R.ph==='close'){R.pt+=dt;door(myCab,1-Math.min(1,R.pt/0.9));if(R.pt>=1.2){R.ph='go';AUDIO.sfx('click');}}
+    else if(R.ph==='close'){R.pt+=dt;door(myCab,1-Math.min(1,R.pt/0.9));if(R.pt>=1.2){R.ph='go';AUDIO.sfx('mech');}}
     else if(R.ph==='go'){const f=R.fast||1,left=Ln.L-R.s,A=0.75*f,vt=Math.min(Ln.vmax*f,Math.sqrt(Math.max(0,2*A*left))+0.2),dv=cl(vt-R.v,-A*1.6*dt,A*dt);R.v+=dv;R.acc=dv/Math.max(dt,1e-3);R.s=Math.min(Ln.L,R.s+R.v*dt);   /* 出站慢慢加速、進站慢慢停；⏩ 加速 ×3／×6（2026-10-27.39 使用者：纜車有時候好慢好煩） */
-      while(R.ti<R.tws.length&&R.s>=R.tws[R.ti]){R.axv+=0.32;R.azv+=(Math.random()-0.5)*0.12;R.shake=0.28;AUDIO.sfx('click');R.ti++;gameTower();}   /* 經過支柱：咔噠一下 */
+      while(R.ti<R.tws.length&&R.s>=R.tws[R.ti]){R.axv+=0.32;R.azv+=(Math.random()-0.5)*0.12;R.shake=0.28;AUDIO.sfx('mech');R.ti++;gameTower();}   /* 經過支柱：咔噠一下 */
       if(R.s>=Ln.L-0.02){R.s=Ln.L;R.ph='open';R.pt=0;R.v=0;R.acc=0;AUDIO.sfx('chime');}}
     else if(R.ph==='open'){R.pt+=dt;door(myCab,Math.min(1,R.pt/0.8));if(R.pt>=1.1){rideArrive();return;}}
     if(!S.ride)return;
@@ -5579,7 +5579,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
       const rk=new THREE.Sprite(new THREE.SpriteMaterial({map:dotT,color:'#fff2c0',transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));rk.scale.setScalar(1.6);rk.visible=false;rk.userData.noCull=true;scene.add(rk);
       FWP.push({p,rk,v:new Float32Array(FWN*3),st:'idle',t:0});}}
   function fwLaunch(x,y,z,k,ci,seed){fwInit();const f=FWP.find(q=>q.st==='idle')||FWP.reduce((a,b)=>a.t>b.t?a:b);const rr=mulberry(seed|0);
-    Object.assign(f,{st:'up',t:0,k,ci:ci%FPAL.length,rr,x,y,z,ty:y+32+rr()*16,vx:(rr()-0.5)*4,vz:(rr()-0.5)*4});f.p.visible=false;f.rk.visible=true;f.rk.position.set(x,y,z);if(camera.position.distanceTo(f.rk.position)<400)AUDIO.sfx('whoosh');}
+    Object.assign(f,{st:'up',t:0,k,ci:ci%FPAL.length,rr,x,y,z,ty:y+32+rr()*16,vx:(rr()-0.5)*4,vz:(rr()-0.5)*4});f.p.visible=false;f.rk.visible=true;f.rk.position.set(x,y,z);if(camera.position.distanceTo(f.rk.position)<400)AUDIO.sfx('flyup');}
   const FC=new THREE.Color(),FC2=new THREE.Color(),FV=new V3();
   function fwBurst(f){const P=f.p.geometry.attributes.position.array,Cc=f.p.geometry.attributes.color.array,v=f.v,rr=f.rr,pal=FPAL[f.ci];FC.set(pal[0]);FC2.set(pal[1]);
     const dx=camera.position.x-f.x,dz=camera.position.z-f.z,l=Math.hypot(dx,dz)||1,rx=-dz/l,rz=dx/l;   /* 愛心、星星、圓環：朝著看的人 */
@@ -5649,7 +5649,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   CIP.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;CIP.hidden=true;const f=CIP.dataset.f,g=CIP.dataset.g;if(!f)return;if(b.dataset.a==='ok'&&!busyG()){NET.out(f,{t:'caA',gid:g});toast('🚡 好！等一下就上車');}else NET.out(f,{t:'caN',gid:g});});
   S.remSeat=(q,A,s)=>{const R=S.ride,m=REM.get(String(q.id))||{},now=performance.now(),ya=(m.ya||0)>now,wv=(m.wave||0)>now;if(R&&s.ca&&s.ca[4]&&s.ca[4]===R.gid&&myCab){seatPoseAt(A,myCab,s.ca[5]|0,ya,wv);return true;}return {ya,wv};};
   // ---- 滑 ----
-  function fall(msg){S.fallT=1.6;S.vel.multiplyScalar(0.15);S.spin=S.spinT=0;AUDIO.sfx('thud');big(msg);if(S.run)S.run.falls++;}
+  function fall(msg){S.fallT=1.6;S.vel.multiplyScalar(0.15);S.spin=S.spinT=0;AUDIO.sfx('tumble');big(msg);if(S.run)S.run.falls++;}
   function land(){const left=S.spinT-S.spin,n=Math.round(S.spinT/(Math.PI*2));if(left>Math.PI){fall('摔倒了！');S.air=0;return;}
     if(n>0){big(`空中轉體 ${n*360}°！`);AUDIO.sfx('combo');}else if(S.air>0.6){big('飛起來了！');AUDIO.sfx('land');}S.spin=S.spinT=0;S.air=0;}
   S.jump=()=>{if(S.ride||!S.on||S.lock>0||S.fallT>0)return;if(S.ground){S.ground=false;S.vy=4.4;S.air=0;AUDIO.sfx('whoosh');}else{S.spinT+=Math.PI*2;AUDIO.sfx('whoosh');}};
@@ -5692,7 +5692,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     if(R){const T=K.R[R.k];n=T.nearI(x,z,R.ri);if(!n||n.d>30){const m=T.near(x,z);if(m&&(!n||m.d<n.d))n=m;}if(n){n.k=R.k;R.ri=n.i;}}else n=K.near(x,z);   /* 2026-10-27.20 計時中只認自己那條雪道、上一格附近（初級道之字形：上下兩段很近） */
     S.nr=n;const s=n&&n.d<40?n.s:null;
     if(R){const T=K.R[R.k];R.t+=dt;
-      while(R.gi<T.gates.length&&s!=null&&s>=T.gates[R.gi].s){const G=T.gates[R.gi];if(Math.abs(n.lat-G.lat)<=G.hw){R.ok++;AUDIO.sfx('chime');}else{R.miss++;AUDIO.sfx('beep');big('漏掉旗門 +3 秒');}R.gi++;}
+      while(R.gi<T.gates.length&&s!=null&&s>=T.gates[R.gi].s){const G=T.gates[R.gi];if(Math.abs(n.lat-G.lat)<=G.hw){R.ok++;AUDIO.sfx('ding');}else{R.miss++;AUDIO.sfx('beep');big('漏掉旗門 +3 秒');}R.gi++;}
       if(s!=null&&s>=T.SF){finish();return;}
       if(s==null&&!R.race){S.run=null;toast('離開雪道，計時取消了');}else if(s!=null)R.minS=Math.max(R.minS,s);}
     else if(!S.rc&&s!=null&&S.ls!=null&&S.lk===n.k&&S.ls<n.R.S0&&s>=n.R.S0&&S.v>0.5){S.run={t:0,gi:0,ok:0,miss:0,falls:0,minS:s,k:n.k,ri:n.i};S.sel=n.k;big(`⛷️ ${n.R.name} 計時開始！`);AUDIO.sfx('go');}
@@ -5832,7 +5832,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
   function hitCheck(dt){hitCd-=dt;if(S.hitT>0){S.hitT-=dt;player.pos.x+=kv.x*dt;player.pos.y+=kv.y*dt;kv.multiplyScalar(Math.exp(-3*dt));resolve(player.pos,0.3,player.y);}
     if(hitCd>0||mode!=='walk'||S.ride||busyG())return;const now=performance.now(),px=player.pos.x,pz=player.pos.y;
     const test=(b,own)=>{if(!b||b.dead||own&&b.age-b.pushA<1.2)return false;   /* 自己剛推（再推）的 1.2 秒內不會撞到自己 */const sp=Math.hypot(b.vx,b.vz);if(sp<3.5)return false;const d=Math.hypot(px-b.x,pz-b.z),cy=b.yb+b.r;if(d>b.r+0.35||Math.abs(player.y+0.8-cy)>b.r+1)return false;
-      hitCd=2;const ux=b.vx/sp,uz=b.vz/sp,msg=own?'⛄ 被自己的雪球撞倒了！':'⛄ 被雪球撞倒了！';if(S.on){fall(msg);S.vel.set(ux*Math.min(8,sp*0.5),uz*Math.min(8,sp*0.5));}else{S.hitT=1.6;kv.set(ux*Math.min(7,sp*0.6),uz*Math.min(7,sp*0.6));big(msg);AUDIO.sfx('thud');}
+      hitCd=2;const ux=b.vx/sp,uz=b.vz/sp,msg=own?'⛄ 被自己的雪球撞倒了！':'⛄ 被雪球撞倒了！';if(S.on){fall(msg);S.vel.set(ux*Math.min(8,sp*0.5),uz*Math.min(8,sp*0.5));}else{S.hitT=1.6;kv.set(ux*Math.min(7,sp*0.6),uz*Math.min(7,sp*0.6));big(msg);AUDIO.sfx('tumble');}
       puff(px,player.y+1,pz,12,3);return true;};
     if(test(MB,true))return;for(const [id,b] of RB)if(test(b,false)){NET.out(id,{t:'snH'});return;}}
   // 鏡頭：從後面跟著雪球
@@ -6004,7 +6004,7 @@ var SKI=(()=>{const S={on:false,vel:new V2(),v:0,dir:0,ground:true,vy:0,gv:0,fal
     const tm=BW.team[me()],mates=ids.filter(id=>BW.team[id]===tm),j=mates.indexOf(me()),sd=tm?1:-1;player.pos.set(FJ.cx+sd*13,FJ.cz+(j-(mates.length-1)/2)*2.6);player.y=FJ.TOP;player.vy=0;player.yaw=avatar.yaw=sd<0?-Math.PI/2:Math.PI/2;player.pitch=0;player.vel.set(0,0);
     wallsOn(true);RES.hidden=true;POP.hidden=true;AUDIO.sfx('go');bwHudT=0;
     toast(`❄️ 你是${tm?'🔵 藍隊':'🔴 紅隊'}！躲雪牆、搶中間的🌟金雪球（+3）`);}
-  function bwGold(id,x,z){if(!BW)return;BW.g={id,x,z};if(!goldM){goldM=new THREE.Mesh(SBG,GBM);goldM.scale.setScalar(2.2);goldM.castShadow=true;goldM.userData.noCull=true;scene.add(goldM);}goldM.position.set(x,FJ.TOP+0.6,z);goldM.visible=true;big('🌟 金雪球出現在中間了！');AUDIO.sfx('chime');}
+  function bwGold(id,x,z){if(!BW)return;BW.g={id,x,z};if(!goldM){goldM=new THREE.Mesh(SBG,GBM);goldM.scale.setScalar(2.2);goldM.castShadow=true;goldM.userData.noCull=true;scene.add(goldM);}goldM.position.set(x,FJ.TOP+0.6,z);goldM.visible=true;big('🌟 金雪球出現在中間了！');AUDIO.sfx('magic');}
   function bwClaim(id,by){if(BW&&BW.g&&BW.g.id===id&&!BW.g.by){BW.g.by=by;if(NET.on)NET.out('*',{t:'bwK',id,by});bwGot(id,by);}}   /* 主持：先到先得 */
   function bwGot(id,by){if(!BW)return;if(BW.g&&BW.g.id===id){BW.g=null;if(goldM)goldM.visible=false;}if(by===me()){BW.my3=3;big('🌟 拿到金雪球！接下來 3 顆一顆 3 分');AUDIO.sfx('combo');}else toast(`🌟 ${nm(by)} 拿到金雪球了！小心`);bwHudT=0;}
   function bwHit(victim,by,gold){if(!BW||BW.st!=='go')return;const tv=bwTeam(victim),tb=bwTeam(by);if(tv<0||tb<0||tv===tb)return;BW.sc[tb]+=gold?3:1;BW.hit[by]++;BW.got[victim]++;if(gold)BW.gold[by]++;
@@ -6235,7 +6235,7 @@ const BB=(()=>{
       if(!free(x,z,0.5)||!free(px,z,0.7)||!free(px-dir*0.2,z,0.6)||!free((x+player.pos.x)/2,(z+player.pos.y)/2,0.3)||!clear(player.pos.x,player.pos.y,x,z)||!clear(player.pos.x,player.pos.y,px,z))continue;
       if(PORT)BB_KIT.remove(PORT);PORT=BB_KIT.build(x,z,dir);
       const g=new V3(px,0.1,z);ring(g,'#ffe7a0',0.6,6);ring(new V3(x,RIM_Y,z),'#ffffff',0.5,4,false);burst(new V3(x,RIM_Y,z),24,'#ffd36a',4);burst(g,14,'#e8dcc0',2.5);
-      PORT.sh=1;AUDIO.sfx('chime');AUDIO.sfx('takeoff');big('變出籃框！🏀',false);return PORT;}
+      PORT.sh=1;AUDIO.sfx('magic');AUDIO.sfx('takeoff');big('變出籃框！🏀',false);return PORT;}
     B.why='旁邊沒有空地放籃框';return null;}
   function pickHoop(){let [h,d]=nearestHoop();if(!h||d>12){const p=portHoop();if(p){h=p;d=Math.hypot(p.x-player.pos.x,p.z-player.pos.y);}}return [h,d];}
   B.port=()=>PORT;B.mate=()=>MATE;
@@ -6301,7 +6301,7 @@ const BB=(()=>{
   const AIR_TRICKS=[{name:'空中繞身',dur:0.8,pts:120},{name:'空中胯下換手',dur:0.7,pts:140,swap:true},{name:'空中背後換手',dur:0.7,pts:130,swap:true},{name:'空中指尖轉球',dur:1.1,pts:130}];   // 在空中（彈跳床）按花式：不拍地
   B.doTrick=()=>{if(!B.on||B.cur||B.st!=='hand'||B.ft)return;if(B.trick){B.queue=true;return;}const t=player.ground?TRICKS[B.tIdx++%TRICKS.length]:AIR_TRICKS[B.aIdx=((B.aIdx||0)+1)%AIR_TRICKS.length];B.trick={...t,t:0,s0:B.hand};
     const now=performance.now()/1000;B.combo=now-B.lastT<2.6?B.combo+1:0;B.lastT=now;const pts=Math.round(t.pts*(1+0.5*B.combo));B.style+=pts;B.dirty=true;
-    big(`${t.name}${B.combo>0?` ×${(1+0.5*B.combo).toFixed(1)}`:''} +${pts}`);AUDIO.sfx('whoosh');};
+    big(`${t.name}${B.combo>0?` ×${(1+0.5*B.combo).toFixed(1)}`:''} +${pts}`);AUDIO.sfx('spin');};
   // 花式運球的球路（身體座標）＋手
   function trickPose(a,T,dt){const p=Math.min(1,T.t/T.dur),s0=T.s0;let x,y,z,side;
     const cross=(q,from,yh,zz)=>{x=0.3*from*Math.cos(Math.PI*q);y=bounceY(q,yh);z=zz;side=q<0.5?from:-from;};
@@ -6391,7 +6391,7 @@ const BB=(()=>{
     return out.set(c.S.x+(c.E.x-c.S.x)*k,c.S.y+(-yE/0.4)*u*u+3.5*yE*u,c.S.z+(c.E.z-c.S.z)*k);}
   B.dunk=()=>{if(!B.on||B.cur||B.st!=='hand'||B.ft)return;const [h,d]=pickHoop();if(!h||d>9.5){toast(h&&d<42?'離籃框太遠了：9.5 m 內才能灌籃':B.why||'附近沒有籃框');return;}
     const tr=!player.ground&&performance.now()-TRAMP.last<2500;   // 彈跳床彈起來的空中
-    makeDunk(h,d,tr?TDUNKS[(B.iTr=(B.iTr||0)+1)%TDUNKS.length]:DUNKS[B.iDunk++%DUNKS.length],false,tr);AUDIO.sfx('whoosh');};
+    makeDunk(h,d,tr?TDUNKS[(B.iTr=(B.iTr||0)+1)%TDUNKS.length]:DUNKS[B.iDunk++%DUNKS.length],false,tr);AUDIO.sfx('flyup');};
   // 空中接力：0～0.32 秒球傳給隊友 → 隊友把球舉高 → 0.6 秒高吊（1 秒以上）→ 你算好時間起跳，飛到 60% 時在空中接到球 → 灌籃
   B.oop=()=>{if(!B.on||B.cur||B.st!=='hand'||B.ft)return;const [h,d]=pickHoop();if(!h||d>12){toast(h&&d<42?'離籃框太遠了：12 m 內才能空中接力':B.why||'附近沒有籃框');return;}
     mateSpot(h,true);const air=!player.ground;
@@ -6400,7 +6400,7 @@ const BB=(()=>{
     const cp=flightPos(c,uc,new V3());{const ux=h.x-cp.x,uz=h.z-cp.z,l=Math.hypot(ux,uz)||1;cp.x+=ux/l*0.22;cp.z+=uz/l*0.22;}cp.y+=2.2*sc;
     let Tl=1.0,tj=tt+Tl-uc*c.T;if(air){tj=0;Tl=uc*c.T-tt;}else if(tj<0.75){tj=0.75;Tl=tj+uc*c.T-tt;}
     c.t=-tj;c.oop={uc,tp,tt,Tl,tj,cp,p0:bp.clone(),caught:false,got:false,thrown:false,l0:new V3(),v0:new V3(),cl:new V3(),bt:9};
-    B.st='oop';MATE.state='wait';MATE.t=0;AUDIO.sfx('whoosh');big('空中接力！',false);};
+    B.st='oop';MATE.state='wait';MATE.t=0;AUDIO.sfx('flyup');big('空中接力！',false);};
   // 灌籃飛行（主迴圈：取代走路）
   B.flyStep=dt=>{const c=B.cur;if(!c||c.kind!=='dunk'){B.fly=false;return;}const t0=c.t;c.t+=dt;player.vel.set(0,0);player.vy=0;player.ground=false;
     if(t0<0&&c.t>=0)takeoff(c);
@@ -6449,7 +6449,7 @@ const BB=(()=>{
       if(H.sh>0){H.sh=Math.max(0,H.sh-dt*1.8);const t=performance.now()/1000;H.board.position.y=H.by+Math.sin(t*55)*0.025*H.sh;H.board.rotation.x=Math.sin(t*47)*0.03*H.sh;}
       if(H.netT<0.7){H.netT+=dt;const k=H.netT/0.7;H.net.scale.set(1-0.25*Math.sin(Math.PI*k),1+0.45*Math.sin(Math.PI*k)*(1-k*0.5),1-0.25*Math.sin(Math.PI*k));H.net.rotation.y=Math.sin(H.netT*30)*0.25*(1-k);}
       else if(H.net.scale.y!==1){H.net.scale.set(1,1,1);H.net.rotation.y=0;}
-      if(H.broken){H.broken-=dt;if(H.broken<=0){H.broken=0;H.glass.visible=true;burst(new V3(H.xb,3.425,H.z),12,'#bfe9ff',1.5);AUDIO.sfx('chime');}}}
+      if(H.broken){H.broken-=dt;if(H.broken<=0){H.broken=0;H.glass.visible=true;burst(new V3(H.xb,3.425,H.z),12,'#bfe9ff',1.5);AUDIO.sfx('ding');}}}
     fxTick(dt);shardTick(dt);mateTick(dt);
     if(B.dirty)draw();
     for(const T of TRAMPS)if(T.dip||T.dv){T.dv+=(-260*T.dip-11*T.dv)*dt;T.dip+=T.dv*dt;if(Math.abs(T.dip)<1e-3&&Math.abs(T.dv)<1e-2){T.dip=0;T.dv=0;}T.mat.position.y=T.y-0.01-T.dip;}
@@ -6741,14 +6741,14 @@ const TN=(()=>{
   // 大轉彎球：往場外繞過網柱外面，再彎回場內的角落（三次貝茲曲線，不照物理）
   function snakeShot(){const sd=bp.x<C.cx?-1:1,Q=new V3(C.cx+sd*(SX-0.45),R,C.cz-HL+2.2);
     B.mode='path';B.tag='snake';B.trail='#58e07a';B.path={p:[bp.clone(),new V3(C.cx+sd*9.2,1.7,C.cz+4),new V3(C.cx+sd*9.2,1.5,C.cz-4),Q],T:1.35,t:0};
-    big('大轉彎球！');T.sw.k='snake';OPP.ret=false;OPP.tgt.set(C.cx-sd*2.2,OPP.pos.y);AUDIO.sfx('whoosh');
+    big('大轉彎球！');T.sw.k='snake';OPP.ret=false;OPP.tgt.set(C.cx-sd*2.2,OPP.pos.y);AUDIO.sfx('spin');
     B.counter=willCounter('snake');if(B.counter){OPP.ret=true;OPP.boost=2.0;OPP.tgt.set(Q.x-0.55,Q.z-0.6);}}   // 被看穿：對手先跑到角落等
   const bez=(q,t,out)=>{const u=1-t;return out.set(u*u*u*q[0].x+3*u*u*t*q[1].x+3*u*t*t*q[2].x+t*t*t*q[3].x,u*u*u*q[0].y+3*u*u*t*q[1].y+3*u*t*t*q[2].y+t*t*t*q[3].y,u*u*u*q[0].z+3*u*u*t*q[1].z+3*u*t*t*q[2].z+t*t*t*q[3].z);};
   // 跳躍扣殺：跳起來（0.8 秒）在最高點往下殺 → 球砸在對手前面、往上彈飛出場
   function startJack(){T.jump={t:0,y0:player.y,h:1.6,launched:false};B.mode='jack';B.tag='jack';B.trail='#ff8a2a';OPP.ret=false;B.counter=willCounter('jack');big('跳躍扣殺！');AUDIO.sfx('takeoff');T.sw={k:'smashW',t:0};slow(0.55,0.35);
     ring(new V3(player.pos.x,player.y+0.05,player.pos.y),'#ff8a2a',0.5,5);burst(new V3(player.pos.x,player.y+0.2,player.pos.y),14,'#e8dcc0',2.5);}
   // 彩虹必殺球（瑪利歐網球 Switch／Aces 的大絕招）：跳很高、星星＋彩虹光環、慢動作，最高點把彩虹球直直轟向對手；沒擋住＝對手球拍碎掉 KO
-  function startMario(){T.jump={t:0,y0:player.y,h:2.4,dur:1.0,launched:false};B.mode='mario';B.tag='mario';B.trail='rainbow';OPP.ret=false;B.counter=willCounter('mario');big('彩虹必殺球！！');AUDIO.sfx('takeoff');AUDIO.sfx('chime');T.sw={k:'smashW',t:0};slow(0.6,0.45);
+  function startMario(){T.jump={t:0,y0:player.y,h:2.4,dur:1.0,launched:false};B.mode='mario';B.tag='mario';B.trail='rainbow';OPP.ret=false;B.counter=willCounter('mario');big('彩虹必殺球！！');AUDIO.sfx('takeoff');AUDIO.sfx('magic');T.sw={k:'smashW',t:0};slow(0.6,0.45);
     const g=new V3(player.pos.x,player.y+0.05,player.pos.y);for(let i=0;i<3;i++)ring(g,'rainbow',0.6+i*0.15,6+i*3);burst(g.clone().setY(player.y+1),30,'rainbow',4);}
   // 打飛球拍連殺：跳起來殺球打掉對手球拍 → 球飄回你頭上 → 再跳起來殺第二擊
   function startRondo(){T.seq={t:0,ph:0,y0:player.y,a0:bp.clone()};B.mode='seq';B.tag='rondo';B.trail='#c78bff';OPP.ret=false;B.counter=willCounter('rondo');big('打飛球拍連殺！');slow(0.7,0.3);AUDIO.sfx('takeoff');
@@ -6803,7 +6803,7 @@ const TN=(()=>{
       case 'oice':{const sd=player.pos.x>C.cx?-1:1;launch(new V3(C.cx+sd*(SX-0.5),R,C.cz+HL-1.6),1.0,1.2);icePillars(player.pos,true);T.frozen=0.6;AUDIO.sfx('shatter');break;}   // 冰柱長在你四周、腳被冰住，打你的死角
       case 'osamurai':T.osam={t:0,p0:bp.clone(),p1:new V3(cl(bp.x,C.cx-SX+1,C.cx+SX-1),1.0,C.cz),split:false};B.mode='osam';T.land=null;return;   // 打到網帶切成兩半，一半是真的
       case 'orondo':case 'omario':{const mo=k==='omario';B.mode='ohold';B.hold={t:0,k,dur:mo?0.55:0.4};OPP.jt=0;OPP.jd=mo?1.1:0.8;OPP.jh=mo?2.2:1.6;T.land=null;slow(mo?0.7:0.4,mo?0.4:0.5);   // 對手跳起來，最高點往你身上殺
-        AUDIO.sfx('takeoff');if(mo){AUDIO.sfx('chime');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);for(let i=0;i<3;i++)ring(g,'rainbow',0.6+i*0.15,6+i*3);}return;}
+        AUDIO.sfx('takeoff');if(mo){AUDIO.sfx('magic');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);for(let i=0;i<3;i++)ring(g,'rainbow',0.6+i*0.15,6+i*3);}return;}
       case 'ojack':OPP.jt=0;OPP.jd=0.8;OPP.jh=1.4;slow(0.4,0.35);launch(new V3(cl(player.pos.x+rnd(-1,1),C.cx-SX+0.6,C.cx+SX-0.6),R,cl(player.pos.y-3.2,C.cz+3,C.cz+HL-1)),0.48,1.25);shake(0.35);AUDIO.sfx('slam');break;}   // 跳起來殺，球砸地彈到你後面
     T.land=landPt();}
   // 對手的打飛球拍連殺／彩虹必殺球：跳到最高點往你身上殺；你及時擊球＝破解，沒打到＝球拍被打掉／打碎
@@ -6884,7 +6884,7 @@ const TN=(()=>{
   function flyRacket(v){OPP.root.updateMatrixWorld(true);scene.attach(OPP.racket);OPP.fly={v,w:new V3(rnd(8,14),rnd(4,9),rnd(6,12))};}
   // 對手的 buff（每一分開始時 15% 機率開一個）：金光模式 12 秒、吸球模式 10 秒、出界魔法 10 秒、定身術 3 秒（你動不了，來回中才倒數）
   const OBN={aura:'金光模式',zone:'吸球模式',phantom:'出界魔法',yips:'定身術'},OBD={aura:12,zone:10,phantom:10,yips:3},OBC={aura:'#ffd84a',zone:'#6fe3ff',phantom:'#7d8cff',yips:'#a050d0'};
-  function oBuff(k){T.obuff={k,t:OBD[k]};big(ON()+'：'+OBN[k]+'！');AUDIO.sfx('chime');AUDIO.sfx(k==='aura'?'fire':k==='yips'?'heavy':'whoosh');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);ring(g,OBC[k],0.9,11);ring(g.clone().setY(1),'#ffffff',0.6,5,false);burst(g.clone().setY(1),26,OBC[k],4);
+  function oBuff(k){T.obuff={k,t:OBD[k]};big(ON()+'：'+OBN[k]+'！');AUDIO.sfx('magic');AUDIO.sfx(k==='aura'?'fire':k==='yips'?'heavy':'whoosh');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);ring(g,OBC[k],0.9,11);ring(g.clone().setY(1),'#ffffff',0.6,5,false);burst(g.clone().setY(1),26,OBC[k],4);
     if(k==='yips')ring(new V3(player.pos.x,player.y+0.05,player.pos.y),OBC.yips,1.0,9);draw();}
   function setupPoint(){samClear();osamClear();prkHome();T.frozen=0;pIce.visible=false;B.hold=null;B.markAfter=false;B.knocked=false;OPP.jd=OPP.jh=undefined;T.buf=null;T.land=null;T.knock=0;OPP.jt=undefined;B.counter=false;OPP.boost=1;B.dead=false;B.net=false;B.roll=false;B.rollT=0;B.bounces=0;B.tag=null;B.trail=null;B.hitter=null;B.mode='held';T.seq=null;T.q=null;markQ();restoreRacket();OPP.react=T.yips>0?'dazed':null;OPP.sw=null;T.sw=null;
     const deuce=(T.sc.p+T.sc.o)%2===0;T.st='serve';T.serveT=0;T.tossT=-1;T.ptgt=null;
@@ -6912,7 +6912,7 @@ const TN=(()=>{
     const pre=()=>{if(T.pend){T.pend=null;setupPoint();}T.st='rally';T.tossT=-1;samClear();osamClear();T.seq=null;B.hold=null;B.dead=false;B.net=false;B.roll=false;B.rollT=0;B.markAfter=false;B.knocked=false;B.bounces=0;B.counter=false;ball.visible=true;};
     const tagIn=k=>{const ok='o'+k;B.tag=ok;B.trail=OCOL[ok];big(`${ON2}：${ONAME[ok]}！`);AUDIO.sfx('whoosh');ring(bp.clone(),OCOL[ok],0.45,4,false);burst(bp.clone(),14,OCOL[ok],3);};
     if(d.t==='tW'){pre();const ok='o'+d.k,mo=d.k==='mario';B.hitter='o';B.mode='ohold';B.hold={t:0,k:ok,dur:99};B.tag=ok;B.trail=OCOL[ok];OPP.jt=0;OPP.jd=mo?1.1:0.8;OPP.jh=mo?2.2:1.6;T.land=null;   /* 對方跳起來（球在頭上），等真正殺下來的那一球 */
-      big(`${ON2}：${ONAME[ok]}！`);AUDIO.sfx('takeoff');if(mo){AUDIO.sfx('chime');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);for(let i=0;i<3;i++)ring(g,'rainbow',0.6+i*0.15,6+i*3);}return;}
+      big(`${ON2}：${ONAME[ok]}！`);AUDIO.sfx('takeoff');if(mo){AUDIO.sfx('magic');const g=new V3(OPP.pos.x,0.05,OPP.pos.y);for(let i=0;i<3;i++)ring(g,'rainbow',0.6+i*0.15,6+i*3);}return;}
     if(d.t==='tPath'){pre();const P=d.p.map(mir);bp.copy(P[0]);B.hitter='o';B.mode='path';B.path={p:P,T:d.T,t:0,by:'o'};T.land=new V2(P[3].x,P[3].z);tagIn('snake');OPP.sw={t:0,k:'fore'};AUDIO.sfx('pock',bp);return;}
     if(d.t==='tSam'){pre();const p0=mir(d.p0),p1=mir(d.p1);bp.copy(p0);B.hitter='o';T.osam={t:0,p0,p1,split:false};B.mode='osam';T.land=null;tagIn('samurai');OPP.sw={t:0,k:'fore'};AUDIO.sfx('pock',bp);return;}
     if(d.t==='tH'){const wasHold=B.mode==='ohold'&&B.hold;pre();
@@ -6935,7 +6935,7 @@ const TN=(()=>{
   T.start=()=>{if(EMOTE.on)EMOTE.stop(true);if(CLOSET.isOpen)CLOSET.close();T.on=true;T.sc={p:0,o:0};T.gm={p:0,o:0};T.server='p';T.aura=0;T.zone=0;T.jump=null;T.pHitCount=0;T.obuff=null;
     OPP.root.visible=true;ball.visible=true;shadow.visible=true;hud.hidden=false;btns.hidden=false;document.body.classList.add('tn');
     if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}camSave=comfort.camDist;comfort.camDist=Math.max(comfort.camDist,6.2);player.yaw=0;player.pitch=-0.2;
-    setupPoint();AUDIO.sfx('chime');
+    setupPoint();AUDIO.sfx('enter');
     if(!T.told){T.told=true;toast(isTouch?'網球：自己跑（搖桿），黃圈＝球會落地的地方；球到身邊「擊球」變綠就按（同時推搖桿左右＝打邊線）。招式也是球到身邊按。先按「擊球」發球':'網球：WASD 跑位，黃圈＝球會落地的地方；球到身邊（擊球鈕變綠）按 J，同時按住 A／D＝打邊線。1～9、R T Y U I O P、G 彩虹必殺球 也是球到身邊按；F 放下球拍');}};
   T.stop=()=>{if(!T.on)return;if(T.net){T.net=false;document.body.classList.remove('tnnet');if(T.netSend)T.netSend({t:'tQ'});if(T.netEnd)T.netEnd();}T.on=false;document.body.classList.remove('tnp2');T.phantom=0;T.yips=0;T.obuff=null;T.frozen=0;pIce.visible=false;osamClear();prkHome();OPP.root.visible=false;ball.visible=false;shadow.visible=false;hud.hidden=true;btns.hidden=true;document.body.classList.remove('tn');restoreRacket();
     if(prk.parent)prk.parent.remove(prk);if(camSave!==null){comfort.camDist=camSave;camSave=null;}T.cm=null;T.ck=0;T.seq=null;T.aura=0;T.zone=0;T.jump=null;T.slow=0;mark.visible=false;
@@ -6951,9 +6951,9 @@ const TN=(()=>{
     if(T.net&&(k==='aura'||k==='phantom'||k==='yips'||k==='zone')&&!(T[k]>0)&&T.netSend)T.netSend({t:'tB',k});   /* 連線：你開的 buff＝對方那邊「對手開了 buff」 */
     if(k==='aura'){if(T.aura>0)return;T.aura=12;big('金光模式！');AUDIO.sfx('fire');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#ffd84a',0.8,10);ring(g.clone().setY(player.y+1),'#ffffff',0.6,5,false);burst(g.clone().setY(player.y+1),30,'#ffd84a',4);markQ();draw();return;}
     if(k==='page'){const on=document.body.classList.toggle('tnp2');document.getElementById('tnPage').innerHTML=on?'前一頁':'更多<br>招式';return;}
-    if(k==='phantom'){if(T.phantom>0)return;T.phantom=10;big('出界魔法！');AUDIO.sfx('whoosh');AUDIO.sfx('chime');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#7d8cff',0.9,12);markQ();draw();return;}   // 出界魔法：10 秒對手的球大多出界
-    if(k==='yips'){if(T.yips>0)return;T.yips=6;big('定身術！');AUDIO.sfx('heavy');AUDIO.sfx('chime');OPP.react='dazed';OPP.rt=0;ring(new V3(OPP.pos.x,0.05,OPP.pos.y),'#a050d0',1.0,10);markQ();draw();return;}   // 幸村：6 秒對手失去五感、動不了
-    if(k==='zone'){if(T.zone>0)return;T.zone=10;big('吸球模式！');AUDIO.sfx('whoosh');AUDIO.sfx('chime');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#6fe3ff',0.9,12);ring(g.clone().setY(player.y+1),'#ffffff',0.6,6,false);markQ();draw();return;}
+    if(k==='phantom'){if(T.phantom>0)return;T.phantom=10;big('出界魔法！');AUDIO.sfx('whoosh');AUDIO.sfx('magic');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#7d8cff',0.9,12);markQ();draw();return;}   // 出界魔法：10 秒對手的球大多出界
+    if(k==='yips'){if(T.yips>0)return;T.yips=6;big('定身術！');AUDIO.sfx('heavy');AUDIO.sfx('magic');OPP.react='dazed';OPP.rt=0;ring(new V3(OPP.pos.x,0.05,OPP.pos.y),'#a050d0',1.0,10);markQ();draw();return;}   // 幸村：6 秒對手失去五感、動不了
+    if(k==='zone'){if(T.zone>0)return;T.zone=10;big('吸球模式！');AUDIO.sfx('whoosh');AUDIO.sfx('magic');const g=new V3(player.pos.x,player.y+0.05,player.pos.y);ring(g,'#6fe3ff',0.9,12);ring(g.clone().setY(player.y+1),'#ffffff',0.6,6,false);markQ();draw();return;}
     if(T.st==='serve'&&T.server==='p'){serve(k==='twist'?'twist':k==='tann'?'tann':'normal');return;}
     if(T.jump||T.seq||T.st!=='rally')return;
     const sk=k==='hit'?'normal':k;
@@ -7496,7 +7496,7 @@ const RACE=(()=>{
     R.on=true;R.st='pick';R.mode=null;R.v=0;R.bst=0;R.gauge=100;R.sk=null;R.zero=0;R.drift=0;R.driftT=0;R.h=ME.root.rotation.y;R.i=-1;R.y=0;R.roll=0;R.pitch=0;R.yawOff=0;
     fovSave=camFov0();R.camP=null;R.sPrev=undefined;document.body.classList.add('rc');hud.hidden=false;btns.hidden=false;navEl.hidden=false;mapC.hidden=false;panel.hidden=false;navMesh.visible=true;
     if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}
-    R.eng=sk8?null:AUDIO.engine&&AUDIO.engine();R.skSnd=sk8?AUDIO.skateLoop():null;AUDIO.sfx('chime');drawMapBg();syncAuto();R.autoLat=undefined;
+    R.eng=sk8?null:AUDIO.engine&&AUDIO.engine();R.skSnd=sk8?AUDIO.skateLoop():null;AUDIO.sfx('enter');drawMapBg();syncAuto();R.autoLat=undefined;
     syncNetBtn();panel.querySelector('h3').textContent=sk8?'賽車場・直排輪':'賽車場・我的賽車';panel.querySelector('[data-m=exit]').textContent=sk8?'離開（繼續溜）':'下車';
     {const b=btns.querySelector('[data-k=boost]');b.firstChild.textContent=sk8?'推進器':'加速器';}if(sk8&&!SKMOD.jet)toast('還沒裝推進器：也可以比，對手會跟你一樣慢；選單「人物 → 直排輪改裝」可以裝推進器');
     say('導航系統啟動。選擇比賽或自由練習',null,true);};
@@ -7531,11 +7531,11 @@ const RACE=(()=>{
       else{R.bst=0;navShow('加速器關閉');}return;}
     const can=Math.abs(R.v)>12;
     if((k==='lift'||k==='mirage')&&R.mode==='vortex'){navShow('大漩渦裡不能用這招，用加速器！','warn');return;}
-    if(k==='aero'){R.sk={k,t:0,dur:2.6};AUDIO.sfx('whoosh');AUDIO.sfx('chime');say('空力模式，加速過彎！','boost');big('加速過彎！');return;}
-    if(k==='lift'){if(!can){navShow('速度太慢，沒辦法懸空轉向','warn');return;}if(R.lift)return;if(!liftPlan()){navShow('前面就是分岔點，等一下再用','warn');return;}AUDIO.sfx('takeoff');AUDIO.sfx('whoosh');say('懸空轉向！','boost');big('懸空轉向！');
+    if(k==='aero'){R.sk={k,t:0,dur:2.6};AUDIO.sfx('whoosh');AUDIO.sfx('magic');say('空力模式，加速過彎！','boost');big('加速過彎！');return;}
+    if(k==='lift'){if(!can){navShow('速度太慢，沒辦法懸空轉向','warn');return;}if(R.lift)return;if(!liftPlan()){navShow('前面就是分岔點，等一下再用','warn');return;}AUDIO.sfx('takeoff');AUDIO.sfx('flyup');say('懸空轉向！','boost');big('懸空轉向！');
       const p=ME.root.position;for(let k2=0;k2<14;k2++){const a=k2/14*Math.PI*2;mist(new V3(p.x+Math.cos(a)*1.4,0.4,p.z+Math.sin(a)*1.4),0.9,1.2,4,new V3(Math.cos(a)*5,1.5,Math.sin(a)*5),0.55);}return;}
-    if(k==='mirage'){if(!can){navShow('速度太慢','warn');return;}R.sk={k,t:0,dur:1.4,dir:liftDir()};R.hist.length=0;AUDIO.sfx('whoosh');AUDIO.sfx('combo');say('幻影過彎！','boost');big('幻影過彎！');return;}
-    if(k==='zero'){if(R.zero>0)return;R.zero=6;document.body.classList.add('rcz');AUDIO.sfx('chime');AUDIO.sfx('heavy');say('進入零之領域','zero',true);big('零之領域');return;}};
+    if(k==='mirage'){if(!can){navShow('速度太慢','warn');return;}R.sk={k,t:0,dur:1.4,dir:liftDir()};R.hist.length=0;AUDIO.sfx('spin');AUDIO.sfx('combo');say('幻影過彎！','boost');big('幻影過彎！');return;}
+    if(k==='zero'){if(R.zero>0)return;R.zero=6;document.body.classList.add('rcz');AUDIO.sfx('magic');AUDIO.sfx('heavy');say('進入零之領域','zero',true);big('零之領域');return;}};
   R.key=(e,down)=>{const m={KeyP:'auto',Space:'boost',KeyJ:'boost',Digit1:'aero',Digit2:'lift',Digit3:'mirage',Digit4:'zero',KeyC:'cam',KeyR:'reset',KeyV:'voice'}[e.code];
     if(e.code==='KeyF'||e.code==='KeyM'||e.code==='KeyN'||e.code==='KeyK')return e.code!=='KeyF'&&e.code!=='KeyM';   // F 下車、M 地圖照原本；N、K 不要
     if(e.code==='ShiftLeft'||e.code==='ShiftRight'){R.driftKey=down;return true;}
@@ -8025,7 +8025,7 @@ const NM=(()=>{
     const sig=JSON.stringify([SAVE.stars,SAVE.best,SAVE.toss,SAVE.prize]);if(sig!==S.sig){S.sig=sig;drawBoard();for(const it of S.items)drawLabel(it,!!SAVE.prize[it.k]);}
     for(const it of S.items){const got=!!SAVE.prize[it.k];
       if(S.shown[it.k]===undefined){S.shown[it.k]=got;it.box.visible=!got;it.item.visible=got;}   /* 一開始已經有的：直接擺好（不放煙火） */
-      if(got&&!S.shown[it.k]&&near&&it.anim<0){it.anim=0;S.shown[it.k]=true;AUDIO.sfx('chime');AUDIO.sfx('cheer');big(`🎁 ${it.name} 放進展示櫃了！`);}
+      if(got&&!S.shown[it.k]&&near&&it.anim<0){it.anim=0;S.shown[it.k]=true;AUDIO.sfx('trophy');AUDIO.sfx('cheer');big(`🎁 ${it.name} 放進展示櫃了！`);}
       if(it.anim>=0){it.anim+=dt;const a=it.anim;it.box.scale.setScalar(Math.max(0.001,1-a/0.4));it.box.rotation.y+=dt*12;if(a>0.35){it.box.visible=false;it.item.visible=true;const k2=Math.min(1,(a-0.35)/0.5);it.item.scale.setScalar(0.001+k2*(1+0.25*Math.sin(k2*Math.PI)));}
         if(a<0.9&&Math.random()<0.6){const p=it.g.position;puff(p.x+rnd(-1,1),p.y+rnd(0.3,2),p.z+rnd(-0.6,0.6),['#ffd23a','#ff5fa2','#7fe0ff','#7fff8a'][Math.floor(Math.random()*4)],0.5,0.8,new V3(rnd(-3,3),rnd(1,5),rnd(-1,1)));}
         if(a>0.9){it.anim=-1;it.item.scale.setScalar(1);}}
@@ -8193,7 +8193,7 @@ const NM=(()=>{
   // 武器箱打破＝拿到武器（同一種升一級，換武器等級照帶），這一對的另一邊收掉
   function boxBreak(g){g.hp=0;drawGate(g);for(const q of g.pair)if(q!==g){q.used=true;q.fade=1;}const W=WPN[g.w];
     if(N.wpn.k===g.w){N.wpn.lv=Math.min(5,N.wpn.lv+1);big(`${W.ico} ${W.n} 升級 Lv${N.wpn.lv}！`);}else{const lv=Math.max(1,N.wpn.lv);N.wpn={k:g.w,lv};big(lv>1?`${W.ico} 換成${W.n} Lv${lv}！`:`${W.ico} 得到${W.n}！`);note(WDESC[g.w]);}
-    AUDIO.sfx('chime');AUDIO.sfx('combo');AUDIO.sfx('crack');for(let k=0;k<16;k++)puff(g.x,rnd(0.3,2),g.zc+rnd(-1,1),k%2?'#ffb347':'#b07a3a',0.55,0.6,new V3(rnd(-3,3),rnd(1,4),rnd(-3,3)));if(g.crate)g.crate.visible=false;
+    AUDIO.sfx('coin');AUDIO.sfx('combo');AUDIO.sfx('crack');for(let k=0;k<16;k++)puff(g.x,rnd(0.3,2),g.zc+rnd(-1,1),k%2?'#ffb347':'#b07a3a',0.55,0.6,new V3(rnd(-3,3),rnd(1,4),rnd(-3,3)));if(g.crate)g.crate.visible=false;
     for(const q of gates)if(q.op==='box'&&!q.used&&q.hp>0)q.dirty=true;}
   function bulTick(dt){for(const sh of bul){sh.t+=dt;const T=sh.T;if((T.m&&!T.m.dead)||T.boss)sh.b.lerp(tgtPos(T,TP),Math.min(1,dt*7));if(sh.t>=sh.dur){sh.done=true;bulHit(sh);}}bul=bul.filter(s=>!s.done);}
   function bulDraw(){let i=0;for(const sh of bul){const W=WPN[sh.k];if(W.ring)continue;const u=Math.min(1,sh.t/sh.dur);TP.copy(sh.a).lerp(sh.b,u);TP.y+=sh.h*4*u*(1-u);const sc=W.sc||1;put(SHI,i,TP.x,TP.y,TP.z,0,sc,sc,sc);SHI.setColorAt(i,TC.set(sh.gold?'#ffb000':W.col));if(++i>=260)break;}
@@ -8238,7 +8238,7 @@ const NM=(()=>{
     if(N.mode==='army'&&N.on)N.stop();N.mode=null;const S=STAGES[i];N.stage=i;N.S=S;N.D=DIFF[SAVE.diff]||DIFF[1];N.dk=SAVE.diff;panel.hidden=true;N.on=true;N.st='count';N.cd=2.4;N.lastCd=4;N.n=S.n0;N.cx=X0+0.5;N.cz=LC;N.v=0;N.kills=0;N.manT=0;N.wAcc=0;N.spAcc=0;N.leadX=null;N.wpn={k:null,lv:0};N.bossOn=null;N.sk={big:0,rapid:0,gold:0};N.cdn={big:0,rapid:0,gold:0};N.bites=0;
     N.fin=null;N.camP=null;buildCourse(S);for(const t of TIERS){t.glow=0;t.mat.emissive.copy(t.base);t.mat.emissiveIntensity=1;}N.bossRing.visible=false;N.boss.position.y=9.5;
     document.body.classList.add('nm');hud.hidden=false;btns.hidden=false;mySign.visible=true;night(true);syncBtns();
-    if(view!=='third'){view='third';syncViewUI();}player.yaw=-Math.PI/2;AUDIO.sfx('chime');
+    if(view!=='third'){view='third';syncViewUI();}player.yaw=-Math.PI/2;AUDIO.sfx('enter');
     if(!N.told){N.told=true;toast(isTouch?'左右推搖桿（或手指左右拖）選邊：藍色門加人、橘色武器箱打破換武器；小兵會自動丟武器打怪物':'A D／← → 選邊（也可以滑鼠左右拖）：藍色門加人、橘色武器箱打破換武器；1 巨大圈、2 連發、3 黃金、P 自動；F 離開');}};
   N.stop=()=>{if(!N.on)return;if(N.mode==='army')N.armyEnd();const wasToss=N.st==='toss';N.on=false;N.st='idle';if(!wasToss){clearCourse();CB.count=CH.count=0;}document.body.classList.remove('nm','nmtoss');hud.hidden=true;btns.hidden=true;panel.hidden=true;mySign.visible=false;
     if(wasToss){tossReset();N.boothLight.visible=false;player.yaw=Math.PI;player.pitch=-0.1;}night(false);avatar.root.visible=true;player.vel.set(0,0);
@@ -8345,7 +8345,7 @@ const NM=(()=>{
   function hudDraw(){N.hudT=(N.hudT||0)-1/60;if(N.hudT>0)return;N.hudT=0.1;const S=N.S,B=N.bossOn;hud.innerHTML=[`<b>套圈大進擊</b>　${S.name.split('・')[0]}・<span style="color:${N.D.c}">${N.D.n}</span>`,`<span>👥</span><b>${N.n}</b>`,`<span>💀</span><b>${N.kills}</b>`,N.wpn.k?`${WPN[N.wpn.k].ico} <b>${WPN[N.wpn.k].n}</b> Lv${N.wpn.lv}`:`⭕ <span>圈圈</span>`,B&&B.st!=='dead'?`<span style="color:#ff8a8a">${B.name} ${Math.ceil(B.hp)}</span>`:'',N.fin?`<span>獎品塔</span><b>×${N.fin.lv}</b>`:''].filter(Boolean).map(s=>`<i>${s}</i>`).join('　');hud.classList.remove('side');
     for(const k of ['big','rapid','gold']){const b=btns.querySelector(`[data-k=${k}]`),c=N.cdn[k];b.classList.toggle('cd',c>0);b.style.setProperty('--p',c>0?(1-c/SK[k].cd)*100+'%':'100%');b.classList.toggle('act',(N.sk[k]||0)>0);}}
   // ================= 終點：往上套獎品塔 =================
-  function finishStart(){N.st='finish';N.fin={n0:N.n,thrown:0,landed:0,lv:0,boss:false,acc:0,end:0,k:Math.max(1,Math.ceil(N.n/150)),iv:cl(5/Math.max(1,Math.min(N.n,150)),0.033,0.25)};   /* 人很多時一個圈代表 k 個人（最多丟約 150 個圈、約 5 秒） */big('獎品塔！往上套！');AUDIO.sfx('chime');}
+  function finishStart(){N.st='finish';N.fin={n0:N.n,thrown:0,landed:0,lv:0,boss:false,acc:0,end:0,k:Math.max(1,Math.ceil(N.n/150)),iv:cl(5/Math.max(1,Math.min(N.n,150)),0.033,0.25)};   /* 人很多時一個圈代表 k 個人（最多丟約 150 個圈、約 5 秒） */big('獎品塔！往上套！');AUDIO.sfx('magic');}
   function finishStep(dt){const F=N.fin;F.acc+=dt;
     while(F.acc>=F.iv&&N.n>0){F.acc-=F.iv;const done=F.thrown,w=Math.min(F.k,N.n);F.thrown+=w;N.n-=w;let lv=0;while(lv<10&&done>=CUM[lv])lv++;
       const m=MP[Math.floor(Math.random()*Math.min(N.n+1,40,150))]||{x:N.cx,z:N.cz};
@@ -8389,14 +8389,14 @@ const NM=(()=>{
   // 天女散花（使用者：按了之後自己決定往哪裡丟）：按一下＝準備（按鈕發亮、瞄準圈變粉紅色的大圈），再滑一下選地方，剩下的圈全部撒在那一圈裡；再按一次＝取消
   const SPR=p=>0.75+0.07*Math.hypot(p.x-BOOTH.x,p.z-BOOTH.zl);   /* 撒開的半徑：越遠越散 */
   function scatArm(on){const T=N.toss;if(!T)return;T.arm=on;const b=$('nmScatter');b.classList.toggle('arm',on);b.querySelector('small').textContent=on?'往想撒的地方滑':'整桶撒出去';}
-  function tossScatter(){const T=N.toss;if(!T||T.left<=0)return;if(T.arm){scatArm(false);toast('取消天女散花');return;}scatArm(true);big('🌸 往想撒的地方滑！');AUDIO.sfx('chime');}
+  function tossScatter(){const T=N.toss;if(!T||T.left<=0)return;if(T.arm){scatArm(false);toast('取消天女散花');return;}scatArm(true);big('🌸 往想撒的地方滑！');AUDIO.sfx('magic');}
   function scatterAt(c){const T=N.toss;if(!T||T.left<=0)return;scatArm(false);const n=T.left,R=SPR(c);T.left=0;
     for(let k=0;k<n;k++){const a=Math.random()*Math.PI*2,r=R*Math.sqrt(Math.random());let tx=cl(c.x+Math.cos(a)*r,BOOTH.x-4.8,BOOTH.x+4.8),tz=cl(c.z+Math.sin(a)*r,BOOTH.zl+0.8,BOOTH.zl+8.9);
       const dd=Math.hypot(tx-BOOTH.x,tz-BOOTH.zl);T.flies.push({a:new V3(BOOTH.x+rnd(-0.4,0.6),1.3+rnd(0,0.35),BOOTH.zl+0.2),b:new V3(tx,0.12,tz),t:-k*0.07,T:0.6+0.06*dd,h:1.6+rnd(0,1.2),kind:'w',spin:rnd(6,14)});}
     big('🌸 天女散花！');AUDIO.sfx('whoosh');setTimeout(()=>AUDIO.sfx('whoosh'),160);setTimeout(()=>AUDIO.sfx('whoosh'),320);tossHud();}
   N.tossScatter=tossScatter;
   function tossStart(){if(GAME.on)return;if(SKATE.on)SKATE.stop();if(BB.on)BB.stop();if(EMOTE.on)EMOTE.stop(true);N.on=true;N.st='toss';N.toss={left:10,score:0,won:[],flies:[],rings:[],wob:[],arm:false};scatArm(false);document.body.classList.remove('nmtossend');
-    player.pos.set(BOOTH.x,BOOTH.zl-0.5);player.yaw=Math.PI;player.vel.set(0,0);document.body.classList.add('nm','nmtoss');hud.hidden=false;N.boothLight.visible=true;tossHud();AUDIO.sfx('chime');
+    player.pos.set(BOOTH.x,BOOTH.zl-0.5);player.yaw=Math.PI;player.vel.set(0,0);document.body.classList.add('nm','nmtoss');hud.hidden=false;N.boothLight.visible=true;tossHud();AUDIO.sfx('enter');
     toast(isTouch?'手指往前滑丟圈圈：滑越長丟越遠、往左右偏就丟左右；黃色圈＝大概會落在這裡（越遠越不準），落在獎品上會轉一下，越正中間越容易套進去；右下「🌸 天女散花」按一下再滑，剩下的圈全部撒到那裡':'按住滑鼠往前拖再放開丟圈圈；黃色圈＝大概會落在這裡（越遠越不準），落在獎品上會轉一下，越正中間越容易套進去；空白鍵＝🌸 天女散花（按了再拖滑鼠選地方）；R 重玩、F／Esc 離開');}
   function tossHud(){const T=N.toss;hud.classList.remove('side');hud.innerHTML=`<b>套圈圈</b>　<span>剩</span><b>${T.left}</b><span>個圈</span>　<span>分數</span><b>${T.score}</b>${SAVE.prize.yukata?'':'<span>／15 送浴衣</span>'}${SAVE.toss?`　<span>最高</span><b>${SAVE.toss}</b>`:''}`;const sb=$('nmScatter');if(sb)sb.disabled=!(T.left>0);}
   const TOPY=pz=>pz.y+(pz.kind==='bottle'?0.44:pz.kind==='plush'?0.52:0.44);
@@ -8408,7 +8408,7 @@ const NM=(()=>{
     const pz=hit.pz,q=cl(1-hit.d/RIM(pz),0,1),ok=Math.random()<0.06+0.9*Math.pow(q,0.8);pz.wob=true;   /* 越正中間越容易進 */
     T.wob.push({pz,ok,t:0,T:rnd(0.55,1.05),ang:Math.random()*6.3,a:new V3(pz.x,TOPY(pz),pz.z),b:new V3(pz.x,TOPY(pz),pz.z),h:0,kind:'w',spin:rnd(16,24),near:q});AUDIO.sfx('click');}
   function wobEnd(W){const T=N.toss,pz=W.pz;pz.wob=false;if(W.ok)ringIn(pz);
-    else{const a=W.ang;resting.push({x:pz.x+Math.cos(a)*(pz.r+0.2),y:0.11,z:pz.z+Math.sin(a)*(pz.r+0.2),kind:'w',life:99});AUDIO.sfx('thud');if(W.near>0.45)big('差一點！');}tossHud();}
+    else{const a=W.ang;resting.push({x:pz.x+Math.cos(a)*(pz.r+0.2),y:0.11,z:pz.z+Math.sin(a)*(pz.r+0.2),kind:'w',life:99});AUDIO.sfx('softland');if(W.near>0.45)big('差一點！');}tossHud();}
   function ringIn(pz){const T=N.toss;const best={pz};
     if(best){const pz=best.pz;pz.taken=true;T.score+=pz.pts;T.won.push(pz);pz.up=0;resting.push({x:pz.x,y:pz.y+0.05,z:pz.z,kind:'w',life:99,pz});big(`套中！+${pz.pts}`);AUDIO.sfx(pz.pts>=10?'bigcheer':pz.pts>=3?'cheer':'combo');for(let k=0;k<14;k++)puff(pz.x,pz.y+0.4,pz.z,'#ffe08a',0.35,0.5);}
     tossHud();}
@@ -8545,7 +8545,7 @@ const NM=(()=>{
      const dg=new THREE.PlaneGeometry(1.2,0.14).rotateX(-Math.PI/2);for(const s of [-1,1])for(let x=WL+1;x<x0+L;x+=2.4)mk(dg,wl,x,0.06,LC+s*LNW/2,CG);
      A.ring=mk(new THREE.RingGeometry(0.92,1,40).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#5dff7a',transparent:true,opacity:0.9,toneMapped:false,side:THREE.DoubleSide}),AX,0.07,LC,CG);}   /* 大軍腳下的綠圈 */
     if(N.lanAll)for(const m of N.lanAll)m.visible=false;   /* 燈籠藏起來：鏡頭要拉高往下看 */
-    document.body.classList.add('nm');hud.hidden=false;btns.hidden=false;mySign.visible=true;night(true);syncBtns();if(view!=='third'){view='third';syncViewUI();}player.yaw=-Math.PI/2;AUDIO.sfx('chime');
+    document.body.classList.add('nm');hud.hidden=false;btns.hidden=false;mySign.visible=true;night(true);syncBtns();if(view!=='third'){view='third';syncViewUI();}player.yaw=-Math.PI/2;AUDIO.sfx('enter');
     try{const ar=[ATL.m,ATL.post,REDM,CANM,ABM,ASM,...AGUN];for(const m of ar)m.count=Math.max(m.count,1);renderer.compile(scene,camera);for(const m of ar)m.count=0;}catch(_){}   /* 先把著色程式編好 */
     if(A.rain){if(!N.toldR){N.toldR=true;toast('倍數箭雨：站右邊吃綠色加人門；站左邊把石柱打倒，中間會出現黃色倍數門，子彈穿過去變好幾倍！紅色敵人走自己那一格、不會自己過來，哪一格有敵人就移過去擋。打倒大魔王就贏');}}
     else if(!N.toldA){N.toldA=true;toast('大軍團：大軍站在哪一格，子彈就往前打哪一格。左中右選一格：藍色「+人」門加人、紅色桶子打到 0 拿武器、灰色鎖住的門先打開。紅色敵人走自己那一格、不會自己過來：哪一格有敵人就移過去擋，衝到警戒線會扣人數！');}   /* 2026-10-18.5：長說明只在第一次（每次都跳會蓋住上半個畫面，門和敵人剛好從那裡出現） */};
@@ -8855,7 +8855,7 @@ const RB=(()=>{
   function trophyTick(dt){const t=performance.now()/1000,d=Math.hypot(player.pos.x-TC.x,player.pos.y-TC.z),near=d<35&&!R.on;
     const sig=JSON.stringify([SAVE.cleared,SAVE.best,SAVE.gold]);if(sig!==TC.sig){TC.sig=sig;trophyDraw();}
     if(TC.shown<0){TC.shown=SAVE.cleared;TC.goldShown=SAVE.gold;for(const cp of TC.cups)cupLook(cp,cp.i<SAVE.cleared);champLook(SAVE.gold);}   /* 一開始已經有的：直接擺好 */
-    if(near&&TC.shown<SAVE.cleared&&!TC.cups.some(c=>c.anim>=0)){const cp=TC.cups[TC.shown];TC.shown++;cp.anim=0;cupLook(cp,true);AUDIO.sfx('chime');AUDIO.sfx('cheer');big(`🏆 打贏${OPP[cp.i].name}的獎盃放進獎盃櫃了！`);}
+    if(near&&TC.shown<SAVE.cleared&&!TC.cups.some(c=>c.anim>=0)){const cp=TC.cups[TC.shown];TC.shown++;cp.anim=0;cupLook(cp,true);AUDIO.sfx('trophy');AUDIO.sfx('cheer');big(`🏆 打贏${OPP[cp.i].name}的獎盃放進獎盃櫃了！`);}
     if(near&&SAVE.gold&&!TC.goldShown&&TC.shown>=SAVE.cleared&&!TC.cups.some(c=>c.anim>=0)){TC.goldShown=true;champLook(true);TC.champAnim=0;AUDIO.sfx('bigcheer');big('👑 冠軍金色機器人上架！');}
     for(const cp of TC.cups){if(cp.anim>=0){cp.anim+=dt;const a=cp.anim,k=Math.min(1,a/0.6),s0=cp.i===4?1.55:1.15;cp.g.scale.setScalar(s0*(1+0.35*Math.sin(k*Math.PI)));
         if(a<1&&Math.random()<0.7){const p=cp.g.position;puff(TV.set(p.x+rnd(-0.4,0.6),p.y+rnd(0.2,1.4),p.z+rnd(-0.8,0.8)).clone(),['#ffd23a','#38e1ff','#ff5fa2'][Math.floor(Math.random()*3)],0.35,0.05,0.7,new V3(rnd(0,3),rnd(1,4),rnd(-2,2)));}
@@ -8896,7 +8896,7 @@ const RB=(()=>{
     F.me=mkF(me,-2.6,0);F.op=mkF(op,2.6,0);F.op.max=F.op.hp=O.hp;F.me.max=F.me.hp=130;F.me.en=0;F.op.en=0;F.me.seq=[];F.me.lastBasic=-9;F.op.ai={cd:1,strafe:1,st:0};
     R.on=true;R.st='intro';R.t=0;R.t2=0;R.introN=-1;R.time=99;R.slow=0;R.hs=0;R.cine=0;R.camK=0;R.camP=null;R.buf=null;R.blockKey=false;R.blockBtn=false;rocket=null;rocketM.visible=false;
     document.body.classList.add('rb');hud.hidden=false;btns.hidden=false;sp.hidden=false;buildSp();if(view!=='third'){view='third';syncViewUI();}
-    R.scrTex.image.getContext('2d');drawScreen(`第 ${i+1} 關　VS　${O.name}`);AUDIO.sfx('chime');
+    R.scrTex.image.getContext('2d');drawScreen(`第 ${i+1} 關　VS　${O.name}`);AUDIO.sfx('enter');
     if(!R.told){R.told=true;toast(isTouch?'左搖桿移動（往前＝靠近對手）；右下：刺拳、直拳、上勾、防禦（按住）、閃避；右邊：必殺技（要能量）。照順序出拳會變組合技':'WASD 移動；J 刺拳、K 直拳、U 上勾拳、L 防禦（按住）、空白鍵閃避；1～6 必殺技（要能量）；照順序出拳會變組合技；Esc 離開');}};
   R.stop=()=>{if(!R.on)return;R.on=false;R.st='idle';for(const q of DT)q.el.remove();DT.length=0;   /* 打到一半離開：畫面上的傷害數字原本會一直留著 */
     document.body.classList.remove('rb');hud.hidden=btns.hidden=sp.hidden=true;panel.hidden=true;R.slow=0;rocketM.visible=false;
@@ -9201,7 +9201,7 @@ const SB=(()=>{
     const sig=JSON.stringify([SAVE.cleared,SAVE.best,SAVE.gold]);if(sig!==TC.sig){TC.sig=sig;trophyDraw();}
     if(TC.shown<0||TC.shown>SAVE.cleared||(TC.goldShown&&!SAVE.gold)){TC.shown=SAVE.cleared;TC.goldShown=SAVE.gold;for(const cp of TC.cups)cupLook(cp,cp.i<SAVE.cleared);champLook(SAVE.gold);}   /* 一開始已經有的：直接擺好 */
     const busy=TC.cups.some(c=>c.anim>=0);
-    if(near&&TC.shown<SAVE.cleared&&!busy){const cp=TC.cups[TC.shown];TC.shown++;cp.anim=0;cupLook(cp,true);AUDIO.sfx('chime');AUDIO.sfx('cheer');big(`🏆 打贏${OPP[cp.i].name}的獎盃放上獎盃牆了！`);}
+    if(near&&TC.shown<SAVE.cleared&&!busy){const cp=TC.cups[TC.shown];TC.shown++;cp.anim=0;cupLook(cp,true);AUDIO.sfx('trophy');AUDIO.sfx('cheer');big(`🏆 打贏${OPP[cp.i].name}的獎盃放上獎盃牆了！`);}
     if(near&&SAVE.gold&&!TC.goldShown&&TC.shown>=SAVE.cleared&&!busy){TC.goldShown=true;champLook(true);TC.champAnim=0;AUDIO.sfx('bigcheer');big('👑 冠軍金色球衣上架！');}
     for(const cp of TC.cups){if(cp.anim>=0){cp.anim+=dt;const a=cp.anim,k=Math.min(1,a/0.6),s0=cp.i===4?1.55:1.15;cp.g.scale.setScalar(s0*(1+0.35*Math.sin(k*Math.PI)));
         if(a<1&&Math.random()<0.7){const p=cp.g.position;puff(new V3(p.x+rnd(-0.8,0.8),p.y+rnd(0.2,1.4),p.z+rnd(-0.3,0.6)),HUE[Math.floor(Math.random()*7)],0.35,0.05,0.7,new V3(rnd(-2,2),rnd(1,4),rnd(0,3)));}
@@ -9345,7 +9345,7 @@ const SB=(()=>{
     if(inter){giveBall(p,'steal');gain(p.team,22);if(p.team===0)S.stats.stl++;burst(b.p.clone(),12,'#7fffb0',3);AUDIO.sfx('catch');big(p.me?'抄到傳球！':p.team===0?'隊友抄到傳球！':'傳球被抄走了…');return;}
     BL.st='hold';BL.h=p;BL.t=0;p.hold=0;p.got=0.18;p.dec=rnd(0.2,0.45);AUDIO.sfx('catch');
     if(S.clear&&S.poss===p.team&&out3(p.x,p.z,0.1))S.clear=false;}
-  function startTrick(p,sp){p.act={k:'trick',t:0,dur:sp?0.9:0.6,res:sp?0.38:0.3,sp,lock:false,slowMove:0.45};AUDIO.sfx('whoosh');}
+  function startTrick(p,sp){p.act={k:'trick',t:0,dur:sp?0.9:0.6,res:sp?0.38:0.3,sp,lock:false,slowMove:0.45};AUDIO.sfx('spin');}
   function resolveTrick(p,a){
     if(a.sp==='ankle'){let n=0;for(const q of opps(p))if(dist(p,q)<4.8){q.fall=q.fallMax=1.9;q.act=null;q.pend=null;n++;burst(new V3(q.x,1,q.z),8,'#ffe14a',2.5);}p.hot=5;p.boost=1.0;ring(new V3(p.x,0.06,p.z),'#ffe14a',9,0.6);AUDIO.sfx('boom');S.slow=Math.max(S.slow,0.6);big(n?`晃倒 ${n} 個人！接下來必進`:'手感全開！接下來必進');return;}
     const [q,dd]=nearOpp(p);if(!q||dd>1.8)return;
@@ -9372,7 +9372,7 @@ const SB=(()=>{
     tm.en-=c;p.act=null;
     if(k==='meteor')startDunk(p,'meteor');else if(k==='rainbow')startShoot(p,'rainbow');else if(k==='ankle')startTrick(p,'ankle');
     else if(k==='tornado'){p.act={k:'tornado',t:0,lock:true,hit:new Set()};AUDIO.sfx('takeoff');}
-    else if(k==='wall'){p.wall=8;ring(new V3(p.x,0.06,p.z),'#7fd8ff',5,0.5);AUDIO.sfx('chime');}
+    else if(k==='wall'){p.wall=8;ring(new V3(p.x,0.06,p.z),'#7fd8ff',5,0.5);AUDIO.sfx('magic');}
     else if(k==='flash'){p.act={k:'dash',t:0,tg:BL.h,lock:true};AUDIO.sfx('takeoff');}
     S.cine=Math.max(S.cine,k==='wall'?0:k==='meteor'?2.2:k==='rainbow'?2.0:1.2);if(k!=='wall'&&k!=='meteor')S.slow=Math.max(S.slow,0.25);
     big(SP[k].n+'！');if(p.team===1){note(`${S.O.name}：${SP[k].n}！`);const sc=k==='rainbow'||k==='meteor';S.aiCd=(sc?rnd(24,32):rnd(14,20))*(S.stage>=4?0.75:1);}   /* 必進的（彩虹三分、隕石灌籃）隔更久 */ring(new V3(p.x,1.6,p.z),p.team===0?'#ffe14a':'#ff6a6a',4,0.5,false);
@@ -10097,7 +10097,7 @@ const CU=(()=>{
     for(let k=0;k<40;k++)dropGem(B.a+rnd(-3,3),B.b+rnd(-3,3),5);for(let k=0;k<3;k++){const an=k*2.1;dropReward(B.a+Math.cos(an)*1.6,B.b+Math.sin(an)*1.6,true);}K.kills+=1;if(K.mode==='stage')winStart();else if(K.esc){K.exitLocked=false;big(`打倒${B.D.n}！出口打開了！`);note('快跑到逃生點，站在圈圈裡撐 10 秒');}else{big(`打倒${B.D.n}！`);K.bossN++;}}
   function bossTick(dt){if(!B)return;B.t+=dt;B.flash=Math.max(0,B.flash-dt);B.fcd=Math.max(0,(B.fcd||0)-dt);if(B.st==='dead'){BOSSG.scale.setScalar(Math.max(0.01,1-B.t*1.2)*B.grow);BOSSG.rotation.z=B.t*2;if(K.mode!=='stage'&&B.t>1.5){BOSSG.visible=false;barSp.visible=false;BOSSG.scale.setScalar(1);BOSSG.rotation.z=0;B=null;}return;}   /* 無盡：倒下 1.5 秒後收掉（下一隻 150 秒後來） */
     const da=K.pa-B.a,db=K.pb-B.b,d=Math.hypot(da,db)||1,stg=K.mode==='stage',p2=B.p2?0.7:1;
-    if(B.st==='walk'&&stg&&B.a>K.pa-3){B.st='hop';B.t=0;B.h0a=B.a;B.h0b=B.b;B.h1a=K.pa-9;B.h1b=cl(K.pb*0.3,-K.R.W+1.5,K.R.W-1.5);AUDIO.sfx('whoosh');}   /* 闖關：跑到你身上／後面就跳回你前面 */
+    if(B.st==='walk'&&stg&&B.a>K.pa-3){B.st='hop';B.t=0;B.h0a=B.a;B.h0b=B.b;B.h1a=K.pa-9;B.h1b=cl(K.pb*0.3,-K.R.W+1.5,K.R.W-1.5);AUDIO.sfx('flyup');}   /* 闖關：跑到你身上／後面就跳回你前面 */
     if(B.st==='walk'&&B.morph){B.mw=(B.mw||0)+dt;}
     if(B.st==='walk'&&B.morph&&((stg?K.pa-B.a:d)>6.5||B.mw>5)){B.mw=0;B.morph=false;B.st='tele';B.atk='morph';B.t=0;B.sa=B.a;B.sb=B.b;B.sr=Math.min(5.5,Math.max(2.5,(stg?K.pa-B.a:d)-1.5));hideTele();   /* 紅圈不要一開始就蓋住你 */big(`🔥 ${B.D.n} 變身了！`);AUDIO.sfx('morph');note('第二階段：變大、會用新招！看到紅色範圍快閃開');}
     if(B.st==='walk'){const want=stg?9:7;let va=0,vb=0;
@@ -10222,7 +10222,7 @@ const CU=(()=>{
     fire:{n:'🎆 校慶煙火',d:'煙火會炸飛附近的怪物！',T:14},fair:{n:'🎪 社團博覽會',d:'寶石雨＋兩隻寶箱怪！',T:6}};
   K.EVS=EVS;
   function freeSpot(r0,r1){for(let tr=0;tr<12;tr++){const an=Math.random()*Math.PI*2,r=rnd(r0,r1),a=K.pa+Math.cos(an)*r,b=K.pb+Math.sin(an)*r;if(!fgBlk(a,b))return [a,b];}return null;}
-  function evStart(k){const ks=Object.keys(EVS).filter(q=>q!==K.evLast);k=k||ks[Math.floor(Math.random()*ks.length)];K.evLast=k;K.ev={k,t:0,T:EVS[k].T,acc:0};big(EVS[k].n);note(EVS[k].d);AUDIO.sfx('chime');
+  function evStart(k){const ks=Object.keys(EVS).filter(q=>q!==K.evLast);k=k||ks[Math.floor(Math.random()*ks.length)];K.evLast=k;K.ev={k,t:0,T:EVS[k].T,acc:0};big(EVS[k].n);note(EVS[k].d);AUDIO.sfx('magic');
     if(k==='lunch'){for(let q=0;q<7;q++){const p=freeSpot(3,11);if(p)dropItem('bento',p[0],p[1]);}}
     else if(k==='bell'){for(let i=0;i<hiM;i++)if(MAL[i])MFZ[i]=Math.max(MFZ[i],5);if(B&&B.hp>0)B.cool+=3;wp(K.pa,K.pb,TV);ring(TV.x,TV.z,20,'#ffe08a',0.9);}
     else if(k==='fair'){const v=Math.max(3,Math.round(needL(K.lv)/30));for(let q=0;q<45;q++){const p=freeSpot(1.5,9);if(p){dropGem(p[0],p[1],v);wp(p[0],p[1],TV);if(q%3===0)part(TV.x,rnd(3,6),TV.z,'#c86bff',0.7,0.6,0,-2,0);}}for(let q=0;q<2;q++){const p=freeSpot(9,13);if(p)spawnM('chest',p[0],p[1]);}AUDIO.sfx('combo');}}
@@ -10337,7 +10337,7 @@ const CU=(()=>{
     if(K.esc)escBuild(K.S);else{escClear();EX.g=null;}
     document.body.classList.add('cu');hud.hidden=false;btns.hidden=false;syncBtns();K.aim.on=false;aimId=null;mAim=null;aimKn.style.transform='';{let z=0;try{z=+localStorage.getItem('home-cucam')||0;}catch(_){}K.cz=z>=0&&z<3?z:0;}syncCam();savedView=view;if(view!=='third'){view='third';syncViewUI();}
     if(!GUN)GUN=gunBuild();avatar.root.add(GUN);GUN.position.set(0.11,1.52,0.43);gunColor();gunShow();vestOn(K.dept);
-    AUDIO.sfx('chime');AUDIO.musicStart();AUDIO.setTempo&&AUDIO.setTempo(126);place(true);warmUp();
+    AUDIO.sfx('enter');AUDIO.musicStart();AUDIO.setTempo&&AUDIO.setTempo(126);place(true);warmUp();
     if(!K.told){K.told=true;note(isTouch?(K.auto?'自動模式：自己沿著箭頭走、撿掉下來的武器箱和能力水晶；你按右下的大招。推搖桿＝自己走':'搖桿走：跟著地上的箭頭到逃生點；打怪掉的武器箱、能力水晶走過去撿；右下是大招'):(K.auto?'自動模式：自己沿著箭頭走、撿掉下來的武器箱和能力水晶；你按 1 空襲、2 冰河期、3 狂暴。WASD＝自己走':'WASD 走：跟著地上的箭頭到逃生點；打怪掉的武器箱、能力水晶走過去撿；Q 空襲、E 冰河期、R 狂暴；P 自動'));}else note(`${K.dept.ico} ${K.dept.n}：${K.dept.d}`);};
   K.stop=(quiet)=>{if(!K.on)return;if(K.coop){K.coop=false;if(K.netSend)K.netSend({t:'cuQ'});}K.down=false;K.on=false;K.st='idle';clearM();nB=0;nG=0;nP=0;nR=0;bolts.length=0;rockets.length=0;bombs.length=0;ices.length=0;planes.length=0;for(const it of items)G.remove(it.m);items.length=0;
     for(const m of [BULM,GEMM,PARTM,RINGM,BOLTM,ROCKM,BOMBM,ICEM,PLANEM,BOOKM,CONFM])m.count=0;for(const L of LASERS)L.o.visible=L.c.visible=false;for(const d of DRONES)d.visible=false;
@@ -10486,18 +10486,18 @@ const CU=(()=>{
     // ---- 過關 ----
     if(K.st==='win'){K.winT+=dt;if(K.winT<1.4){let n=0;for(let i=0;i<hiM&&n<40;i++)if(MAL[i]){killM(i);n++;}}for(let g=0;g<nG;g++)GF[g]=1;if(K.winT>2.6&&K.st==='win'){K.st='done';result(true);return;}}
     draw(dt);hudDraw();};
-  function collect(it){wp(it.a,it.b,TV);if(it.k==='heart'){K.hp=Math.min(K.hpMax,K.hp+30);note('❤ 生命 +30');AUDIO.sfx('chime');}
+  function collect(it){wp(it.a,it.b,TV);if(it.k==='heart'){K.hp=Math.min(K.hpMax,K.hp+30);note('❤ 生命 +30');AUDIO.sfx('coin');}
     else if(it.k==='magnet'){for(let g=0;g<nG;g++)GF[g]=1;note('🧲 寶石全部吸過來！');AUDIO.sfx('combo');}
     else if(it.k==='bomb'){big('💣 全場炸彈！');AUDIO.sfx('bigboom');for(let i=0;i<hiM;i++)if(MAL[i]&&!MT[TYPES[MTY[i]]].elite&&(MA[i]-K.pa)**2+(MB_[i]-K.pb)**2<900)killM(i);ring(TV.x,TV.z,14,'#ffb347',0.6);}
     else if(it.k==='chest'){const w=pickWeapon();if(w)giveWeapon(w);const pk=Object.keys(PV).filter(k=>(K.pv[k]||0)<5);if(pk.length)givePassive(pk[Math.floor(Math.random()*pk.length)],'💰 寶箱：');big('💰 寶箱！武器＋能力');AUDIO.sfx('bigcheer');}
     else if(it.k==='pv'){givePassive(it.p,it.boss?'👑 ':'');if(it.boss&&(K.pv[it.p]||0)<5)givePassive(it.p,'👑 ');}   /* 大魔王掉的：升兩級 */
     else if(it.k==='bento'){K.hp=Math.min(K.hpMax,K.hp+15);note('🍱 便當：生命 +15');AUDIO.sfx('gem');}
     else if(it.k==='crate'){giveWeapon(it.w);if(it.boss&&K.wp[it.w]&&K.wp[it.w]<5)giveWeapon(it.w);}
-    else if(it.k==='shield'){K.shield=8;big('🛡 護盾 8 秒！');AUDIO.sfx('chime');}}
+    else if(it.k==='shield'){K.shield=8;big('🛡 護盾 8 秒！');AUDIO.sfx('coin');}}
   // 武器箱：沒有這把＝拿到（最多 6 把，滿了就升級身上的）、有＝升一級（5 級進化）
   function giveWeapon(w){let k=w;if(!K.wp[k]&&Object.keys(K.wp).length>=6){const own=Object.keys(K.wp).filter(q=>K.wp[q]<5&&q!=='books');k=own.length?own[Math.floor(Math.random()*own.length)]:null;}
     if(!k){K.hp=Math.min(K.hpMax,K.hp+30);big('📦 武器都滿級了：補血 +30');return;}const lv=Math.min(5,(K.wp[k]||0)+1);K.wp[k]=lv;K.wt[k]=0;if(isMain(k)&&(lv===1||!K.cur))setCur(k);else{gunShow();syncSwap();}
-    big(lv>=5?`✨ 進化：${WP[k].evo}！`:lv===1?`📦 得到 ${WP[k].ico} ${WP[k].n}！`:`📦 ${WP[k].ico} ${WP[k].n} Lv${lv}！`);AUDIO.sfx('combo');AUDIO.sfx('chime');gunColor();}
+    big(lv>=5?`✨ 進化：${WP[k].evo}！`:lv===1?`📦 得到 ${WP[k].ico} ${WP[k].n}！`:`📦 ${WP[k].ico} ${WP[k].n} Lv${lv}！`);AUDIO.sfx('combo');AUDIO.sfx('coin');gunColor();}
   // 子彈、雷射、飛書、火箭、冰凍彈、空襲、無人機
   function weaponsTick(dt,live){
     for(let i=nB-1;i>=0;i--){BL[i]-=dt;BA[i]+=BVA[i]*dt;BB_[i]+=BVB[i]*dt;let gone=BL[i]<=0;
@@ -10617,7 +10617,7 @@ const CU=(()=>{
   function honorTick(dt){const near=Math.hypot(player.pos.x-(C.honor.x0+C.honor.x1)/2,player.pos.y-C.honor.z)<30&&!K.on,sig=JSON.stringify([SAVE.stars,SAVE.eT>=180,SAVE.eT>=360,SAVE.eT>=600,SAVE.grad,SAVE.eT,SAVE.eK]);
     if(HB.shown===null){HB.shown=sig;drawHonor();HB.cap.visible=SAVE.grad;}
     if(sig!==HB.sig){HB.sig=sig;drawHonor();}
-    if(sig!==HB.shown&&near){HB.shown=sig;HB.anim=0;HB.cap.visible=SAVE.grad;big('📜 新的獎狀放上榮譽榜了！');AUDIO.sfx('chime');AUDIO.sfx('cheer');}
+    if(sig!==HB.shown&&near){HB.shown=sig;HB.anim=0;HB.cap.visible=SAVE.grad;big('📜 新的獎狀放上榮譽榜了！');AUDIO.sfx('trophy');AUDIO.sfx('cheer');}
     if(HB.anim>=0){HB.anim+=dt;const x=(C.honor.x0+C.honor.x1)/2;if(HB.anim<1.2&&Math.random()<0.7)part(x+rnd(-5,5),rnd(1,5),C.honor.z+rnd(0.3,1.5),['#ffd23a','#ff5fa2','#7fe0ff','#7fff8a'][Math.floor(Math.random()*4)],0.7,0.8,rnd(-2,2),rnd(1,4),rnd(0,1));if(HB.anim>1.5)HB.anim=-1;}
     if(HB.cap.visible)HB.cap.rotation.y+=dt*0.8;}
   // 每格（不管有沒有在玩）：開始站位閃一下、榮譽榜；校園裡陰影跟著人（陰影範圍只有 150 m，原本只在家附近）
@@ -10651,7 +10651,7 @@ const CU=(()=>{
   function coopPre(dt){CO2=K.coop&&K.chost&&P2.has;
     if(REM()){const k=1-Math.exp(-dt*12);for(let i=0;i<hiM;i++){if(!MAL[i])continue;MA[i]+=(TGA[i]-MA[i])*k;MB_[i]+=(TGB[i]-MB_[i])*k;MPH[i]+=dt*7;}}
     if(K.down&&(K.st==='endless'||K.st==='run'||K.st==='boss')){const pa=K.chost?P2.a:H.pa,pb=K.chost?P2.b:H.pb,ok=partnerUp()&&Math.hypot(K.pa-pa,K.pb-pb)<2.4;K.revT=ok?K.revT+dt:Math.max(0,K.revT-dt*0.5);
-      if(K.revT>=3){K.down=false;K.revT=0;K.hp=K.hpMax*0.5;big('被救起來了！');AUDIO.sfx('chime');const a=avatar;a.body.rotation.x=0;a.body.position.y=0;}}}
+      if(K.revT>=3){K.down=false;K.revT=0;K.hp=K.hpMax*0.5;big('被救起來了！');AUDIO.sfx('rescue');const a=avatar;a.body.rotation.x=0;a.body.position.y=0;}}}
   function coopPost(dt,live){if(!K.netSend)return;pT-=dt;snT-=dt;
     if(REM()){if(EVQ.length){K.netSend({t:'cuD',e:EVQ});EVQ=[];}if(BEQ>0){K.netSend({t:'cuBD',d:+BEQ.toFixed(1)});BEQ=0;}
       if(pT<=0){pT=1/15;K.netSend({t:'cuP',a:+K.pa.toFixed(2),b:+K.pb.toFixed(2),dn:K.down?1:0,hp:Math.round(K.hp),hm:K.hpMax});}return;}
@@ -10968,7 +10968,7 @@ for(const b of root.querySelectorAll('[data-n]'))b.onclick=e=>{e.stopPropagation
     topEl.innerHTML=(kind==='song'?(M.demo?'<button data-k="play">▶ 換我吹</button>':'<button data-k="demo">👂 聽示範</button>')+'<button data-k="again">↺ 重來</button>':kind==='lesson'?'<button data-k="again">↺ 重來</button>':'')+'<button data-k="chart">📖 指法表</button><button data-k="exit">✕ 離開</button>';
     savedView=view;if(view!=='third'){view='third';syncViewUI();}
     const gold=SAVE.gold;if(!FL||flGold!==gold){FL=fluteBuild(gold);flGold=gold;}avatar.root.add(FL);FL.position.set(0,1.605,0.13);FL.rotation.set(-0.52,0,0);FL.scale.setScalar(SAVE.inst==='sop'?0.8:1);   /* 高音直笛短一點 */
-    resizeCv();drawFlute();showInfo();AUDIO.sfx('chime');
+    resizeCv();drawFlute();showInfo();AUDIO.sfx('enter');
     if(kind==='lesson')note(LESSONS[i].tip);else if(kind==='song')note(M.demo?`👂 示範：${M.S.n}（看左邊的指法）`:M.wait?'等我模式：音符到黃線會停下來，吹對了才繼續':`音符碰到黃線的時候吹！（${Math.round(SAVE.spd*100)}% 速度）`);else note(SAVE.pm?'手指按住洞（拇指在左邊），指法對了就會出聲':SAVE.adv?'點笛子的洞蓋住／放開，按住「吹」':'按下面的唱名按鈕吹，五線譜上會留下你吹的音');};
   function restart(demo){if(M.kind==='song')M.start('song',M.si,demo===undefined?M.demo:demo);else if(M.kind==='lesson')M.start('lesson',M.L);}
   M.stop=quiet=>{if(!M.on)return;M.on=false;chartEl.hidden=true;clearTimeout(M.pmT);M.pmTh=0;M.pmHalf=0;pmEl.hidden=true;release();vOff();document.body.classList.remove('mu');ui.hidden=true;judgeEl.textContent='';
@@ -11121,7 +11121,7 @@ for(const b of root.querySelectorAll('[data-n]'))b.onclick=e=>{e.stopPropagation
     if(sig!==REC.sig){REC.sig=sig;drawRec();}
     const inside=H.inside(x,z);M.padM.material.opacity=M.on?0:0.55+0.35*Math.sin(performance.now()/1000*3);M.padT.visible=!M.on;
     if(H.win){const k=cl((sun.intensity-0.2)/1.2,0,1);H.win.color.copy(DIM).lerp(DAY,k);}
-    if(SAVE.gold&&!REC.goldShown&&inside&&!M.on){REC.goldShown=true;REC.anim=0;big('🏆 金色直笛放進展示櫃了！');AUDIO.sfx('chime');AUDIO.sfx('cheer');}
+    if(SAVE.gold&&!REC.goldShown&&inside&&!M.on){REC.goldShown=true;REC.anim=0;big('🏆 金色直笛放進展示櫃了！');AUDIO.sfx('trophy');AUDIO.sfx('cheer');}
     const showG=REC.goldShown;CASE.gold.visible=showG;CASE.q.visible=!showG;
     if(REC.anim>=0){REC.anim+=dt;const a=REC.anim;CASE.gold.position.y=1.62+Math.max(0,Math.sin(Math.min(1,a/0.6)*Math.PI))*0.25;if(a<1.4&&Math.random()<0.6)burst();if(a>1.6)REC.anim=-1;}
     CASE.gold.rotation.y+=dt*0.9;CASE.q.rotation.y+=dt*0.6;M.fx(dt);};
@@ -11806,7 +11806,7 @@ const DD=(()=>{
     savedView=view;if(view!=='third'){view='third';syncViewUI();}
     S.environment=scene.environment;S.environmentIntensity=scene.environmentIntensity;S.add(avatar.root);
     document.body.classList.add('dd');ui.hidden=false;resize();try{renderer.compile(S,camera);}catch(_){}
-    showPanel();AUDIO.sfx('chime');};
+    showPanel();AUDIO.sfx('enter');};
   D.stop=quiet=>{if(!D.on)return;if(D.play)abort(true);mzStop();D.on=false;D.play=false;panel.hidden=true;ui.hidden=true;document.body.classList.remove('dd');scene.add(avatar.root);
     const A=avatar;A.body.rotation.set(0,0,0);A.body.position.set(0,0,0);for(const g of [A.armL,A.armR,A.legL,A.legR])g.rotation.set(0,0,0);A.zeroJoints();
     if(savedView&&savedView!==view){view=savedView;syncViewUI();}savedView=null;avatar.root.visible=view==='third';
@@ -13903,7 +13903,7 @@ const DECO=(()=>{
   function applyGone(){for(const it of cur()){if(sOf(it)!==SITE.nb)continue;if(it.c)it.c.off=gone;if(it.s2)it.s2.off=gone;}}
   function applyView(f,d){const v=sanitize(d),first=!U.view||U.view.f!==f;if(U.carry)drop();if(U.sit)stand(true);closeMenu();
     for(const it of cur())unspawn(it);U.view={f,name:U.NT.nameOf(f),items:v.items,rooms:v.rooms};U.want=null;for(const it of v.items)spawn(it);paintAll(v.rooms);applyGone();
-    if(first){closePanel();if(!inHouse())teleport(3.0+dx,-4.0,0,0);toast(`🏠 現在看的是 ${U.view.name} 的家（隔壁新家和城堡都是他的樣子；可以坐、躺；擺傢俱 →「👥 參觀」回我的家）`);AUDIO.sfx('chime');}else if(U.open)drawPanel();syncActBtn();}
+    if(first){closePanel();if(!inHouse())teleport(3.0+dx,-4.0,0,0);toast(`🏠 現在看的是 ${U.view.name} 的家（隔壁新家和城堡都是他的樣子；可以坐、躺；擺傢俱 →「👥 參觀」回我的家）`);AUDIO.sfx('enter');}else if(U.open)drawPanel();syncActBtn();}
   function backHome(msg){if(!U.view)return;if(U.sit)stand(true);closeMenu();const f=U.view.f;for(const it of cur())unspawn(it);U.view=null;for(const it of S.items)spawn(it);paintAll(S.rooms);applyGone();
     if(U.NT.on()&&U.NT.has(f))U.NT.send(f,{t:'dcX'});toast(msg||'↩ 回到我的家了');if(U.open)drawPanel();syncActBtn();}
   function visit(id){if(U.carry)drop(`${DEF[U.carry.t].n}收進倉庫了`);U.want=String(id);U.wantAt=performance.now();U.NT.send(U.want,{t:'dcQ'});toast(`正在跟 ${U.NT.nameOf(U.want)} 拿家裡的樣子…`);}
@@ -13994,7 +13994,7 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
   function closeMenu(){U.menu=null;drawBar();}
   function pick(it){const i=S.items.indexOf(it);if(i<0)return;S.items.splice(i,1);unspawn(it);const B=bag(it.fr);B[it.t]=(B[it.t]|0)+1;save();carry(it.t,it.cl|0,it.fr);if(U.carry){U.carry.r=it.r;upd(0,true);}}
   function store(it){const i=S.items.indexOf(it);if(i<0)return;S.items.splice(i,1);unspawn(it);const B=bag(it.fr);B[it.t]=(B[it.t]|0)+1;save();toast(`${DEF[it.t].n}收進倉庫了（擺傢俱 → 📦 倉庫 可以再拿出來）`);AUDIO.sfx('click');}
-  function refund(t){W().money=money()+DEF[t].p;PUSH.save();AUDIO.sfx('chime');toast(`賣掉${DEF[t].n}：+${DEF[t].p} 元（錢包 ${money()} 元）`);}
+  function refund(t){W().money=money()+DEF[t].p;PUSH.save();AUDIO.sfx('coin');toast(`賣掉${DEF[t].n}：+${DEF[t].p} 元（錢包 ${money()} 元）`);}
   function sellItem(it){const i=S.items.indexOf(it);if(i<0)return;S.items.splice(i,1);unspawn(it);save();if(it.fr){toast(`${DEF[it.t].n}是城堡送的，丟掉了（送的不能賣錢）`);AUDIO.sfx('thud');}else refund(it.t);}
   function recolor(it){const D=DEF[it.t];it.cl=((it.cl|0)+1)%D.pal.length;if(it.g&&it.g.parent)it.g.parent.remove(it.g);it.g=inst(it.t,false,it.cl);it.g.position.set(it.x,sOf(it).base(it.f),it.z);it.g.rotation.y=it.r*Math.PI/2;sOf(it).grp.add(it.g);save();AUDIO.sfx('click');drawBar();}
   // ---------- 坐下、躺下（2B）：沙發、椅子、懶骨頭可以坐，床可以躺；自動切第三人稱，按「起來」或「跳」起身 ----------
@@ -14057,12 +14057,12 @@ body.decoOn #jumpBtn{display:none!important}body.touch #decoBar small{display:no
     if(b.dataset.q){q='';sIn.value='';drawPanel();return;}
     if(b.dataset.buy){const t=b.dataset.buy,D=DEF[t];if(money()<D.p){toast(`錢不夠：${D.n}要 ${D.p} 元，錢包 ${money()} 元（玩小遊戲可以賺零用錢）`);AUDIO.sfx('beep');return;}
       {const s=here();if(s&&nOf(s)>=s.maxN){toast(`${s.name}最多擺 ${s.maxN} 件，先收起來或丟掉一些`);return;}}
-      W().money=money()-D.p;PUSH.save();S.inv[t]=(S.inv[t]|0)+1;S.rc=[t,...(S.rc||[]).filter(k=>k!==t)].slice(0,12);save();AUDIO.sfx('chime');carry(t);return;}
+      W().money=money()-D.p;PUSH.save();S.inv[t]=(S.inv[t]|0)+1;S.rc=[t,...(S.rc||[]).filter(k=>k!==t)].slice(0,12);save();AUDIO.sfx('coin');carry(t);return;}
     if(b.dataset.add){const t=b.dataset.add;cart[t]=(cart[t]|0)+1;AUDIO.sfx('click');drawPanel();return;}
     if(b.dataset.sub){const t=b.dataset.sub;if(cart[t]>1)cart[t]--;else delete cart[t];AUDIO.sfx('click');drawPanel();return;}
     if(b.dataset.cart==='clear'){cart={};drawPanel();return;}
     if(b.dataset.cart==='buy'){const n=cartN(),p=cartP();if(!n)return;if(money()<p){toast(`錢不夠：選的 ${n} 件共 ${p} 元，錢包 ${money()} 元（按「－」少買幾件，或玩小遊戲賺零用錢）`);AUDIO.sfx('beep');return;}
-      W().money=money()-p;PUSH.save();const q=[];for(const t of Object.keys(cart)){S.inv[t]=(S.inv[t]|0)+cart[t];for(let i=0;i<cart[t];i++)q.push(t);S.rc=[t,...(S.rc||[]).filter(k=>k!==t)].slice(0,12);}cart={};save();AUDIO.sfx('chime');
+      W().money=money()-p;PUSH.save();const q=[];for(const t of Object.keys(cart)){S.inv[t]=(S.inv[t]|0)+cart[t];for(let i=0;i<cart[t];i++)q.push(t);S.rc=[t,...(S.rc||[]).filter(k=>k!==t)].slice(0,12);}cart={};save();AUDIO.sfx('coin');
       const s=here();if(!s||nOf(s)>=s.maxN){toast(`買了 ${n} 件，放在倉庫（${s?s.name+'擺滿了':'要在隔壁新家或城堡裡面才能擺'}）`);tab='倉庫';drawPanel();return;}
       U.queue=q.slice(1);carry(q[0]);if(U.carry)toast(`🛒 買了 ${n} 件！先擺第 1 件，擺好會自動拿下一件（不想擺的按「📦 收起來」會留在倉庫）`);return;}
     if(b.dataset.take){const t=b.dataset.take;carry(t,0,(S.invF[t]|0)>0?1:0);return;}   // 送的先拿
@@ -14208,7 +14208,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
   U.holdRig=A=>HR.get(A);U.reachArm=reachArm;U.holdHide=()=>!started||GAME.on||CU.on||MU.on||DD.on||KF.on||U.on||FISH.on||RS.on||RS.seat||SB.on||RB.on||NM.on||RACE.on||TN.on||BB.on||SKATE.on||LIE.on||EMOTE.on||player.climb||BALLOON.riding||avatar.morph||CLOSET.isOpen;U.mkPrize=mkPrize;U.holdNet=()=>{const id=holdVis();return id?[id,holdRig(avatar).show>0?1:0]:null;};
   const remShow=new WeakMap();
   U.holdRemote=(A,ph)=>{if(!ph){const h=HR.get(A);if(h&&h.id)holdSet(A,'',false);return;}const id=ALLP().some(q=>q.id===ph[0])?ph[0]:'';const sh=!!ph[1];
-    if(sh&&!remShow.get(A)&&A.root.position.distanceTo(avatar.root.position)<20)AUDIO.sfx('chime');remShow.set(A,sh);holdSet(A,id,sh);};
+    if(sh&&!remShow.get(A)&&A.root.position.distanceTo(avatar.root.position)<20)AUDIO.sfx('trophy');remShow.set(A,sh);holdSet(A,id,sh);};
   U.holdMenu=el=>{const own=ALLP().filter(p=>(W.pz[p.id]|0)>0);
     el.innerHTML=`<div class="hh">🎁 拿獎品${W.hold?`<button data-hs="1" class="sh">✨ 炫耀</button>`:''}</div>`+(own.length?own.map(p=>`<button data-hd="${p.id}" class="${W.hold===p.id?'on':''}">${p.e} ${p.n}${W.hold===p.id?'（放下）':''}</button>`).join(''):'<div class="hn">還沒有獎品：去推幣樂園用彩票換（兌獎櫃台），或去便利商店轉扭蛋、夾娃娃</div>');};
   U.holdPick=id=>{W.hold=W.hold===id?'':id;save();if(W.hold){const p=ALLP().find(q=>q.id===id);toast(`${p.e} 拿著${p.n}（動作 → ✨ 炫耀）`);}};
@@ -14467,7 +14467,7 @@ const PUSH=(()=>{const U={on:false,k:-1};
   U.start=k=>{if(GAME.on){toast('小遊戲中不能玩');return;}const st=S[k];if(!st)return;if(st.remote){toast(`第 ${k+1} 台 ${st.remote} 正在玩，換一台吧`);return;}
     if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(DRONE.on)toggleAerial();if(FISH.on)FISH.stop();   /* 不要同時開兩個（撈魚機還開著） */
     if(daily())toast(`💰 今天的零用錢來了：${PUSH.DAILY} 元`);U.on=true;U.k=k;st.act=true;U.camP=null;IN.auto=false;ui.querySelector('.auto').classList.remove('on');ui.hidden=false;document.body.classList.add('pu');hud();
-    if(W.tok<=0)note(st,'沒有代幣：先到旁邊的兌幣機換（站過去按 F）');else note(st,`投幣口左右擺，對準再投！你有 ${W.tok} 枚代幣`);AUDIO.sfx('chime');};
+    if(W.tok<=0)note(st,'沒有代幣：先到旁邊的兌幣機換（站過去按 F）');else note(st,`投幣口左右擺，對準再投！你有 ${W.tok} 枚代幣`);AUDIO.sfx('enter');};
   U.stop=()=>{if(!U.on)return;const st=S[U.k];if(st.rl){st.rl.t=st.rl.dur;rlEnd(st);}W.tix+=st.tq;st.tq=0;W.tok+=st.rlNext.length;st.rlNext.length=0;st.act=false;IN.L=IN.R=IN.D=false;IN.dT=0;   /* 離開時還沒吐完的彩票、轉到一半的輪盤都算給你 */U.on=false;ui.hidden=true;document.body.classList.remove('pu');saveF();save();avatar.root.visible=view==='third';player.pos.set(sx(U.k),STAND_Z-0.5);player.yaw=Math.PI;player.pitch=-0.1;U.k=-1;};
   // ================= 兌幣機、兌獎櫃台（面板） =================
   const pn=document.createElement('div');pn.id='puPanel';pn.className='panel';pn.hidden=true;document.body.appendChild(pn);
@@ -14480,9 +14480,9 @@ const PUSH=(()=>{const U={on:false,k:-1};
       ${W.par?`<div class="row par"><button data-par="1">🔑 家長加 ${PAR_ADD} 元</button><button data-lock="1">🔒 鎖起來</button></div><div class="note">家長代碼輸入過了，直接按就能加錢；按「鎖起來」之後要再輸入代碼才能加。</div>`
         :`<form class="code"><span>🔑 代碼</span><input type="text" inputmode="numeric" maxlength="8" placeholder="輸入代碼" autocomplete="off" enterkeyhint="done"><button type="submit">確定</button></form>`}`;pn.hidden=false;
     {const f=pn.querySelector('form.code');if(f)f.onsubmit=e=>{e.preventDefault();const v=f.querySelector('input').value.trim();   /* 2026-10-16 使用者：小孩玩手機沒錢時，家長輸入 777 馬上加 1000 元 */
-      if(Object.prototype.hasOwnProperty.call(CODES,v)){W.money+=CODES[v];W.gift=(W.gift|0)+CODES[v];W.par=1;save();snd('buy');AUDIO.sfx('chime');changeOpen(`✅ 加了 ${CODES[v]} 元零用錢！之後不用再輸入代碼，直接按「家長加錢」`);}else{f.querySelector('input').value='';f.querySelector('input').placeholder='代碼不對，再試一次';snd('lose');}};}   /* 2026-10-24.1 使用者：「每次都要重複輸入 777 太煩了，輸入一次就可以一直換錢，除非去改」→ 記住（W.par），按「鎖起來」才要重新輸入 */
+      if(Object.prototype.hasOwnProperty.call(CODES,v)){W.money+=CODES[v];W.gift=(W.gift|0)+CODES[v];W.par=1;save();snd('buy');AUDIO.sfx('coin');changeOpen(`✅ 加了 ${CODES[v]} 元零用錢！之後不用再輸入代碼，直接按「家長加錢」`);}else{f.querySelector('input').value='';f.querySelector('input').placeholder='代碼不對，再試一次';snd('lose');}};}   /* 2026-10-24.1 使用者：「每次都要重複輸入 777 太煩了，輸入一次就可以一直換錢，除非去改」→ 記住（W.par），按「鎖起來」才要重新輸入 */
     pn.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.x){pn.hidden=true;return;}
-      if(b.dataset.par){if(!W.par)return;W.money+=PAR_ADD;W.gift=(W.gift|0)+PAR_ADD;save();snd('buy');AUDIO.sfx('chime');changeOpen(`✅ 加了 ${PAR_ADD} 元零用錢！`);return;}
+      if(b.dataset.par){if(!W.par)return;W.money+=PAR_ADD;W.gift=(W.gift|0)+PAR_ADD;save();snd('buy');AUDIO.sfx('coin');changeOpen(`✅ 加了 ${PAR_ADD} 元零用錢！`);return;}
       if(b.dataset.lock){W.par=0;save();changeOpen('🔒 鎖起來了：下次要加錢要再輸入代碼');return;}
       const m=+b.dataset.b,it=BUY.find(q=>q[0]===m);if(!it||W.money<m)return;W.money-=m;W.tok+=it[1];save();snd('buy');toast(`🪙 換了 ${it[1]} 枚代幣（剩 ${W.money} 元）`);changeOpen();};}
   function prizeOpen(){pn.innerHTML=`<div class="hd"><b>🎟 兌獎櫃台</b><button data-x="1">✕</button></div><div class="wal">🎟 彩票 <b>${W.tix}</b> 張　🪙 代幣 <b>${W.tok}</b> 枚</div>
@@ -14767,7 +14767,7 @@ const FISH=(()=>{const F={on:false,seat:-1};
     if(EMOTE.on)EMOTE.stop(true);if(BB.on)BB.stop();if(TN.on)TN.stop();if(SKATE.on)SKATE.stop();if(LIE.on)LIE.stop();if(BALLOON.riding)BALLOON.reset();if(CLOSET.isOpen)CLOSET.close();if(DRONE.on)toggleAerial();if(PUSH.on)PUSH.stop();   /* 不要同時開兩個（推幣機還開著） */
     if(PUSH.daily&&PUSH.daily())toast(`💰 今天的零用錢來了：${PUSH.DAILY} 元`);
     F.on=true;F.seat=k;ui.hidden=false;document.body.classList.add('fi');layout();if(F.send&&F.netOn&&F.netOn()){if(iAmMaster())bc(fullState());else F.send('*',{t:'fiQ'});}   /* 自己是主持：把魚送給大家；不是：跟主持要全部的魚 */
-    banner={t:0,d:2.6,txt:'🐟 點魚就撈！',sub:nets?`還有 ${nets} 網`:PUSH.W.tok?'第一網會自動投 1 枚代幣（3 網）':'沒有代幣：去兌幣機換',col:'#7dff9a'};AUDIO.sfx('chime');};
+    banner={t:0,d:2.6,txt:'🐟 點魚就撈！',sub:nets?`還有 ${nets} 網`:PUSH.W.tok?'第一網會自動投 1 枚代幣（3 網）':'沒有代幣：去兌幣機換',col:'#7dff9a'};AUDIO.sfx('enter');};
   F.stop=()=>{if(!F.on)return;F.on=false;ui.hidden=true;document.body.classList.remove('fi');const S=SEATS[F.seat];player.pos.set(S.x,S.gy?S.z+0.4:S.z-0.4);player.yaw=S.gy?0:Math.PI;F.seat=-1;
     while(pend>0){pend--;PUSH.W.tix++;}PUSH.save();saveF();};   /* 還沒吐完的彩票算給你；剩下的網留著下次用 */
   F.key=(e,down)=>{if(!F.on)return false;if(down&&e.code==='Escape'){F.stop();return true;}if(down&&(e.code==='Space'||e.code==='Enter')){if(!e.repeat)insert(false);return true;}return true;};
@@ -14981,7 +14981,7 @@ const FJW=(()=>{const W={scope:null};
       <div><b>🎋 掛許願牌</b>（寫好按「掛上去」，會掛在小屋旁邊的架子上）</div>
       <form><input maxlength="16" placeholder="寫下願望（最多 16 個字）" enterkeyhint="done" autocomplete="off"><button type="submit">掛上去</button></form>
       ${SV.wish.length?`<div class="wl">架子上的願望：<br>${SV.wish.slice(-12).reverse().map(w=>'・'+w.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))).join('<br>')}</div>`:''}`;pn.hidden=false;
-    pn.querySelector('form').onsubmit=e=>{e.preventDefault();const v=pn.querySelector('form input').value.trim();if(!v)return;SV.wish.push(v.slice(0,16));SV.wish=SV.wish.slice(-12);save();plqDraw();AUDIO.sfx('chime');hutOpen('🎋 許願牌掛上去了！');};}
+    pn.querySelector('form').onsubmit=e=>{e.preventDefault();const v=pn.querySelector('form input').value.trim();if(!v)return;SV.wish.push(v.slice(0,16));SV.wish=SV.wish.slice(-12);save();plqDraw();AUDIO.sfx('magic');hutOpen('🎋 許願牌掛上去了！');};}
   pn.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.x){pn.hidden=true;return;}if(b.dataset.hk){pn.hidden=true;hkOpen();return;}
     if(b.dataset.st){const d=today(),first=!SV.n;SV.n++;SV.last=d;if(!SV.first)SV.first=d;save();AUDIO.sfx(first?'bigcheer':'cheer');bigT(first?'🎉 第一次登上富士山頂！':'🖋️ 蓋好紀念章了！');if(first)EARN(50,'🗻 第一次登上富士山頂');const hm=hkMark('fuji',true);hutOpen((first?'🎉 第一次登上富士山頂！送你 50 元零用錢':`🖋️ 第 ${SV.n} 次登頂紀錄`)+(hm.startsWith('🏅')?'<br>'+hm:`<br>📒 集章本 ${hkN()}／${HKL.length}`));}});
   W.arrive=()=>{if(!SV.n)setTimeout(()=>toast('🗻 第一次來富士山頂：去「山頂小屋」蓋紀念章吧！'),4200);};
@@ -15034,9 +15034,9 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
     const x0=player.pos.x,z0=player.pos.y,y0=player.y,D=Math.hypot(x-x0,z-z0);
     Object.assign(F,{x0,z0,y0,x,z,y,D,dir:D>1?Math.atan2(-(x-x0),-(z-z0)):avatar.yaw,T3:cl(D/140,1.2,4),H:Math.min(160,20+D*0.12),kind:opt.kind,dn:opt.dn||'',by:opt.by||'',trT:0,cv:null,ci:0,cx:isFinite(opt.cx)?opt.cx:x,cz:isFinite(opt.cz)?opt.cz:z,gn:Math.max(1,Math.min(8,opt.gn|0)),to:opt.to||'',fol:opt.fol||null,hx:x0,hz:z0,hy:y0});   /* cx、cz＝大家的中心、gn＝幾個人一起飛 */
     G.on=true;G.ph=1;G.t=0;camInit=false;if(view!=='third'){view='third';syncViewUI();}player.vel.set(0,0);player.vy=0;avatar.yaw=F.dir;
-    AUDIO.sfx('chime');bigT(opt.kind==='mag'?'🧲 磁力 使用！':opt.kind==='pull'?`🌠 ${pn(opt.by)} 的同行！`:'🌠 同行 使用！');if(typeof syncActBtn==='function')syncActBtn();}
+    AUDIO.sfx('magic');bigT(opt.kind==='mag'?'🧲 磁力 使用！':opt.kind==='pull'?`🌠 ${pn(opt.by)} 的同行！`:'🌠 同行 使用！');if(typeof syncActBtn==='function')syncActBtn();}
   G.step=dt=>{if(!G.on)return;G.t+=dt;const f=F;let x=f.x0,z=f.z0,y=f.y0;const yA=f.y0+35,yB=f.y+60;
-    if(G.ph===1&&G.t>=T1){G.ph=2;G.t=0;AUDIO.sfx('whoosh');ring(f.x0,f.y0,f.z0,'#ffe9a0',7,0.6);dust(f.x0,f.y0,f.z0,10,'#fff6d0');if(f.dn)bigT(`🌠 → ${f.dn}`);}
+    if(G.ph===1&&G.t>=T1){G.ph=2;G.t=0;AUDIO.sfx('flyup');ring(f.x0,f.y0,f.z0,'#ffe9a0',7,0.6);dust(f.x0,f.y0,f.z0,10,'#fff6d0');if(f.dn)bigT(`🌠 → ${f.dn}`);}
     if(G.ph===2){const u=Math.min(1,G.t/T2);y=f.y0+35*u*u;if(G.t>=T2){G.ph=3;G.t=0;}}
     if(G.ph===3){const u=Math.min(1,G.t/f.T3),e=ease(u);x=f.x0+(f.x-f.x0)*e;z=f.z0+(f.z-f.z0)*e;y=yA+(yB-yA)*e+f.H*Math.sin(Math.PI*u);if(G.t>=f.T3){G.ph=4;G.t=0;AUDIO.sfx('whoosh');}}
     if(G.ph===4){const u=Math.min(1,G.t/T4);x=f.x;z=f.z;y=yB-(yB-f.y)*u*u;if(G.t>=T4){G.ph=5;G.t=0;land();}}
@@ -15097,7 +15097,7 @@ const GCARD=(()=>{const G={on:false,ph:0,t:0,cd:{acc:0,mag:0}};
   const REM=new Map();
   G.net=()=>G.on?[G.ph,+avatar.yaw.toFixed(2),+F.cx.toFixed(1),+F.cz.toFixed(1),F.gn,+F.y.toFixed(2)]:null;   /* 最後一個＝落地的高度（別人畫面上人物還在半空滑下來，風要噴在地上） */
   G.remote=(q,A,dt)=>{const s=q.s,gc=s&&s.gc,id=String(q.id);let r=REM.get(id);if(!Array.isArray(gc)){if(r)REM.delete(id);return;}if(!r){r={ph:0,t:0,trT:0};REM.set(id,r);}const ph=gc[0]|0,d=dt||1/30;
-    if(ph!==r.ph){const p=A.root.position;if(ph===5){const gn=gc[4]|0,gy=isFinite(+gc[5])&&gc[5]!=null?+gc[5]:p.y;if(gn>1&&isFinite(+gc[2])){if(camera.position.distanceTo(p)<120)groupGust(+gc[2],gy,+gc[3],gn);}else{ring(p.x,gy,p.z,'#ffffff',10,0.75);if(camera.position.distanceTo(p)<90)gust(p.x,gy,p.z);}dust(p.x,gy,p.z,14,p.y>100?'#ffffff':'#d6c7a6');if(camera.position.distanceTo(p)<90)AUDIO.sfx('thud');}else if(ph===2){ring(p.x,p.y,p.z,'#ffe9a0',7,0.6);if(camera.position.distanceTo(p)<90)AUDIO.sfx('whoosh');}r.ph=ph;r.t=0;}r.t+=d;
+    if(ph!==r.ph){const p=A.root.position;if(ph===5){const gn=gc[4]|0,gy=isFinite(+gc[5])&&gc[5]!=null?+gc[5]:p.y;if(gn>1&&isFinite(+gc[2])){if(camera.position.distanceTo(p)<120)groupGust(+gc[2],gy,+gc[3],gn);}else{ring(p.x,gy,p.z,'#ffffff',10,0.75);if(camera.position.distanceTo(p)<90)gust(p.x,gy,p.z);}dust(p.x,gy,p.z,14,p.y>100?'#ffffff':'#d6c7a6');if(camera.position.distanceTo(p)<90)AUDIO.sfx('thud');}else if(ph===2){ring(p.x,p.y,p.z,'#ffe9a0',7,0.6);if(camera.position.distanceTo(p)<90)AUDIO.sfx('flyup');}r.ph=ph;r.t=0;}r.t+=d;
     A.root.rotation.y=(+gc[1]||0)+Math.PI;poseAt(A,ph,r.t);
     if(ph>=2&&ph<=4){r.trT-=d;if(r.trT<=0){r.trT=0.03;const p=A.root.position;trail(p.x,p.y+1.1,p.z,'#bfe3ff',2);}}};
   // ---- 卡片書 ----
@@ -15365,7 +15365,7 @@ var PAINT=(()=>{const P={on:false,st:'idle'};
       const g=groundAt(nx,nz,s.y);if(ny<=g+0.05||s.life<=0){if(nx>X0&&nx<X0+AW&&nz>Z0&&nz<Z0+AH)land(s,nx,g,nz);else kill(s);continue;}
       s.x=nx;s.z=nz;s.y=ny;s.m.position.set(nx,ny,nz);if(s.kind!==1&&s.kind!==4){V9.set(nx+s.vx,ny+s.vy,nz+s.vz);s.m.lookAt(V9);}
       if(s.kind===2){s.tr+=Math.hypot(s.vx,s.vz)*dt;if(s.tr>0.7){s.tr=0;if(nx>X0&&nx<X0+AW&&nz>Z0&&nz<Z0+AH&&ny<groundAt(nx,nz,ny)+3.5)splat(nx,nz,0.32,s.t,s.own,s.vx,s.vz);}}}}   /* 🎯 長射：飛過去的地方畫一條線 */
-  function land(s,x,y,z){if(s.kind===1){s.x=x;s.z=z;s.y=y+0.28;s.fuse=0.6;s.m.position.set(x,s.y,z);AUDIO.sfx('thud');return;}splat(x,z,s.r,s.t,s.own,s.vx,s.vz);drops(x,y+0.05,z,s.t,4,2.6,1.6);kill(s);
+  function land(s,x,y,z){if(s.kind===1){s.x=x;s.z=z;s.y=y+0.28;s.fuse=0.6;s.m.position.set(x,s.y,z);AUDIO.sfx('softland');return;}splat(x,z,s.r,s.t,s.own,s.vx,s.vz);drops(x,y+0.05,z,s.t,4,2.6,1.6);kill(s);
     if(s.kind===4){drops(x,y+0.1,z,s.t,22,4.5,3.5);AUDIO.sfx('thud');for(const e of ENTS){if(e.t===s.t||e.dead||e.prot>0)continue;if(Math.hypot(e.x-x,e.z-z)<1.7&&Math.abs(e.y-y)<1.5&&auth(e)){hurt(e,s.own,2);if(s.own&&s.own.me)hitMark(false);}}}}   /* 🪣 漆桶落地：潑開一大片，旁邊的敵人 2 格血 */
   function boom(s){splat(s.x,s.z,s.r,s.t,s.own,0,0);drops(s.x,s.y,s.z,s.t,36,6,5);AUDIO.sfx('bigboom');kill(s);
     for(const e of ENTS){if(e.t===s.t||e.dead||e.prot>0)continue;const d=Math.hypot(e.x-s.x,e.z-s.z);if(d<2.7&&Math.abs(e.y-s.y)<2.2&&auth(e)){hurt(e,s.own,d<1.6?3:2);if(s.own&&s.own.me)hitMark(false);}}}   /* 💣 爆炸：一大團、附近的敵人 2～3 格 */
@@ -15438,7 +15438,7 @@ var PAINT=(()=>{const P={on:false,st:'idle'};
       if(shootW(e,dx,dz,dist*(e.wp===2?1:rnd(0.94,1.06)),A2.y,0.04)){firing=0.4;if(e.wp>=2)AUDIO.sfx(e.wp===4?'swish':'pock');else if(Math.random()<0.3)AUDIO.sfx('pock');}else if(noInk<=0){noInk=2.5;toast('🎨 漆用完了！站在自己的顏色上（按住「🛝 滑」更快）會補漆');AUDIO.sfx('beep');}}
     noInk-=dt;}
   function doBomb(){const e=ENTS[0];if(!P.on||P.st!=='play'||!e||e.dead||e.spin>0)return;if(e.bombT>0)return;if(e.ink<40){toast('💣 漆不夠（要 40%）');AUDIO.sfx('beep');return;}const A2=aim(e);e.bombT=0.8;if(bomb(e,A2.x-e.x,A2.z-e.z,Math.hypot(A2.x-e.x,A2.z-e.z),A2.y)){firing=0.4;AUDIO.sfx('whoosh');}}
-  function doSpecial(){const e=ENTS[0];if(!P.on||P.st!=='play'||!e||e.dead||e.spin>0)return;if(e.sp<100){toast(`🌀 特殊技還沒集滿（${Math.floor(e.sp)}%，多塗地就會集滿）`);return;}e.sp=0;e.spin=2.6;gBig('🌀 旋風噴漆！');AUDIO.sfx('whoosh');}
+  function doSpecial(){const e=ENTS[0];if(!P.on||P.st!=='play'||!e||e.dead||e.spin>0)return;if(e.sp<100){toast(`🌀 特殊技還沒集滿（${Math.floor(e.sp)}%，多塗地就會集滿）`);return;}e.sp=0;e.spin=2.6;gBig('🌀 旋風噴漆！');AUDIO.sfx('spin');}
   function setMyWp(w){WPK=w;try{localStorage.setItem('home-ptwp',String(w));}catch(_){}const e=ENTS[0];if(e){e.wp=w;if(w!==1)e.roll=false;}setWp(myGun,w);toast(`換成 ${WN[w]}：${WT[w]}`);}
   function hitMark(kill){if(!aimEl)return;aimEl.classList.remove('hit','kill');void aimEl.offsetWidth;aimEl.classList.add(kill?'kill':'hit');}
   // ================= 畫面 =================
@@ -15729,7 +15729,7 @@ const CVS=(()=>{const C={on:false,food:null};
   function endEat(){const f=C.food.f;setFood('');eat=null;
     if(f.fx==='fast'){EF.fast=40;toast('⚡ 跑得比較快了（40 秒）');}else if(f.fx==='jump'){EF.jump=40;toast('🦘 跳得比較高了（40 秒）');}
     else if(f.fx==='cold'){EF.cold=8;toast('🥶 好冰！全身冒冷氣');}else if(f.fx==='warm'){EF.warm=5;toast('☺️ 暖呼呼，頭上冒熱氣');}else{EF.yum=3;toast('😋 好好吃！');}
-    if(f.fx==='fast'||f.fx==='jump')EF.yum=Math.max(EF.yum,1.5);AUDIO.sfx('chime');}
+    if(f.fx==='fast'||f.fx==='jump')EF.yum=Math.max(EF.yum,1.5);AUDIO.sfx('magic');}
   C.EP=[-0.3,-0.15,0.12,-0.9];const MO=new V3();   /* 吃的時候：手臂往嘴巴（x、y、z、手肘再彎多少） */
   C.pose=(a,dt)=>{const F=C.food;if(!F)return;const vis=!hide()&&!C.on;const m=F.m;
     if(!vis){if(m.parent)m.parent.remove(m);return;}if(m.parent!==a.body)a.body.add(m);
@@ -15764,7 +15764,7 @@ const CVS=(()=>{const C={on:false,food:null};
     const r=Math.random()<0.08?S.it[4]:S.it[Math.floor(Math.random()*4)];ga={i,t:0,it:r,done:false};save();pn.hidden=true;AUDIO.sfx('click');
     cap.userData.top.material.color.set(['#ff4f6a','#3aa0ff','#ffd23a','#4fd16a','#9b5cf6'][Math.floor(Math.random()*5)]);if(r[3])cap.userData.top.material.color.set('#ffc93a');}
   function gaTick(dt){if(!ga)return;ga.t+=dt;const c=GX[ga.i],k=KNOB[ga.i];
-    if(ga.t<0.9){k.rotation.z=-ga.t/0.9*Math.PI*2;if(Math.floor(ga.t*6)!==Math.floor((ga.t-dt)*6))AUDIO.sfx('click');}else k.rotation.z=0;
+    if(ga.t<0.9){k.rotation.z=-ga.t/0.9*Math.PI*2;if(Math.floor(ga.t*6)!==Math.floor((ga.t-dt)*6))AUDIO.sfx('mech');}else k.rotation.z=0;
     if(ga.t>=0.9&&ga.t<2.8){cap.visible=true;const u=Math.min(1,(ga.t-0.9)/0.45);cap.position.set(c,0.2-0.13*u,19.93-0.18*u);cap.rotation.x=-u*5;}
     if(ga.t>=1.45&&!ga.done){ga.done=true;const [kk,e,n,r]=ga.it,id='g_'+kk,nw=!has(id);give(id);save();
       bigT(`${r?'✨ ':''}${e} ${n}！`);AUDIO.sfx(r?'bigcheer':'cheer');toast(`🎰 轉到了：${e} ${n}${r?'（隱藏版！）':''}${nw?'　🆕 新的！':'（重複了）'}`);
@@ -15784,7 +15784,7 @@ const CVS=(()=>{const C={on:false,food:null};
   function reset(){Object.assign(CW,{st:'aim',x:-0.05,z:19.88,y:CY,t:20,k:0,held:null,slip:false,res:''});cwHud();}
   C.start=()=>{if(C.on||busy())return;if(!pay(30))return;build();
     if(EMOTE.on)EMOTE.stop(true);if(CLOSET.isOpen)CLOSET.close();if(DRONE.on)toggleAerial();
-    C.on=true;C.camP=null;save();document.body.classList.add('cw');hudEl.hidden=false;btnEl.hidden=false;reset();AUDIO.sfx('chime');
+    C.on=true;C.camP=null;save();document.body.classList.add('cw');hudEl.hidden=false;btnEl.hidden=false;reset();AUDIO.sfx('enter');
     if(!SV.told){SV.told=1;save();toast('🧸 夾娃娃機：移動爪子對準娃娃，按「抓！」；爪子會自己下去、夾起來、送到右前角的出口，掉進去就是你的！');}};
   C.stop=()=>{if(!C.on)return;C.on=false;IN.L=IN.R=false;document.body.classList.remove('cw');hudEl.hidden=true;btnEl.hidden=true;
     if(CW.held){const p=CW.held;CW.held=null;p.st='fall';p.vy=0;}avatar.root.visible=view==='third';player.pos.set(STX,STZ-0.2);player.yaw=Math.PI;player.pitch=-0.1;save();};
@@ -15795,7 +15795,7 @@ const CVS=(()=>{const C={on:false,food:null};
     else if(w.st==='down'){w.y-=0.5*dt;if(w.y<=w.ty){w.y=w.ty;w.st='grab';w.k=0;}}
     else if(w.st==='grab'){w.k+=dt;if(w.k>=0.55){const d=w.d,p0=d<0.04?0.8:d<0.08?0.55:d<0.13?0.22:0,bonus=SV.fail>=5&&d<0.1?0.35:0;
         if(w.tgt&&Math.random()<p0+bonus){w.held=w.tgt;w.held.st='held';AUDIO.sfx('catch');}else AUDIO.sfx('click');w.st='up';w.slip=Math.random()<0.12;}}
-    else if(w.st==='up'){w.y+=0.4*dt;if(w.held&&w.slip&&w.y>FY+0.55){const p=w.held;w.held=null;p.st='fall';p.vy=0;w.res='差一點！滑下去了…';toast('😣 差一點！娃娃滑下去了');AUDIO.sfx('thud');}if(w.y>=CY){w.y=CY;w.st='carry';}}
+    else if(w.st==='up'){w.y+=0.4*dt;if(w.held&&w.slip&&w.y>FY+0.55){const p=w.held;w.held=null;p.st='fall';p.vy=0;w.res='差一點！滑下去了…';toast('😣 差一點！娃娃滑下去了');AUDIO.sfx('softland');}if(w.y>=CY){w.y=CY;w.st='carry';}}
     else if(w.st==='carry'){const dx=CHX-w.x,dz=CHZ-w.z,l=Math.hypot(dx,dz),v=0.35*dt;if(l<=v){w.x=CHX;w.z=CHZ;w.st='open';w.k=0;}else{w.x+=dx/l*v;w.z+=dz/l*v;}}
     else if(w.st==='open'){w.k+=dt;if(w.k>0.2&&w.held){const p=w.held;w.held=null;p.st='win';p.vy=0;}
       if(w.k>1.3){w.st='done';const won=w.won;w.won=null;if(won){SV.fail=0;const [k,e,n]=CP.find(q=>q[0]===won.k);give('c_'+k);w.res=`🎉 夾到了 ${e} ${n}！放進「獎品」了`;bigT(`🎉 ${e} ${n}！`);AUDIO.sfx('bigcheer');}
@@ -15803,7 +15803,7 @@ const CVS=(()=>{const C={on:false,food:null};
     // 娃娃：被夾著跟著爪子、掉下去
     for(const p of PLU){if(p.st==='held'){p.x=w.x;p.z=w.z;p.y=w.y-0.3;}
       else if(p.st==='fall'||p.st==='win'){p.vy-=9.8*dt;p.y+=p.vy*dt;const floor=p.st==='win'?FY-0.4:FY;
-        if(p.y<=floor){if(p.st==='win'){p.on=false;p.g.visible=false;p.st='gone';p.t=3;w.won=p;AUDIO.sfx('pop');}else{p.y=FY;p.st='sit';p.x=cl(p.x,-0.36,0.14);p.z=cl(p.z,19.58,20.2);AUDIO.sfx('thud');}}}
+        if(p.y<=floor){if(p.st==='win'){p.on=false;p.g.visible=false;p.st='gone';p.t=3;w.won=p;AUDIO.sfx('pop');}else{p.y=FY;p.st='sit';p.x=cl(p.x,-0.36,0.14);p.z=cl(p.z,19.58,20.2);AUDIO.sfx('softland');}}}
       else if(p.st==='gone'){p.t-=dt;if(p.t<=0)placePlush(p);}
       if(p.g.visible)p.g.position.set(p.x,p.y,p.z);}
     w.k2=(w.st==='grab'?Math.min(1,w.k/0.4):w.st==='open'?Math.max(0,1-w.k/0.25):w.st==='up'||w.st==='carry'?1:0);}
@@ -15819,7 +15819,7 @@ const CVS=(()=>{const C={on:false,food:null};
     if(c==='ArrowLeft'){IN.L=down;return true;}if(c==='ArrowRight'){IN.R=down;return true;}
     if(down&&c==='Escape'){C.stop();return true;}return ['KeyW','KeyS','KeyA','KeyD','ArrowUp','ArrowDown','KeyF','KeyQ','KeyE','KeyC','KeyV','KeyM','KeyN','KeyK'].includes(c);};
   {const h=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;e.preventDefault();e.stopPropagation();const k=b.dataset.k;
-     if(k==='grab')drop();else if(k==='exit')C.stop();else if(k==='again'){if(!pay(30))return;save();reset();AUDIO.sfx('chime');}};
+     if(k==='grab')drop();else if(k==='exit')C.stop();else if(k==='again'){if(!pay(30))return;save();reset();AUDIO.sfx('enter');}};
    btnEl.addEventListener('touchstart',h,{passive:false});btnEl.addEventListener('mousedown',h);}
   // ================= 每格：熱狗轉、蒸氣、扭蛋、吃東西、效果、店內廣播 =================
   let bcT=6,bcK=0,wasIn=false;
@@ -16288,7 +16288,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
   function showRes(kind){R.last=kind;res.innerHTML=`<img src="${preview(kind)}" alt=""><b>${escH(kind.name)}</b><div class="st">${kind.k==='custom'?'🎨 好有創意！':'⭐'.repeat(kind.q)+(kind.q===3?' 太好吃了！':kind.q===2?' 不錯喔！':' 下次會更好！')}</div><div class="row"><button data-ph="1">📷 拍照</button><button data-ok="1">👍 好了</button></div>`;res.hidden=false;AUDIO.sfx('cheer');}
   res.addEventListener('pointerdown',e=>e.stopPropagation());
   res.onclick=e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();if(b.dataset.ok){res.hidden=true;return;}
-    if(b.dataset.ph&&R.last){const url=makePhoto(R.last);res.hidden=true;ph.innerHTML=`<div class="hd"><b>📷 拍好了！</b><button data-x="1">✕</button></div><img src="${url}" alt="照片"><div class="note">手機：長按照片可以存起來</div><a class="dl" href="${url}" download="好好吃小餐館-${escH(R.last.name)}.jpg">💾 存照片</a>`;ph.hidden=false;AUDIO.sfx('chime');}};
+    if(b.dataset.ph&&R.last){const url=makePhoto(R.last);res.hidden=true;ph.innerHTML=`<div class="hd"><b>📷 拍好了！</b><button data-x="1">✕</button></div><img src="${url}" alt="照片"><div class="note">手機：長按照片可以存起來</div><a class="dl" href="${url}" download="好好吃小餐館-${escH(R.last.name)}.jpg">💾 存照片</a>`;ph.hidden=false;AUDIO.sfx('ding');}};
   ph.onclick=e=>{const b=e.target.closest('button');if(b&&b.dataset.x)ph.hidden=true;};
   // ================= 畫面：上面的資訊、點菜單、下面的菜 =================
   ui.querySelector('.exit').onclick=e=>{e.stopPropagation();if(R.helper||R.over||spawned===0){R.stop();return;}if(confirmLeave())finish(true);};
@@ -16340,7 +16340,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     R.free=!!free;if(R.free){R.diff=cl(diff|0,0,2);DAY={n:0,menu:[...WALLK,'custom'],gap:999,maxC:0};}else{R.day=cl(day|0,1,SAVE.u);R.diff=cl(diff|0,0,2);DAY={...DAYS[R.day]};const Df=DIFF[R.diff];DAY.gap*=Df.gap;DAY.maxC=Math.min(3,DAYS[R.day].maxC+Df.maxC);}   /* 自由煮：沒有客人、6 道菜＋自創料理 */
     R.on=true;R.over=false;R.cook=null;spawned=0;spawnT=1.2;dayT=0;endT=0;stat={coins:0,served:0,miss:0,qsum:0,cid:0};PASS=[];FLY=[];HOLD=[];
     R.x=ST.stove;player.pos.set(R.x,CHEF_Z);player.vel.set(0,0);player.y=0;avatar.yaw=0;chefHat(true);avatar.root.traverse(o=>{o.userData.noCull=true;});   /* 鏡頭比較遠：自己的人物不要被距離裁切藏掉 */
-    ui.hidden=false;ck.hidden=true;ui.classList.remove('cooking','over');document.body.classList.add('rs');R.camX=null;R.need=null;ROOF.forEach(o=>o.visible=false);hud();AUDIO.sfx('chime');};   /* 不跳提示字（會蓋住上面的點菜單；開店面板已經說明） */
+    ui.hidden=false;ck.hidden=true;ui.classList.remove('cooking','over');document.body.classList.add('rs');R.camX=null;R.need=null;ROOF.forEach(o=>o.visible=false);hud();AUDIO.sfx('enter');};   /* 不跳提示字（會蓋住上面的點菜單；開店面板已經說明） */
   function clearDay(){for(const m of FD)dishFree(m);FD.length=0;FDi=0;res.hidden=true;ph.hidden=true;for(const c of custs)custKill(c);custs=[];for(const p of PASS)dishFree(p.m);PASS=[];HOLD=[];for(const f of FLY)dishFree(f.m);FLY=[];for(const p of POPS){if(p.s.parent)p.s.parent.remove(p.s);p.s.material.map.dispose();p.s.material.dispose();}POPS=[];for(const T of TABLES)T.busy=null;FLAME.forEach(f=>f.visible=false);}
   R.stop=()=>{if(!R.on)return;if(!R.helper&&!R.free&&!R.over&&spawned>0)finish(true);   /* 營業中被「前往」、開別的遊戲、接受邀請打斷：先打烊結算（原本今天賺的錢、星星都不見） */if(R.helper){if(R.cook)cookCancel();NT.send(R.helper,{t:'rsC',a:'leave'});R.helper=null;}else{for(const c of custs)if(c.fid&&c.st!=='gone')NT.send(c.fid,{t:'rsE',e:'closed'});if(nt())NT.send('*',{t:'rsS',on:0});HELP.clear();}   /* 一起煮的人離開／店長打烊：告訴大家 */
     if(!R.over&&spawned>0){R.over=true;}clearDay();R.on=false;R.over=false;R.free=false;R.cook=null;ui.hidden=true;pn.hidden=true;document.body.classList.remove('rs');chefHat(false);camera.clearViewOffset();if(fov0!=null){camera.fov=fov0;camera.updateProjectionMatrix();fov0=null;}ROOF.forEach(o=>o.visible=true);
@@ -16436,7 +16436,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
   R.helpStart=()=>{if(!remOpen()||RM.over||R.on||R.seat||GAME.on)return;prepOthers();const o=RM.o;R.helper=o;R.on=true;R.over=false;R.cook=null;R.free=!!RM.free;R.day=RM.day||1;R.diff=RM.diff|0;
     DAY={n:RM.st?RM.st[3]:0,menu:(RM.menu||[]).filter(k=>DISH[k]),gap:999,maxC:0};spawned=1;stat={coins:0,served:0,miss:0,qsum:0,cid:0};PASS=[];FLY=[];HOLD=[];
     R.x=ST.drink;player.pos.set(R.x,CHEF_Z+0.7);player.vel.set(0,0);player.y=0;avatar.yaw=0;chefHat(true);avatar.root.traverse(q=>{q.userData.noCull=true;});
-    ui.hidden=false;ck.hidden=true;ui.classList.remove('cooking','over');document.body.classList.add('rs');R.camX=null;R.need=null;ROOF.forEach(q=>q.visible=false);NT.send(o,{t:'rsC',a:'join'});hud();AUDIO.sfx('chime');toast(`👩‍🍳 來幫 ${NT.nameOf(o)} 煮菜！做好的菜會放到出餐台，店長那邊自動端給客人`);};
+    ui.hidden=false;ck.hidden=true;ui.classList.remove('cooking','over');document.body.classList.add('rs');R.camX=null;R.need=null;ROOF.forEach(q=>q.visible=false);NT.send(o,{t:'rsC',a:'join'});hud();AUDIO.sfx('friend');toast(`👩‍🍳 來幫 ${NT.nameOf(o)} 煮菜！做好的菜會放到出餐台，店長那邊自動端給客人`);};
   function helperEnd(d){if(!R.on||!R.helper||R.over)return;R.over=true;cookCancel();ui.classList.add('over');const stars=cl(d.stars|0,0,3),sv=d.sv|0;
     const money=sv?Math.round(([10,40,70,100][stars]+(stars?((d.day|0)-1)*15:0))*[0.8,1,1.3][cl(d.diff|0,0,2)]):0;EARN(money,`小餐館一起煮 ${'⭐'.repeat(stars)}`);SAVE.coins+=Math.max(0,d.coins|0);save();AUDIO.sfx(stars>=2?'bigcheer':stars?'cheer':'over');
     pn.innerHTML=`<div class="hd"><b>🍳 ${escH(NT.nameOf(R.helper))} 的店打烊囉！</b></div><div class="big">${starStr(stars)}</div><div class="res"><div>😋 吃到的客人 <b>${sv} / ${d.n|0}</b></div><div>🪙 大家一起賺了 <b>${d.coins|0}</b>（你的存款也加一樣多：${SAVE.coins}）</div></div>
@@ -16448,7 +16448,7 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     seatEl.innerHTML=S.st==='wait'?`<span>🪑 你點了 ${D.e} ${D.n}，等廚師做…</span><button data-up="1">起來</button>`:S.st==='eat'?`<span>😋 ${D.e} 好好吃…</span>`:`<span>${D.e} 好吃嗎？</span>${[1,2,3].map(v=>`<button data-rate="${v}">${'⭐'.repeat(v)}</button>`).join('')}`;seatEl.hidden=false;}
   function standUp(){const S=R.seat;R.seat=null;seatEl.hidden=true;if(S){if(NT.send)NT.send(S.o,{t:'rsO',a:'leave'});   /* 告訴店長（原本被「前往」或斷線站起來，店長那邊會留一個空等的客人） */const T=TABLES[S.ti];player.pos.set(T.x,43.3);player.vel.set(0,0);player.y=0;}}R.standUp=standUp;
   seatEl.onclick=e=>{const b=e.target.closest('button');if(!b||!R.seat)return;e.stopPropagation();if(b.dataset.up){standUp();return;}
-    if(b.dataset.rate){NT.send(R.seat.o,{t:'rsO',a:'rate',v:+b.dataset.rate});toast('謝謝你的評分！');AUDIO.sfx('chime');standUp();}};
+    if(b.dataset.rate){NT.send(R.seat.o,{t:'rsO',a:'rate',v:+b.dataset.rate});toast('謝謝你的評分！');AUDIO.sfx('ding');standUp();}};
   R.orderOpen=ti=>{if(!remOpen()||RM.over)return;R.orderTi=ti;const menu=(RM.menu||[]).filter(k=>DISH[k]&&k!=='custom');
     pn.innerHTML=`<div class="hd"><b>🪑 第 ${ti+1} 桌：想吃什麼？</b><button data-x="1">✕</button></div><div class="note">${escH(NT.nameOf(RM.o))} 的店（${RM.free?'自由煮':'營業中'}）：點了菜，店長和一起煮的人會做給你吃！吃完記得給星星。</div>
       <div class="order">${menu.map(k=>`<button data-order="${k}" style="--c:${DISH[k].col}">${DISH[k].e}<b>${DISH[k].n}</b></button>`).join('')}</div>`;pn.hidden=false;};
@@ -16468,12 +16468,12 @@ const RS=(()=>{const R={on:false,cook:null,day:1,diff:1};
     case 'rsS':if(d.on){if(R.on&&!R.helper&&!R.over){if(f<String(NT.me())){toast(`${NT.nameOf(f)} 也開店了：一次只能開一間，可以到櫃台「一起煮」`);R.stop();}else break;}RM={...d,o:f,cu:Array.isArray(d.cu)?d.cu.slice(0,12):[],pass:Array.isArray(d.pass)?d.pass.slice(0,6):[],menu:Array.isArray(d.menu)?d.menu.slice(0,8):[]};RMat=performance.now();if(R.helper===f)hudDirty=true;}
       else if(RM&&RM.o===f)RM.on=0;break;
     case 'rsC':if(!R.on||R.helper)break;
-      if(d.a==='join'){if(R.over)break;HELP.set(f,1);toast(`👩‍🍳 ${NT.nameOf(f)} 來幫忙煮了！`);AUDIO.sfx('chime');snapT=0;}else if(d.a==='claim'){if(DISH[d.k])claim(f,d.k);}else if(d.a==='cancel')unclaim(f);
+      if(d.a==='join'){if(R.over)break;HELP.set(f,1);toast(`👩‍🍳 ${NT.nameOf(f)} 來幫忙煮了！`);AUDIO.sfx('friend');snapT=0;}else if(d.a==='claim'){if(DISH[d.k])claim(f,d.k);}else if(d.a==='cancel')unclaim(f);
       else if(d.a==='done'){unclaim(f);if(DISH[d.k])addDish(d.k,cl(d.q|0,1,3),f,d.base);}else if(d.a==='leave'){HELP.delete(f);unclaim(f);}hudDirty=true;break;
     case 'rsO':if(!R.on||R.helper)break;if(d.a==='sit'){friendSit(f,d.ti|0,d.k);break;}
-      {const cu=custs.find(c=>c.fid===f&&c.st!=='gone');if(!cu)break;if(d.a==='rate'&&cu.st==='eat'){const v=cl(d.v|0,1,3);stat.coins+=v*5;popTxt(`${'⭐'.repeat(v)} 好吃！`,'#ffe14a',cu.T.x,2.2,cu.T.cz);AUDIO.sfx('chime');}cu.st='gone';hudDirty=true;}break;
+      {const cu=custs.find(c=>c.fid===f&&c.st!=='gone');if(!cu)break;if(d.a==='rate'&&cu.st==='eat'){const v=cl(d.v|0,1,3);stat.coins+=v*5;popTxt(`${'⭐'.repeat(v)} 好吃！`,'#ffe14a',cu.T.x,2.2,cu.T.cz);AUDIO.sfx('coin');}cu.st='gone';hudDirty=true;}break;
     case 'rsE':if(d.e==='end'){if(R.helper===f)helperEnd(d);break;}
-      if(R.seat&&R.seat.o===f){if(d.e==='served'){R.seat.st='eat';R.seat.t=0;seatDraw();AUDIO.sfx('chime');}else if(d.e==='sad'){toast('等太久了，廚師太忙了…下次再來！');standUp();}else if(d.e==='closed'){toast('店打烊了');standUp();}break;}
+      if(R.seat&&R.seat.o===f){if(d.e==='served'){R.seat.st='eat';R.seat.t=0;seatDraw();AUDIO.sfx('ding');}else if(d.e==='sad'){toast('等太久了，廚師太忙了…下次再來！');standUp();}else if(d.e==='closed'){toast('店打烊了');standUp();}break;}
       if(d.e==='sitOk'&&!R.on&&!R.seat&&RM&&RM.o===f&&DISH[d.k]){R.seat={o:f,ti:cl(d.ti|0,0,TABLES.length-1),k:d.k,st:'wait',t:0};seatDraw();if(view!=='third'){view='third';syncViewUI();}}
       else if(d.e==='sitNo')toast('這一桌不能坐（可能有人了）');else if(d.e==='full'&&R.helper===f)toast('出餐台滿了：等店長那邊端給客人');break;}};
   R.tick=dt=>{tagHide(avatar,R.on);if(R.on&&!R.helper){ownerNet(dt);if(RCU.size||RPASS.length)remoteClear();}else remoteTick(dt);seatTick(dt);
@@ -17266,7 +17266,7 @@ SHOP.near=()=>{if(!started||mode!=='walk'||GAME.on||SKATE.on||BALLOON.riding||LI
   if(st&&(!best||bd>1.0))best=st;return best;};
 SHOP.tryOn=s=>{const same=charCfg.g===s.g&&charCfg.o===s.o;charCfg.g=s.g;charCfg.o=s.o;try{localStorage.setItem('home-char',JSON.stringify(charCfg));}catch(_){}
   avatar.dress(charCfg);if(charMenuRender)charMenuRender();if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}avatar.yaw=player.yaw+Math.PI;
-  AUDIO.sfx('chime');AUDIO.sfx('whoosh');toast(same?`已經穿著：${CHAR_OUTFITS[s.g][s.o].name}`:`換上：${CHAR_OUTFITS[s.g][s.o].name} ✨`);
+  AUDIO.sfx('magic');AUDIO.sfx('whoosh');toast(same?`已經穿著：${CHAR_OUTFITS[s.g][s.o].name}`:`換上：${CHAR_OUTFITS[s.g][s.o].name} ✨`);
   {const tx=new THREE.CanvasTexture((()=>{const [c,x]=cvs(64,64),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(0.3,'rgba(255,170,220,0.85)');g.addColorStop(1,'rgba(255,120,200,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return c;})());
    for(let k=0;k<26;k++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));const a=k/26*Math.PI*2,r=0.55;
      sp.position.set(player.pos.x+Math.cos(a)*r,player.y+0.1+(k%5)*0.4,player.pos.y+Math.sin(a)*r);sp.scale.setScalar(0.22);scene.add(sp);const t0=performance.now();
@@ -17338,7 +17338,7 @@ const CLOSET=(()=>{const C={isOpen:false,tab:'全部'},el=document.getElementByI
   function wear(g,o,h){if(outfitLocked(CHAR_OUTFITS[g][o]))return;if(EMOTE.on)EMOTE.stop();const same=charCfg.g===g&&charCfg.o===o&&(h===undefined||charCfg.h===h);charCfg.g=g;charCfg.o=o;if(h!==undefined)charCfg.h=h;
     try{localStorage.setItem('home-char',JSON.stringify(charCfg));}catch(_){}avatar.dress(charCfg);if(charMenuRender)charMenuRender();
     if(view!=='third'&&mode==='walk'){view='third';syncViewUI();}avatar.yaw=player.yaw+Math.PI;
-    if(!same&&h===undefined){AUDIO.sfx('chime');if(avatar.morph)toast('變身中：變回人類才看得到新衣服');}render();}
+    if(!same&&h===undefined){AUDIO.sfx('magic');if(avatar.morph)toast('變身中：變回人類才看得到新衣服');}render();}
   function render(){if(!C.isOpen)return;const g=charCfg.g,list=CHAR_OUTFITS[g];
     nowEl.textContent=`現在：${list[charCfg.o].name}`+(THUMB.n<THUMB.list.length?`　（照片拍攝中 ${THUMB.n}/${THUMB.list.length}）`:'');
     gEl.innerHTML='';for(const [k,t] of [['f','女生'],['m','男生']]){const b=document.createElement('button');b.textContent=`${t}（${outfitCount(k)}）`;b.classList.toggle('on',g===k);b.onclick=()=>{if(charCfg.g!==k){C.tab='全部';wear(k,0);cards.scrollTop=0;}};gEl.appendChild(b);}
@@ -17820,7 +17820,7 @@ const AUDIO=(()=>{
     try{const b=c.createBuffer(1,1,22050),src=c.createBufferSource();src.buffer=b;src.connect(c.destination);src.start(0);}catch(_){}   // 播一個無聲的樣本：舊 iPhone 要這樣才「解鎖」聲音
     if(c.state!=='running')c.resume().catch(()=>{});
     A.master=c.createGain();A.master.connect(c.destination);makeNoise(c);A.clap=makeClap(c);graph(c,A.master);
-    applyVol();startAmbient();}
+    applyVol();startAmbient();setTimeout(()=>A.fxPre&&A.fxPre(),2000);}
   function applyVol(){if(A.master)A.master.gain.setTargetAtTime(A.mute?0:A.vol,A.ctx.currentTime,0.05);}
   for(const ev of ['pointerdown','pointerup','keydown','touchstart','touchend','click'])addEventListener(ev,init,{passive:true,capture:true});
   document.addEventListener('visibilitychange',()=>{if(!A.ctx||A.test)return;if(document.hidden)A.ctx.suspend();else A.ctx.resume().catch(()=>{});});   // 回來時叫不醒的話，下一次點畫面會再叫醒（init）
@@ -17856,6 +17856,17 @@ const AUDIO=(()=>{
     env(g,t,op.a||0.002,peak,dur);car.start(t);mod.start(t);car.stop(t+dur+0.1);mod.stop(t+dur+0.1);live(car);}
   // 一堆小顆粒（碎屑、火花、碎石），越前面越密
   function grains(t,n,span,fn){for(let i=0;i<n;i++)fn(t+Math.pow(Math.random(),1.6)*span,i);}
+  // 2026-10-29.4 使用者：「是每個都用相同的音效嗎，有沒有要多一點」＋「手機低音、叮咚小聲」
+  //   SX＝用背景音樂那套樂器取樣（gm/，第一次用到才載，存在手機）；還沒載好回傳 false → 用合成聲代替
+  //   body＝手機喇叭補中頻：iPhone 喇叭約 250 Hz 以下放不出來，原本只有低音的「咚」在手機上幾乎聽不到 → 加一層 300～600 Hz 的「身體」（耳機、電腦聽大小聲差不多）
+  // 2026-10-30 省記憶體：音效每種樂器只用這幾個取樣（最近的那個調高調低），全部 17 個、約 300 KB、解開後約 4～5 MB
+  const FXK={orchestral_harp:[72,80],glockenspiel:[84,92,100],celesta:[84,92,100],vibraphone:[76,84],string_ensemble_1:[52,60,68],french_horn:[56,64],timpani:[36,44]};
+  const SX=(ins,t,f,d,v,o,op)=>{try{const L=FXK[ins],m=12*Math.log2(f/440)+69;let key=null;if(L){key=L[0];for(const k of L)if(Math.abs(k-m)<Math.abs(key-m))key=k;}return !!(AMUS&&AMUS.fxSmp&&AMUS.fxSmp(ins,t,f,d,v,o,Object.assign({},op||{},key!=null?{key}:{})));}catch(_){return false;}};
+  const FXPRE=[],FXPRE2=[];for(const [ins,L] of Object.entries(FXK))for(const k of L)((ins==='french_horn'||ins==='timpani'||(ins==='string_ensemble_1'&&k===52))?FXPRE2:FXPRE).push(ins+':'+k);   /* 第二批（號角、定音鼓）第一次點畫面 12 秒後再載 */
+  A.fxPre=()=>{if(A.fxPreDone)return;A.fxPreDone=true;try{for(const k of FXPRE)AMUS.gmLoad(k);setTimeout(()=>{try{for(const k of FXPRE2)AMUS.gmLoad(k);}catch(_){}},10000);}catch(_){A.fxPreDone=false;}};   /* 第一次點畫面後 2 秒偷偷載 */
+  function body(t,f,dur,peak,o){f*=rnd(0.94,1.06);tone('triangle',f,f*0.72,t,dur,peak,o,['lowpass',f*2.4,-3]);noise(t,dur*0.7,peak*0.9,o,'bandpass',f*1.5,f*0.8,1.2,{col:'p'});}
+  function marimba(t,f,p,o,pan){tone('sine',f,0,t,0.32,p,o,null,{pan});tone('sine',f*3.93,0,t,0.07,p*0.22,o,null,{pan});tone('sine',f*9.9,0,t,0.018,p*0.07,o,null,{pan});noise(t,0.006,p*0.4,o,'bandpass',f*2,0,0,{pan});}   /* 合成木琴（沒有木琴取樣） */
+  const DING={n:0,t:0},DSTEP=[0,2,4,7,9,12];
   function bell(t,f,dur,peak,o,soft){if(soft){tone('sine',f,0,t,dur,peak,o);tone('sine',f*2,0,t,dur*0.45,peak*0.22,o);tone('sine',f*3.01,0,t,dur*0.22,peak*0.1,o);fm(t,f,1,0.5,dur*0.3,peak*0.3,o);}   // 柔和的鐘琴（門鈴）
     else{fm(t,f,1.4,3,dur,peak,o,{idec:0.8});tone('sine',f*2.76,0,t,dur*0.5,peak*0.3,o);tone('sine',f*5.4,0,t,dur*0.25,peak*0.15,o);tone('sine',f*0.5,0,t,dur,peak*0.5,o);}}   // 寺廟大鐘
   function brass(t,f,dur,peak,o){for(const d of [-7,7])tone('sawtooth',f,0,t,dur,peak,o,['lowpass',f*1.5,1.5,f*6],{det:d,a:0.05,pan:d/20});}   // 號角：濾波器慢慢打開
@@ -17891,9 +17902,9 @@ const AUDIO=(()=>{
       case 'rocket':{noise(t,0.45,0.4,o,'bandpass',rp(500),2200,1.4,{col:'p',a:0.03});tone('sawtooth',rp(140),320,t,0.35,0.07,o,['lowpass',900,2]);break;}   // 火箭發射
       case 'zap':{for(let i=0;i<5;i++)noise(t+i*0.025,0.03,0.35,o,'bandpass',rp(3200),1500,3,{pan:rnd(-0.6,0.6)});tone('square',rp(1200),300,t,0.14,0.06,o,['bandpass',2000,2]);break;}   // 閃電：劈啪
       case 'gem':{tone('sine',rp(1500),2300,t,0.07,0.07,o,null,{glide:0.05});tone('sine',rp(3000),0,t+0.02,0.05,0.03,o);break;}   // 撿寶石：叮
-      case 'lvup':{[523,659,784,1047].forEach((f,i)=>{tone('triangle',f,0,t+i*0.06,0.22,0.16,o);tone('sine',f*2,0,t+i*0.06,0.12,0.05,o);});break;}   // 升級：上行琶音
-      case 'hit':{const s=sat(o,2.5);kick(t,0.85,s,190,55,0.16,0.3);noise(t,0.09,0.55,s,'lowpass',3200,500,0,{col:'p'});noise(t,0.025,0.3,o,'highpass',3000);break;}   // 打擊：重低音＋布料拍擊＋清脆
-      case 'heavy':{const s=sat(o,3.5);kick(t,1,s,140,34,0.5,0.4);noise(t,0.32,0.7,s,'lowpass',3500,180,0,{col:'b'});noise(t,0.07,0.4,o,'bandpass',rp(1100),0,1);tone('sine',46,30,t,0.7,0.55,o);break;}   // 重擊
+      case 'lvup':{[84,88,91,96].forEach((m,i)=>{const f=440*Math.pow(2,(m-69)/12),tt=t+i*0.06;if(!SX('glockenspiel',tt,f,i===3?0.9:0.4,0.095,o,{rel:0.35})){tone('triangle',f/2,0,tt,0.22,0.16,o);tone('sine',f,0,tt,0.12,0.05,o);}});break;}   // 升級：上行琶音（2026-10-30 改鐵琴取樣，沒載好用原本的合成聲）
+      case 'hit':{const s=sat(o,2.5);kick(t,0.85,s,190,55,0.16,0.3);noise(t,0.09,0.55,s,'lowpass',3200,500,0,{col:'p'});noise(t,0.025,0.3,o,'highpass',3000);body(t,rp(340),0.12,0.6,o);break;}   // 打擊：重低音＋布料拍擊＋清脆
+      case 'heavy':{const s=sat(o,3.5);kick(t,1,s,140,34,0.5,0.4);noise(t,0.32,0.7,s,'lowpass',3500,180,0,{col:'b'});noise(t,0.07,0.4,o,'bandpass',rp(1100),0,1);tone('sine',46,30,t,0.7,0.55,o);body(t,rp(300),0.3,0.95,o);break;}   // 重擊
       case 'horn':for(const d of [0,0.3])for(const f of [415,523])tone('sawtooth',f,0,t+d,0.06,0.07,o,['lowpass',1600],{hold:0.17});break;   // 2026-10-21.14 汽車喇叭「叭叭」（兩個音一起）
       case 'splash':noise(t,0.35,0.7,o,'bandpass',1800,600,0.8,{col:'p',a:0.005});noise(t+0.02,0.5,0.3,o,'highpass',3000,0,0,{a:0.02});kick(t,0.3,o,180,60,0.08,0);break;   // 水球破掉「啪沙」
       case 'whoosh':{const pn=rnd(-0.7,0.7);noise(t,0.3,0.75,o,'bandpass',rp(350),2600,1.8,{col:'p',a:0.07,pan:pn,pan1:-pn});noise(t+0.04,0.22,0.16,o,'highpass',rp(4000),0,0,{a:0.06});break;}   // 咻：從一邊掃到另一邊
@@ -17902,17 +17913,17 @@ const AUDIO=(()=>{
         noise(t,1.0,0.5,o,'bandpass',200,2800,1.2,{col:'p',a:0.05});tone('sine',55,28,t,0.9,0.85,o);tone('sine',rp(1800),2600,t,0.9,0.05,o,null,{vib:[18,120]});break;}   // 超級氣功波：厚的能量聲＋超低音＋高音閃爍
       case 'boom':explosion(t,o,1);break;
       case 'bigboom':explosion(t,o,1.4);thunder(t+0.1,o);break;
-      case 'hurt':tone('sawtooth',rp(240),130,t,0.22,0.6,o,['bandpass',800,4]);tone('sawtooth',rp(242),132,t,0.22,0.4,o,['bandpass',1400,5]);kick(t,0.7,o,120,60,0.12,0.25);break;   // 「呃」＋悶擊
+      case 'hurt':tone('sawtooth',rp(240),130,t,0.22,0.6,o,['bandpass',800,4]);tone('sawtooth',rp(242),132,t,0.22,0.4,o,['bandpass',1400,5]);kick(t,0.7,o,120,60,0.12,0.25);body(t,rp(300),0.12,0.32,o);break;   // 「呃」＋悶擊
       case 'groan':voice(t,rp(88),rp(68),1.1,0.4,o,[[450,520],[850,1000]]);break;   // 殭屍低吼
       case 'zdie':voice(t,rp(130),45,0.9,0.45,o,[[600,350],[1000,700]]);kick(t+0.42,0.6,o,110,45,0.2,0.2);noise(t+0.42,0.2,0.35,o,'lowpass',600,150,0,{col:'b'});break;   // 倒地
-      case 'combo':[1318.5,1760,2637].forEach((f,i)=>{fm(t+i*0.06,f,3.5,1.2,0.5,0.12,o,{pan:(i-1)*0.4});tone('sine',f*2,0,t+i*0.06,0.3,0.04,o);});break;   // 叮叮叮
-      case 'wave':[220,261.6,329.6,440].forEach(f=>brass(t,f,0.7,0.07,o));kick(t,0.9,o,90,55,0.9,0);noise(t,1.2,0.15,o,'highpass',6000,3000);break;   // 號角＋定音鼓＋鈸
-      case 'over':[[392,0],[349.2,0.3],[311.1,0.6],[261.6,0.9]].forEach(([f,d])=>brass(t+d,f,0.6,0.06,o));pad(t+0.9,[130.8,155.6,196],2.4,0.05,o);break;   // 結算：往下走的號角＋小調長音
-      case 'door':noise(t,0.55,0.14,o,'bandpass',520,380,2,{col:'p',a:0.15});tone('sine',118,124,t,0.6,0.04,o,null,{a:0.1});kick(t+0.62,0.18,o,90,60,0.1,0.05);break;   // 自動門：滑動＋馬達＋停住
+      case 'combo':[88,93,100].forEach((m,i)=>{const f=440*Math.pow(2,(m-69)/12),tt=t+i*0.06;if(!SX('glockenspiel',tt,f,0.6,0.095,o,{rel:0.35})){fm(tt,f,3.5,1.2,0.5,0.12,o,{pan:(i-1)*0.4});tone('sine',f*2,0,tt,0.3,0.04,o);}});break;   // 叮叮叮（2026-10-30 改鐵琴取樣）
+      case 'wave':{[57,60,64,69].forEach((m,i)=>{const f=440*Math.pow(2,(m-69)/12);if(!SX('french_horn',t,f,0.75,0.16,o,{att:0.06,rel:0.35}))brass(t,f,0.7,0.07,o);});if(!SX('timpani',t,92.5,1.1,0.43,o,{ring:1}))kick(t,0.9,o,90,55,0.9,0);else kick(t,0.35,o,90,55,0.5,0);noise(t,1.2,0.15,o,'highpass',6000,3000);break;}   // 號角＋定音鼓＋鈸（2026-10-30 改法國號、定音鼓取樣）
+      case 'over':{[[67,0],[65,0.3],[63,0.6],[60,0.9]].forEach(([m,d])=>{const f=440*Math.pow(2,(m-69)/12);if(!SX('french_horn',t+d,f,d<0.9?0.32:0.9,0.09,o,{att:0.04,rel:d<0.9?0.12:0.6}))brass(t+d,f,0.6,0.06,o);});{let ok=true;for(const m of [48,51,55])if(!SX('string_ensemble_1',t+0.9,440*Math.pow(2,(m-69)/12),2.0,0.04,o,{att:0.35,rel:0.8}))ok=false;if(!ok)pad(t+0.9,[130.8,155.6,196],2.4,0.05,o);}SX('timpani',t+0.9,65.4,1.2,0.12,o,{ring:1});break;}   // 結算：往下走的號角＋小調長音（2026-10-30 改法國號、弦樂、定音鼓取樣）
+      case 'door':noise(t,0.55,0.14,o,'bandpass',520,380,2,{col:'p',a:0.15});tone('sine',118,124,t,0.6,0.04,o,null,{a:0.1});kick(t+0.62,0.18,o,90,60,0.1,0.05);noise(t,0.55,0.06,o,'bandpass',900,700,1,{col:'p',a:0.15});body(t+0.62,300,0.1,0.2,o);break;   // 自動門：滑動＋馬達＋停住
       case 'click':noise(t,0.008,0.5,o,'highpass',2500);noise(t,0.04,0.25,o,'bandpass',rp(2800),0,8);tone('sine',rp(1400),700,t,0.03,0.08,o);noise(t+0.035,0.006,0.25,o,'highpass',3000);break;   // 「喀」（兩下）
       case 'swish':noise(t,0.55,0.22,o,'bandpass',rp(1700),900,0.8,{col:'p',a:0.1});grains(t,8,0.45,tt=>noise(tt,0.02,0.05,o,'highpass',4000));break;   // 窗簾「刷」
       case 'rattle':for(let i=0;i<9;i++){const tt=t+i*0.045+rnd(0,0.015);noise(tt,0.025,0.22,o,'bandpass',rnd(2000,3600),0,5);tone('triangle',rnd(1800,2600),0,tt,0.03,0.04,o);}break;   // 百葉窗「喀啦」
-      case 'thud':kick(t,0.7,o,120,45,0.22,0.15);noise(t,0.15,0.35,o,'lowpass',600,150,0,{col:'b'});break;
+      case 'thud':kick(t,0.7,o,rp(120),45,0.22,0.15);noise(t,0.15,0.35,o,'lowpass',600,150,0,{col:'b'});body(t,rp(330),0.16,0.6,o);break;
       case 'crack':{const s=sat(o,3);noise(t,0.16,0.5,s,'bandpass',rp(1200),300,1.2);kick(t,0.4,o,120,50,0.15,0);grains(t,6,0.18,tt=>noise(tt,0.02,0.18,o,'highpass',rnd(2500,5000)));break;}
       case 'carboom':explosion(t,o,1.3);glass(t+0.02,o,0.8,14);fm(t,rp(180),1.41,4,1.2,0.12,o);break;   // 爆炸＋玻璃碎＋鐵皮
       case 'collapse':{const s=sat(o,2);noise(t,3.2,0.9,s,'lowpass',1400,50,0,{col:'b',a:0.05});tone('sine',48,22,t,2.8,0.9,o);grains(t,26,2.6,tt=>noise(tt,rnd(0.05,0.18),rnd(0.15,0.45),o,'bandpass',rnd(250,1200),0,1,{pan:rnd(-0.8,0.8)}));break;}   // 轟隆倒塌＋碎石
@@ -17920,7 +17931,7 @@ const AUDIO=(()=>{
       case 'palm':explosion(t,o,1.1);bell(t,98,3.0,0.35,o);bell(t+0.01,147,2.6,0.2,o);break;   // 巨掌落地：轟＋寺廟大鐘
       case 'inflate':noise(t,0.35,0.4,o,'bandpass',900,3400,2,{col:'p',a:0.05});tone('sine',rp(220),720,t,0.33,0.22,o,null,{vib:[30,25]});break;   // 足球充氣
       case 'pop':{const s=sat(o,4);noise(t,0.05,0.8,s,'highpass',900);noise(t,0.12,0.25,o,'bandpass',2200,800,1);kick(t,0.4,o,250,90,0.06,0);break;}   // 彈出「啵」
-      case 'kick':kick(t,0.95,o,150,50,0.18,0.2);noise(t,0.04,0.5,o,'bandpass',rp(1300),0,1.2);noise(t,0.12,0.2,o,'lowpass',1500,300,0,{col:'p'});break;   // 踢球：悶響＋皮革
+      case 'kick':kick(t,0.95,o,rp(150),50,0.18,0.2);noise(t,0.04,0.5,o,'bandpass',rp(1300),0,1.2);noise(t,0.12,0.2,o,'lowpass',1500,300,0,{col:'p'});body(t,rp(380),0.12,0.6,o);break;   // 踢球：悶響＋皮革
       case 'burner':{const c=A.ctx,g=c.createGain(),l=c.createOscillator(),lg=c.createGain();g.gain.value=0.7;l.type='square';l.frequency.value=rnd(11,15);lg.gain.value=0.3;l.connect(lg);lg.connect(g.gain);g.connect(o);l.start(t);l.stop(t+1.6);
         noise(t,1.3,0.7,g,'bandpass',rp(420),280,0.7,{col:'b',a:0.08});noise(t,1.3,0.3,g,'bandpass',1800,900,0.8,{col:'p',a:0.08});break;}   // 熱氣球噴火：轟～（火焰抖動）
       case 'slash':noise(t,0.26,0.6,o,'bandpass',3600,500,1.6,{col:'p',a:0.02,pan:-0.5,pan1:0.5});fm(t+0.02,rp(2100),2.76,2.5,0.7,0.1,o);grains(t+0.08,6,0.3,tt=>noise(tt,0.02,0.2,o,'highpass',rnd(3000,6000)));break;   // 破風＋金屬共鳴＋火花
@@ -17928,27 +17939,41 @@ const AUDIO=(()=>{
       case 'quake':{const s=sat(o,2.5);kick(t,1,s,90,28,0.8,0);noise(t,1.8,1,s,'lowpass',1000,45,0,{col:'b'});tone('sine',50,26,t,1.5,0.8,o);grains(t+0.05,16,1.4,tt=>noise(tt,rnd(0.05,0.15),rnd(0.2,0.45),o,'bandpass',rnd(250,900),0,1,{pan:rnd(-0.8,0.8)}));break;}   // 地裂：轟隆＋碎石
       case 'morph':explosion(t,o,1.2);thunder(t+0.05,o);fm(t+0.25,2600,2.76,2.5,1.2,0.12,o);tone('sine',3700,0,t+0.25,1.0,0.05,o);pad(t+0.15,[73.4,110,146.8,174.6,220],2.8,0.045,o);noise(t+0.35,0.9,0.45,o,'bandpass',350,1800,0.9,{col:'p',a:0.1});break;   // 爆響＋雷＋拔劍＋陰暗合唱＋火焰
       case 'unmorph':noise(t,0.7,0.4,o,'bandpass',2000,300,1,{col:'p',a:0.05,pan:0.4,pan1:-0.4});tone('sine',300,90,t,0.6,0.35,o);[1568,1175,784].forEach((f,i)=>fm(t+0.1+i*0.08,f,3.5,1,0.6,0.06,o));break;
-      case 'chime':bell(t,1046.5,1.4,0.16,o,true);bell(t+0.38,830.6,1.8,0.16,o,true);break;   // 叮咚（鐘琴）
-      case 'bounce':kick(t,0.9,o,rp(150),62,0.12,0);noise(t,0.03,0.5,o,'bandpass',rp(900),0,2.5);tone('sine',rp(330),280,t,0.06,0.12,o);noise(t,0.008,0.25,o,'highpass',2500);break;   // 運球「砰」：低音＋皮球拍地
+      case 'chime':bell(t,1046.5,1.0,0.1,o,true);bell(t+0.32,830.6,1.25,0.1,o,true);break;   // 叮咚（鐘琴）
+      // ---- 2026-10-29.4 提示音分 8 種（以前全部都是 chime）：chime＝📨 邀請／一般提示，下面 7 種各一個意思 ----
+      case 'friend':{const v=rnd(0.98,1.02);[72,76,79].forEach((m,i)=>{const f=440*Math.pow(2,(m-69)/12)*v,tt=t+i*0.075;if(!SX('orchestral_harp',tt,f,0.9,0.18,o,{ring:1})){tone('triangle',f,0,tt,0.6,0.08,o);tone('sine',f*2,0,tt,0.3,0.03,o);}});break;}   // 👥 朋友來了：豎琴往上撥三個音
+      case 'coin':{const v=rnd(0.98,1.03);[[95,0,0.1],[100,0.075,0.12]].forEach(([m,d,p])=>{const f=440*Math.pow(2,(m-69)/12)*v;if(!SX('glockenspiel',t+d,f,0.5,p,o,{rel:0.35})){fm(t+d,f,3.5,1,0.45,0.07,o);tone('sine',f,0,t+d,0.4,0.06,o);}});break;}   // 💰 拿到東西：鐵琴「叮鈴」
+      case 'trophy':{[84,88,91,96,100].forEach((m,i)=>{const f=440*Math.pow(2,(m-69)/12),tt=t+i*0.065;if(!SX('celesta',tt,f,i===4?1.4:0.5,0.09,o,{rel:0.4,ring:i===4})){fm(tt,f,3.5,1,0.6,0.04,o,{pan:(i-2)*0.25});}});noise(t+0.25,0.9,0.05,o,'highpass',7000,0,0,{a:0.15,pan:-0.5,pan1:0.5});grains(t+0.3,6,0.8,tt=>tone('sine',rnd(3000,5200),0,tt,0.12,0.015,o,null,{pan:rnd(-0.8,0.8)}));break;}   // 🏆 放進展示櫃：鋼片琴往上閃亮＋小星星
+      case 'enter':{const v=rnd(0.98,1.02);[784,987.8,1174.7].forEach((f,i)=>marimba(t+i*0.085,f*v,0.2,o,(i-1)*0.3));break;}   // ▶️ 進入遊戲：木琴「噹噹噹↑」
+      case 'magic':{const pn=rnd(-0.5,0.5);tone('sine',rp(500),2400,t,0.45,0.03,o,null,{glide:0.4,vib:[22,40]});noise(t,0.6,0.07,o,'bandpass',2500,8000,2,{a:0.08,pan:pn,pan1:-pn});[79,84,88,91,96].forEach((m,i)=>{const f=440*Math.pow(2,(m-69)/12),tt=t+0.05+i*0.045;if(!SX('celesta',tt,f,0.4,0.085,o,{rel:0.3}))tone('sine',f,0,tt,0.25,0.03,o,null,{pan:(i-2.5)*0.25});});break;}   // ✨ 招式、魔法：往上掃＋鋼片琴刷過去
+      case 'ding':{const now=t;if(now-DING.t>2.2)DING.n=0;DING.t=now;const st=DSTEP[Math.min(DING.n,DSTEP.length-1)];DING.n++;const f=440*Math.pow(2,(76+st-69)/12);if(!SX('vibraphone',t,f,0.6,0.14,o,{rel:0.35})){fm(t,f,4,0.6,0.6,0.05,o);tone('sine',f,0,t,0.5,0.04,o);}break;}   // ✅ 小成功：顫音琴「叮」，2 秒內連續成功一聲比一聲高
+      case 'rescue':{[60,64,67].forEach((m,i)=>{const f=440*Math.pow(2,(m-69)/12);if(!SX('string_ensemble_1',t,f,0.8,0.1,o,{att:0.12,rel:0.5}))tone('sawtooth',f,0,t,0.9,0.03,o,['lowpass',1400],{a:0.12,pan:(i-1)*0.4});});{const f=523.25;if(!SX('orchestral_harp',t+0.05,f,0.8,0.18,o,{ring:1}))tone('triangle',f,0,t+0.05,0.5,0.08,o);}break;}   // 🆘 救人／被救：溫暖的和弦「呼～」
+      // ---- 咻、咚、喀的變化版 ----
+      case 'flyup':{const pn=rnd(-0.5,0.5);noise(t,0.8,0.36,o,'bandpass',rp(260),3200,1.2,{col:'p',a:0.12,pan:pn,pan1:-pn,sweep:0.85});tone('sine',rp(180),620,t,0.7,0.09,o,null,{a:0.08,glide:0.7});noise(t+0.2,0.5,0.1,o,'highpass',5000,0,0,{a:0.2});break;}   // 咻～往上飛（長、越來越高）
+      case 'spin':{const pn=rnd(-0.6,0.6);for(let i=0;i<3;i++){const tt=t+i*0.13;noise(tt,0.15,0.5-i*0.08,o,'bandpass',rp(700+i*250),rp(1800+i*300),1.6,{col:'p',a:0.04,pan:i%2?pn:-pn});}noise(t,0.45,0.08,o,'highpass',4500,0,0,{a:0.05});break;}   // 呼呼呼：轉圈特技
+      case 'tumble':{kick(t,0.65,o,rp(115),45,0.22,0.12);body(t,rp(330),0.16,0.26,o);noise(t+0.05,0.45,0.22,o,'bandpass',rp(1300),500,0.9,{col:'p',a:0.03});kick(t+0.22,0.3,o,rp(100),50,0.12,0.06);body(t+0.22,rp(300),0.1,0.14,o);break;}   // 跌倒：碰＋滑一下＋再碰
+      case 'softland':{kick(t,0.4,o,rp(140),60,0.1,0.08);body(t,rp(420),0.08,0.3,o);noise(t,0.06,0.12,o,'lowpass',1800,400,0,{col:'p'});break;}   // 落地：輕的「嗒」
+      case 'mech':{const r=rp(1);fm(t,1900*r,2.76,2,0.08,0.06,o);noise(t,0.01,0.35,o,'highpass',2500);fm(t+0.06,1500*r,2.76,2,0.1,0.05,o);noise(t+0.06,0.012,0.3,o,'highpass',2200);body(t+0.06,rp(380),0.06,0.08,o);break;}   // 纜車、滑雪的機械「喀嚓」
+      case 'bounce':kick(t,0.9,o,rp(150),62,0.12,0);noise(t,0.03,0.5,o,'bandpass',rp(900),0,2.5);tone('sine',rp(330),280,t,0.06,0.12,o);noise(t,0.008,0.25,o,'highpass',2500);body(t,rp(400),0.09,0.5,o);break;   // 運球「砰」：低音＋皮球拍地
       case 'land':{tone('sine',300,150,t,0.12,0.22,o);noise(t,0.012,0.18,o,'highpass',3000);tone('triangle',1320,1320,t+0.02,0.05,0.05,o);break;}   // 直排輪落地：輕快的「嗒」
       case 'pock':{const r=rp(1);noise(t,0.006,0.8,o,'highpass',2200);tone('sine',1150*r,1080*r,t,0.04,0.55,o);tone('sine',560*r,540*r,t,0.07,0.38,o);tone('triangle',1720*r,0,t,0.025,0.18,o);tone('sine',190,140,t,0.04,0.3,o);noise(t,0.03,0.3,o,'bandpass',1400*r,0,3);break;}   // 網球「啵」：拍線＋球的共振
-      case 'tbounce':tone('sine',rp(220),130,t,0.045,0.45,o);noise(t,0.025,0.35,o,'bandpass',rp(1300),0,2);noise(t,0.05,0.2,o,'lowpass',900,300,0,{col:'p'});break;   // 網球落地
+      case 'tbounce':tone('sine',rp(220),130,t,0.045,0.45,o);noise(t,0.025,0.35,o,'bandpass',rp(1300),0,2);noise(t,0.05,0.2,o,'lowpass',900,300,0,{col:'p'});body(t,rp(480),0.04,0.18,o);break;   // 網球落地
       case 'tnet':noise(t,0.3,0.45,o,'lowpass',1400,280,0,{col:'p',a:0.01});kick(t,0.35,o,110,60,0.12,0);grains(t+0.02,5,0.15,tt=>noise(tt,0.02,0.12,o,'bandpass',rnd(1500,3000),0,4));break;   // 掛網：網子沙沙＋網帶
       case 'net':{const c=A.ctx,g=c.createGain(),l=c.createOscillator(),lg=c.createGain();g.gain.value=0.75;l.frequency.value=rnd(26,34);lg.gain.value=0.3;l.connect(lg);lg.connect(g.gain);g.connect(o);l.start(t);l.stop(t+0.5);
         noise(t,0.36,0.6,g,'bandpass',rp(3200),1500,1.1,{col:'p',a:0.025});noise(t+0.02,0.25,0.25,g,'highpass',5500,0,0,{a:0.02});break;}   // 空心「唰」（網子抖動）
       case 'rim':fm(t,rp(520),2.41,2.2,0.9,0.22,o);fm(t,rp(1350),1.73,1.2,0.6,0.08,o);noise(t,0.04,0.4,o,'bandpass',2500,0,1.5);kick(t,0.3,o,200,120,0.06,0);break;   // 打框「鏘」
-      case 'board':kick(t,0.7,o,rp(160),80,0.2,0.2);tone('sine',rp(320),300,t,0.18,0.15,o);noise(t,0.12,0.4,o,'lowpass',1800,300,0,{col:'p'});break;   // 打板
+      case 'board':kick(t,0.7,o,rp(160),80,0.2,0.2);tone('sine',rp(320),300,t,0.18,0.15,o);noise(t,0.12,0.4,o,'lowpass',1800,300,0,{col:'p'});body(t,rp(360),0.12,0.36,o);break;   // 打板
       case 'slam':{const s=sat(o,3);kick(t,1,s,110,32,0.5,0.4);noise(t,0.3,0.7,s,'lowpass',2800,150,0,{col:'b'});fm(t,rp(420),2.41,2.5,1.3,0.2,o);tone('sine',rp(1150),0,t,0.9,0.05,o,null,{vib:[14,30]});
         for(let i=0;i<5;i++)noise(t+0.08+i*0.07,0.04,0.12/(i+1)+0.03,o,'bandpass',2600,0,3);break;}   // 灌籃：重擊＋籃框震動＋框晃
       case 'cheer':crowd(t,2.4,0.7,o,false);break;   // 歡呼＋掌聲
       case 'bigcheer':crowd(t,3.6,0.85,o,true);break;   // 全場大歡呼＋口哨
       case 'clap':for(let i=0;i<3;i++)noise(t+i*0.0055,0.02,1.6/(i+1),o,'bandpass',rp(1300),0,0.9);noise(t,0.008,0.6,o,'highpass',2500);noise(t,0.08,0.3,o,'lowpass',900,0,0,{col:'p'});break;   // 拍手
       case 'fart':{const d=rnd(0.45,0.8),f=rp(115);tone('sawtooth',f,f*0.6,t,d,0.42,o,['lowpass',1400,1.5,480],{vib:[rnd(24,34),f*0.38],hold:0.04});tone('square',f*0.5,f*0.35,t,d*0.9,0.16,o,['lowpass',320],{vib:[rnd(18,26),12]});noise(t,d,0.22,o,'bandpass',300,140,2.5,{col:'b'});break;}   // 放屁「噗噗～」（連線惡作劇）
-      case 'boing':tone('sine',rp(110),330,t,0.32,0.45,o,null,{vib:[14,18],glide:0.25});fm(t,rp(220),1.5,1.5,0.35,0.12,o);kick(t,0.6,o,90,50,0.15,0);break;   // 彈跳床「咚～」彈簧
-      case 'takeoff':noise(t,0.5,0.55,o,'bandpass',rp(220),1800,1.3,{col:'p',a:0.05});kick(t,0.8,o,90,32,0.35,0.2);break;   // 起跳「轟」
+      case 'boing':tone('sine',rp(110),330,t,0.32,0.45,o,null,{vib:[14,18],glide:0.25});fm(t,rp(220),1.5,1.5,0.35,0.12,o);kick(t,0.6,o,90,50,0.15,0);tone('triangle',rp(330),990,t,0.3,0.26,o,null,{vib:[14,40],glide:0.25});break;   // 彈跳床「咚～」彈簧
+      case 'takeoff':noise(t,0.5,0.55,o,'bandpass',rp(220),1800,1.3,{col:'p',a:0.05});kick(t,0.8,o,rp(90),32,0.35,0.2);body(t,rp(280),0.3,0.45,o);break;   // 起跳「轟」
       case 'beep':tone('square',880,0,t,0.26,0.1,o,['lowpass',3500]);tone('sine',880,0,t,0.3,0.16,o);break;   // 倒數燈「嗶」
       case 'go':tone('square',1760,0,t,0.55,0.12,o,['lowpass',4500]);tone('sine',1760,0,t,0.7,0.18,o);break;   // 出發
-      case 'catch':noise(t,0.03,0.9,o,'bandpass',rp(1500),0,1.2);kick(t,0.7,o,170,90,0.07,0.15);break;   // 接球「啪」
+      case 'catch':noise(t,0.03,0.9,o,'bandpass',rp(1500),0,1.2);kick(t,0.7,o,rp(170),90,0.07,0.15);body(t,rp(450),0.06,0.3,o);break;   // 接球「啪」
       case 'shatter':glass(t,o,1,20);break;   // 玻璃碎掉
       case 'fire':noise(t,1.0,0.5,o,'bandpass',300,2000,0.8,{col:'p',a:0.1});grains(t,18,0.9,tt=>noise(tt,0.012,rnd(0.1,0.3),o,'highpass',rnd(2000,5000),0,0,{pan:rnd(-0.6,0.6)}));tone('sawtooth',rp(110),330,t,0.8,0.14,o,['lowpass',500,2,2000],{a:0.1});break;}}   // 火焰燃起＋劈啪
   // ---- 鼓組（背景音樂、跳舞共用） ----
@@ -18600,7 +18625,7 @@ const AMUS=(()=>{
     GML.set(key,p);return p;}
   const gmLoadKey=s=>{const i=s.lastIndexOf(':');return gmLoad(s.slice(0,i),+s.slice(i+1));};
   // 播一個取樣音：op.sus＝長音（比取樣長就中段重複）、op.att 起音、op.rel 放開後多久消失、op.ring＝不管 d，讓它自己響完（鐘、定音鼓）
-  function smp(ins,t,f,d,v,o,op={}){if(SM.off||!GMR[ins]||!(f>0))return false;const m=12*Math.log2(f/440)+69,b=gmKey(ins,m),key=ins+':'+b;
+  function smp(ins,t,f,d,v,o,op={}){if(SM.off||!GMR[ins]||!(f>0))return false;const m=12*Math.log2(f/440)+69,b=op.key!=null?op.key:gmKey(ins,m),key=ins+':'+b;   /* op.key：指定用哪個取樣（音效用，少載幾個省記憶體） */
     if(P.collect){P.collect.add(key);return true;}
     const B=GMB.get(key);if(!B){gmLoad(ins,b);return false;}GMB.delete(key);GMB.set(key,B);
     const c=A.ctx,s=c.createBufferSource(),g=c.createGain(),rate=Math.pow(2,(m-b)/12),dur=B.duration/rate,rel=op.rel||0.2,a=Math.max(op.att||0,op.sw||0),vv=Math.max(0.0002,v);
@@ -19030,7 +19055,7 @@ const AMUS=(()=>{
     return {ok:r,len:+(last/44100).toFixed(2),peak:+pk.toFixed(3),rms:+Math.sqrt(ss/(2*N)).toFixed(4)};}
   function dj(k){const now=performance.now()/1000;if(k&&TR[k]){try{if(A.ctx&&A.ctx.state!=='running')A.ctx.resume().catch(()=>{});}catch(_){}P.pv={k,loop:true,dj:1};if(bus())start(k);P.cand=k;P.candT=now;}   /* 2026-10-21.14 坐朋友的車：車上的 DJ 選歌（全車一起聽；背景音樂關著也會放）；dj(null)＝下車，回到原本的 */
     else if(P.pv&&P.pv.dj){P.pv=null;fadeOut();P.key=P.cand=wantKey();P.candT=now;}}
-  return {dj,playing:()=>!!(P.T||P.pv),see(n){P.area=n;},gm:()=>({loaded:GMB.size,loading:GML.size,fail:SM.fail,hit:SM.hit||0,net:SM.net||0,saved:SM.saved||0}),gmDrop:()=>GMB.clear(),diag:()=>diagFn&&diagFn(),err:()=>P.err,boxStore:()=>boxStore&&boxStore(),gmLoad:gmLoadKey,needKeys,jingle,talk,TR,ORDER,S,render,renderTalk,start,box:()=>document.getElementById('bgmBoxP'),dbg:()=>({key:P.key,playing:!!P.T,u:P.u,pv:P.pv,mode:S.mode,no:Object.keys(S.no),area:P.area,want:wantKey(),rest:Math.max(0,P.restUntil-performance.now()/1000),vol:P.out&&P.out.gain.value,live:A.live}),areaKey};
+  return {fxSmp:(ins,t,f,d,v,o,op)=>smp(ins,t,f,d,v,o,op),   /* 2026-10-29.4 音效也用樂器取樣（AUDIO 的 SX） */dj,playing:()=>!!(P.T||P.pv),see(n){P.area=n;},gm:()=>({loaded:GMB.size,loading:GML.size,fail:SM.fail,hit:SM.hit||0,net:SM.net||0,saved:SM.saved||0}),gmDrop:()=>GMB.clear(),diag:()=>diagFn&&diagFn(),err:()=>P.err,boxStore:()=>boxStore&&boxStore(),gmLoad:gmLoadKey,needKeys,jingle,talk,TR,ORDER,S,render,renderTalk,start,box:()=>document.getElementById('bgmBoxP'),dbg:()=>({key:P.key,playing:!!P.T,u:P.u,pv:P.pv,mode:S.mode,no:Object.keys(S.no),area:P.area,want:wantKey(),rest:Math.max(0,P.restUntil-performance.now()/1000),vol:P.out&&P.out.gain.value,live:A.live}),areaKey};
 })();
 
 /* ---------------- 小遊戲：殭屍來襲（選單「小遊戲」開始） ----------------
@@ -19847,7 +19872,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       c.on('close',()=>{if(N.conn===c)lostAll();});c.on('error',()=>{if(N.conn===c)lostAll();});
       setTimeout(()=>{if(N.peer===p&&!N.on){st('連不上：代號對嗎？朋友的網頁要開著。如果一直連不上，可能是網路擋住了（換 Wi-Fi／行動網路試試）');clean();ui();}},15000);});
     p.on('error',e=>{if(N.peer!==p)return;if(e.type==='peer-unavailable'){st('找不到這個房間（代號錯了，或對方關掉了）');clean();ui();}else st('出錯了：'+(e.type||e.message||e));});}
-  function setOn(){const was=N.on;N.on=N.host?N.conns.size>0:!!(N.conn&&N.conn.open);if(N.on&&!was){toast('👥 連線成功！');AUDIO.sfx('chime');}myTag();ui();}
+  function setOn(){const was=N.on;N.on=N.host?N.conns.size>0:!!(N.conn&&N.conn.open);if(N.on&&!was){toast('👥 連線成功！');AUDIO.sfx('friend');}myTag();ui();}
   function lostAll(why){const was=N.on;PAX.peerGone('*');if(typeof CG!=='undefined')CG.peerGone('*');vsEnd('連線中斷了');rcEnd();for(const k of [...N.P.keys()])drop(k,true);pGone();N.on=false;clean();st(why||'連線中斷了');if(was){toast('👥 '+(why||'連線中斷了'));AUDIO.sfx('over');}myTag();ui();}
   // 一起玩遊戲的人走了：遊戲收掉
   function pGone(msg){if(KF.net)KF.netEnd(msg||'對方斷線了');if(SB.net)SB.stop();if(CU.coop){CU.coop=false;if(!CU.chost){CU.stop();toast('連線中斷：合作結束');}}if(TN.net){TN.net=false;document.body.classList.remove('tnnet');TN.netEnd();TN.stop();}
@@ -19966,7 +19991,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       case 'fiS':case 'fiA':case 'fiQ':case 'fiN':case 'fiR':case 'fiB':case 'fiE':case 'fiT':FISH.netRx(d,f);break;
       case 'rsS':case 'rsC':case 'rsO':case 'rsE':RS.netRx(d,f);break;
       case 'dcQ':case 'dcL':case 'dcI':case 'dcX':DECO.netRx(d,f);break;   /* 隔壁新家：要家的樣子、送家的樣子、邀請、離開 */   /* 小餐館：店長狀態、一起煮、坐下點菜 */
-      case 'hi':q.name=String(d.name||'對方').slice(0,8);q.hi={t:'hi',name:q.name,ver:d.ver,cfg:d.cfg,sk:d.sk,skm:d.skm};remName(q);remDress(q,d.cfg,d.sk,d.skm);ui();if(!d.quiet){toast(`👥 ${q.name} 加入了！`);AUDIO.sfx('chime');chatAdd(f,`${q.name} 加入了`,true);}if(d.ver&&d.ver!==VER)toast('⚠ 大家的網頁版本不一樣，請全部重新整理');break;
+      case 'hi':q.name=String(d.name||'對方').slice(0,8);q.hi={t:'hi',name:q.name,ver:d.ver,cfg:d.cfg,sk:d.sk,skm:d.skm};remName(q);remDress(q,d.cfg,d.sk,d.skm);ui();if(!d.quiet){toast(`👥 ${q.name} 加入了！`);AUDIO.sfx('friend');chatAdd(f,`${q.name} 加入了`,true);}if(d.ver&&d.ver!==VER)toast('⚠ 大家的網頁版本不一樣，請全部重新整理');break;
       case 'name':q.name=String(d.name||'對方').slice(0,8);if(q.hi)q.hi.name=q.name;remName(q);ui();break;
       case 'cfg':if(q.hi){q.hi.cfg=d.cfg;q.hi.sk=d.sk;q.hi.skm=d.skm;}remDress(q,d.cfg,d.sk,d.skm);break;
       case 'p':break;
@@ -20259,7 +20284,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       case 'say':{const tx=String(v||'').slice(0,60);if(!tx)break;bubble(from,tx,false,Math.min(7,3.5+tx.length*0.12));chatAdd(from,tx);if(from!==me&&CHP.hidden)toast(`💬 ${nameOf(from)}：${tx}`);if(!AMUS.talk(tx,posOf(from,new V3()),from))AUDIO.sfx('click');break;}
       case 'poke':bubble(to,'❗',true,1.4);AUDIO.sfx('boing');AMUS.talk('❗',posOf(to,new V3()),to,true);if(self&&free()){shk=Math.max(shk,0.35);toast(`👉 ${nameOf(from)} 戳了你一下！`);}break;
       case 'push':bubble(to,'💢',true,1.4);AUDIO.sfx('whoosh');AMUS.talk('😮',posOf(to,new V3()),to,true);if(self){shk=Math.max(shk,0.3);toast(`🫸 ${nameOf(from)} 推了你一下！`);if(free()&&v){let dx=player.pos.x-v[0],dz=player.pos.y-v[1];const l=Math.hypot(dx,dz)||1;if(l<0.05){dx=Math.sin(player.yaw);dz=Math.cos(player.yaw);}pushV={x:dx/l*17,z:dz/l*17,t:0};}}break;
-      case 'five':bubble(from,'🙌',true,4);if(self&&free()){N.fiveFrom=from;N.fiveT=performance.now();AUDIO.sfx('chime');
+      case 'five':bubble(from,'🙌',true,4);if(self&&free()){N.fiveFrom=from;N.fiveT=performance.now();AUDIO.sfx('friend');
           INV.innerHTML=`<b>🙌 ${fn} 想跟你擊掌！</b><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">擊掌！</button></div>`;INV.hidden=false;
           INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;const f=N.fiveFrom;N.fiveFrom=null;if(b.dataset.k==='ok'&&f&&N.P.has(f))doFx('five2',f);};
           clearTimeout(N.fiveTo);N.fiveTo=setTimeout(()=>{if(N.fiveFrom===from){N.fiveFrom=null;INV.hidden=true;}},8000);}
@@ -20275,18 +20300,18 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
       case 'fart':{const p=new V3();if(!posOf(from,p))break;const r=rootOf(from),ry=r?r.rotation.y:0;p.x-=Math.sin(ry)*0.35;p.z-=Math.cos(ry)*0.35;p.y+=0.85;stink(p);AUDIO.sfx('fart');bubble(from,'💨',true,2);
         for(const id of [me,...N.P.keys()]){if(id===from)continue;const q=new V3();if(posOf(id,q)&&Math.hypot(q.x-p.x,q.z-p.z)<4.5){bubble(id,'🤢',true,2.2);AMUS.talk('🤢',q,id,true);}}
         if(from!==me){const q=new V3();posOf(me,q);toast(Math.hypot(q.x-p.x,q.z-p.z)<4.5?`💨 ${nameOf(from)} 在你旁邊放了一個屁！好臭！`:`💨 ${nameOf(from)} 放了一個屁！`);}break;}
-      case 'hug':bubble(from,'🤗',true,4);if(self&&free()){N.hugFrom=from;N.hugT=performance.now();AUDIO.sfx('chime');
+      case 'hug':bubble(from,'🤗',true,4);if(self&&free()){N.hugFrom=from;N.hugT=performance.now();AUDIO.sfx('friend');
           INV.innerHTML=`<b>🤗 ${fn} 想抱抱你！</b><div class="row"><button data-k="no">不要</button><button data-k="ok" class="ok">抱抱！</button></div>`;INV.hidden=false;
           INV.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;INV.hidden=true;const f=N.hugFrom;N.hugFrom=null;if(b.dataset.k==='ok'&&f&&N.P.has(f))doFx('hug2',f);};
           clearTimeout(N.hugTo);N.hugTo=setTimeout(()=>{if(N.hugFrom===from){N.hugFrom=null;INV.hidden=true;}},8000);
           if(N.hugAsk&&N.hugAsk.to===from&&performance.now()-N.hugAsk.t<8000){N.hugAsk=null;N.hugFrom=null;INV.hidden=true;doFx('hug2',from);}}   /* 兩個人同時按：直接抱 */
         break;
-      case 'hug2':{const a=new V3(),b=new V3();if(posOf(from,a)&&posOf(to,b)){const mid=a.clone().add(b).multiplyScalar(0.5);mid.y+=1.5;hearts(mid);}AUDIO.sfx('chime');
+      case 'hug2':{const a=new V3(),b=new V3();if(posOf(from,a)&&posOf(to,b)){const mid=a.clone().add(b).multiplyScalar(0.5);mid.y+=1.5;hearts(mid);}AUDIO.sfx('friend');
         if(from===me||to===me){const o=from===me?to:from,q=new V3();N.hugAsk=null;if(posOf(o,q)&&free()){const dx=q.x-player.pos.x,dz=q.z-player.pos.y,l=Math.hypot(dx,dz)||1;if(l>0.62){const m=(l-0.56)/2;player.pos.x+=dx/l*m;player.pos.y+=dz/l*m;resolve(player.pos,0.3,player.y);}   /* 兩個人各走一半，靠在一起 */
             faceTo(q.x,q.z);pose={k:'hug',t:0,x:player.pos.x,z:player.pos.y};}toast(`🤗 跟 ${nameOf(o)} 抱抱！`);}
         bubble(from,'❤️',true,2.4);bubble(to,'❤️',true,2.4);break;}
       case 'photo':photoRun(from,v);break;
-      case 'slip':bananaDel(v);bubble(from,'💫',true,1.8);AUDIO.sfx('thud');AMUS.talk('💫',posOf(from,new V3()),from,true);if(from!==me)toast(`🍌 ${nameOf(from)} 踩到香蕉皮滑倒了！`);break;}}
+      case 'slip':bananaDel(v);bubble(from,'💫',true,1.8);AUDIO.sfx('tumble');AMUS.talk('💫',posOf(from,new V3()),from,true);if(from!==me)toast(`🍌 ${nameOf(from)} 踩到香蕉皮滑倒了！`);break;}}
   function faceTo(x,z){player.yaw=Math.atan2(-(x-player.pos.x),-(z-player.pos.y));avatar.yaw=player.yaw;}   /* 站著不動時人物不會自己轉：兩個都設 */
   // 放屁：屁股後面冒一團綠色的臭氣，慢慢變大往上飄
   function stink(p){for(let i=0;i<14;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:dotTex,color:['#8fbf3a','#a8d14a','#6f9a2a','#c2d86a'][i%4],transparent:true,depthWrite:false,toneMapped:false}));
@@ -20306,7 +20331,7 @@ const NET=(()=>{const N={on:false,peer:null,conn:null,conns:new Map(),code:'',ho
     const cam=new V3(c.x+fx*D,c.y+0.35,c.z+fz*D);{const p=new V2(cam.x,cam.z);resolve(p,0.25,c.y-1);cam.x=p.x;cam.z=p.y;}   /* 鏡頭不要卡進牆裡 */
     doFx('photo',null,{ids,cam:[r3(cam.x),r3(cam.y),r3(cam.z)],at:[r3(c.x),r3(c.y),r3(c.z)],n:ids.length});}
   function photoRun(from,v){if(!v||!v.ids||!v.ids.includes(myId())||!free()){if(from!==myId())toast(`📸 ${nameOf(from)} 在拍合照`);return;}
-    toast(from===myId()?`📸 合照！${v.n>1?`${v.n} 個人`:'自己'}一起入鏡，看鏡頭～`:`📸 ${nameOf(from)} 要拍合照！看鏡頭～`);AUDIO.sfx('chime');let posed=false,last=0;
+    toast(from===myId()?`📸 合照！${v.n>1?`${v.n} 個人`:'自己'}一起入鏡，看鏡頭～`:`📸 ${nameOf(from)} 要拍合照！看鏡頭～`);AUDIO.sfx('friend');let posed=false,last=0;
     if(free())faceTo(v.cam[0],v.cam[2]);
     {const vis=avatar.root.visible;avatar.root.visible=true;try{renderer.compile(avatar.root,camera,scene);}catch(_){}avatar.root.visible=vis;}   /* 一直用第一人稱時自己的人物從來沒畫過：先把著色程式編好，不然拍照那一下會被跳過（照片裡只有名字沒有人） */
     fxAdd(new THREE.Object3D(),scene,3.2,(f,t)=>{const n=Math.ceil(3.2-t-0.2);if(n!==last&&n>0){last=n;CD.textContent=n;CD.hidden=false;CD.classList.remove('pop');void CD.offsetWidth;CD.classList.add('pop');AUDIO.sfx('beep');}
@@ -20607,7 +20632,7 @@ var PAX=(()=>{
   const nearSpot=()=>{const c=carOf(P.drv);if(!c)return null;let best=null,bd=1e9;for(const s of STP){if(STAMP.has(s.name))continue;const d=Math.hypot(c.x-s.x,c.z-s.z);if(d<bd){bd=d;best=s;}}return best?{s:best,d:Math.round(bd)}:null;};
   let FW=null;function flashW(){if(!FW){FW=document.createElement('div');FW.style.cssText='position:fixed;inset:0;background:#fff;z-index:40;pointer-events:none;opacity:0';document.body.appendChild(FW);}FW.style.transition='none';FW.style.opacity=0.85;void FW.offsetWidth;FW.style.transition='opacity .45s';FW.style.opacity=0;}
   function snap(){const ns=nearSpot();if(!ns){rtip(`📸 ${STP.length} 個打卡點都拍過了！`);return;}if(ns.d>45){rtip(`📸 還太遠：最近的打卡點「${ns.s.name}」${ns.d} m`);return;}
-    STAMP.add(ns.s.name);try{localStorage.setItem('home-stamp',JSON.stringify([...STAMP]));}catch(_){}flashW();AUDIO.sfx('chime');EARN(30,`📸 打卡：${ns.s.name}`);bcast({k:'snap',drv:P.drv,n:ns.s.name});
+    STAMP.add(ns.s.name);try{localStorage.setItem('home-stamp',JSON.stringify([...STAMP]));}catch(_){}flashW();AUDIO.sfx('coin');EARN(30,`📸 打卡：${ns.s.name}`);bcast({k:'snap',drv:P.drv,n:ns.s.name});
     rtip(`📸 打卡「${ns.s.name}」！（${STAMP.size}／${STP.length}）`);if(STAMP.size>=STP.length){EARN(300,`📸 ${STP.length} 個風景點全部打卡`);AUDIO.sfx('bigcheer');}}
   function paxExtra(){let t='';const ns=nearSpot();if(ns&&ns.d<150)t+=`<br>📸 ${ns.d<=45?'可以打卡了：':'附近有打卡點：'}${ns.s.name}（${ns.d} m）`;return t;}
   P.extra=()=>({SG,STAMP,STP,nearCar,nearSpot,singStart,singHit,snap});
@@ -20725,9 +20750,9 @@ var LINK=(()=>{const L={role:null,mode:null,lead:null,fol:[],idx:0,sk:false,pend
     case 'lkS':{const fol=(d.fol||[]).map(String);if(fol.includes(me())){const first=!(L.isF()&&L.lead===f);L.role='fol';L.lead=f;L.mode=d.m;L.fol=fol;L.idx=fol.indexOf(me())+1;L.sk=!!d.sk;L.far=0;if(first)joined();}
       else if(L.isF()&&L.lead===f)release('',true);break;}
     case 'lkQ':if(L.isF()&&L.lead===f)release(`${nm(f)} 放手了`,true);else if(L.role==='lead'&&L.fol.includes(f)){L.fol=L.fol.filter(x=>x!==f);toast(`${nm(f)} 放手了`);if(L.fol.length)sendSet();else reset();}break;
-    case 'lkF':if(!(L.isF()&&L.lead===f))return;if(d.k==='spin'){L.spinT0=performance.now();AUDIO.sfx('whoosh');}else if(d.k==='whip')whipped(d);break;}};
+    case 'lkF':if(!(L.isF()&&L.lead===f))return;if(d.k==='spin'){L.spinT0=performance.now();AUDIO.sfx('spin');}else if(d.k==='whip')whipped(d);break;}};
   function sendSet(){for(const id of L.fol)send(id,{t:'lkS',m:L.mode,fol:L.fol,sk:L.sk?1:0});}
-  function joined(){if(EMOTE.on)EMOTE.stop(true);AUDIO.sfx('chime');const n=nm(L.lead);
+  function joined(){if(EMOTE.on)EMOTE.stop(true);AUDIO.sfx('friend');const n=nm(L.lead);
     toast(L.mode==='hold'?(L.sk?`🛼 牽著 ${n} 一起溜！他帶你溜（按「放手」離開）`:`🤝 牽著 ${n} 的手一起走（按「放手」離開）`):`${MODES[L.mode].e} ${n} ${L.mode==='back'?'背著你':L.mode==='carry'?'把你公主抱起來了':'讓你騎在肩膀上'}！（按「下來」或「跳」下來）`);}
   function reset(){L.role=null;L.mode=null;L.lead=null;L.fol=[];L.idx=0;L.spinT0=-1;L.far=0;L.th=0;}
   function putDown(lead){const Lr=rootOfId(lead),A=avatar;let x=player.pos.x,z=player.pos.y,y=player.y;if(Lr){const fa=Lr.rotation.y-Math.PI;x=Lr.position.x-Math.cos(fa)*0.8;z=Lr.position.z+Math.sin(fa)*0.8;y=Lr.position.y;}   /* 放在帶頭的人右邊 */
@@ -20737,10 +20762,10 @@ var LINK=(()=>{const L={role:null,mode:null,lead:null,fol:[],idx:0,sk:false,pend
     reset();if(why)toast(why);}
   L.release=release;
   function whipped(d){const k=L.idx;reset();if(SKATE.on){const sp=Math.min(26,Math.max(0,+d.v||0)+10+3*k),fa=+d.h||0;SKATE.dir=fa;SKATE.vel.set(-Math.sin(fa)*sp,-Math.cos(fa)*sp);SKATE.v=sp;}
-    const el=document.getElementById('gBig');if(el){el.textContent='🚀 被甩出去了！';el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}AUDIO.sfx('whoosh');AUDIO.sfx('cheer');}
+    const el=document.getElementById('gBig');if(el){el.textContent='🚀 被甩出去了！';el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}AUDIO.sfx('flyup');AUDIO.sfx('cheer');}
   L.spin=()=>{if(L.role!=='lead'||L.mode!=='hold'||L.spinT0>=0)return;L.spinT0=performance.now();for(const id of L.fol)send(id,{t:'lkF',k:'spin'});AUDIO.sfx('whoosh');};
   L.whip=()=>{if(L.role!=='lead'||L.mode!=='hold'||!L.sk||!SKATE.on)return;for(const id of L.fol)send(id,{t:'lkF',k:'whip',v:+SKATE.v.toFixed(2),h:+SKATE.dir.toFixed(3)});reset();
-    const el=document.getElementById('gBig');if(el){el.textContent='🚀 甩出去！';el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}AUDIO.sfx('whoosh');};
+    const el=document.getElementById('gBig');if(el){el.textContent='🚀 甩出去！';el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}AUDIO.sfx('flyup');};
   L.jump=()=>{if(!L.isF())return false;if(carryM(L.mode))release('⬇ 下來了');return true;};   /* 被背、被抱：跳＝下來；牽手跟著的人不能自己跳 */
   L.spd=()=>L.role==='lead'&&carryM(L.mode)?0.8:1;   /* 背著、抱著人走慢一點 */
   // ---- 跟著的人：每格照帶頭的人移動 ----
@@ -20921,7 +20946,7 @@ var DUO=(()=>{const D={on:false,g:null,peer:null,host:false,P:null,yaw:0,t0:0,in
       const nx=Math.max(0,Math.ceil(t/sp-4-0.3)),ok=nx<S.N;CUE.hidden=!ok;if(ok){const tb=(4+nx)*sp,f=cl((tb-t)/sp,0,1.5);CUE.querySelector('i').style.transform=`scale(${(1+f*0.9).toFixed(3)})`;CUE.querySelector('b').textContent={five:'🙌',fist:'👊',clap:'👏',big:'💥'}[S.pat[nx]];}
       if(t>(4+S.N)*sp+1.4)clapEnd();}
     else if(D.g==='three'){if(D.host&&!S.fin){if(S.pa&&S.pb&&Math.abs(S.pa-S.pb)<=350&&now>S.badT){S.n++;S.dT=Math.min(S.goal,S.dT+0.7);S.pa=S.pb=0;send({t:'duE',k:'st',d:S.dT,n:S.n});AUDIO.sfx('pock');}
-        else if((S.pa&&now-S.pa>450)||(S.pb&&now-S.pb>450)){S.pa=S.pb=0;S.badT=now+700;S.bad++;send({t:'duE',k:'st',d:S.dT,n:S.n,bad:1});flash('不同步！絆了一下');AUDIO.sfx('thud');}
+        else if((S.pa&&now-S.pa>450)||(S.pb&&now-S.pb>450)){S.pa=S.pb=0;S.badT=now+700;S.bad++;send({t:'duE',k:'st',d:S.dT,n:S.n,bad:1});flash('不同步！絆了一下');AUDIO.sfx('tumble');}
         if(S.d>=S.goal-0.01||t>90){S.fin=true;const m={t:'duE',k:'end',time:+t.toFixed(2),ok:S.d>=S.goal-0.01?1:0,n:S.n,bad:S.bad};send(m);threeEnd(m);return;}}
       S.d=Math.min(S.dT,S.d+2.4*dt);}
     else if(D.g==='tug'){S.xs+=(S.x-S.xs)*Math.min(1,dt*8);if(D.host&&!S.fin){if(now-S.sendT>100){S.sendT=now;send({t:'duE',k:'x',x:+S.x.toFixed(3)});}if(Math.abs(S.x)>=1.2||t>=S.dur){S.fin=true;const x=+S.x.toFixed(2);send({t:'duE',k:'end',x});tugEnd(x);return;}}}
@@ -20930,7 +20955,7 @@ var DUO=(()=>{const D={on:false,g:null,peer:null,host:false,P:null,yaw:0,t0:0,in
     else{const p0=S.ph;S.ph+=S.w*dt;if(D.host&&now-S.last>1000){S.last=now;send({t:'duE',k:'w',w:S.w,ph:+S.ph.toFixed(3)});}   /* 每秒同步一次繩子轉到哪 */
       if(!D.host&&!S.trip){S.vy-=14*dt;S.jy=Math.max(0,S.jy+S.vy*dt);if(S.jy<=0)S.vy=0;
         const cross=Math.floor((p0-Math.PI)/(Math.PI*2))!==Math.floor((S.ph-Math.PI)/(Math.PI*2));   /* 繩子轉到最下面 */
-        if(cross&&S.ph>0){if(S.jy>0.12){S.count++;send({t:'duE',k:'n',n:S.count});AUDIO.sfx('pock');}else{S.trip=true;send({t:'duE',k:'trip',n:S.count});AUDIO.sfx('thud');big('絆到了！');ropeEnd();return;}}}
+        if(cross&&S.ph>0){if(S.jy>0.12){S.count++;send({t:'duE',k:'n',n:S.count});AUDIO.sfx('pock');}else{S.trip=true;send({t:'duE',k:'trip',n:S.count});AUDIO.sfx('tumble');big('絆到了！');ropeEnd();return;}}}
       if(t>180){ropeEnd();return;}}
     if(MS)meshTick(now,t);hud(false);};
   function meshTick(now,t){const S=D.S,[fx,fz]=F(),[rx,rz]=Rt(),P=D.P;
@@ -21216,10 +21241,10 @@ const CG=(()=>{const G={on:false,m:null,ids:[],net:false};
     if(e){const A=dn(e.a),B=dn(e.b);
       if(e.k==='tag'){if(e.b===i){toast('👹 被抓到了！換你當鬼（原地數 2 秒）');AUDIO.sfx('over');}else if(e.a===i){toast(`抓到 ${B} 了！快跑！`);AUDIO.sfx('cheer');}else toast(`${A} 抓到 ${B}，${B} 當鬼！`);}
       else if(e.k==='frz'){if(e.b===i){toast('🧊 被冰住了！等隊友來碰你解凍');AUDIO.sfx('shatter');}else if(e.a===i){toast(`冰住 ${B} 了！`);AUDIO.sfx('cheer');}else toast(`🧊 ${B} 被冰住了${d.it.includes(i)?'':'，快去救！'}`);}
-      else if(e.k==='thaw'){if(e.b===i){toast('🧊 冰塊自己融化了！快跑');AUDIO.sfx('chime');}else toast(`🧊 ${B} 自己解凍了`);}
+      else if(e.k==='thaw'){if(e.b===i){toast('🧊 冰塊自己融化了！快跑');AUDIO.sfx('rescue');}else toast(`🧊 ${B} 自己解凍了`);}
       else if(e.k==='achoo'){const ids=e.ids||[],now=performance.now();if(ids.includes(i))toast('🤧 哈啾！你打了一個噴嚏（鬼聽得到）');else if(d.it.includes(i))toast('🤧 有人打噴嚏！看看是哪裡');
         for(const id of ids){if(d.it.includes(i)&&id!==i)RADT.set(id,{end:now+1300,m:achM});const p=posOf(id),dd=p?Math.hypot(p.x-player.pos.x,p.z-player.pos.y):99;if(dd<35&&EMOTE.say)EMOTE.say({say:'哈啾！',lang:'zh',pitch:1.3,rate:1.2},id===i?1:Math.max(0.15,1/(1+dd/8)));}}   /* 鬼看得到噴嚏的人 1.3 秒、大家都聽得到（越遠越小聲） */
-      else if(e.k==='res'){if(e.b===i){toast(`${A} 救了你！快跑！`);AUDIO.sfx('chime');}else if(e.a===i){toast(`救了 ${B}！`);AUDIO.sfx('chime');}else toast(`${A} 救了 ${B}`);}
+      else if(e.k==='res'){if(e.b===i){toast(`${A} 救了你！快跑！`);AUDIO.sfx('rescue');}else if(e.a===i){toast(`救了 ${B}！`);AUDIO.sfx('rescue');}else toast(`${A} 救了 ${B}`);}
       else if(e.k==='fnd'){if(e.b===i){toast('🔍 被找到了！現在你是鬼的幫手，一起找');AUDIO.sfx('over');}else if(e.a===i){toast(`找到 ${B} 了！`);AUDIO.sfx('cheer');}else toast(`🔍 ${B} 被找到了（還剩 ${d.ids.filter(x=>!d.it.includes(x)).length} 個人）`);}
       else if(e.k==='bomb'){if(e.b===i){big('💣 炸彈在你手上！','red');AUDIO.sfx('beep');}else toast(`💣 新炸彈在 ${B} 手上！`);}
       else if(e.k==='pass'){if(e.b===i){big('💣 傳給你了！快傳出去','red',1.2);AUDIO.sfx('whoosh');}else if(e.a===i){toast(`傳給 ${B} 了！快跑`);AUDIO.sfx('whoosh');}}
@@ -21229,7 +21254,7 @@ const CG=(()=>{const G={on:false,m:null,ids:[],net:false};
       else if(e.k==='caught'){if(e.b===i){big('動到了！回起點','red',1.6);AUDIO.sfx('over');const sp=spawnOf('statue',G.ids);teleport(sp[0],sp[1],0,0);}else toast(`${B} 動到了，回起點！`);}
       else if(e.k==='reach'){if(e.b===i){big(`🎉 碰到守衛！第 ${d.fd.length} 名`,'ok',2.2);AUDIO.sfx('bigcheer');}else toast(`🎉 ${B} 碰到守衛了（第 ${d.fd.length} 名）`);}
       else if(e.k==='lava'){big(`🔥 岩漿來了！（第 ${d.rd} 輪）`,'red',1.6);AUDIO.sfx('whoosh');}
-      else if(e.k==='safe'){big(`✅ 岩漿退了！第 ${d.rd} 輪會更高`,'ok',1.6);AUDIO.sfx('chime');}
+      else if(e.k==='safe'){big(`✅ 岩漿退了！第 ${d.rd} 輪會更高`,'ok',1.6);AUDIO.sfx('ding');}
       else if(e.k==='burn'){if(e.b===i){big(`🔥 好燙！剩 ${d.hp[i]} 顆心，快站高！`,'red',1.6);AUDIO.sfx('over');if(mode==='walk'&&player.vy<=0.1)player.vy=4.5;}else toast(`🔥 ${B} 踩到岩漿了`);}
       else if(e.k==='lout'){if(e.b===i){big('🔥 沒有心了，出局','red',2);AUDIO.sfx('over');}else toast(`🔥 ${B} 出局了`);}
       else if(e.k==='pick'){const q=G.items[e.b],nm={gem:'寶石 +1',coin:'金幣 +3',key:'🔑 鑰匙',chest:'寶箱 +10',candle:'🕯 蠟燭'}[q[0]];if(e.a===i){toast(`撿到${nm}！`);AUDIO.sfx(q[0]==='chest'?'bigcheer':q[0]==='candle'?'chime':'gem');}else if(q[0]==='chest'||q[0]==='candle')toast(`${A} 撿到${nm}`);
